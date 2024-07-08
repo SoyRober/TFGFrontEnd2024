@@ -4,13 +4,7 @@ function App() {
     const [message, setMessage] = useState('');
 
     useEffect(() => {
-        fetch('http://localhost:8080/test', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: 'Hello from React' }),
-        })
+        fetch('http://localhost:8080/test')
             .then(response => response.text())
             .then(data => setMessage(data))
             .catch(error => console.error('Error:', error));
