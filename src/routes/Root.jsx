@@ -34,7 +34,7 @@ export default function Root() {
                     <Link className="nav-link" to="/login">Login</Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/signup">Registro</Link>
+                    <Link className="nav-link" to="/register">Registro</Link>
                   </li>
                 </>
               )}
