@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
@@ -13,6 +15,8 @@ const Register = () => {
     const userData = {
       username: username,
       password: password,
+      email: email,
+      birthDate: birthDate
     };
 
     try {
@@ -64,6 +68,26 @@ const Register = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+          </div>
+          <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email:</label>
+          <input
+            type="email"
+            className="form-control"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          </div>
+          <div className="mb-3">
+          <label htmlFor="birthDate" className="form-label">Birth Date:</label>
+          <input
+            type="date"
+            className="form-control"
+            id="birthDate"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+          />
           </div>
           <button type="submit" className="btn btn-primary">
             Registrarse
