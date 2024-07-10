@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+import $ from 'jquery';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,27 +20,48 @@ export default function Homepage() {
       // setIsLibrarian(true/false);
       // setIsAdmin(true/false);
     }
+
     // Fetch books data from your API
     fetchBooksData();
   }, []);
 
+  useEffect(() => {
+    // Initialize DataTables after component mount
+    if (books.length > 0) {
+      initDataTable();
+    }
+  }, [books]);
+
   const fetchBooksData = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/books");
-      const data = await response.json();
-      
-      // Check if the response is an array
-      if (Array.isArray(data)) {
-        setBooks(data);
-        $('#booksTable').DataTable();
-      } else {
-        console.error("The response is not an array:", data);
-        setBooks([]);
+      const response = await fetch("http://localhost:8080/getAllBooks");
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
       }
+      const data = await response.json();
+      setBooks(data);
     } catch (error) {
       console.error("Failed to fetch books:", error);
       setBooks([]);
     }
+  };
+
+  const initDataTable = () => {
+    // Verificar si DataTables ya está inicializado en #booksTable
+    if ($.fn.dataTable.isDataTable('#booksTable')) {
+      // Si está inicializado, destruir la instancia existente antes de reinitializar
+      $('#booksTable').DataTable().destroy();
+    }
+
+    // Inicializar DataTables con los nuevos datos
+    $('#booksTable').DataTable({
+      data: books,
+      columns: [
+        { data: 'title', title: 'Title' },
+        { data: 'authors', title: 'Authors', render: authors => authors.join(', ') },
+        // otras columnas
+      ]
+    });
   };
 
   const handleLogout = () => {
@@ -77,29 +99,29 @@ export default function Homepage() {
       </div>
 
       <div className="container mt-5">
-        <h1>Book list</h1>
-        <table id="booksTable" className="display">
+        <h1>Book List</h1>
+        <table id="booksTable" className="table table-striped">
           <thead>
             <tr>
               <th>Title</th>
-              <th>Author</th>
-              <th>Category</th>
+              <th>Authors</th>
+              {/* Agrega más encabezados según sea necesario */}
             </tr>
           </thead>
           <tbody>
             {books.map(book => (
-              <tr key={book.id}>
+              <tr key={book.title}>
                 <td>
-                  <Link to={`/viewBook/${book.id}`}>{book.title}</Link>
+                  <Link to={`/viewBook/${book.title}`}>{book.title}</Link>
                 </td>
                 <td>
                   <ul className="list-unstyled">
-                    {book.bookAuthors.map(author => (
-                      <li key={author.id}>{author.name}</li>
+                    {book.authors.map((author, index) => (
+                      <li key={index}>{author}</li>
                     ))}
                   </ul>
                 </td>
-                <td>{book.categories}</td>
+                {/* Agrega más columnas según sea necesario */}
               </tr>
             ))}
           </tbody>

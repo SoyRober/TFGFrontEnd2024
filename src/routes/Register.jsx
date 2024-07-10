@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -7,7 +6,6 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -30,7 +28,6 @@ const Register = () => {
 
       if (response.ok) {
         setMessage("Registro exitoso");
-        navigate("/login");
       } else {
         setMessage("Error al registrar. Por favor, inténtalo de nuevo.");
       }
