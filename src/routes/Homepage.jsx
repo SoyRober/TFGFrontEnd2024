@@ -24,11 +24,22 @@ export default function Homepage() {
   }, []);
 
   const fetchBooksData = async () => {
-    // Replace with your API call to fetch books
-    const response = await fetch("http://localhost:8080/api/books");
-    const data = await response.json();
-    setBooks(data);
-    $('#booksTable').DataTable();
+    try {
+      const response = await fetch("http://localhost:8080/api/books");
+      const data = await response.json();
+      
+      // Check if the response is an array
+      if (Array.isArray(data)) {
+        setBooks(data);
+        $('#booksTable').DataTable();
+      } else {
+        console.error("The response is not an array:", data);
+        setBooks([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch books:", error);
+      setBooks([]);
+    }
   };
 
   const handleLogout = () => {
