@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+import '../styles/main.css';
 import $ from 'jquery';
 
 export default function Homepage() {
@@ -116,7 +117,7 @@ export default function Homepage() {
               <th>Authors</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="clickable-row">
             {books.map(book => (
               <tr key={book.title}>
                 <td>{book.title}</td>
