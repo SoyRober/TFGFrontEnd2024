@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'datatables.net-bs5';
@@ -11,6 +11,7 @@ export default function Homepage() {
   const [isLibrarian, setIsLibrarian] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [books, setBooks] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -62,6 +63,14 @@ export default function Homepage() {
         // otras columnas
       ]
     });
+
+    // Agregar evento de clic a las filas
+    $('#booksTable tbody').on('click', 'tr', function () {
+      const data = $('#booksTable').DataTable().row(this).data();
+      if (data) {
+        navigate(`/viewBook/${encodeURIComponent(data.title)}`);
+      }
+    });
   };
 
   const handleLogout = () => {
@@ -105,15 +114,12 @@ export default function Homepage() {
             <tr>
               <th>Title</th>
               <th>Authors</th>
-              {/* Agrega más encabezados según sea necesario */}
             </tr>
           </thead>
           <tbody>
             {books.map(book => (
               <tr key={book.title}>
-                <td>
-                  <Link to={`/viewBook/${book.title}`}>{book.title}</Link>
-                </td>
+                <td>{book.title}</td>
                 <td>
                   <ul className="list-unstyled">
                     {book.authors.map((author, index) => (
@@ -121,7 +127,6 @@ export default function Homepage() {
                     ))}
                   </ul>
                 </td>
-                {/* Agrega más columnas según sea necesario */}
               </tr>
             ))}
           </tbody>
