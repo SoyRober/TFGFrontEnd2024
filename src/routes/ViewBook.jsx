@@ -9,6 +9,14 @@ export default function ViewBook() {
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ score: 0, rating: '' });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBookData = async () => {
@@ -59,7 +67,7 @@ export default function ViewBook() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    console.log("token: "+token);
+    console.log("token: " + token);
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
@@ -69,7 +77,7 @@ export default function ViewBook() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ ...newReview, book: { title } })
       });
@@ -125,29 +133,31 @@ export default function ViewBook() {
           </div>
         ))}
       </div>
-      
-      <form onSubmit={handleReviewSubmit} className="mt-5">
-        <div className="form-group">
-          <label>Score</label>
-          <div>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
-                type="button"
-                className={`btn btn-${newReview.score >= star ? 'warning' : 'secondary'} star-btn`}
-                onClick={() => handleStarClick(star)}
-              >
-                ★
-              </button>
-            ))}
+
+      {isLoggedIn && (
+        <form onSubmit={handleReviewSubmit} className="mt-5">
+          <div className="form-group">
+            <label>Score</label>
+            <div>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  className={`btn btn-${newReview.score >= star ? 'warning' : 'secondary'} star-btn`}
+                  onClick={() => handleStarClick(star)}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="form-group mt-3">
-          <label htmlFor="rating">Rating</label>
-          <textarea className="form-control" id="rating" name="rating" value={newReview.rating} onChange={handleReviewChange} required></textarea>
-        </div>
-        <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
-      </form>
+          <div className="form-group mt-3">
+            <label htmlFor="rating">Rating</label>
+            <textarea className="form-control" id="rating" name="rating" value={newReview.rating} onChange={handleReviewChange} required></textarea>
+          </div>
+          <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
+        </form>
+      )}
     </div>
   );
 }
