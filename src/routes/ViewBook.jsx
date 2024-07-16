@@ -58,11 +58,18 @@ export default function ViewBook() {
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem('token');
+    console.log("token: "+token);
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
     try {
       const response = await fetch('http://localhost:8080/addReview', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify({ ...newReview, book: { title } })
       });
