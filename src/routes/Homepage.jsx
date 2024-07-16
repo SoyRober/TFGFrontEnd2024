@@ -1,71 +1,129 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
 import '../styles/main.css';
-import $ from 'jquery';
+import $ from "jquery";
+import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLibrarian, setIsLibrarian] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [books, setBooks] = useState([]);
+  const [authors, setAuthors] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [bookTitle, setBookTitle] = useState('');
+  const [bookAuthors, setBookAuthors] = useState([]);
+  const [bookGenres, setBookGenres] = useState([]);
+  const [bookQuantity, setBookQuantity] = useState('');
+  const [bookLocation, setBookLocation] = useState('');
+  const [bookSynopsis, setBookSynopsis] = useState('');
+  const [bookPublicationDate, setBookPublicationDate] = useState('');
+  const [bookIsAdult, setBookIsAdult] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [searchStringAuthors, setSearchStringAuthors] = useState('');
+  const [searchStringGenres, setSearchStringGenres] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
-      // Set isLibrarian and isAdmin based on your logic, for example:
-      // setIsLibrarian(true/false);
-      // setIsAdmin(true/false);
+      fetchBooksData(token);
+      fetchAuthors(token, '');
+      fetchGenres(token, '');
     }
-
-    // Fetch books data from your API
-    fetchBooksData();
   }, []);
 
   useEffect(() => {
-    // Initialize DataTables after component mount
     if (books.length > 0) {
       initDataTable();
     }
   }, [books]);
 
-  const fetchBooksData = async () => {
+  const fetchBooksData = async (token) => {
     try {
-      const response = await fetch("http://localhost:8080/getAllBooks");
+      const response = await fetch("http://localhost:8080/getAllBooks", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      setBooks(data);
+      setBooks(data.books);
     } catch (error) {
       console.error("Failed to fetch books:", error);
       setBooks([]);
     }
   };
 
+  const fetchAuthors = async (token, searchString) => {
+    try {
+      const url = "http://localhost:8080/searchAuthors";
+      const bodyContent = searchString || '';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Authorization': `Bearer ${token}`
+        },
+        body: bodyContent
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setAuthors(data);
+    } catch (error) {
+      console.error("Failed to fetch authors:", error);
+      setAuthors([]);
+    }
+  };
+
+  const fetchGenres = async (token, searchString) => {
+    try {
+      const url = "http://localhost:8080/searchGenres";
+      const bodyContent = searchString || '';
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Authorization': `Bearer ${token}`
+        },
+        body: bodyContent
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setGenres(data);
+    } catch (error) {
+      console.error("Failed to fetch genres:", error);
+      setGenres([]);
+    }
+  };
+
   const initDataTable = () => {
-    // Verificar si DataTables ya está inicializado en #booksTable
     if ($.fn.dataTable.isDataTable('#booksTable')) {
-      // Si está inicializado, destruir la instancia existente antes de reinitializar
       $('#booksTable').DataTable().destroy();
     }
 
-    // Inicializar DataTables con los nuevos datos
     $('#booksTable').DataTable({
       data: books,
       columns: [
         { data: 'title', title: 'Title' },
-        { data: 'authors', title: 'Authors', render: authors => authors.join(', ') },
-        // otras columnas
+        { data: 'authors', title: 'Authors', render: authors => authors.join(', ') }
       ]
     });
 
-    // Agregar evento de clic a las filas
     $('#booksTable tbody').on('click', 'tr', function () {
       const data = $('#booksTable').DataTable().row(this).data();
       if (data) {
@@ -74,39 +132,159 @@ export default function Homepage() {
     });
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
+  const handleAuthorChange = (e) => {
+    const selectedAuthors = Array.from(e.target.selectedOptions, option => option.value);
+    setBookAuthors(selectedAuthors);
+  };
+
+  const handleGenreChange = (e) => {
+    const selectedGenres = Array.from(e.target.selectedOptions, option => option.value);
+    setBookGenres(selectedGenres);
+  };
+
+  const handleAuthorsSearchChange = (e) => {
+    setSearchStringAuthors(e.target.value);
+    const token = localStorage.getItem('token');
+    fetchAuthors(token, e.target.value);
+  };
+
+  const handleGenresSearchChange = (e) => {
+    setSearchStringGenres(e.target.value);
+    const token = localStorage.getItem('token');
+    fetchGenres(token, e.target.value);
+  };
+
+  const openModal = () => {
+    const token = localStorage.getItem('token');
+    fetchAuthors(token, searchStringAuthors);
+    fetchGenres(token, searchStringGenres);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    clearForm();
+  };
+
+  const clearForm = () => {
+    setBookTitle('');
+    setBookAuthors([]);
+    setBookGenres([]);
+    setBookQuantity('');
+    setBookLocation('');
+    setBookSynopsis('');
+    setBookPublicationDate('');
+    setBookIsAdult(false);
+  };
+
+  const handleSave = async () => {
+    const token = localStorage.getItem('token');
+    const bookData = {
+      title: bookTitle,
+      authors: bookAuthors,
+      genres: bookGenres,
+      quantity: bookQuantity,
+      location: bookLocation,
+      synopsis: bookSynopsis,
+      publicationDate: bookPublicationDate,
+      isAdult: bookIsAdult
+    };
+
+    console.log("Saving book data:", bookData);
+
+    try {
+      const response = await fetch("http://localhost:8080/saveBook", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(bookData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log(result.message);
+      closeModal();
+      fetchBooksData(token);
+    } catch (error) {
+      console.error("Failed to save book:", error);
+    }
   };
 
   return (
     <>
-      {isLibrarian && (
+      {isLoggedIn && (
         <div>
-          <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBookModal">
+          <button className="btn btn-primary" onClick={openModal}>
             Create New Book
           </button>
         </div>
       )}
 
-      <div className="modal fade" id="createBookModal" tabIndex="-1" aria-labelledby="createBookModalLabel" aria-hidden="true">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title" id="createBookModalLabel">Create New Book</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <label htmlFor="bookTitle" className="form-label">Book Title:</label>
-              <input type="text" className="form-control" id="bookTitle" />
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="button" className="btn btn-primary">Save</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Modal show={showModal} onHide={closeModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create New Book</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="bookTitle">
+              <Form.Label>Book Title:</Form.Label>
+              <Form.Control type="text" value={bookTitle} onChange={(e) => setBookTitle(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookAuthors">
+              <Form.Label>Book Authors:</Form.Label>
+              <Form.Control type="text" value={searchStringAuthors} onChange={handleAuthorsSearchChange} />
+              <Form.Control as="select" multiple value={bookAuthors} onChange={handleAuthorChange}>
+                {authors.map((author, index) => (
+                  <option key={index} value={author}>{author}</option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookGenres">
+              <Form.Label>Book Genres:</Form.Label>
+              <Form.Control type="text" value={searchStringGenres} onChange={handleGenresSearchChange} />
+              <Form.Control as="select" multiple value={bookGenres} onChange={handleGenreChange}>
+                {genres.map((genre, index) => (
+                  <option key={index} value={genre}>{genre}</option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookQuantity">
+              <Form.Label>Book Quantity:</Form.Label>
+              <Form.Control type="number" value={bookQuantity} onChange={(e) => setBookQuantity(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookLocation">
+              <Form.Label>Book Location:</Form.Label>
+              <Form.Control type="text" value={bookLocation} onChange={(e) => setBookLocation(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookSynopsis">
+              <Form.Label>Book Synopsis:</Form.Label>
+              <Form.Control as="textarea" value={bookSynopsis} onChange={(e) => setBookSynopsis(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookPublicationDate">
+              <Form.Label>Book Publication Date:</Form.Label>
+              <Form.Control type="date" value={bookPublicationDate} onChange={(e) => setBookPublicationDate(e.target.value)} />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="bookIsAdult">
+              <Form.Label>Is Adult:</Form.Label>
+              <Form.Check type="checkbox" checked={bookIsAdult} onChange={(e) => setBookIsAdult(e.target.checked)} />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSave}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <div className="container mt-5">
         <h1>Book List</h1>
@@ -117,17 +295,11 @@ export default function Homepage() {
               <th>Authors</th>
             </tr>
           </thead>
-          <tbody className="clickable-row">
+          <tbody>
             {books.map(book => (
               <tr key={book.title}>
                 <td>{book.title}</td>
-                <td>
-                  <ul className="list-unstyled">
-                    {book.authors.map((author, index) => (
-                      <li key={index}>{author}</li>
-                    ))}
-                  </ul>
-                </td>
+                <td>{book.authors.join(', ')}</td>
               </tr>
             ))}
           </tbody>

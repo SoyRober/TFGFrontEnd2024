@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 export default function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -53,7 +51,7 @@ export default function Root() {
           </div>
         </div>
       </nav>
-        <Outlet />
+      <Outlet />
     </>
   );
 }

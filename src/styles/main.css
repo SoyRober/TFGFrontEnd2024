@@ -11,5 +11,18 @@
     border-radius: 50%;
     margin-right: 5px;
     padding: 0.5rem 0.75rem;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.3s ease-out;
+    transform: translateY(-25%);
+  }
+  
+  .modal.show .modal-dialog {
+    transform: translateY(0);
+  }
+  
+  .modal-backdrop.show {
+    opacity: 0.5;
   }
   
