@@ -7,7 +7,7 @@ import Homepage from "./routes/Homepage.jsx";
 import Root from "./routes/Root.jsx";
 import Login from "./routes/Login.jsx";
 import Register from "./routes/Register.jsx";
-import ViewBook from "./routes/ViewBook.jsx"; // Importa el nuevo componente
+import ViewBook from "./routes/ViewBook.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/viewBook/:title", // Agrega la nueva ruta
+        path: "/viewBook/:title",
         element: <ViewBook />,
       },
     ],

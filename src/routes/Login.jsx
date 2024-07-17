@@ -37,7 +37,8 @@ const Login = () => {
       const { token } = await response.json();
       localStorage.setItem("token", token);
       console.log("token: "+token);
-
+      
+      window.location.reload();
       navigate("/")
     } catch (error) {
       setError(error.message);
