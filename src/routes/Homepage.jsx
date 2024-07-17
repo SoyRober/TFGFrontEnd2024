@@ -238,7 +238,7 @@ export default function Homepage() {
             </Form.Group>
             <Form.Group className="mb-3" controlId="bookAuthors">
               <Form.Label>Book Authors:</Form.Label>
-              <Form.Control type="text" value={searchStringAuthors} onChange={handleAuthorsSearchChange} />
+              <Form.Control type="text" placeholder="Search..." value={searchStringAuthors} onChange={handleAuthorsSearchChange} />
               <Form.Control as="select" multiple value={bookAuthors} onChange={handleAuthorChange}>
                 {authors.map((author, index) => (
                   <option key={index} value={author}>{author}</option>
@@ -247,7 +247,7 @@ export default function Homepage() {
             </Form.Group>
             <Form.Group className="mb-3" controlId="bookGenres">
               <Form.Label>Book Genres:</Form.Label>
-              <Form.Control type="text" value={searchStringGenres} onChange={handleGenresSearchChange} />
+              <Form.Control type="text" placeholder="Search..." value={searchStringGenres} onChange={handleGenresSearchChange} />
               <Form.Control as="select" multiple value={bookGenres} onChange={handleGenreChange}>
                 {genres.map((genre, index) => (
                   <option key={index} value={genre}>{genre}</option>
