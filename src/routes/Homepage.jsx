@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
@@ -9,6 +10,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasPermissions, setHasPermissions] = useState(false); //Rename?
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -29,7 +31,15 @@ export default function Homepage() {
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
-      fetchBooksData(token);
+
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+      
+      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+        setHasPermissions(true);
+      }
+
+      fetchBooksData(token); //why token for fetch?
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }
@@ -218,7 +228,7 @@ export default function Homepage() {
 
   return (
     <>
-      {isLoggedIn && (
+      {hasPermissions && (
         <div>
           <button className="btn btn-primary" onClick={openModal}>
             Create New Book
