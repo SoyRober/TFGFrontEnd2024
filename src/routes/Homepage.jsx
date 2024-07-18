@@ -10,7 +10,7 @@ import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [hasPermissions, setHasPermissions] = useState(false); //Rename?
+  const [hasPermissions, setHasPermissions] = useState(false);
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -25,6 +25,7 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
+  const [navigateToViewBook, setNavigateToViewBook] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,12 +35,12 @@ export default function Homepage() {
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-      
+
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
 
-      fetchBooksData(token); //why token for fetch?
+      fetchBooksData(token);
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }
@@ -50,6 +51,15 @@ export default function Homepage() {
       initDataTable();
     }
   }, [books]);
+
+  useEffect(() => {
+    if (navigateToViewBook) {
+      // Aquí podrías realizar alguna lógica adicional si es necesaria
+      navigateToBookDetails();
+      // Limpia el estado después de la navegación
+      setNavigateToViewBook(false);
+    }
+  }, [navigateToViewBook]);
 
   const fetchBooksData = async (token) => {
     try {
@@ -134,12 +144,21 @@ export default function Homepage() {
       ]
     });
 
+    // Asigna el click a la fila de la tabla
     $('#booksTable tbody').on('click', 'tr', function () {
       const data = $('#booksTable').DataTable().row(this).data();
       if (data) {
-        navigate(`/viewBook/${encodeURIComponent(data.title)}`);
+        setNavigateToViewBook(true); // Cambia el estado para navegar a la página ViewBook
+        setBookTitle(data.title); // Guarda el título del libro seleccionado si es necesario
       }
     });
+  };
+
+  const navigateToBookDetails = () => {
+    const selectedBook = books.find(book => book.title === bookTitle);
+    if (selectedBook) {
+      navigate(`/viewBook/${encodeURIComponent(selectedBook.title)}`);
+    }
   };
 
   const handleAuthorChange = (e) => {

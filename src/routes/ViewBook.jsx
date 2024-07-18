@@ -26,7 +26,8 @@ export default function ViewBook() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        setBook(data);
+        console.log("Book data:", data); 
+        setBook(data.books);
       } catch (error) {
         console.error("Failed to fetch book details:", error);
       }
@@ -85,7 +86,7 @@ export default function ViewBook() {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       setNewReview({ score: 0, rating: '' });
-      const updatedReviews = await fetch(`http://localhost:8080/getReviewsByBookTitle?title=${encodeURIComponent(title)}`).then(res => res.json());
+      const updatedReviews = await response.json();
       setReviews(updatedReviews);
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -100,12 +101,11 @@ export default function ViewBook() {
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
-        {/* Existing book details */}
         <div className="col-md-6 mb-3">
-          <p><span className="label">Authors:</span> {book.authors.join(', ')}</p>
+          <p><span className="label">Authors:</span> {book.authors?.join(', ')}</p>
         </div>
         <div className="col-md-6 mb-3">
-          <p><span className="label">Genres:</span> {book.genres.join(', ')}</p>
+          <p><span className="label">Genres:</span> {book.genres?.join(', ')}</p>
         </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Quantity:</span> {book.quantity}</p>
