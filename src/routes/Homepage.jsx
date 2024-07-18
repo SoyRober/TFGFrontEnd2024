@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -27,6 +27,13 @@ export default function Homepage() {
   const [searchStringGenres, setSearchStringGenres] = useState('');
   const [navigateToViewBook, setNavigateToViewBook] = useState(false);
   const navigate = useNavigate();
+  const isMountedRef = useRef(true); // Ref para verificar si el componente está montado
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false; // Establecer isMounted en falso al desmontar el componente
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -53,10 +60,8 @@ export default function Homepage() {
   }, [books]);
 
   useEffect(() => {
-    if (navigateToViewBook) {
-      // Aquí podrías realizar alguna lógica adicional si es necesaria
+    if (navigateToViewBook && isMountedRef.current) {
       navigateToBookDetails();
-      // Limpia el estado después de la navegación
       setNavigateToViewBook(false);
     }
   }, [navigateToViewBook]);
@@ -144,12 +149,11 @@ export default function Homepage() {
       ]
     });
 
-    // Asigna el click a la fila de la tabla
     $('#booksTable tbody').on('click', 'tr', function () {
       const data = $('#booksTable').DataTable().row(this).data();
       if (data) {
-        setNavigateToViewBook(true); // Cambia el estado para navegar a la página ViewBook
-        setBookTitle(data.title); // Guarda el título del libro seleccionado si es necesario
+        setNavigateToViewBook(true);
+        setBookTitle(data.title);
       }
     });
   };
