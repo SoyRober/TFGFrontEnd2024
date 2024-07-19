@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
@@ -25,7 +24,6 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
-  const [navigateToViewBook, setNavigateToViewBook] = useState(false);
   const navigate = useNavigate();
   const isMountedRef = useRef(true); // Ref para verificar si el componente está montado
 
@@ -40,8 +38,7 @@ export default function Homepage() {
     if (token) {
       setIsLoggedIn(true);
 
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = "";
 
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
@@ -58,13 +55,6 @@ export default function Homepage() {
       initDataTable();
     }
   }, [books]);
-
-  useEffect(() => {
-    if (navigateToViewBook && isMountedRef.current) {
-      navigateToBookDetails();
-      setNavigateToViewBook(false);
-    }
-  }, [navigateToViewBook]);
 
   const fetchBooksData = async (token) => {
     try {
@@ -152,17 +142,13 @@ export default function Homepage() {
     $('#booksTable tbody').on('click', 'tr', function () {
       const data = $('#booksTable').DataTable().row(this).data();
       if (data) {
-        setNavigateToViewBook(true);
-        setBookTitle(data.title);
+        navigateToBookDetails(data.title);
       }
     });
   };
 
-  const navigateToBookDetails = () => {
-    const selectedBook = books.find(book => book.title === bookTitle);
-    if (selectedBook) {
-      navigate(`/viewBook/${encodeURIComponent(selectedBook.title)}`);
-    }
+  const navigateToBookDetails = (title) => {
+    navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
 
   const handleAuthorChange = (e) => {
