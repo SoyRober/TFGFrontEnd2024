@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'datatables.net-bs5';
 import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
 import '../styles/main.css';
 import $ from "jquery";
-import { Modal, Button, Form } from 'react-bootstrap';
+import CreateBookModal from "./CreateBookModal";
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,22 +24,28 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
-  const [navigateToViewBook, setNavigateToViewBook] = useState(false);
   const navigate = useNavigate();
+  const isMountedRef = useRef(true);
 
   useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchBooksData();
+    
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
 
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = "ADMIN";
 
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
 
-      fetchBooksData(token);
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }
@@ -52,22 +57,9 @@ export default function Homepage() {
     }
   }, [books]);
 
-  useEffect(() => {
-    if (navigateToViewBook) {
-      // Aquí podrías realizar alguna lógica adicional si es necesaria
-      navigateToBookDetails();
-      // Limpia el estado después de la navegación
-      setNavigateToViewBook(false);
-    }
-  }, [navigateToViewBook]);
-
-  const fetchBooksData = async (token) => {
+  const fetchBooksData = async () => {
     try {
-      const response = await fetch("http://localhost:8080/getAllBooks", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
-      });
+      const response = await fetch("http://localhost:8080/getAllBooks");
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -78,6 +70,7 @@ export default function Homepage() {
       setBooks([]);
     }
   };
+  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -144,21 +137,16 @@ export default function Homepage() {
       ]
     });
 
-    // Asigna el click a la fila de la tabla
     $('#booksTable tbody').on('click', 'tr', function () {
       const data = $('#booksTable').DataTable().row(this).data();
       if (data) {
-        setNavigateToViewBook(true); // Cambia el estado para navegar a la página ViewBook
-        setBookTitle(data.title); // Guarda el título del libro seleccionado si es necesario
+        navigateToBookDetails(data.title);
       }
     });
   };
 
-  const navigateToBookDetails = () => {
-    const selectedBook = books.find(book => book.title === bookTitle);
-    if (selectedBook) {
-      navigate(`/viewBook/${encodeURIComponent(selectedBook.title)}`);
-    }
+  const navigateToBookDetails = (title) => {
+    navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
 
   const handleAuthorChange = (e) => {
@@ -255,65 +243,35 @@ export default function Homepage() {
         </div>
       )}
 
-      <Modal show={showModal} onHide={closeModal}>
-        <Modal.Header closeButton>
-          <Modal.Title>Create New Book</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3" controlId="bookTitle">
-              <Form.Label>Book Title:</Form.Label>
-              <Form.Control type="text" value={bookTitle} onChange={(e) => setBookTitle(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookAuthors">
-              <Form.Label>Book Authors:</Form.Label>
-              <Form.Control type="text" placeholder="Search..." value={searchStringAuthors} onChange={handleAuthorsSearchChange} />
-              <Form.Control as="select" multiple value={bookAuthors} onChange={handleAuthorChange}>
-                {authors.map((author, index) => (
-                  <option key={index} value={author}>{author}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookGenres">
-              <Form.Label>Book Genres:</Form.Label>
-              <Form.Control type="text" placeholder="Search..." value={searchStringGenres} onChange={handleGenresSearchChange} />
-              <Form.Control as="select" multiple value={bookGenres} onChange={handleGenreChange}>
-                {genres.map((genre, index) => (
-                  <option key={index} value={genre}>{genre}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookQuantity">
-              <Form.Label>Book Quantity:</Form.Label>
-              <Form.Control type="number" value={bookQuantity} onChange={(e) => setBookQuantity(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookLocation">
-              <Form.Label>Book Location:</Form.Label>
-              <Form.Control type="text" value={bookLocation} onChange={(e) => setBookLocation(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookSynopsis">
-              <Form.Label>Book Synopsis:</Form.Label>
-              <Form.Control as="textarea" value={bookSynopsis} onChange={(e) => setBookSynopsis(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookPublicationDate">
-              <Form.Label>Book Publication Date:</Form.Label>
-              <Form.Control type="date" value={bookPublicationDate} onChange={(e) => setBookPublicationDate(e.target.value)} />
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="bookIsAdult">
-              <Form.Label>Is Adult:</Form.Label>
-              <Form.Check type="checkbox" checked={bookIsAdult} onChange={(e) => setBookIsAdult(e.target.checked)} />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <CreateBookModal
+        showModal={showModal}
+        closeModal={closeModal}
+        handleSave={handleSave}
+        bookTitle={bookTitle}
+        setBookTitle={setBookTitle}
+        bookAuthors={bookAuthors}
+        setBookAuthors={setBookAuthors}
+        authors={authors}
+        searchStringAuthors={searchStringAuthors}
+        handleAuthorsSearchChange={handleAuthorsSearchChange}
+        handleAuthorChange={handleAuthorChange}
+        bookGenres={bookGenres}
+        setBookGenres={setBookGenres}
+        genres={genres}
+        searchStringGenres={searchStringGenres}
+        handleGenresSearchChange={handleGenresSearchChange}
+        handleGenreChange={handleGenreChange}
+        bookQuantity={bookQuantity}
+        setBookQuantity={setBookQuantity}
+        bookLocation={bookLocation}
+        setBookLocation={setBookLocation}
+        bookSynopsis={bookSynopsis}
+        setBookSynopsis={setBookSynopsis}
+        bookPublicationDate={bookPublicationDate}
+        setBookPublicationDate={setBookPublicationDate}
+        bookIsAdult={bookIsAdult}
+        setBookIsAdult={setBookIsAdult}
+      />
 
       <div className="container mt-5">
         <h1>Book List</h1>
