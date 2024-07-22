@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function CreateBookModal({
@@ -28,8 +28,21 @@ export default function CreateBookModal({
   bookPublicationDate,
   setBookPublicationDate,
   bookIsAdult,
-  setBookIsAdult
+  setBookIsAdult,
+  setBookImageBase64 // Nuevo setter para la imagen en base64
 }) {
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setBookImageBase64(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <Modal show={showModal} onHide={closeModal}>
       <Modal.Header closeButton>
@@ -78,6 +91,10 @@ export default function CreateBookModal({
           <Form.Group className="mb-3" controlId="bookIsAdult">
             <Form.Label>Is Adult:</Form.Label>
             <Form.Check type="checkbox" checked={bookIsAdult} onChange={(e) => setBookIsAdult(e.target.checked)} />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId="bookImage"> {/* Nuevo campo para la imagen */}
+            <Form.Label>Book Image:</Form.Label>
+            <Form.Control type="file" onChange={handleImageChange} />
           </Form.Group>
         </Form>
       </Modal.Body>

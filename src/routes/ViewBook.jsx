@@ -10,6 +10,7 @@ export default function ViewBook() {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ score: 0, rating: '' });
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [imageSrc, setImageSrc] = useState('');  // Define el estado para la imagen
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,8 +27,11 @@ export default function ViewBook() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Book data:", data); 
+        console.log("Book data:", data);
         setBook(data.books);
+
+        // Establecer la imagen en Base64 si está disponible
+        setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
       } catch (error) {
         console.error("Failed to fetch book details:", error);
       }
@@ -68,7 +72,6 @@ export default function ViewBook() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    console.log("token: " + token);
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
@@ -101,6 +104,9 @@ export default function ViewBook() {
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
+        <div className="col-md-6 mb-3">
+          {imageSrc && <img src={imageSrc} alt={book.title} className="img-fluid" />}
+        </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Authors:</span> {book.authors?.join(', ')}</p>
         </div>

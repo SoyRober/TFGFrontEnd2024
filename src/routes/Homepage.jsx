@@ -21,6 +21,7 @@ export default function Homepage() {
   const [bookSynopsis, setBookSynopsis] = useState('');
   const [bookPublicationDate, setBookPublicationDate] = useState('');
   const [bookIsAdult, setBookIsAdult] = useState(false);
+  const [bookImageBase64, setBookImageBase64] = useState(''); // Nuevo estado para la imagen en base64
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
@@ -192,6 +193,7 @@ export default function Homepage() {
     setBookSynopsis('');
     setBookPublicationDate('');
     setBookIsAdult(false);
+    setBookImageBase64(''); // Limpiar el estado de la imagen base64
   };
 
   const handleSave = async () => {
@@ -204,7 +206,8 @@ export default function Homepage() {
       location: bookLocation,
       synopsis: bookSynopsis,
       publicationDate: bookPublicationDate,
-      isAdult: bookIsAdult
+      isAdult: bookIsAdult,
+      imageBase64: bookImageBase64 // Enviar la imagen en base64
     };
 
     console.log("Saving book data:", bookData);
@@ -271,6 +274,7 @@ export default function Homepage() {
         setBookPublicationDate={setBookPublicationDate}
         bookIsAdult={bookIsAdult}
         setBookIsAdult={setBookIsAdult}
+        setBookImageBase64={setBookImageBase64} // Pasar el setter de la imagen base64
       />
 
       <div className="container mt-5">
