@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'datatables.net-bs5';
-import 'datatables.net-bs5/css/dataTables.bootstrap5.min.css';
 import '../styles/main.css';
-import $ from "jquery";
 import CreateBookModal from "./CreateBookModal";
 
 export default function Homepage() {
@@ -21,7 +18,7 @@ export default function Homepage() {
   const [bookSynopsis, setBookSynopsis] = useState('');
   const [bookPublicationDate, setBookPublicationDate] = useState('');
   const [bookIsAdult, setBookIsAdult] = useState(false);
-  const [bookImageBase64, setBookImageBase64] = useState(''); // Nuevo estado para la imagen en base64
+  const [bookImageBase64, setBookImageBase64] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
@@ -36,13 +33,12 @@ export default function Homepage() {
 
   useEffect(() => {
     fetchBooksData();
-    
+
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
 
       const userRole = "ADMIN";
-
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
@@ -51,12 +47,6 @@ export default function Homepage() {
       fetchGenres(token, '');
     }
   }, []);
-
-  useEffect(() => {
-    if (books.length > 0) {
-      initDataTable();
-    }
-  }, [books]);
 
   const fetchBooksData = async () => {
     try {
@@ -71,7 +61,6 @@ export default function Homepage() {
       setBooks([]);
     }
   };
-  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -123,27 +112,6 @@ export default function Homepage() {
       console.error("Failed to fetch genres:", error);
       setGenres([]);
     }
-  };
-
-  const initDataTable = () => {
-    if ($.fn.dataTable.isDataTable('#booksTable')) {
-      $('#booksTable').DataTable().destroy();
-    }
-
-    $('#booksTable').DataTable({
-      data: books,
-      columns: [
-        { data: 'title', title: 'Title' },
-        { data: 'authors', title: 'Authors', render: authors => authors.join(', ') }
-      ]
-    });
-
-    $('#booksTable tbody').on('click', 'tr', function () {
-      const data = $('#booksTable').DataTable().row(this).data();
-      if (data) {
-        navigateToBookDetails(data.title);
-      }
-    });
   };
 
   const navigateToBookDetails = (title) => {
@@ -230,7 +198,7 @@ export default function Homepage() {
       const result = await response.json();
       console.log(result.message);
       closeModal();
-      fetchBooksData(token);
+      fetchBooksData();
     } catch (error) {
       console.error("Failed to save book:", error);
     }
@@ -274,27 +242,32 @@ export default function Homepage() {
         setBookPublicationDate={setBookPublicationDate}
         bookIsAdult={bookIsAdult}
         setBookIsAdult={setBookIsAdult}
-        setBookImageBase64={setBookImageBase64} // Pasar el setter de la imagen base64
+        setBookImageBase64={setBookImageBase64}
       />
 
       <div className="container mt-5">
         <h1>Book List</h1>
-        <table id="booksTable" className="table table-striped">
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Authors</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map(book => (
-              <tr key={book.title}>
-                <td>{book.title}</td>
-                <td>{book.authors.join(', ')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="row">
+          {books.map(book => (
+            <div key={book.title} className="col-md-3 mb-4">
+              <div 
+                className="card"
+                onClick={() => navigateToBookDetails(book.title)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img 
+                  src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
+                  className="card-img-top"
+                  alt={book.title}
+                  style={{ height: '200px', objectFit: 'cover' }}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{book.title}</h5>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
