@@ -22,6 +22,8 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
+  const [cardSize, setCardSize] = useState(300); // Tamaño inicial de la tarjeta
+
   const navigate = useNavigate();
   const isMountedRef = useRef(true);
 
@@ -204,6 +206,11 @@ export default function Homepage() {
     }
   };
 
+  const calculateColumns = () => {
+    const columns = Math.min(5, Math.max(1, Math.floor(12 / (cardSize / 100))));
+    return `col-${Math.floor(12 / columns)}`;
+  };
+
   return (
     <>
       {hasPermissions && (
@@ -247,22 +254,34 @@ export default function Homepage() {
 
       <div className="container mt-5">
         <h1>Book List</h1>
+        <div className="mb-3">
+          <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
+          <input 
+            type="range" 
+            className="form-range" 
+            id="cardSizeRange" 
+            min="300" 
+            max="600" 
+            value={cardSize} 
+            onChange={(e) => setCardSize(e.target.value)} 
+          />
+        </div>
         <div className="row">
           {books.map(book => (
-            <div key={book.title} className="col-md-3 mb-4">
+            <div key={book.title} className={calculateColumns()}>
               <div 
-                className="card"
+                className="card mb-4 customizedCard"
                 onClick={() => navigateToBookDetails(book.title)}
-                style={{ cursor: 'pointer' }}
+                style={{height: `${cardSize}px`}} 
               >
                 <img 
                   src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
                   className="card-img-top"
                   alt={book.title}
-                  style={{ height: '200px', objectFit: 'cover' }}
+                  style={{ height: '60%', objectFit: 'cover' }}
                 />
                 <div className="card-body">
-                  <h5 className="card-title">{book.title}</h5>
+                  <h5 className="card-title text-center">{book.title}</h5>
                 </div>
               </div>
             </div>

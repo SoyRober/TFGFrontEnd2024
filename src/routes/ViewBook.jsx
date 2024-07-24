@@ -27,7 +27,7 @@ export default function ViewBook() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        setBook(data);
+        setBook(data.book);
         setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
       } catch (error) {
         console.error("Failed to fetch book details:", error);
@@ -86,12 +86,10 @@ export default function ViewBook() {
         throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
       }
 
-      // Fetch updated reviews after submission
       const updatedReviews = await fetch(`http://localhost:8080/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       const reviewsData = await updatedReviews.json();
       setReviews(reviewsData);
 
-      // Clear review form
       setReviewData({ score: '', rating: '' });
 
     } catch (error) {
@@ -126,21 +124,6 @@ export default function ViewBook() {
         </div>
       </div>
 
-      <h2 className="mt-5">Reviews</h2>
-      <div className="list-group mb-3">
-        {reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <div key={index} className="list-group-item">
-              <p><strong>User:</strong> {review.userName}</p>
-              <p><strong>Score:</strong> {review.score}</p>
-              <p><strong>Rating:</strong> {review.rating}</p>
-            </div>
-          ))
-        ) : (
-          <p>No reviews available</p>
-        )}
-      </div>
-
       {isLoggedIn && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
@@ -172,6 +155,22 @@ export default function ViewBook() {
           <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
         </form>
       )}
+
+      <h2 className="mt-5">Reviews</h2>
+      <div className="list-group mb-3">
+        {reviews.length > 0 ? (
+          reviews.map((review, index) => (
+            <div key={index} className="list-group-item">
+              <p><strong>User:</strong> {review.userName}</p>
+              <p><strong>Score:</strong> {review.score}</p>
+              <p><strong>Rating:</strong> {review.rating}</p>
+            </div>
+          ))
+        ) : (
+          <p>No reviews available</p>
+        )}
+      </div>
+
     </div>
   );
 }
