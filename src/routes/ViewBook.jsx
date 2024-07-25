@@ -9,6 +9,8 @@ export default function ViewBook() {
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [editingAttribute, setEditingAttribute] = useState(null);
+  const [editValue, setEditValue] = useState('');
   const [imageSrc, setImageSrc] = useState('');
   const [reviewData, setReviewData] = useState({ score: '', rating: '' });
 
@@ -97,6 +99,137 @@ export default function ViewBook() {
     }
   };
 
+  const handleEditClick = (attribute) => {
+    setEditingAttribute(attribute);
+    setEditValue(book[attribute]);
+  };
+
+  const handleEditChange = (e) => {
+    setEditValue(e.target.value);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    const payload = {
+      title: title,
+      attribute: editingAttribute,
+      value: editValue
+    };
+
+    try {
+      const response = await fetch('http://localhost:8080/updateBook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const updatedBook = await response.json();
+      setBook(updatedBook);
+      setEditingAttribute(null);
+      location.reload();
+    } catch (error) {
+      console.error("Failed to update book:", error);
+      console.error("Failed to submit review:", error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setEditingAttribute(null);
+  };
+
+  const renderEditModal = () => {
+    if (!editingAttribute) return null;
+
+    let inputField;
+
+    switch (editingAttribute) {
+      case 'quantity':
+        inputField = (
+          <input
+            type="number"
+            className="form-control"
+            id="editValue"
+            value={editValue}
+            onChange={handleEditChange}
+            required
+          />
+        );
+        break;
+      case 'isAdult':
+        inputField = (
+          <select
+            className="form-control"
+            id="editValue"
+            value={editValue}
+            onChange={handleEditChange}
+            required
+          >
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+        );
+        break;
+      case 'publicationDate':
+        inputField = (
+          <input
+            type="date"
+            className="form-control"
+            id="editValue"
+            value={editValue}
+            onChange={handleEditChange}
+            required
+          />
+        );
+        break;
+      default:
+        inputField = (
+          <input
+            type="text"
+            className="form-control"
+            id="editValue"
+            value={editValue}
+            onChange={handleEditChange}
+            required
+          />
+        );
+    }
+
+    return (
+      <div className="modal show" style={{ display: "block" }}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Edit {editingAttribute}</h5>
+              <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+            </div>
+            <div className="modal-body">
+              <form onSubmit={handleEditSubmit}>
+                <div className="form-group">
+                  <label htmlFor="editValue">New Value</label>
+                  {inputField}
+                </div>
+                <button type="submit" className="btn btn-primary mt-3">Save changes</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   if (!book) {
     return <div className="container mt-5">Loading...</div>;
   }
@@ -114,13 +247,29 @@ export default function ViewBook() {
         </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Title:</span> {book.title}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('title')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Authors:</span> {book.authors ? book.authors.join(', ') : 'N/A'}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('authors')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Genres:</span> {book.genres ? book.genres.join(', ') : 'N/A'}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('genres')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Quantity:</span> {book.quantity}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('quantity')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Location:</span> {book.location}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('location')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Synopsis:</span> {book.synopsis}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('synopsis')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Publication Date:</span> {book.publicationDate}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('publicationDate')} className="btn btn-primary">Edit</button>}
+
           <p><span className="label">Adult:</span> {book.adult ? 'Yes' : 'No'}</p>
+          {isLoggedIn && <button onClick={() => handleEditClick('isAdult')} className="btn btn-primary">Edit</button>}
+
         </div>
       </div>
 
@@ -171,6 +320,7 @@ export default function ViewBook() {
         )}
       </div>
 
+      {renderEditModal()}
     </div>
   );
 }
