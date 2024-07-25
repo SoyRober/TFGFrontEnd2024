@@ -23,6 +23,8 @@ export default function Homepage() {
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
   const [cardSize, setCardSize] = useState(300); // Tamaño inicial de la tarjeta
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [filteredBooks, setFilteredBooks] = useState([]); // Estado para los libros filtrados
 
   const navigate = useNavigate();
   const isMountedRef = useRef(true);
@@ -58,9 +60,11 @@ export default function Homepage() {
       }
       const data = await response.json();
       setBooks(data.books);
+      setFilteredBooks(data.books); // Inicialmente mostrar todos los libros
     } catch (error) {
       console.error("Failed to fetch books:", error);
       setBooks([]);
+      setFilteredBooks([]);
     }
   };
 
@@ -211,6 +215,25 @@ export default function Homepage() {
     return `col-${Math.floor(12 / columns)}`;
   };
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    filterBooks(e.target.value);
+  };
+
+  const filterBooks = (term) => {
+    if (!term) {
+      setFilteredBooks(books);
+    } else {
+      const lowerCaseTerm = term.toLowerCase();
+      const filtered = books.filter(book => 
+        book.title.toLowerCase().includes(lowerCaseTerm) || // Buscar en el título
+        book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) || // Buscar en autores
+        book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm)) // Buscar en géneros
+      );
+      setFilteredBooks(filtered);
+    }
+  };
+
   return (
     <>
       {hasPermissions && (
@@ -255,6 +278,15 @@ export default function Homepage() {
       <div className="container mt-5">
         <h1>Book List</h1>
         <div className="mb-3">
+          <input 
+            type="text"
+            className="form-control"
+            placeholder="Search books..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
+        </div>
+        <div className="mb-3">
           <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
           <input 
             type="range" 
@@ -267,7 +299,7 @@ export default function Homepage() {
           />
         </div>
         <div className="row">
-          {books.map(book => (
+          {filteredBooks.map(book => (
             <div key={book.title} className={calculateColumns()}>
               <div 
                 className="card mb-4 customizedCard"
