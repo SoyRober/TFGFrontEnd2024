@@ -2,12 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
+import '../styles/loading.css';
 import CreateBookModal from "./CreateBookModal";
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
   const [bookTitle, setBookTitle] = useState('');
@@ -22,9 +23,9 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
-  const [cardSize, setCardSize] = useState(300); // Tamaño inicial de la tarjeta
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const [filteredBooks, setFilteredBooks] = useState([]); // Estado para los libros filtrados
+  const [cardSize, setCardSize] = useState(300);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredBooks, setFilteredBooks] = useState([]);
 
   const navigate = useNavigate();
   const isMountedRef = useRef(true);
@@ -60,7 +61,7 @@ export default function Homepage() {
       }
       const data = await response.json();
       setBooks(data.books);
-      setFilteredBooks(data.books); // Inicialmente mostrar todos los libros
+      setFilteredBooks(data.books); 
     } catch (error) {
       console.error("Failed to fetch books:", error);
       setBooks([]);
@@ -225,7 +226,7 @@ export default function Homepage() {
       setFilteredBooks(books);
     } else {
       const lowerCaseTerm = term.toLowerCase();
-      const filtered = books.filter(book => 
+      const filtered = books.filter(book =>
         book.title.toLowerCase().includes(lowerCaseTerm) || // Buscar en el título
         book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) || // Buscar en autores
         book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm)) // Buscar en géneros
@@ -234,9 +235,20 @@ export default function Homepage() {
     }
   };
 
+  if (books === null) {
+    return (
+      <div className="modal-book">
+        <span className="page left"></span>
+        <span className="middle"></span>
+        <span className="page right"></span>
+      </div>
+    );
+  }
+
   return (
     <>
-      {hasPermissions && (
+    <div className="fade-in">
+    {hasPermissions && (
         <div>
           <button className="btn btn-primary" onClick={openModal}>
             Create New Book
@@ -278,7 +290,7 @@ export default function Homepage() {
       <div className="container mt-5">
         <h1>Book List</h1>
         <div className="mb-3">
-          <input 
+          <input
             type="text"
             className="form-control"
             placeholder="Search books..."
@@ -288,25 +300,25 @@ export default function Homepage() {
         </div>
         <div className="mb-3">
           <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
-          <input 
-            type="range" 
-            className="form-range" 
-            id="cardSizeRange" 
-            min="300" 
-            max="600" 
-            value={cardSize} 
-            onChange={(e) => setCardSize(e.target.value)} 
+          <input
+            type="range"
+            className="form-range"
+            id="cardSizeRange"
+            min="300"
+            max="600"
+            value={cardSize}
+            onChange={(e) => setCardSize(e.target.value)}
           />
         </div>
         <div className="row">
           {filteredBooks.map(book => (
             <div key={book.title} className={calculateColumns()}>
-              <div 
+              <div
                 className="card mb-4 customizedCard"
                 onClick={() => navigateToBookDetails(book.title)}
-                style={{height: `${cardSize}px`}} 
+                style={{ height: `${cardSize}px` }}
               >
-                <img 
+                <img
                   src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
                   className="card-img-top"
                   alt={book.title}
@@ -320,6 +332,7 @@ export default function Homepage() {
           ))}
         </div>
       </div>
+    </div>
     </>
   );
 }
