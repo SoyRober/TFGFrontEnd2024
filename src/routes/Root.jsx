@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min'; // Asegúrate de que esto esté correcto
 
 export default function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -39,7 +41,12 @@ export default function Root() {
               )}
               {isLoggedIn && (
                 <li className="nav-item dropdown">
-                  <button className="nav-link dropdown-toggle" id="navbarDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button
+                    className="nav-link dropdown-toggle"
+                    id="navbarDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     Perfil
                   </button>
                   <ul className="dropdown-menu" aria-labelledby="navbarDropdown">

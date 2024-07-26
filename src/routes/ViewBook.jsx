@@ -16,7 +16,7 @@ export default function ViewBook() {
   const [reviewData, setReviewData] = useState({ score: '', rating: '' });
   const [hover, setHover] = useState(0); // Estado para el hover
   const [newImage, setNewImage] = useState(null);
-
+  const [isLoaned, setIsLoaned] = useState(false); // Estado para el préstamo
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -254,6 +254,41 @@ export default function ViewBook() {
   const handleImageChange = (e) => {
     setNewImage(e.target.files[0]);
   };
+
+  const handleLoanToggle = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:8080/loan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain',
+          'Authorization': `Bearer ${token}`
+        },
+        body: title
+      });
+
+      console.log(title)
+
+      console.log(response)
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+      }
+
+      console.log("enviado")
+  
+      setIsLoaned(!isLoaned); 
+  
+    } catch (error) {
+      console.error("Failed to toggle loan status:", error);
+    }
+  };
   
 
   if (!book) {
@@ -265,6 +300,11 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div className="col-md-6 mb-3">
+        {isLoggedIn && (
+            <button onClick={handleLoanToggle} className="btn btn-primary">
+              {isLoaned ? 'Return Book' : 'Loan Book'}
+            </button>
+          )}
           {imageSrc ? (
             <img src={imageSrc} alt={book.title} className="img-fluid" />
           ) : (

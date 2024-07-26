@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import '../styles/loading.css';
-import CreateBookModal from "./CreateBookModal";
+import CreateBookModal from "./components/CreateBookModal";
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
