@@ -15,6 +15,8 @@ export default function ViewBook() {
   const [imageSrc, setImageSrc] = useState('');
   const [reviewData, setReviewData] = useState({ score: '', rating: '' });
   const [hover, setHover] = useState(0); // Estado para el hover
+  const [newImage, setNewImage] = useState(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -118,20 +120,22 @@ export default function ViewBook() {
       return;
     }
 
-    const payload = {
-      title: title,
-      attribute: editingAttribute,
-      value: editValue
-    };
+    const payload = new FormData();
+    payload.append('title', title);
+    payload.append('attribute', editingAttribute);
+    payload.append('value', editValue);
+
+    if (newImage) {
+      payload.append('image', newImage);
+    }
 
     try {
       const response = await fetch('http://localhost:8080/updateBook', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(payload)
+        body: payload
       });
 
       if (!response.ok) {
@@ -149,7 +153,6 @@ export default function ViewBook() {
       }
     } catch (error) {
       console.error("Failed to update book:", error);
-      console.error("Failed to submit review:", error);
     }
   };
 
@@ -201,6 +204,17 @@ export default function ViewBook() {
           />
         );
         break;
+      case 'image':
+        inputField = (
+          <input
+            type="file"
+            className="form-control"
+            id="editImage"
+            onChange={handleImageChange}
+            required
+          />
+        );
+        break;
       default:
         inputField = (
           <input
@@ -237,6 +251,11 @@ export default function ViewBook() {
     );
   };
 
+  const handleImageChange = (e) => {
+    setNewImage(e.target.files[0]);
+  };
+  
+
   if (!book) {
     return <div className="container mt-5">Loading...</div>;
   }
@@ -251,6 +270,7 @@ export default function ViewBook() {
           ) : (
             <div>No image available</div>
           )}
+          {isLoggedIn && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit</button>}
         </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Title:</span> {book.title}</p>
