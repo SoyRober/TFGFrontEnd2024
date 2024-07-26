@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../styles/main.css';
 
 export default function ViewBook() {
   const { title } = useParams();
+  const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -140,7 +141,12 @@ export default function ViewBook() {
       const updatedBook = await response.json();
       setBook(updatedBook);
       setEditingAttribute(null);
-      location.reload();
+
+      if (editingAttribute === 'title') {
+        navigate(`/viewBook/${editValue}`);
+      } else {
+        location.reload();
+      }
     } catch (error) {
       console.error("Failed to update book:", error);
       console.error("Failed to submit review:", error);
