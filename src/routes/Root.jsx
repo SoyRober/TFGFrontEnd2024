@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min'; // Asegúrate de que esto esté correcto
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 
 export default function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,7 +24,7 @@ export default function Root() {
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">Notes</Link>
+          <Link className="navbar-brand" to="/">Home</Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
@@ -51,6 +52,7 @@ export default function Root() {
                   </button>
                   <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                     <li><Link className="dropdown-item" to="/profile/change-password">Cambiar contraseña</Link></li>
+                    <li><Link className="dropdown-item" to="/loans">My Loans</Link></li> 
                     <li><button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button></li>
                   </ul>
                 </li>

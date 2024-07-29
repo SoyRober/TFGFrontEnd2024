@@ -6,6 +6,7 @@ import Root from "./routes/Root.jsx";
 import Login from "./routes/Login.jsx";
 import Register from "./routes/Register.jsx";
 import ViewBook from "./routes/ViewBook.jsx";
+import Loans from "./routes/Loans.jsx";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/loans",
+        element: <Loans />,
       },
       {
         path: "/viewBook/:title",
