@@ -13,10 +13,10 @@ export default function ViewBook() {
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [editValue, setEditValue] = useState('');
   const [imageSrc, setImageSrc] = useState('');
-  const [reviewData, setReviewData] = useState({ score: '', rating: '' });
+  const [reviewData, setReviewData] = useState({ score: '', comment: '' });
   const [hover, setHover] = useState(0); // Estado para el hover
   const [newImage, setNewImage] = useState(null);
-  const [isLoaned, setIsLoaned] = useState(false); // Estado para el préstamo
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -83,7 +83,7 @@ export default function ViewBook() {
         body: JSON.stringify({
           title: title,
           score: reviewData.score,
-          rating: reviewData.rating
+          comment: reviewData.comment
         })
       });
 
@@ -96,7 +96,7 @@ export default function ViewBook() {
       const reviewsData = await updatedReviews.json();
       setReviews(reviewsData);
 
-      setReviewData({ score: '', rating: '' });
+      setReviewData({ score: '', comment: '' });
 
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -254,41 +254,6 @@ export default function ViewBook() {
   const handleImageChange = (e) => {
     setNewImage(e.target.files[0]);
   };
-
-  const handleLoanToggle = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error("No token found, user might not be authenticated");
-      return;
-    }
-  
-    try {
-      const response = await fetch('http://localhost:8080/loan', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-          'Authorization': `Bearer ${token}`
-        },
-        body: title
-      });
-
-      console.log(title)
-
-      console.log(response)
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
-      }
-
-      console.log("enviado")
-  
-      setIsLoaned(!isLoaned); 
-  
-    } catch (error) {
-      console.error("Failed to toggle loan status:", error);
-    }
-  };
   
 
   if (!book) {
@@ -300,11 +265,6 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div className="col-md-6 mb-3">
-        {isLoggedIn && (
-            <button onClick={handleLoanToggle} className="btn btn-primary">
-              {isLoaned ? 'Return Book' : 'Loan Book'}
-            </button>
-          )}
           {imageSrc ? (
             <img src={imageSrc} alt={book.title} className="img-fluid" />
           ) : (
@@ -361,12 +321,12 @@ export default function ViewBook() {
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="rating">Rating:</label>
+            <label htmlFor="comment">Comment:</label>
             <textarea
               className="form-control"
-              id="rating"
-              name="rating"
-              value={reviewData.rating}
+              id="comment"
+              name="comment"
+              value={reviewData.comment}
               onChange={handleReviewChange}
               required
             ></textarea>
@@ -382,7 +342,7 @@ export default function ViewBook() {
             <div key={index} className="list-group-item">
               <p><strong>User:</strong> {review.userName}</p>
               <p><strong>Score:</strong> {review.score}</p>
-              <p><strong>Rating:</strong> {review.rating}</p>
+              <p><strong>Comment:</strong> {review.comment}</p>
             </div>
           ))
         ) : (
