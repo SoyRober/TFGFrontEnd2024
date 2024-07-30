@@ -255,10 +255,7 @@ export default function ViewBook() {
     setNewImage(e.target.files[0]);
   };
   
-
-  if (!book) {
-    return <div className="container mt-5">Loading...</div>;
-  }
+  
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -287,6 +284,9 @@ export default function ViewBook() {
     }
   };
 
+  if (!book) {
+    return <div className="container mt-5">Loading...</div>;
+  }
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
