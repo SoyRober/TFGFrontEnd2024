@@ -208,6 +208,7 @@ export default function Homepage() {
       fetchBooksData();
     } catch (error) {
       console.error("Failed to save book:", error);
+      alert(`Failed to save book: ${error.message}`);
     }
   };
 
