@@ -16,7 +16,7 @@ export default function ViewBook() {
   const [reviewData, setReviewData] = useState({ score: '', comment: '' });
   const [hover, setHover] = useState(0); // Estado para el hover
   const [newImage, setNewImage] = useState(null);
-
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Estado para ventana de confirmación
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -259,18 +259,52 @@ export default function ViewBook() {
   if (!book) {
     return <div className="container mt-5">Loading...</div>;
   }
+  const handleDeleteBook = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8080/deleteBook`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      setShowDeleteConfirmation(false);
+      navigate('/');
+    } catch (error) {
+      console.error("Failed to delete book:", error);
+    }
+  };
 
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
+        <div>
+          {isLoggedIn && (
+            <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger">
+              Delete Book
+            </button>
+          )}
+        </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (
             <img src={imageSrc} alt={book.title} className="img-fluid" />
           ) : (
             <div>No image available</div>
           )}
-          {isLoggedIn && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit image</button>}
         </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Title:</span> {book.title}</p>
@@ -296,7 +330,6 @@ export default function ViewBook() {
 
           <p><span className="label">Adult:</span> {book.adult ? 'Yes' : 'No'}</p>
           {isLoggedIn && <button onClick={() => handleEditClick('isAdult')} className="btn btn-primary">Edit</button>}
-
         </div>
       </div>
 
@@ -351,6 +384,27 @@ export default function ViewBook() {
       </div>
 
       {renderEditModal()}
+
+      {/* Ventana de confirmación para eliminar libro */}
+      {showDeleteConfirmation && (
+        <div className="modal show" style={{ display: "block" }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Confirm Delete</h5>
+                <button type="button" className="btn-close" onClick={() => setShowDeleteConfirmation(false)}></button>
+              </div>
+              <div className="modal-body">
+                <p>This book will be deleted. Are you sure?</p>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</button>
+                <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
