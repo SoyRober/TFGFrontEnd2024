@@ -264,13 +264,13 @@ export default function ViewBook() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/deleteBook`, {
+      const response = await fetch(`http://localhost:8080/deleteBook?title=${encodeURIComponent(title)}`, {
+
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title })
+        }
       });
 
       if (!response.ok) {
