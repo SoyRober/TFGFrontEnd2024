@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { fetchData } from '../utils/fetch.js';
 
 const UserLoans = () => {
   const [loans, setLoans] = useState([]);
@@ -17,25 +18,7 @@ const UserLoans = () => {
       }
 
       try {
-        const response = await fetch('http://localhost:8080/getUserLoans', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            localStorage.removeItem('token');
-            navigate('/login');
-          } else {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
-          }
-        }
-
-        const data = await response.json();
-        console.log(data)
+        const data = await fetchData('/getUserLoans', 'GET', null, token);
         if (data.success) {
           setLoans(data.message);
         } else {
@@ -86,6 +69,7 @@ const UserLoans = () => {
                   </p>
                   <p className="card-text">
                     <strong>Returned:</strong> {loan.isReturned ? 'Yes' : 'No'}
+                    {!loan.isReturned && <button className="btn btn-warning ms-2">Return</button>}
                   </p>
                 </div>
               </div>

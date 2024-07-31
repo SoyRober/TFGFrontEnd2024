@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../styles/main.css';
+import { fetchData } from '../utils/fetch.js';
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -14,9 +14,10 @@ export default function ViewBook() {
   const [editValue, setEditValue] = useState('');
   const [imageSrc, setImageSrc] = useState('');
   const [reviewData, setReviewData] = useState({ score: '', comment: '' });
-  const [hover, setHover] = useState(0); // Estado para el hover
+  const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Estado para ventana de confirmación
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [loanStatus, setLoanStatus] = useState(null); // Estado para manejar el préstamo
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -28,13 +29,10 @@ export default function ViewBook() {
   useEffect(() => {
     const fetchBookData = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/getBookByTitle?title=${encodeURIComponent(title)}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchData(`/getBookByTitle?title=${encodeURIComponent(title)}`);
         setBook(data.book);
         setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
+        setLoanStatus(data.book.isLoaned); // Asigna el estado de préstamo
       } catch (error) {
         console.error("Failed to fetch book details:", error);
       }
@@ -42,11 +40,7 @@ export default function ViewBook() {
 
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
         setReviews(data);
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
@@ -74,28 +68,14 @@ export default function ViewBook() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/addReview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          title: title,
-          score: reviewData.score,
-          comment: reviewData.comment
-        })
-      });
+      await fetchData('/addReview', 'POST', {
+        title,
+        score: reviewData.score,
+        comment: reviewData.comment
+      }, true);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
-      }
-
-      const updatedReviews = await fetch(`http://localhost:8080/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-      const reviewsData = await updatedReviews.json();
+      const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
-
       setReviewData({ score: '', comment: '' });
 
     } catch (error) {
@@ -130,19 +110,7 @@ export default function ViewBook() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/updateBook', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: payload
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const updatedBook = await response.json();
+      const updatedBook = await fetchData('/updateBook', 'POST', payload, token);
       setBook(updatedBook);
       setEditingAttribute(null);
 
@@ -254,8 +222,25 @@ export default function ViewBook() {
   const handleImageChange = (e) => {
     setNewImage(e.target.files[0]);
   };
-  
-  
+
+  const handleLoanToggle = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      const action = loanStatus ? 'returnBook' : 'loan';
+      const requestBody = { title };
+      await fetchData(`/${action}`, 'POST', requestBody, token, 'application/json');
+      setLoanStatus(!loanStatus);
+    } catch (error) {
+      console.error(`Failed to ${loanStatus ? 'return' : 'loan'} book:`, error);
+    }
+  };
+
+
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -264,19 +249,7 @@ export default function ViewBook() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/deleteBook?title=${encodeURIComponent(title)}`, {
-
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
+      await fetchData(`/deleteBook?title=${encodeURIComponent(title)}`, 'DELETE', null, true);
       setShowDeleteConfirmation(false);
       navigate('/');
     } catch (error) {
@@ -285,17 +258,29 @@ export default function ViewBook() {
   };
 
   if (!book) {
-    return <div className="container mt-5">Loading...</div>;
+    return (
+      <div className="modal-book">
+        <span className="page left"></span>
+        <span className="middle"></span>
+        <span className="page right"></span>
+      </div>
+    );
   }
+
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
           {isLoggedIn && (
-            <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger">
-              Delete Book
-            </button>
+            <>
+              <button onClick={handleLoanToggle} className={`btn ${loanStatus ? 'btn-warning' : 'btn-success'}`}>
+                {loanStatus ? 'Return Book' : 'Loan Book'}
+              </button>
+              <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
+                Delete Book
+              </button>
+            </>
           )}
         </div>
         <div className="col-md-6 mb-3">
