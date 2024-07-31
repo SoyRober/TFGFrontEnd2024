@@ -5,7 +5,12 @@ import { fetchData } from '../utils/fetch.js';
 
 const UserLoans = () => {
   const [loans, setLoans] = useState([]);
+  const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
+  const [cardHeight, setCardHeight] = useState(400); // Estado para la altura de las tarjetas
+  const [startDateFilter, setStartDateFilter] = useState(''); // Filtro por fecha de inicio
+  const [authorFilter, setAuthorFilter] = useState(''); // Filtro por autor
+  const [returnedFilter, setReturnedFilter] = useState('all'); // Filtro por estado de retorno
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -21,6 +26,7 @@ const UserLoans = () => {
         const data = await fetchData('/getUserLoans', 'GET', null, token);
         if (data.success) {
           setLoans(data.message);
+          setFilteredLoans(data.message); // Inicialmente muestra todos los préstamos
         } else {
           setError(data.message);
         }
@@ -32,24 +38,112 @@ const UserLoans = () => {
     fetchLoans();
   }, [token, navigate]);
 
+  useEffect(() => {
+    const applyFilters = () => {
+      let result = loans;
+
+      if (startDateFilter) {
+        const formattedStartDate = new Date(startDateFilter).toLocaleDateString();
+        result = result.filter(loan => new Date(loan.startDate).toLocaleDateString() === formattedStartDate);
+      }
+
+      if (authorFilter) {
+        result = result.filter(loan =>
+          loan.author && loan.author.some(author =>
+            (author.name && author.name.toLowerCase().includes(authorFilter.toLowerCase())) ||
+            (author.surname && author.surname.toLowerCase().includes(authorFilter.toLowerCase()))
+          )
+        );
+      }
+
+      if (returnedFilter !== 'all') {
+        const isReturned = returnedFilter === 'returned';
+        result = result.filter(loan => loan.isReturned === isReturned);
+      }
+
+      setFilteredLoans(result);
+    };
+
+    applyFilters();
+  }, [startDateFilter, authorFilter, returnedFilter, loans]);
+
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
 
+  const calculateColumns = () => {
+    const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardHeight / 100))));
+    return `col-${Math.floor(12 / columns)}`;
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">User Loans</h1>
+      
+      <div className="mb-3">
+        <label htmlFor="cardHeightRange" className="form-label">Card Height</label>
+        <input
+          type="range"
+          className="form-range"
+          id="cardHeightRange"
+          min="300"
+          max="600"
+          value={cardHeight}
+          onChange={(e) => setCardHeight(e.target.value)}
+        />
+      </div>
+      
+      <div className="mb-3">
+        <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
+        <input
+          type="date"
+          id="startDateFilter"
+          className="form-control"
+          value={startDateFilter}
+          onChange={(e) => setStartDateFilter(e.target.value)}
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="authorFilter" className="form-label">Author Filter</label>
+        <input
+          type="text"
+          id="authorFilter"
+          className="form-control"
+          placeholder="Enter author name or surname"
+          value={authorFilter}
+          onChange={(e) => setAuthorFilter(e.target.value)}
+        />
+      </div>
+      
+      <div className="mb-3">
+        <label htmlFor="returnedFilter" className="form-label">Returned Filter</label>
+        <select
+          id="returnedFilter"
+          className="form-select"
+          value={returnedFilter}
+          onChange={(e) => setReturnedFilter(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="returned">Returned</option>
+          <option value="notReturned">Not Returned</option>
+        </select>
+      </div>
+      
       <div className="row">
-        {loans.length > 0 ? (
-          loans.map((loan, index) => (
-            <div key={index} className="col-md-4 mb-4">
-              <div className="card">
-                <img
-                  src={`data:image/jpeg;base64,${loan.bookImage}`}
-                  className="card-img-top"
-                  alt={`Cover of ${loan.book}`}
-                />
-                <div className="card-body">
+        {filteredLoans.length > 0 ? (
+          filteredLoans.map((loan, index) => (
+            <div key={index} className={calculateColumns()}>
+              <div className="card mb-4" style={{ height: `${cardHeight}px`, display: 'flex', flexDirection: 'column' }}>
+                <div className="card-img-container" style={{ flex: '1 0 60%' }}>
+                  <img
+                    src={`data:image/jpeg;base64,${loan.bookImage}`}
+                    className="card-img-top"
+                    alt={`Cover of ${loan.book}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} // Ajustar imagen
+                  />
+                </div>
+                <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
                   <h5 className="card-title">
                     <Link to={`/viewBook/${loan.book}`} className="text-decoration-none d-flex align-items-center">
                       {loan.book}
