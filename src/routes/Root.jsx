@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 
 export default function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,7 +22,7 @@ export default function Root() {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Home</Link>
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,13 +47,14 @@ export default function Root() {
                     id="navbarDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
+                    style={{ marginLeft: '-10px' }} // Ajuste del margen
                   >
                     Perfil
                   </button>
-                  <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><Link className="dropdown-item" to="/profile/change-password">Cambiar contraseña</Link></li>
-                    <li><Link className="dropdown-item" to="/loans">My Loans</Link></li> 
-                    <li><button className="dropdown-item" onClick={handleLogout}>Cerrar sesión</button></li>
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                    <li><Link className="dropdown-item" to="/user/settings">Settings</Link></li>
+                    <li><Link className="dropdown-item" to="/user/loans">My Loans</Link></li>
+                    <li><button className="dropdown-item" onClick={handleLogout}>Log out</button></li>
                   </ul>
                 </li>
               )}
