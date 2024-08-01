@@ -392,19 +392,20 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
-
+  
     try {
       if (loanStatus) {
-        await fetchData('/returnBook', 'POST', { title }, token, 'application/json');
-        setLoanStatus(false);
+        await fetchData('/return', 'PUT', title, token, 'text/plain');
+        setLoanStatus(false); 
       } else {
-        await fetchData('/loan', 'POST', { title }, token, 'application/json');
-        setLoanStatus(true);
+        await fetchData('/loan', 'POST', title , token, 'text/plain'); 
+        setLoanStatus(true); 
       }
     } catch (error) {
       console.error("Failed to update loan status:", error);
     }
   };
+  
 
   if (!book) {
     return (
