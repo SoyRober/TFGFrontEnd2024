@@ -17,6 +17,10 @@ export default function ViewBook() {
   const [hover, setHover] = useState(0); // Estado para el hover
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false); // Estado para ventana de confirmación
+  const [authors, setAuthors] = useState([]);
+  const [selectedAuthors, setSelectedAuthors] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -26,7 +30,7 @@ export default function ViewBook() {
   }, []);
 
   useEffect(() => {
-    const fetchBookData = async () => {
+    const fetchBookData = async () => { 
       try {
         const response = await fetch(`http://localhost:8080/getBookByTitle?title=${encodeURIComponent(title)}`);
         if (!response.ok) {
@@ -35,6 +39,8 @@ export default function ViewBook() {
         const data = await response.json();
         setBook(data.book);
         setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
+        setSelectedAuthors(data.book.authors || []);
+        setSelectedGenres(data.book.genres || []);
       } catch (error) {
         console.error("Failed to fetch book details:", error);
       }
@@ -53,8 +59,61 @@ export default function ViewBook() {
       }
     };
 
+    const fetchAuthors = async () => {
+      try {
+        const url = "http://localhost:8080/searchAuthors";
+        const bodyContent = '';
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: bodyContent
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log("Authors: "+data);
+        setAuthors(data);
+      } catch (error) {
+        console.error("Failed to fetch authors:", error);
+        setAuthors([]);
+      }
+    };
+
+    const fetchGenres = async (token, searchString) => {
+      try {
+        const url = "http://localhost:8080/searchGenres";
+        const bodyContent = '';
+  
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain',
+          },
+          body: bodyContent
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        console.log("Genres: "+data);
+        setGenres(data);
+      } catch (error) {
+        console.error("Failed to fetch genres:", error);
+        setGenres([]);
+      }
+    };
+
     fetchBookData();
     fetchReviews();
+    fetchAuthors();
+    fetchGenres();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -106,10 +165,37 @@ export default function ViewBook() {
   const handleEditClick = (attribute) => {
     setEditingAttribute(attribute);
     setEditValue(book[attribute]);
+    if (attribute === 'authors') {
+      setSelectedAuthors(book.authors || []);
+    } else if (attribute === 'genres') {
+      setSelectedGenres(book.genres || []);
+    }
   };
 
   const handleEditChange = (e) => {
     setEditValue(e.target.value);
+  };
+
+  const handleAuthorChange = (e) => {
+    const options = e.target.options;
+    const selectedValues = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selectedValues.push(options[i].value);
+      }
+    }
+    setSelectedAuthors(selectedValues);
+  };
+
+  const handleGenreChange = (e) => {
+    const options = e.target.options;
+    const selectedValues = [];
+    for (let i = 0; i < options.length; i++) {
+      if (options[i].selected) {
+        selectedValues.push(options[i].value);
+      }
+    }
+    setSelectedGenres(selectedValues);
   };
 
   const handleEditSubmit = async (e) => {
@@ -123,7 +209,13 @@ export default function ViewBook() {
     const payload = new FormData();
     payload.append('title', title);
     payload.append('attribute', editingAttribute);
-    payload.append('value', editValue);
+    if (editingAttribute === 'authors') {
+      payload.append('value', JSON.stringify(selectedAuthors));
+    } else if (editingAttribute === 'genres') {
+      payload.append('value', JSON.stringify(selectedGenres));
+    } else {
+      payload.append('value', editValue);
+    }
 
     if (newImage) {
       payload.append('image', newImage);
@@ -166,6 +258,42 @@ export default function ViewBook() {
     let inputField;
 
     switch (editingAttribute) {
+      case 'authors':
+        inputField = (
+          <select
+            multiple
+            className="form-control"
+            id="editValue"
+            value={selectedAuthors}
+            onChange={handleAuthorChange}
+            required
+          >
+            {authors.map((author, index) => (
+              <option key={index} value={author}>
+                {author}
+              </option>
+            ))}
+          </select>
+        );
+        break;
+      case 'genres':
+        inputField = (
+          <select
+            multiple
+            className="form-control"
+            id="editGenres"
+            value={selectedGenres}
+            onChange={handleGenreChange}
+            required
+          >
+            {genres.map((genre, index) => (
+              <option key={index} value={genre}>
+                {genre}
+              </option>
+            ))}
+          </select>
+        );
+        break;
       case 'quantity':
         inputField = (
           <input
@@ -255,7 +383,6 @@ export default function ViewBook() {
     setNewImage(e.target.files[0]);
   };
   
-  
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -265,7 +392,6 @@ export default function ViewBook() {
 
     try {
       const response = await fetch(`http://localhost:8080/deleteBook?title=${encodeURIComponent(title)}`, {
-
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -287,6 +413,7 @@ export default function ViewBook() {
   if (!book) {
     return <div className="container mt-5">Loading...</div>;
   }
+
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
