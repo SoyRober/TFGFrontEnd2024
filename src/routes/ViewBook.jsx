@@ -31,12 +31,11 @@ export default function ViewBook() {
   }, []);
 
   useEffect(() => {
-    const fetchBookData = async () => { 
+    const fetchBookData = async () => {
       try {
         const data = await fetchData(`/getBookByTitle?title=${encodeURIComponent(title)}`);
         setBook(data.book);
         setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
-        setLoanStatus(data.book.isLoaned); // Asigna el estado de préstamo
         setSelectedAuthors(data.book.authors || []);
         setSelectedGenres(data.book.genres || []);
       } catch (error) {
@@ -70,7 +69,7 @@ export default function ViewBook() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Authors: "+data);
+        console.log("Authors: " + data);
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -82,7 +81,7 @@ export default function ViewBook() {
       try {
         const url = "http://localhost:8080/searchGenres";
         const bodyContent = '';
-  
+
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -90,13 +89,13 @@ export default function ViewBook() {
           },
           body: bodyContent
         });
-  
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         const data = await response.json();
-        console.log("Genres: "+data);
+        console.log("Genres: " + data);
         setGenres(data);
       } catch (error) {
         console.error("Failed to fetch genres:", error);
@@ -108,6 +107,7 @@ export default function ViewBook() {
     fetchReviews();
     fetchAuthors();
     fetchGenres();
+    checkLoanStatus(); 
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -351,23 +351,24 @@ export default function ViewBook() {
     setNewImage(e.target.files[0]);
   };
 
-  const handleLoanToggle = async () => {
+  const checkLoanStatus = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
-
+  
     try {
-      const action = loanStatus ? 'returnBook' : 'loan';
-      const requestBody = { title };
-      await fetchData(`/${action}`, 'POST', requestBody, token, 'application/json');
-      setLoanStatus(!loanStatus);
+      const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
+      if (response === false) {
+        console.error("Failed to check loan status:", response.message);
+        return;
+      }
+      setLoanStatus(response); 
     } catch (error) {
-      console.error(`Failed to ${loanStatus ? 'return' : 'loan'} book:`, error);
+      console.error("Failed to check loan status:", error);
     }
-  };
-
+  };  
 
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
@@ -382,6 +383,26 @@ export default function ViewBook() {
       navigate('/');
     } catch (error) {
       console.error("Failed to delete book:", error);
+    }
+  };
+
+  const handleLoanClick = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      if (loanStatus) {
+        await fetchData('/returnBook', 'POST', { title }, token, 'application/json');
+        setLoanStatus(false);
+      } else {
+        await fetchData('/loan', 'POST', { title }, token, 'application/json');
+        setLoanStatus(true);
+      }
+    } catch (error) {
+      console.error("Failed to update loan status:", error);
     }
   };
 
@@ -400,16 +421,19 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
-          {isLoggedIn && (
-            <>
-              <button onClick={handleLoanToggle} className={`btn ${loanStatus ? 'btn-warning' : 'btn-success'}`}>
-                {loanStatus ? 'Return Book' : 'Loan Book'}
-              </button>
-              <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
-                Delete Book
-              </button>
-            </>
-          )}
+        {isLoggedIn && (
+          <>
+            <button
+              onClick={handleLoanClick}
+              className={`btn ${loanStatus ? 'btn-danger' : 'btn-primary'}`}
+            >
+              {loanStatus ? 'Return' : 'Loan'}
+            </button>
+            <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
+              Delete Book
+            </button>
+          </>
+        )}
         </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (

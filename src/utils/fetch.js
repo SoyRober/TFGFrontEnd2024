@@ -1,37 +1,30 @@
 const BASE_URL = 'http://localhost:8080';
 
 export const fetchData = async (endpoint, method = 'GET', body = null, token = null, contentType = 'application/json') => {
-    console.log(`Requesting ${BASE_URL}${endpoint} with method ${method}`);
     
     const headers = {
         'Content-Type': contentType,
     };
-    console.log('Initial headers:', headers);
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
-        console.log('Added Authorization header:', headers['Authorization']);
     }
 
     const config = {
         method,
         headers,
     };
-    console.log('Initial config:', config);
 
     if (body) {
         console.log('Body provided:', body);
         if (contentType === 'application/json' && !(body instanceof FormData)) {
             config.body = JSON.stringify(body);
-            console.log('Serialized JSON body:', config.body);
         } else {
             config.body = body; 
-            console.log('Non-JSON or FormData body:', config.body);
         }
     }
 
     try {
-        console.log('Making fetch request with config:', config);
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
         
         console.log('Received response:', response);
