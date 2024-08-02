@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import '../styles/loading.css';
 import CreateBookModal from "../components/CreateBookModal";
+import { jwtDecode } from 'jwt-decode'
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,11 +44,15 @@ export default function Homepage() {
     if (token) {
       setIsLoggedIn(true);
 
-      const userRole = "ADMIN";
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+      
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
 
+      console.log(token);
+      console.log(userRole);
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }
