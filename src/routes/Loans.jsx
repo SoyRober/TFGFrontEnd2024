@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { fetchData } from '../utils/fetch.js';
@@ -7,10 +7,10 @@ const UserLoans = () => {
   const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
-  const [cardHeight, setCardHeight] = useState(400); // Estado para la altura de las tarjetas
-  const [startDateFilter, setStartDateFilter] = useState(''); // Filtro por fecha de inicio
-  const [authorFilter, setAuthorFilter] = useState(''); // Filtro por autor
-  const [returnedFilter, setReturnedFilter] = useState('all'); // Filtro por estado de retorno
+  const [cardHeight, setCardHeight] = useState(400); 
+  const [startDateFilter, setStartDateFilter] = useState(''); 
+  const [authorFilter, setAuthorFilter] = useState(''); 
+  const [returnedFilter, setReturnedFilter] = useState('all'); 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -26,7 +26,7 @@ const UserLoans = () => {
         const data = await fetchData('/getUserLoans', 'GET', null, token);
         if (data.success) {
           setLoans(data.message);
-          setFilteredLoans(data.message); // Inicialmente muestra todos los préstamos
+          setFilteredLoans(data.message); 
         } else {
           setError(data.message);
         }
@@ -66,6 +66,24 @@ const UserLoans = () => {
 
     applyFilters();
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
+
+  const handleReturnBook = async (bookTitle) => {
+    try {
+      const response = await fetchData('/return', 'PUT', bookTitle, token, 'text/plain');
+      if (response) {
+        setLoans(prevLoans => 
+          prevLoans.map(loan => loan.book === bookTitle ? { ...loan, isReturned: true } : loan)
+        );
+        setFilteredLoans(prevLoans => 
+          prevLoans.map(loan => loan.book === bookTitle ? { ...loan, isReturned: true } : loan)
+        );
+      } else {
+        setError(response.message);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };  
 
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
@@ -140,7 +158,7 @@ const UserLoans = () => {
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
                     className="card-img-top"
                     alt={`Cover of ${loan.book}`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} // Ajustar imagen
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
@@ -163,7 +181,14 @@ const UserLoans = () => {
                   </p>
                   <p className="card-text">
                     <strong>Returned:</strong> {loan.isReturned ? 'Yes' : 'No'}
-                    {!loan.isReturned && <button className="btn btn-warning ms-2">Return</button>}
+                    {!loan.isReturned && 
+                      <button 
+                        className="btn btn-warning ms-2"
+                        onClick={() => handleReturnBook(loan.book)}
+                      >
+                        Return
+                      </button>
+                    }
                   </p>
                 </div>
               </div>

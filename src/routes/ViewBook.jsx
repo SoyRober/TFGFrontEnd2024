@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
@@ -85,7 +85,7 @@ export default function ViewBook() {
       }
     };
 
-    const fetchGenres = async (token, searchString) => {
+    const fetchGenres = async () => {
       try {
         const url = "http://localhost:8080/searchGenres";
         const bodyContent = '';
