@@ -51,8 +51,6 @@ export default function Homepage() {
         setHasPermissions(true);
       }
 
-      console.log(token);
-      console.log(userRole);
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }

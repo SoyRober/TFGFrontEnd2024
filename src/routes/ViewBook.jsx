@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import { fetchData } from '../utils/fetch.js';
+import { jwtDecode } from 'jwt-decode'
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -10,6 +11,7 @@ export default function ViewBook() {
   const [book, setBook] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasPermissions, setHasPermissions] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [editValue, setEditValue] = useState('');
   const [imageSrc, setImageSrc] = useState('');
@@ -17,7 +19,7 @@ export default function ViewBook() {
   const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [loanStatus, setLoanStatus] = useState(null); // Estado para manejar el préstamo
+  const [loanStatus, setLoanStatus] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -27,6 +29,13 @@ export default function ViewBook() {
     const token = localStorage.getItem('token');
     if (token) {
       setIsLoggedIn(true);
+
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+      
+      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+        setHasPermissions(true);
+      }
     }
   }, []);
 
@@ -69,7 +78,6 @@ export default function ViewBook() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        console.log("Authors: " + data);
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -95,7 +103,6 @@ export default function ViewBook() {
         }
 
         const data = await response.json();
-        console.log("Genres: " + data);
         setGenres(data);
       } catch (error) {
         console.error("Failed to fetch genres:", error);
@@ -405,7 +412,6 @@ export default function ViewBook() {
       console.error("Failed to update loan status:", error);
     }
   };
-  
 
   if (!book) {
     return (
@@ -422,7 +428,7 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
-        {isLoggedIn && (
+        {isLoggedIn && hasPermissions && (
           <>
             <button
               onClick={handleLoanClick}
@@ -442,32 +448,32 @@ export default function ViewBook() {
           ) : (
             <div>No image available</div>
           )}
-          {isLoggedIn && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit image</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit image</button>}
         </div>
         <div className="col-md-6 mb-3">
           <p><span className="label">Title:</span> {book.title}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('title')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('title')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Authors:</span> {book.authors ? book.authors.join(', ') : 'N/A'}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('authors')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('authors')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Genres:</span> {book.genres ? book.genres.join(', ') : 'N/A'}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('genres')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('genres')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Quantity:</span> {book.quantity}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('quantity')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('quantity')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Location:</span> {book.location}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('location')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('location')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Synopsis:</span> {book.synopsis}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('synopsis')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('synopsis')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Publication Date:</span> {book.publicationDate}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('publicationDate')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('publicationDate')} className="btn btn-primary">Edit</button>}
 
           <p><span className="label">Adult:</span> {book.adult ? 'Yes' : 'No'}</p>
-          {isLoggedIn && <button onClick={() => handleEditClick('isAdult')} className="btn btn-primary">Edit</button>}
+          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('isAdult')} className="btn btn-primary">Edit</button>}
         </div>
       </div>
 
