@@ -428,7 +428,7 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
-        {isLoggedIn && hasPermissions && (
+        {isLoggedIn && (
           <>
             <button
               onClick={handleLoanClick}
@@ -436,9 +436,11 @@ export default function ViewBook() {
             >
               {loanStatus ? 'Return' : 'Loan'}
             </button>
-            <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
+            {hasPermissions && (
+              <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
               Delete Book
             </button>
+            )}
           </>
         )}
         </div>
