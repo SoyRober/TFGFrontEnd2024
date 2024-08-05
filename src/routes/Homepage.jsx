@@ -30,7 +30,6 @@ export default function Homepage() {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -60,9 +59,8 @@ export default function Homepage() {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
       if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom && !loading) {
+        if (!atBottom) {
           setAtBottom(true);
-          console.log("tope");
           fetchBooksData(page + 1);
         }
       } else {
@@ -73,10 +71,9 @@ export default function Homepage() {
     window.addEventListener('scroll', handleScroll);
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [atBottom, loading, page]);
+  }, [atBottom, page]);
 
   const fetchBooksData = async (page) => {
-    setLoading(true);
     try {
       const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
       setBooks(prevBooks => {
@@ -96,7 +93,6 @@ export default function Homepage() {
     } catch (error) {
       console.error("Failed to fetch books:", error);
     } finally {
-      setLoading(false);
       setAtBottom(false);
     }
   };

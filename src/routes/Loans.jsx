@@ -5,40 +5,45 @@ import '../styles/loading.css';
 import { fetchData } from '../utils/fetch.js';
 
 const UserLoans = () => {
-  const [loans, setLoans] = useState(null);
+  const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
-  const [cardHeight, setCardHeight] = useState(400); 
-  const [startDateFilter, setStartDateFilter] = useState(''); 
-  const [authorFilter, setAuthorFilter] = useState(''); 
-  const [returnedFilter, setReturnedFilter] = useState('all'); 
-  const [showAnimation, setShowAnimation] = useState(true); 
-  const navigate = useNavigate();
+  const [cardHeight, setCardHeight] = useState(400);
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [authorFilter, setAuthorFilter] = useState('');
+  const [returnedFilter, setReturnedFilter] = useState('all');
+  const [atBottom, setAtBottom] = useState(false);
+  const [page, setPage] = useState(0);
   const token = localStorage.getItem('token');
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchLoans = async () => {
-      if (!token) {
-        setError("No token found, user might not be authenticated");
-        navigate('/login');
-        return;
-      }
+    if (!token) {
+      setError("No token found, user might not be authenticated");
+      navigate('/login');
+      return;
+    }
 
+    const fetchLoans = async () => {
       try {
-        const data = await fetchData('/getUserLoans', 'GET', null, token);
+        const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
-          setLoans(data.message);
-          setFilteredLoans(data.message); 
+          setLoans(prevLoans => [...prevLoans, ...data.message]);
+          setFilteredLoans(prevLoans => [...prevLoans, ...data.message]);
         } else {
-          setError(data.message);
+          if (data.message.includes("rows")) {
+            console.log("No más que cargar")
+          }
         }
       } catch (err) {
         setError(err.message);
+      } finally {
+        setAtBottom(false);
       }
     };
 
     fetchLoans();
-  }, [token, navigate]);
+  }, [page, token, navigate]);
 
   useEffect(() => {
     const applyFilters = () => {
@@ -70,23 +75,31 @@ const UserLoans = () => {
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
 
   useEffect(() => {
-    if (showAnimation) {
-      const timer = setTimeout(() => {
-        setShowAnimation(false);
-      }, 1000);
+    const handleScroll = () => {
+      const documentHeight = document.documentElement.scrollHeight;
+      const windowHeight = window.innerHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      return () => clearTimeout(timer);
-    }
-  }, [showAnimation]);
+      if (scrollTop + windowHeight >= documentHeight - 5) {
+        if (!atBottom) {
+          setAtBottom(true);
+          setPage(prevPage => prevPage + 1);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [atBottom]);
 
   const handleReturnBook = async (bookTitle) => {
     try {
       const response = await fetchData('/return', 'PUT', bookTitle, token, 'text/plain');
       if (response) {
-        setLoans(prevLoans => 
+        setLoans(prevLoans =>
           prevLoans.map(loan => loan.book === bookTitle ? { ...loan, isReturned: true } : loan)
         );
-        setFilteredLoans(prevLoans => 
+        setFilteredLoans(prevLoans =>
           prevLoans.map(loan => loan.book === bookTitle ? { ...loan, isReturned: true } : loan)
         );
       } else {
@@ -95,21 +108,21 @@ const UserLoans = () => {
     } catch (err) {
       setError(err.message);
     }
-  };  
+  };
 
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
 
-  if (loans === null) {
+  if (loans.length === 0) {
     return (
-      <div className={`modal-book ${showAnimation ? 'fade-in' : ''}`}>
+      <div className={`modal-book fade-in`}>
         <span className="page left"></span>
         <span className="middle"></span>
         <span className="page right"></span>
       </div>
     );
-  } 
+  }
 
   const calculateColumns = () => {
     const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardHeight / 100))));
@@ -119,7 +132,7 @@ const UserLoans = () => {
   return (
     <div className="container mt-5">
       <h1 className="display-4 text-center mb-4">User Loans</h1>
-      
+
       <div className="mb-3">
         <label htmlFor="cardHeightRange" className="form-label">Card Height</label>
         <input
@@ -132,7 +145,7 @@ const UserLoans = () => {
           onChange={(e) => setCardHeight(e.target.value)}
         />
       </div>
-      
+
       <div className="mb-3">
         <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
         <input
@@ -155,7 +168,7 @@ const UserLoans = () => {
           onChange={(e) => setAuthorFilter(e.target.value)}
         />
       </div>
-      
+
       <div className="mb-3">
         <label htmlFor="returnedFilter" className="form-label">Returned Filter</label>
         <select
@@ -169,7 +182,7 @@ const UserLoans = () => {
           <option value="notReturned">Not Returned</option>
         </select>
       </div>
-      
+
       <div className="row">
         {filteredLoans.length > 0 ? (
           filteredLoans.map((loan, index) => (
@@ -203,25 +216,24 @@ const UserLoans = () => {
                   </p>
                   <p className="card-text">
                     <strong>Returned:</strong> {loan.isReturned ? 'Yes' : 'No'}
-                    {!loan.isReturned && 
-                      <button 
-                        className="btn btn-warning ms-2"
+                    {!loan.isReturned && (
+                      <button
+                        className="btn btn-primary ms-2"
                         onClick={() => handleReturnBook(loan.book)}
                       >
                         Return
                       </button>
-                    }
+                    )}
                   </p>
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="col-12">
-            <div className="alert alert-info" role="alert">No loans found</div>
-          </div>
+          <div className="alert alert-info" role="alert">No loans found</div>
         )}
       </div>
+
     </div>
   );
 };
