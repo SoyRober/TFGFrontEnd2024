@@ -16,7 +16,6 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
     };
 
     if (body) {
-        console.log('Body provided:', body);
         if (contentType === 'application/json' && !(body instanceof FormData)) {
             config.body = JSON.stringify(body);
         } else {
@@ -27,7 +26,6 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
         
-        console.log('Received response:', response);
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Error response text:', errorText);
@@ -35,15 +33,13 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
         }
 
         const responseContentType = response.headers.get('content-type');
-        console.log('Response Content-Type:', responseContentType);
 
         if (responseContentType && responseContentType.includes('application/json')) {
             const jsonResponse = await response.json();
-            console.log('Parsed JSON response:', jsonResponse);
+            console.log(jsonResponse)
             return jsonResponse;
         } else {
             const textResponse = await response.text();
-            console.log('Parsed text response:', textResponse);
             return textResponse;
         }
     } catch (error) {

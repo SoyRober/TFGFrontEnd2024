@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../styles/loading.css';
 import { fetchData } from '../utils/fetch.js';
 
 const UserLoans = () => {
-  const [loans, setLoans] = useState([]);
+  const [loans, setLoans] = useState(null);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
   const [cardHeight, setCardHeight] = useState(400); 
   const [startDateFilter, setStartDateFilter] = useState(''); 
   const [authorFilter, setAuthorFilter] = useState(''); 
   const [returnedFilter, setReturnedFilter] = useState('all'); 
+  const [showAnimation, setShowAnimation] = useState(true); 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
@@ -67,6 +69,16 @@ const UserLoans = () => {
     applyFilters();
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
 
+  useEffect(() => {
+    if (showAnimation) {
+      const timer = setTimeout(() => {
+        setShowAnimation(false);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showAnimation]);
+
   const handleReturnBook = async (bookTitle) => {
     try {
       const response = await fetchData('/return', 'PUT', bookTitle, token, 'text/plain');
@@ -88,6 +100,16 @@ const UserLoans = () => {
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
+
+  if (loans === null) {
+    return (
+      <div className={`modal-book ${showAnimation ? 'fade-in' : ''}`}>
+        <span className="page left"></span>
+        <span className="middle"></span>
+        <span className="page right"></span>
+      </div>
+    );
+  } 
 
   const calculateColumns = () => {
     const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardHeight / 100))));

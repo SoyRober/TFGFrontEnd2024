@@ -25,12 +25,18 @@ export default function Root() {
       <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Home</Link>
+          
+          {isLoggedIn && (
+            <Link className="nav-link" to="/user/loans">My Loans</Link>
+          )}
+          
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
+          
           <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul className="navbar-nav">
-              {!isLoggedIn && (
+              {!isLoggedIn ? (
                 <>
                   <li className="nav-item">
                     <Link className="nav-link" to="/login">Login</Link>
@@ -39,21 +45,19 @@ export default function Root() {
                     <Link className="nav-link" to="/register">Register</Link>
                   </li>
                 </>
-              )}
-              {isLoggedIn && (
+              ) : (
                 <li className="nav-item dropdown">
                   <button
                     className="nav-link dropdown-toggle"
                     id="navbarDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ marginLeft: '-10px' }} // Ajuste del margen
+                    style={{ marginLeft: '-10px' }} 
                   >
-                    Perfil
+                    Profile
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li><Link className="dropdown-item" to="/user/settings">Settings</Link></li>
-                    <li><Link className="dropdown-item" to="/user/loans">My Loans</Link></li>
                     <li><button className="dropdown-item" onClick={handleLogout}>Log out</button></li>
                   </ul>
                 </li>

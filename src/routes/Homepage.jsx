@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import '../styles/loading.css';
 import CreateBookModal from "../components/CreateBookModal";
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode';
+import {fetchData} from '../utils/fetch.js';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
-  const [books, setBooks] = useState(null);
+  const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
   const [bookTitle, setBookTitle] = useState('');
@@ -27,18 +28,14 @@ export default function Homepage() {
   const [cardSize, setCardSize] = useState(300);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBooks, setFilteredBooks] = useState([]);
+  const [atBottom, setAtBottom] = useState(false);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const isMountedRef = useRef(true);
 
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    fetchBooksData();
+    fetchBooksData(page);
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -54,43 +51,60 @@ export default function Homepage() {
       fetchAuthors(token, '');
       fetchGenres(token, '');
     }
-  }, []);
+  }, [page]);
 
-  const fetchBooksData = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/getAllBooks");
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+  useEffect(() => {
+    const handleScroll = () => {
+      const documentHeight = document.documentElement.scrollHeight;
+      const windowHeight = window.innerHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+      if (scrollTop + windowHeight >= documentHeight - 5) {
+        if (!atBottom && !loading) {
+          setAtBottom(true);
+          console.log("tope");
+          fetchBooksData(page + 1);
+        }
+      } else {
+        setAtBottom(false);
       }
-      const data = await response.json();
-      setBooks(data.books);
-      setFilteredBooks(data.books); 
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [atBottom, loading, page]);
+
+  const fetchBooksData = async (page) => {
+    setLoading(true);
+    try {
+      const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
+      setBooks(prevBooks => {
+        const newBooks = data.books.filter(
+          newBook => !prevBooks.some(book => book.title === newBook.title)
+        );
+        return [...prevBooks, ...newBooks];
+      });
+      setFilteredBooks(prevBooks => {
+        const newBooks = data.books.filter(
+          newBook => !prevBooks.some(book => book.title === newBook.title)
+        );
+        return [...prevBooks, ...newBooks];
+      });
+      setPage(page);
+      console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
-      setBooks([]);
-      setFilteredBooks([]);
+    } finally {
+      setLoading(false);
+      setAtBottom(false);
     }
   };
+  
 
   const fetchAuthors = async (token, searchString) => {
     try {
-      const url = "http://localhost:8080/searchAuthors";
-      const bodyContent = searchString || '';
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-          'Authorization': `Bearer ${token}`
-        },
-        body: bodyContent
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await fetchData('/searchAuthors', 'POST', searchString, token, 'text/plain');
       setAuthors(data);
     } catch (error) {
       console.error("Failed to fetch authors:", error);
@@ -100,23 +114,7 @@ export default function Homepage() {
 
   const fetchGenres = async (token, searchString) => {
     try {
-      const url = "http://localhost:8080/searchGenres";
-      const bodyContent = searchString || '';
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'text/plain',
-          'Authorization': `Bearer ${token}`
-        },
-        body: bodyContent
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await fetchData('/searchGenres', 'POST', searchString, token, 'text/plain');
       setGenres(data);
     } catch (error) {
       console.error("Failed to fetch genres:", error);
@@ -171,7 +169,7 @@ export default function Homepage() {
     setBookSynopsis('');
     setBookPublicationDate('');
     setBookIsAdult(false);
-    setBookImageBase64(''); // Limpiar el estado de la imagen base64
+    setBookImageBase64('');
   };
 
   const handleSave = async () => {
@@ -185,7 +183,7 @@ export default function Homepage() {
       synopsis: bookSynopsis,
       publicationDate: bookPublicationDate,
       isAdult: bookIsAdult,
-      imageBase64: bookImageBase64 // Enviar la imagen en base64
+      imageBase64: bookImageBase64
     };
 
     console.log("Saving book data:", bookData);
@@ -231,9 +229,9 @@ export default function Homepage() {
     } else {
       const lowerCaseTerm = term.toLowerCase();
       const filtered = books.filter(book =>
-        book.title.toLowerCase().includes(lowerCaseTerm) || // Buscar en el título
-        book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) || // Buscar en autores
-        book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm)) // Buscar en géneros
+        book.title.toLowerCase().includes(lowerCaseTerm) ||
+        book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) ||
+        book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm))
       );
       setFilteredBooks(filtered);
     }
@@ -241,7 +239,7 @@ export default function Homepage() {
 
   if (books === null) {
     return (
-      <div className="modal-book">
+      <div className="modal-book" style={{ height: "2000px" }}>
         <span className="page left"></span>
         <span className="middle"></span>
         <span className="page right"></span>
@@ -251,7 +249,7 @@ export default function Homepage() {
 
   return (
     <>
-    <div className="fade-in">
+    <div className="fade-in" style={{ height: "1000px" }}>
     {hasPermissions && (
         <div>
           <button className="btn btn-primary" onClick={openModal}>
