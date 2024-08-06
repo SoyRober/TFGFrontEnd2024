@@ -8,10 +8,18 @@ const UserLoans = () => {
   const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
-  const [cardHeight, setCardHeight] = useState(400);
-  const [startDateFilter, setStartDateFilter] = useState('');
-  const [authorFilter, setAuthorFilter] = useState('');
-  const [returnedFilter, setReturnedFilter] = useState('all');
+  const [cardHeight, setCardHeight] = useState(() => {
+    return localStorage.getItem('cardHeight') ? parseInt(localStorage.getItem('cardHeight')) : 400;
+  });
+  const [startDateFilter, setStartDateFilter] = useState(() => {
+    return localStorage.getItem('startDateFilter') || '';
+  });
+  const [authorFilter, setAuthorFilter] = useState(() => {
+    return localStorage.getItem('authorFilter') || '';
+  });
+  const [returnedFilter, setReturnedFilter] = useState(() => {
+    return localStorage.getItem('returnedFilter') || 'all';
+  });
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const token = localStorage.getItem('token');
@@ -32,7 +40,7 @@ const UserLoans = () => {
           setFilteredLoans(prevLoans => [...prevLoans, ...data.message]);
         } else {
           if (data.message.includes("rows")) {
-            console.log("No más que cargar")
+            console.log("No más que cargar");
           }
         }
       } catch (err) {
@@ -91,6 +99,22 @@ const UserLoans = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom]);
+
+  useEffect(() => {
+    localStorage.setItem('cardHeight', cardHeight);
+  }, [cardHeight]);
+
+  useEffect(() => {
+    localStorage.setItem('startDateFilter', startDateFilter);
+  }, [startDateFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('authorFilter', authorFilter);
+  }, [authorFilter]);
+
+  useEffect(() => {
+    localStorage.setItem('returnedFilter', returnedFilter);
+  }, [returnedFilter]);
 
   const handleReturnBook = async (bookTitle) => {
     try {
@@ -233,7 +257,6 @@ const UserLoans = () => {
           <div className="alert alert-info" role="alert">No loans found</div>
         )}
       </div>
-
     </div>
   );
 };

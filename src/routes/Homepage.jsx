@@ -26,6 +26,9 @@ export default function Homepage() {
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
   const [cardSize, setCardSize] = useState(300);
+  const [cardSizeSave, setCardSizeSave] = useState(() => {
+    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 300;
+  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
@@ -33,6 +36,10 @@ export default function Homepage() {
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setCardSize(cardSizeSave); // Restore card size from localStorage on initial load
+  }, [cardSizeSave]);
 
   useEffect(() => {
     fetchBooksData(page);
@@ -74,6 +81,10 @@ export default function Homepage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom, page]);
 
+  useEffect(() => {
+    localStorage.setItem('cardSize', cardSize);
+  }, [cardSize]);
+
   const fetchBooksData = async (page) => {
     try {
       const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
@@ -90,7 +101,7 @@ export default function Homepage() {
         return [...prevBooks, ...newBooks];
       });
       setPage(page);
-      setExtraBottomSpace(extraBottomSpace + cardSize/7);
+      setExtraBottomSpace(extraBottomSpace + 200);
       console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
