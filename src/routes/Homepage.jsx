@@ -99,7 +99,7 @@ export default function Homepage() {
         return [...prevBooks, ...newBooks];
       });
       setPage(page);
-      setExtraBottomSpace(extraBottomSpace + 200);
+      setExtraBottomSpace(extraBottomSpace + cardSize/7);
       console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
