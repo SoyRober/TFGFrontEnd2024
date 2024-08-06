@@ -128,6 +128,7 @@ export default function ViewBook() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    console.log("token: " + token);
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
@@ -138,7 +139,7 @@ export default function ViewBook() {
         title,
         score: reviewData.score,
         comment: reviewData.comment
-      }, true);
+      }, token);
 
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
