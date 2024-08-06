@@ -8,7 +8,6 @@ import { jwtDecode } from 'jwt-decode';
 import { fetchData } from '../utils/fetch.js';
 
 export default function Homepage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
@@ -38,7 +37,7 @@ export default function Homepage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setCardSize(cardSizeSave); // Restore card size from localStorage on initial load
+    setCardSize(cardSizeSave);
   }, [cardSizeSave]);
 
   useEffect(() => {
@@ -46,7 +45,6 @@ export default function Homepage() {
 
     const token = localStorage.getItem('token');
     if (token) {
-      setIsLoggedIn(true);
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;

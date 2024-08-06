@@ -8,23 +8,17 @@ const UserLoans = () => {
   const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
-  const [cardHeight, setCardHeight] = useState(() => {
-    return localStorage.getItem('cardHeight') ? parseInt(localStorage.getItem('cardHeight')) : 400;
-  });
-  const [startDateFilter, setStartDateFilter] = useState(() => {
-    return localStorage.getItem('startDateFilter') || '';
-  });
-  const [authorFilter, setAuthorFilter] = useState(() => {
-    return localStorage.getItem('authorFilter') || '';
-  });
-  const [returnedFilter, setReturnedFilter] = useState(() => {
-    return localStorage.getItem('returnedFilter') || 'all';
-  });
+  const [cardHeight, setCardHeight] = useState(400);
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [authorFilter, setAuthorFilter] = useState('');
+  const [returnedFilter, setReturnedFilter] = useState('all');
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
+  // Fetch loans based on page number
   useEffect(() => {
     if (!token) {
       setError("No token found, user might not be authenticated");
@@ -33,11 +27,11 @@ const UserLoans = () => {
     }
 
     const fetchLoans = async () => {
+      setLoading(true);
       try {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
           setLoans(prevLoans => [...prevLoans, ...data.message]);
-          setFilteredLoans(prevLoans => [...prevLoans, ...data.message]);
         } else {
           if (data.message.includes("rows")) {
             console.log("No más que cargar");
@@ -47,12 +41,14 @@ const UserLoans = () => {
         setError(err.message);
       } finally {
         setAtBottom(false);
+        setLoading(false);
       }
     };
 
     fetchLoans();
   }, [page, token, navigate]);
 
+  // Apply filters
   useEffect(() => {
     const applyFilters = () => {
       let result = loans;
@@ -82,6 +78,7 @@ const UserLoans = () => {
     applyFilters();
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
 
+  // Scroll handling to load more loans
   useEffect(() => {
     const handleScroll = () => {
       const documentHeight = document.documentElement.scrollHeight;
@@ -89,7 +86,7 @@ const UserLoans = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
       if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom) {
+        if (!atBottom && !loading) {
           setAtBottom(true);
           setPage(prevPage => prevPage + 1);
         }
@@ -98,23 +95,7 @@ const UserLoans = () => {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [atBottom]);
-
-  useEffect(() => {
-    localStorage.setItem('cardHeight', cardHeight);
-  }, [cardHeight]);
-
-  useEffect(() => {
-    localStorage.setItem('startDateFilter', startDateFilter);
-  }, [startDateFilter]);
-
-  useEffect(() => {
-    localStorage.setItem('authorFilter', authorFilter);
-  }, [authorFilter]);
-
-  useEffect(() => {
-    localStorage.setItem('returnedFilter', returnedFilter);
-  }, [returnedFilter]);
+  }, [atBottom, loading]);
 
   const handleReturnBook = async (bookTitle) => {
     try {
@@ -134,11 +115,21 @@ const UserLoans = () => {
     }
   };
 
+  const resetStartDateFilter = () => setStartDateFilter('');
+  const resetAuthorFilter = () => setAuthorFilter('');
+  const resetReturnedFilter = () => setReturnedFilter('all');
+
+  const resetAllFilters = () => {
+    setStartDateFilter('');
+    setAuthorFilter('');
+    setReturnedFilter('all');
+  };
+
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
 
-  if (loans.length === 0) {
+  if (loans.length === 0 && !loading) {
     return (
       <div className={`modal-book fade-in`}>
         <span className="page left"></span>
@@ -172,39 +163,52 @@ const UserLoans = () => {
 
       <div className="mb-3">
         <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
-        <input
-          type="date"
-          id="startDateFilter"
-          className="form-control"
-          value={startDateFilter}
-          onChange={(e) => setStartDateFilter(e.target.value)}
-        />
+        <div className="d-flex">
+          <input
+            type="date"
+            id="startDateFilter"
+            className="form-control"
+            value={startDateFilter}
+            onChange={(e) => setStartDateFilter(e.target.value)}
+          />
+          <button className="btn btn-secondary ms-2" onClick={resetStartDateFilter}>Reset</button>
+        </div>
       </div>
 
       <div className="mb-3">
         <label htmlFor="authorFilter" className="form-label">Author Filter</label>
-        <input
-          type="text"
-          id="authorFilter"
-          className="form-control"
-          placeholder="Enter author name or surname"
-          value={authorFilter}
-          onChange={(e) => setAuthorFilter(e.target.value)}
-        />
+        <div className="d-flex">
+          <input
+            type="text"
+            id="authorFilter"
+            className="form-control"
+            placeholder="Enter author name or surname"
+            value={authorFilter}
+            onChange={(e) => setAuthorFilter(e.target.value)}
+          />
+          <button className="btn btn-secondary ms-2" onClick={resetAuthorFilter}>Reset</button>
+        </div>
       </div>
 
       <div className="mb-3">
         <label htmlFor="returnedFilter" className="form-label">Returned Filter</label>
-        <select
-          id="returnedFilter"
-          className="form-select"
-          value={returnedFilter}
-          onChange={(e) => setReturnedFilter(e.target.value)}
-        >
-          <option value="all">All</option>
-          <option value="returned">Returned</option>
-          <option value="notReturned">Not Returned</option>
-        </select>
+        <div className="d-flex">
+          <select
+            id="returnedFilter"
+            className="form-select"
+            value={returnedFilter}
+            onChange={(e) => setReturnedFilter(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="returned">Returned</option>
+            <option value="notReturned">Not Returned</option>
+          </select>
+          <button className="btn btn-secondary ms-2" onClick={resetReturnedFilter}>Reset</button>
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <button className="btn btn-warning" onClick={resetAllFilters}>Reset All Filters</button>
       </div>
 
       <div className="row">
