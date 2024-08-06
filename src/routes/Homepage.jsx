@@ -5,7 +5,7 @@ import '../styles/main.css';
 import '../styles/loading.css';
 import CreateBookModal from "../components/CreateBookModal";
 import { jwtDecode } from 'jwt-decode';
-import {fetchData} from '../utils/fetch.js';
+import { fetchData } from '../utils/fetch.js';
 
 export default function Homepage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -30,6 +30,7 @@ export default function Homepage() {
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
+  const [extraBottomSpace, setExtraBottomSpace] = useState(0);
 
   const navigate = useNavigate();
 
@@ -42,7 +43,7 @@ export default function Homepage() {
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-      
+
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
@@ -89,6 +90,7 @@ export default function Homepage() {
         return [...prevBooks, ...newBooks];
       });
       setPage(page);
+      setExtraBottomSpace(extraBottomSpace + cardSize/7);
       console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
@@ -96,7 +98,6 @@ export default function Homepage() {
       setAtBottom(false);
     }
   };
-  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -245,92 +246,93 @@ export default function Homepage() {
 
   return (
     <>
-    <div className="fade-in" style={{ height: "1000px" }}>
-    {hasPermissions && (
-        <div>
-          <button className="btn btn-primary" onClick={openModal}>
-            Create New Book
-          </button>
-        </div>
-      )}
+      <div className="fade-in" style={{ paddingBottom: `${extraBottomSpace}px` }}>
+        {hasPermissions && (
+          <div>
+            <button className="btn btn-primary" onClick={openModal}>
+              Create New Book
+            </button>
+          </div>
+        )}
 
-      <CreateBookModal
-        showModal={showModal}
-        closeModal={closeModal}
-        handleSave={handleSave}
-        bookTitle={bookTitle}
-        setBookTitle={setBookTitle}
-        bookAuthors={bookAuthors}
-        setBookAuthors={setBookAuthors}
-        authors={authors}
-        searchStringAuthors={searchStringAuthors}
-        handleAuthorsSearchChange={handleAuthorsSearchChange}
-        handleAuthorChange={handleAuthorChange}
-        bookGenres={bookGenres}
-        setBookGenres={setBookGenres}
-        genres={genres}
-        searchStringGenres={searchStringGenres}
-        handleGenresSearchChange={handleGenresSearchChange}
-        handleGenreChange={handleGenreChange}
-        bookQuantity={bookQuantity}
-        setBookQuantity={setBookQuantity}
-        bookLocation={bookLocation}
-        setBookLocation={setBookLocation}
-        bookSynopsis={bookSynopsis}
-        setBookSynopsis={setBookSynopsis}
-        bookPublicationDate={bookPublicationDate}
-        setBookPublicationDate={setBookPublicationDate}
-        bookIsAdult={bookIsAdult}
-        setBookIsAdult={setBookIsAdult}
-        setBookImageBase64={setBookImageBase64}
-      />
+        <CreateBookModal
+          showModal={showModal}
+          closeModal={closeModal}
+          handleSave={handleSave}
+          bookTitle={bookTitle}
+          setBookTitle={setBookTitle}
+          bookAuthors={bookAuthors}
+          setBookAuthors={setBookAuthors}
+          authors={authors}
+          searchStringAuthors={searchStringAuthors}
+          handleAuthorsSearchChange={handleAuthorsSearchChange}
+          handleAuthorChange={handleAuthorChange}
+          bookGenres={bookGenres}
+          setBookGenres={setBookGenres}
+          genres={genres}
+          searchStringGenres={searchStringGenres}
+          handleGenresSearchChange={handleGenresSearchChange}
+          handleGenreChange={handleGenreChange}
+          bookQuantity={bookQuantity}
+          setBookQuantity={setBookQuantity}
+          bookLocation={bookLocation}
+          setBookLocation={setBookLocation}
+          bookSynopsis={bookSynopsis}
+          setBookSynopsis={setBookSynopsis}
+          bookPublicationDate={bookPublicationDate}
+          setBookPublicationDate={setBookPublicationDate}
+          bookIsAdult={bookIsAdult}
+          setBookIsAdult={setBookIsAdult}
+          bookImageBase64={bookImageBase64}
+          setBookImageBase64={setBookImageBase64}
+        />
 
-      <div className="container mt-5">
-        <h1>Book List</h1>
-        <div className="mb-3">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Search books..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
-          <input
-            type="range"
-            className="form-range"
-            id="cardSizeRange"
-            min="300"
-            max="600"
-            value={cardSize}
-            onChange={(e) => setCardSize(e.target.value)}
-          />
-        </div>
-        <div className="row">
-          {filteredBooks.map(book => (
-            <div key={book.title} className={calculateColumns()}>
-              <div
-                className="card mb-4 customizedCard"
-                onClick={() => navigateToBookDetails(book.title)}
-                style={{ height: `${cardSize}px` }}
-              >
-                <img
-                  src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
-                  className="card-img-top"
-                  alt={book.title}
-                  style={{ height: '60%', objectFit: 'cover' }}
-                />
-                <div className="card-body">
-                  <h5 className="card-title text-center">{book.title}</h5>
+        <div className="container mt-5">
+          <h1>Book List</h1>
+          <div className="mb-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search books..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
+            <input
+              type="range"
+              className="form-range"
+              id="cardSizeRange"
+              min="300"
+              max="600"
+              value={cardSize}
+              onChange={(e) => setCardSize(e.target.value)}
+            />
+          </div>
+          <div className="row">
+            {filteredBooks.map(book => (
+              <div key={book.title} className={calculateColumns()}>
+                <div
+                  className="card mb-4 customizedCard"
+                  onClick={() => navigateToBookDetails(book.title)}
+                  style={{ height: `${cardSize}px` }}
+                >
+                  <img
+                    src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
+                    className="card-img-top"
+                    alt={book.title}
+                    style={{ height: '60%', objectFit: 'cover' }}
+                  />
+                  <div className="card-body">
+                    <h5 className="card-title text-center">{book.title}</h5>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

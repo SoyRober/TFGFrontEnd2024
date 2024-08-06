@@ -1,7 +1,7 @@
 const BASE_URL = 'http://localhost:8080';
 
 export const fetchData = async (endpoint, method = 'GET', body = null, token = null, contentType = 'application/json') => {
-    
+
     const headers = {};
 
     if (!(body instanceof FormData) && contentType) {
@@ -21,13 +21,13 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
         if (contentType === 'application/json' && !(body instanceof FormData)) {
             config.body = JSON.stringify(body);
         } else {
-            config.body = body; 
+            config.body = body;
         }
     }
 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
-        
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error('Error response text:', errorText);
@@ -45,7 +45,11 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
             return textResponse;
         }
     } catch (error) {
-        console.error("Failed to fetch data:", error);
+        if (error.message.includes("rows")) {
+            console.log("nada mas que cargar")
+        } else {
+            console.error("Failed to fetch books:", error);
+        }
         throw error;
     }
 };
