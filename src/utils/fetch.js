@@ -2,9 +2,11 @@ const BASE_URL = 'http://localhost:8080';
 
 export const fetchData = async (endpoint, method = 'GET', body = null, token = null, contentType = 'application/json') => {
     
-    const headers = {
-        'Content-Type': contentType,
-    };
+    const headers = {};
+
+    if (!(body instanceof FormData) && contentType) {
+        headers['Content-Type'] = contentType;
+    }
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;

@@ -196,6 +196,7 @@ export default function ViewBook() {
 
     const payload = new FormData();
     payload.append('title', title);
+    console.log("title " + title);
     payload.append('attribute', editingAttribute);
     if (editingAttribute === 'authors') {
       payload.append('value', JSON.stringify(selectedAuthors));
