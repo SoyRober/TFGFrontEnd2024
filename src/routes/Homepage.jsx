@@ -34,21 +34,11 @@ export default function Homepage() {
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setCardSize(cardSizeSave);
-  }, [cardSizeSave]);
-
-  useEffect(() => 
-    fetchBooksData(page)
-  ),[page]
-  
-  useEffect(() => {
-
     const token = localStorage.getItem('token');
     if (token) {
-
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
 
@@ -56,69 +46,65 @@ export default function Homepage() {
         setHasPermissions(true);
       }
     }
-  }, []);
+  }, []); // Solo se ejecuta una vez al montar el componente
 
   useEffect(() => {
-    let timeoutId;
+    fetchBooksData(page);
+  }, [page]);
+
+  useEffect(() => {
+    setCardSize(cardSizeSave);
+  }, [cardSizeSave]);
+
+  useEffect(() => {
     const handleScroll = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const documentHeight = document.documentElement.scrollHeight;
-        const windowHeight = window.innerHeight;
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  
-        if (scrollTop + windowHeight >= documentHeight - 5) {
-          if (!atBottom) {
-            setAtBottom(true);
-            setPage(prevPage => prevPage + 1);
-          }
-        } else {
-          setAtBottom(false);
+      const documentHeight = document.documentElement.scrollHeight;
+      const windowHeight = window.innerHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+      if (scrollTop + windowHeight >= documentHeight - 5) {
+        if (!atBottom) {
+          setAtBottom(true);
+          fetchBooksData(page + 1);
         }
-      }, 200);
+      } else {
+        setAtBottom(false);
+      }
     };
-  
+
     window.addEventListener('scroll', handleScroll);
-  
-    return () => {
-      clearTimeout(timeoutId);
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [atBottom, cardSize]); 
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [atBottom, page]);
 
   useEffect(() => {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
 
   const fetchBooksData = async (page) => {
-    console.log("dentro")
     try {
       const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
-      if (data.books.length === 0) return;
-  
       setBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
-  
       setFilteredBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
-  
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
+      console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
     } finally {
       setAtBottom(false);
     }
   };
-  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -221,11 +207,10 @@ export default function Homepage() {
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
 
-
-
       const result = await response.json();
       console.log(result.message);
       closeModal();
+      fetchBooksData();
     } catch (error) {
       console.error("Failed to save book:", error);
       alert(`Failed to save book: ${error.message}`);
