@@ -34,14 +34,15 @@ export default function Homepage() {
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     setCardSize(cardSizeSave);
   }, [cardSizeSave]);
 
+  
   useEffect(() => {
-    fetchBooksData(page);
+    fetchBooksData(page)
 
     const token = localStorage.getItem('token');
     if (token) {
@@ -52,61 +53,70 @@ export default function Homepage() {
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
-
-      fetchAuthors(token, '');
-      fetchGenres(token, '');
     }
-  }, [page]);
+  }, []);
 
   useEffect(() => {
+    let timeoutId;
     const handleScroll = () => {
-      const documentHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-      if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom) {
-          setAtBottom(true);
-          fetchBooksData(page + 1);
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const documentHeight = document.documentElement.scrollHeight;
+        const windowHeight = window.innerHeight;
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+  
+        if (scrollTop + windowHeight >= documentHeight - 5) {
+          if (!atBottom) {
+            setAtBottom(true);
+            setPage(prevPage => prevPage + 1);
+          }
+        } else {
+          setAtBottom(false);
         }
-      } else {
-        setAtBottom(false);
-      }
+      }, 200);
     };
-
+  
     window.addEventListener('scroll', handleScroll);
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [atBottom, page]);
+  
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [atBottom, cardSize]); 
 
   useEffect(() => {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
 
   const fetchBooksData = async (page) => {
+    console.log("dentro")
     try {
       const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
+      if (data.books.length === 0) return;
+  
       setBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
+  
       setFilteredBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
+  
       setPage(page);
-      setExtraBottomSpace(extraBottomSpace + cardSize/7);
-      console.log(page);
+      setExtraBottomSpace(extraBottomSpace + cardSize / 7);
     } catch (error) {
       console.error("Failed to fetch books:", error);
     } finally {
       setAtBottom(false);
     }
   };
+  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -209,12 +219,11 @@ export default function Homepage() {
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
 
-      
+
 
       const result = await response.json();
       console.log(result.message);
       closeModal();
-      fetchBooksData(0);
     } catch (error) {
       console.error("Failed to save book:", error);
       alert(`Failed to save book: ${error.message}`);
