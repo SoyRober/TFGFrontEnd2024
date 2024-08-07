@@ -209,10 +209,12 @@ export default function Homepage() {
         throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
       }
 
+      
+
       const result = await response.json();
       console.log(result.message);
       closeModal();
-      fetchBooksData();
+      fetchBooksData(0);
     } catch (error) {
       console.error("Failed to save book:", error);
       alert(`Failed to save book: ${error.message}`);
