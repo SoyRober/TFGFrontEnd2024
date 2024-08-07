@@ -40,9 +40,11 @@ export default function Homepage() {
     setCardSize(cardSizeSave);
   }, [cardSizeSave]);
 
+  useEffect(() => 
+    fetchBooksData(page)
+  ),[page]
   
   useEffect(() => {
-    fetchBooksData(page)
 
     const token = localStorage.getItem('token');
     if (token) {
