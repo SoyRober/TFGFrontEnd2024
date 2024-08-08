@@ -46,7 +46,6 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
         }
     } catch (error) {
         if (error.message.includes("rows")) {
-            console.log("nada mas que cargar")
         } else {
             console.error("Failed to fetch books:", error);
         }

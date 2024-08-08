@@ -46,7 +46,7 @@ export default function Homepage() {
         setHasPermissions(true);
       }
     }
-  }, []); // Solo se ejecuta una vez al montar el componente
+  }, []); 
 
   useEffect(() => {
     fetchBooksData(page);
