@@ -336,7 +336,7 @@ export default function Homepage() {
                 <div
                   className="card mb-4 customizedCard"
                   onClick={() => navigateToBookDetails(book.title)}
-                  style={{ height: `${cardSize}px` }}
+                  style={{ height: `${cardSize}px`, minHeight: `${cardSize}px`, minWidth: `${cardSize}px`}}
                 >
                   <div
                     className="d-flex justify-content-center align-items-center"
