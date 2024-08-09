@@ -21,8 +21,9 @@ const Register = () => {
     try {
       const response = await fetchData("/login", "POST", userData);
 
-      if (response.success) {
+      if (response.success && response.token) {
         navigate("/")
+        localStorage.setItem("token", response.token)
       } else {
         setMessage(response.message || "Login error. Please try again.");
       }
@@ -40,7 +41,7 @@ const Register = () => {
     <div className="container">
       <h2>Log In</h2>
       <form onSubmit={handleLogin}>
-      <div className="mb-3">
+        <div className="mb-3">
           <label htmlFor="username" className="form-label">Username:</label>
           <input
             type="username"
