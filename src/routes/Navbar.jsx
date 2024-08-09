@@ -1,28 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 export default function Root() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('token') ? true : false;
+  });
+  
+  const location = useLocation();
+  const key = useState(Date.now());
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+    setIsLoggedIn(!!token);
+  }, [location]); 
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
-    window.location.reload();
   };
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+      <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top" key={key}>
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Home</Link>
           

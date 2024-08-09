@@ -37,6 +37,7 @@ export default function Homepage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);

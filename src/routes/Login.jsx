@@ -3,7 +3,7 @@ import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
 import { useNavigate } from "react-router-dom";
 
-const Register = () => {
+const Login = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [message, setMessage] = useState("");
@@ -22,13 +22,14 @@ const Register = () => {
       const response = await fetchData("/login", "POST", userData);
 
       if (response.success && response.token) {
+        localStorage.setItem("token", response.token);
         navigate("/")
-        localStorage.setItem("token", response.token)
       } else {
         setMessage(response.message || "Login error. Please try again.");
+        setNotificationKey(prevKey => prevKey + 1);
       }
 
-      setNotificationKey(prevKey => prevKey + 1);
+
     } catch (error) {
       console.error("Error during login:", error);
       setMessage("Error connecting to the server.");
@@ -72,4 +73,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;
