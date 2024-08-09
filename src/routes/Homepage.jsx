@@ -26,7 +26,7 @@ export default function Homepage() {
   const [searchStringGenres, setSearchStringGenres] = useState('');
   const [cardSize, setCardSize] = useState(300);
   const [cardSizeSave, setCardSizeSave] = useState(() => {
-    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 300;
+    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -46,7 +46,7 @@ export default function Homepage() {
         setHasPermissions(true);
       }
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
     fetchBooksData(page);
@@ -190,8 +190,6 @@ export default function Homepage() {
       imageBase64: bookImageBase64
     };
 
-    console.log("Saving book data:", bookData);
-
     try {
       const response = await fetch("http://localhost:8080/saveBook", {
         method: 'POST',
@@ -296,7 +294,7 @@ export default function Homepage() {
 
         <div className="container mt-5">
           <h1>Book List</h1>
-          <div className="mb-3">
+          <div className="col-md-8 mr-5">
             <input
               type="text"
               className="form-control"
@@ -305,18 +303,33 @@ export default function Homepage() {
               onChange={handleSearchChange}
             />
           </div>
-          <div className="mb-3">
-            <label htmlFor="cardSizeRange" className="form-label">Card Size</label>
-            <input
-              type="range"
-              className="form-range"
-              id="cardSizeRange"
-              min="300"
-              max="600"
-              value={cardSize}
-              onChange={(e) => setCardSize(e.target.value)}
-            />
+
+          <div className="col-md-4 my-3">
+            <div className="btn-group w-100" role="group" aria-label="Card size selector">
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
+                onClick={() => setCardSize(250)}
+              >
+                <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
+                onClick={() => setCardSize(350)}
+              >
+                <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
+                onClick={() => setCardSize(600)}
+              >
+                <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
+              </button>
+            </div>
           </div>
+
           <div className="row">
             {filteredBooks.map(book => (
               <div key={book.title} className={calculateColumns()}>
@@ -325,16 +338,27 @@ export default function Homepage() {
                   onClick={() => navigateToBookDetails(book.title)}
                   style={{ height: `${cardSize}px` }}
                 >
-                  <img
-                    src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
-                    className="card-img-top"
-                    alt={book.title}
+                  <div
+                    className="d-flex justify-content-center align-items-center"
                     style={{ height: '60%', objectFit: 'cover' }}
-                  />
+                  >
+                    <img
+                      src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
+                      className="img-fluid"
+                      alt={book.title}
+                      style={{ maxHeight: '100%', maxWidth: '100%' }}
+                    />
+                  </div>
+
+                  <div className="d-flex justify-content-center">
+                    <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
+                  </div>
+
                   <div className="card-body">
-                    <h5 className="card-title text-center">{book.title}</h5>
+                    <h5 className="card-title text-center my-4">{book.title}</h5>
                   </div>
                 </div>
+
               </div>
             ))}
           </div>
