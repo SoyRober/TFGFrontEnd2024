@@ -20,8 +20,7 @@ const Login = () => {
 
     try {
       const response = await fetchData("/login", "POST", userData);
-
-      if (response.success && response.token) {
+      if (response.token) {
         localStorage.setItem("token", response.token);
         navigate("/")
       } else {
