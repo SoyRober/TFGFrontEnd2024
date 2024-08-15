@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
+import Notification from '../components/Notification';
 
 export default function CreateBookModal({
   showModal,
@@ -29,7 +30,9 @@ export default function CreateBookModal({
   setBookPublicationDate,
   bookIsAdult,
   setBookIsAdult,
-  setBookImageBase64
+  setBookImageBase64,
+  notificationMessage,
+  notificationKey
 }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -42,18 +45,8 @@ export default function CreateBookModal({
     }
   };
 
-  const validateForm = () => {
-    if (!bookTitle || !bookAuthors.length || !bookGenres.length || !bookQuantity || !bookLocation || !bookSynopsis || !bookPublicationDate) {
-      alert('Please fill out all fields.');
-      return false;
-    }
-    return true;
-  };
-
   const onSave = () => {
-    if (validateForm()) {
-      handleSave();
-    }
+    handleSave();
   };
 
   return (
@@ -62,6 +55,7 @@ export default function CreateBookModal({
         <Modal.Title>Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
+        <Notification key={notificationKey} message={notificationMessage} />
         <Form>
           <Row>
             <Col md={6}>
@@ -71,7 +65,6 @@ export default function CreateBookModal({
                   type="text"
                   value={bookTitle}
                   onChange={(e) => setBookTitle(e.target.value)}
-                  required
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookAuthors">
@@ -81,14 +74,12 @@ export default function CreateBookModal({
                   placeholder="Search..."
                   value={searchStringAuthors}
                   onChange={handleAuthorsSearchChange}
-                  required
                 />
                 <Form.Control
                   as="select"
                   multiple
                   value={bookAuthors}
                   onChange={handleAuthorChange}
-                  required
                 >
                   {authors.map((author, index) => (
                     <option key={index} value={author}>
@@ -110,7 +101,6 @@ export default function CreateBookModal({
                   multiple
                   value={bookGenres}
                   onChange={handleGenreChange}
-                  required
                 >
                   {genres.map((genre, index) => (
                     <option key={index} value={genre}>
@@ -125,7 +115,6 @@ export default function CreateBookModal({
                   type="number"
                   value={bookQuantity}
                   onChange={(e) => setBookQuantity(e.target.value)}
-                  required
                 />
               </Form.Group>
             </Col>
@@ -136,7 +125,6 @@ export default function CreateBookModal({
                   type="text"
                   value={bookLocation}
                   onChange={(e) => setBookLocation(e.target.value)}
-                  required
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookSynopsis">
@@ -145,7 +133,6 @@ export default function CreateBookModal({
                   as="textarea"
                   value={bookSynopsis}
                   onChange={(e) => setBookSynopsis(e.target.value)}
-                  required
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookPublicationDate">
@@ -154,7 +141,6 @@ export default function CreateBookModal({
                   type="date"
                   value={bookPublicationDate}
                   onChange={(e) => setBookPublicationDate(e.target.value)}
-                  required
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookIsAdult">

@@ -1,7 +1,6 @@
 const BASE_URL = 'http://localhost:8080';
 
 export const fetchData = async (endpoint, method = 'GET', body = null, token = null, contentType = 'application/json') => {
-
     const headers = {};
 
     if (!(body instanceof FormData) && contentType) {
@@ -30,25 +29,31 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Error response text:', errorText);
-            throw new Error(`HTTP error! Status: ${response.status}, Response: ${errorText}`);
+            let errorMessage = `HTTP error! Status: ${response.status}`;
+            
+            try {
+                const errorJson = JSON.parse(errorText);
+                if (errorJson.message) {
+                    errorMessage = errorJson.message;
+                }
+            } catch (jsonError) {
+                console.error("Failed to parse error response JSON:", jsonError);
+            }
+            
+            throw new Error(errorMessage);
         }
 
         const responseContentType = response.headers.get('content-type');
 
         if (responseContentType && responseContentType.includes('application/json')) {
             const jsonResponse = await response.json();
-            console.log(jsonResponse)
             return jsonResponse;
         } else {
             const textResponse = await response.text();
             return textResponse;
         }
     } catch (error) {
-        if (error.message.includes("rows")) {
-        } else {
-            console.error("Failed to fetch books:", error);
-        }
+        console.error("Failed to fetch data:", error);
         throw error;
     }
 };

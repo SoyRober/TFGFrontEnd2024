@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import '../styles/loading.css';
 import CreateBookModal from "../components/CreateBookModal";
+import Notification from "../components/Notification";
 import { jwtDecode } from 'jwt-decode';
 import { fetchData } from '../utils/fetch.js';
 
@@ -33,11 +34,12 @@ export default function Homepage() {
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationKey, setNotificationKey] = useState(0);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -99,7 +101,6 @@ export default function Homepage() {
       });
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
-      console.log(page);
     } catch (error) {
       console.error("Failed to fetch books:", error);
     } finally {
@@ -192,27 +193,22 @@ export default function Homepage() {
     };
 
     try {
-      const response = await fetch("http://localhost:8080/saveBook", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(bookData)
-      });
+      const response = await fetchData("/saveBook", "POST", bookData, token);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+      if (!response.success) {
+        const errorMessage = response.message || 'Failed to save book.';
+        setNotificationMessage(errorMessage);
+        setNotificationKey(notificationKey + 1);
+        return;
       }
 
-      const result = await response.json();
-      console.log(result.message);
-      closeModal();
+      setNotificationMessage(response.message || 'Book saved successfully.');
+      setNotificationKey(notificationKey + 1);
       fetchBooksData();
     } catch (error) {
       console.error("Failed to save book:", error);
-      alert(`Failed to save book: ${error.message}`);
+      setNotificationMessage(error.message || 'An unknown error occurred.');
+      setNotificationKey(notificationKey + 1);
     }
   };
 
@@ -289,8 +285,9 @@ export default function Homepage() {
           setBookPublicationDate={setBookPublicationDate}
           bookIsAdult={bookIsAdult}
           setBookIsAdult={setBookIsAdult}
-          bookImageBase64={bookImageBase64}
           setBookImageBase64={setBookImageBase64}
+          notificationMessage={notificationMessage}
+          notificationKey={notificationKey}
         />
 
         <div className="container mt-5">
@@ -337,7 +334,7 @@ export default function Homepage() {
                 <div
                   className="card mb-4 customizedCard"
                   onClick={() => navigateToBookDetails(book.title)}
-                  style={{ height: `${cardSize}px`, minHeight: `${cardSize}px`, minWidth: `${cardSize}px`}}
+                  style={{ height: `${cardSize}px`, minHeight: `${cardSize}px`, minWidth: `${cardSize}px` }}
                 >
                   <div
                     className="d-flex justify-content-center align-items-center"
@@ -359,7 +356,6 @@ export default function Homepage() {
                     <h5 className="card-title text-center my-4">{book.title}</h5>
                   </div>
                 </div>
-
               </div>
             ))}
           </div>
