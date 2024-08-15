@@ -202,6 +202,10 @@ export default function ViewBook() {
       payload.append('value', JSON.stringify(selectedAuthors));
     } else if (editingAttribute === 'genres') {
       payload.append('value', JSON.stringify(selectedGenres));
+    } else if (editingAttribute === 'isAdult') {
+        // Aquí convertimos el valor a booleano si es 'isAdult'
+        const booleanValue = editValue === 'true';
+        payload.append('value', booleanValue);
     } else {
       payload.append('value', editValue);
     }
@@ -411,6 +415,7 @@ export default function ViewBook() {
         setLoanStatus(true); 
       }
     } catch (error) {
+      alert(`Error trying to loan the book`);
       console.error("Failed to update loan status:", error);
     }
   };
