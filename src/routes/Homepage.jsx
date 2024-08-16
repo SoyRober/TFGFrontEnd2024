@@ -204,7 +204,7 @@ export default function Homepage() {
 
       setNotificationMessage(response.message || 'Book saved successfully.');
       setNotificationKey(notificationKey + 1);
-      fetchBooksData();
+      fetchBooksData(page);
     } catch (error) {
       console.error("Failed to save book:", error);
       setNotificationMessage(error.message || 'An unknown error occurred.');
