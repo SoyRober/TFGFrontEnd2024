@@ -296,8 +296,8 @@ export default function ViewBook() {
             onChange={handleEditChange}
             required
           >
-            <option value="true">Yes</option>
             <option value="false">No</option>
+            <option value="true">Yes</option>
           </select>
         );
         break;
