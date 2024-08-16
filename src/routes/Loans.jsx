@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/loading.css';
+import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
 
 const UserLoans = () => {
@@ -15,13 +16,15 @@ const UserLoans = () => {
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [notificationKey, setNotificationKey] = useState(0);
+  const [message, setMessage] = useState("");
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
-  // Fetch loans based on page number
   useEffect(() => {
     if (!token) {
-      setError("No token found, user might not be authenticated");
+      setMessage("No token found, user might not be authenticated");
+      setNotificationKey(prevKey => prevKey + 1);
       navigate('/login');
       return;
     }
@@ -32,23 +35,24 @@ const UserLoans = () => {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
           setLoans(prevLoans => [...prevLoans, ...data.message]);
-        } else {
-          if (data.message.includes("rows")) {
-            console.log("No más que cargar");
+          if (data.message.length === 0) {
+            setMessage("No hay más libros por cargar.");
           }
+        } else {
+          setMessage(data.message);
         }
       } catch (err) {
-        setError(err.message);
+        setMessage(err.message);
       } finally {
         setAtBottom(false);
         setLoading(false);
+        setNotificationKey(prevKey => prevKey + 1);
       }
     };
 
     fetchLoans();
   }, [page, token, navigate]);
 
-  // Apply filters
   useEffect(() => {
     const applyFilters = () => {
       let result = loans;
@@ -78,7 +82,6 @@ const UserLoans = () => {
     applyFilters();
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
 
-  // Scroll handling to load more loans
   useEffect(() => {
     const handleScroll = () => {
       const documentHeight = document.documentElement.scrollHeight;
@@ -107,11 +110,14 @@ const UserLoans = () => {
         setFilteredLoans(prevLoans =>
           prevLoans.map(loan => loan.book === bookTitle ? { ...loan, isReturned: true } : loan)
         );
+        setMessage(`El libro "${bookTitle}" ha sido devuelto con éxito.`);
       } else {
-        setError(response.message);
+        setMessage(response.message);
       }
     } catch (err) {
-      setError(err.message);
+      setMessage(err.message);
+    } finally {
+      setNotificationKey(prevKey => prevKey + 1);
     }
   };
 
@@ -146,8 +152,10 @@ const UserLoans = () => {
 
   return (
     <div className="container mt-5">
+      {message && (
+        <Notification key={notificationKey} message={message} />
+      )}
       <h1 className="display-4 text-center mb-4">User Loans</h1>
-
       <div className="mb-3">
         <label htmlFor="cardHeightRange" className="form-label">Card Height</label>
         <input
@@ -261,6 +269,12 @@ const UserLoans = () => {
           <div className="alert alert-info" role="alert">No loans found</div>
         )}
       </div>
+
+      {loading && (
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      )}
     </div>
   );
 };

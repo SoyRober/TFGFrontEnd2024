@@ -1,17 +1,15 @@
-.container {
-    display: flex;
-    height: 100%;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.notification-container {
+    position: fixed;
+    top: 5%;
+    left: 20px;
+    z-index: 1050;
 }
 
 .rectangle {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    position: absolute;
-    z-index: 1050;
+    position: relative;
     width: 50px;
     height: 50px;
     background: #380848;
@@ -45,11 +43,11 @@
 
 @keyframes expand {
     50% {
-        width: 50%;
+        width: 30vw;
         border-radius: 6px;
     }
     100% {
-        width: 40%;
+        width: 25vw;
         border-radius: 4px;
         box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, .2),
                     0px 1px 1px 0px rgba(0, 0, 0, .14),
