@@ -136,6 +136,7 @@ const UserLoans = () => {
   }
 
   if (loans.length === 0 && !loading) {
+    console.log(loans)
     return (
       <div className={`modal-book fade-in`}>
         <span className="page left"></span>
