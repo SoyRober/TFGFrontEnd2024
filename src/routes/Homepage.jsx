@@ -65,13 +65,9 @@ export default function Homepage() {
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom) {
-          setAtBottom(true);
-          fetchBooksData(page + 1);
-        }
-      } else {
-        setAtBottom(false);
+      if (scrollTop + windowHeight >= documentHeight - 5 && !atBottom) {
+        setAtBottom(true);
+        fetchBooksData(page + 1);
       }
     };
 
@@ -80,6 +76,7 @@ export default function Homepage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom, page]);
 
+
   useEffect(() => {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
@@ -87,26 +84,32 @@ export default function Homepage() {
   const fetchBooksData = async (page) => {
     try {
       const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
+
       setBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
+
       setFilteredBooks(prevBooks => {
         const newBooks = data.books.filter(
           newBook => !prevBooks.some(book => book.title === newBook.title)
         );
         return [...prevBooks, ...newBooks];
       });
+
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
     } catch (error) {
+      setNotificationMessage(error.message);
+      setNotificationKey(prevKey => prevKey + 1);
       console.error("Failed to fetch books:", error);
     } finally {
       setAtBottom(false);
     }
   };
+
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -256,6 +259,10 @@ export default function Homepage() {
             </button>
           </div>
         )}
+        {notificationMessage && (
+          <Notification key={notificationKey} message={notificationMessage} />
+        )}
+
 
         <CreateBookModal
           showModal={showModal}
