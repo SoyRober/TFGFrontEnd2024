@@ -24,6 +24,7 @@ export default function ViewBook() {
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [alreadyRated, setAlreadyRated] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,6 +37,14 @@ export default function ViewBook() {
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
       }
+
+      //TODO if this userId has Review with this bookId 
+      const bookTitle = title;
+      const reviewFound = async () => {
+        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`);
+      }
+      //setAlreadyRated
+
     }
   }, []);
 
@@ -486,7 +495,7 @@ export default function ViewBook() {
         </div>
       </div>
 
-      {isLoggedIn && (
+      {isLoggedIn && ( //TODO !already reviewed
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
