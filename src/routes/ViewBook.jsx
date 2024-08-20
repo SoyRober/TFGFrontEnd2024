@@ -115,19 +115,21 @@ export default function ViewBook() {
 
     //TODO if this userId has Review with this bookId 
     const fetchExistingReview = async () => {
-      console.log("1");
-      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`);
-      console.log("2");
-      if(data.success == true){
-        setAlreadyRated(true);
-        setCurrentUserScore(data.review.score); 
-        setCurrentUserComment(data.review.comment);
-        console.log("2");
-        console.log(data.review.score);
-        console.log(alreadyRated);
-        console.log(currentUserScore);
-        console.log(currentUserComment);
-      } else { console.log("data.success == false");}
+      try {
+        console.log("1"); //Executed
+        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`); //Blocked by cors?
+        console.log("2"); //Not Executed
+        if(data.success == true){
+          setAlreadyRated(true);
+          setCurrentUserScore(data.review.score); 
+          setCurrentUserComment(data.review.comment);
+          console.log("3");
+        } else { 
+          console.log("No Existing review");
+        }
+      } catch (error) {
+        console.error("Failed to fetch Existing Review:", error);
+      }    
     } 
 
     fetchBookData();
