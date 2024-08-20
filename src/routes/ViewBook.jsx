@@ -25,6 +25,8 @@ export default function ViewBook() {
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [alreadyRated, setAlreadyRated] = useState(false);
+  const [currentUserScore, setCurrentUserScore] = useState('');
+  const [currentUserComment, setCurrentUserComment] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -36,15 +38,7 @@ export default function ViewBook() {
       
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
-      }
-
-      //TODO if this userId has Review with this bookId 
-      const bookTitle = title;
-      const reviewFound = async () => {
-        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`);
-      }
-      //setAlreadyRated
-
+      }      
     }
   }, []);
 
@@ -119,11 +113,29 @@ export default function ViewBook() {
       }
     };
 
+    //TODO if this userId has Review with this bookId 
+    const fetchExistingReview = async () => {
+      console.log("1");
+      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`);
+      console.log("2");
+      if(data.success == true){
+        setAlreadyRated(true);
+        setCurrentUserScore(data.review.score); 
+        setCurrentUserComment(data.review.comment);
+        console.log("2");
+        console.log(data.review.score);
+        console.log(alreadyRated);
+        console.log(currentUserScore);
+        console.log(currentUserComment);
+      } else { console.log("data.success == false");}
+    } 
+
     fetchBookData();
     fetchReviews();
     fetchAuthors();
     fetchGenres();
     checkLoanStatus(); 
+    fetchExistingReview();
   }, [title]);
 
   const handleReviewChange = (e) => {
