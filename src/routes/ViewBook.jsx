@@ -117,7 +117,10 @@ export default function ViewBook() {
     const fetchExistingReview = async () => {
       try {
         console.log("1"); //Executed
-        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`); //Blocked by cors?
+        const token = localStorage.getItem('token');
+        console.log("token " + token);
+        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token); //?
+
         console.log("2"); //Not Executed
         if(data.success == true){
           setAlreadyRated(true);
@@ -125,7 +128,7 @@ export default function ViewBook() {
           setCurrentUserComment(data.review.comment);
           console.log("3");
         } else { 
-          console.log("No Existing review");
+          console.log("No Current review");
         }
       } catch (error) {
         console.error("Failed to fetch Existing Review:", error);
