@@ -24,6 +24,9 @@ export default function ViewBook() {
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [alreadyRated, setAlreadyRated] = useState(false);
+  const [currentUserScore, setCurrentUserScore] = useState('');
+  const [currentUserComment, setCurrentUserComment] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,7 +38,7 @@ export default function ViewBook() {
       
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
-      }
+      }      
     }
   }, []);
 
@@ -110,11 +113,31 @@ export default function ViewBook() {
       }
     };
 
+    const fetchExistingReview = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+
+        console.log("data "+data);
+        if(data.success == true){
+          setAlreadyRated(true);
+          setCurrentUserScore(data.currentUserScore); 
+          setCurrentUserComment(data.currentUserComment);
+          console.log("AlreadyRated");
+        } else { 
+          console.log("No Current review");
+        }
+      } catch (error) {
+        console.error("Failed to fetch Existing Review:", error);
+      }    
+    } 
+
     fetchBookData();
     fetchReviews();
     fetchAuthors();
     fetchGenres();
     checkLoanStatus(); 
+    fetchExistingReview();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -486,7 +509,7 @@ export default function ViewBook() {
         </div>
       </div>
 
-      {isLoggedIn && (
+      {isLoggedIn && alreadyRated==false && ( 
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
@@ -520,6 +543,33 @@ export default function ViewBook() {
           <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
         </form>
       )}
+
+      {isLoggedIn && alreadyRated && ( 
+        <div className="user-review">
+          <h4>Your Review</h4>
+          <div className="form-group">
+            <label>Score:</label>
+            <div className="star-rating">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className="star"
+                  style={{ fontSize: '2rem', color: star <= currentUserScore ? 'gold' : 'grey' }}>
+                  &#9733;
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Comment:</label>
+            <p className="user-comment">{currentUserComment}</p>
+          </div>
+          <button className="btn btn-warning mt-3" >Edit Review</button>
+          <button className="btn btn-danger mt-3 ms-2" >Delete Review</button>
+        </div>
+      )}
+
+
 
       <h2 className="mt-5">Reviews</h2>
       <div className="list-group mb-3">
