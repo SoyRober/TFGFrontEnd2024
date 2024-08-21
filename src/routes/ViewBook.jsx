@@ -113,20 +113,17 @@ export default function ViewBook() {
       }
     };
 
-    //TODO if this userId has Review with this bookId 
     const fetchExistingReview = async () => {
       try {
-        console.log("1"); //Executed
         const token = localStorage.getItem('token');
-        console.log("token " + token);
-        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token); //?
+        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
-        console.log("2"); //Not Executed
+        console.log("data "+data);
         if(data.success == true){
           setAlreadyRated(true);
-          setCurrentUserScore(data.review.score); 
-          setCurrentUserComment(data.review.comment);
-          console.log("3");
+          setCurrentUserScore(data.currentUserScore); 
+          setCurrentUserComment(data.currentUserComment);
+          console.log("AlreadyRated");
         } else { 
           console.log("No Current review");
         }
@@ -512,7 +509,7 @@ export default function ViewBook() {
         </div>
       </div>
 
-      {isLoggedIn && ( //TODO !already reviewed
+      {isLoggedIn && alreadyRated==false && ( 
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
@@ -546,6 +543,33 @@ export default function ViewBook() {
           <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
         </form>
       )}
+
+      {isLoggedIn && alreadyRated && ( 
+        <div className="user-review">
+          <h4>Your Review</h4>
+          <div className="form-group">
+            <label>Score:</label>
+            <div className="star-rating">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className="star"
+                  style={{ fontSize: '2rem', color: star <= currentUserScore ? 'gold' : 'grey' }}>
+                  &#9733;
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Comment:</label>
+            <p className="user-comment">{currentUserComment}</p>
+          </div>
+          <button className="btn btn-warning mt-3" >Edit Review</button>
+          <button className="btn btn-danger mt-3 ms-2" >Delete Review</button>
+        </div>
+      )}
+
+
 
       <h2 className="mt-5">Reviews</h2>
       <div className="list-group mb-3">
