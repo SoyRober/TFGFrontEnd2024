@@ -1,4 +1,4 @@
-.modal-book {
+.modal-loading {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -6,7 +6,7 @@
     position: relative;
 }
 
-.modal-book .page {
+.modal-loading .page {
     display: inline-block;
     width: 100px;
     height: 7px;
@@ -15,7 +15,7 @@
     z-index: 5;
 }
 
-.modal-book .middle {
+.modal-loading .middle {
     display: inline-block;
     width: 50px;
     height: 50px;
@@ -27,12 +27,12 @@
     transform: translateX(-50%);
 }
 
-.modal-book .left {
+.modal-loading .left {
     position: relative;
     z-index: 9;
 }
 
-.modal-book .right:before {
+.modal-loading .right:before {
     content: '';
     display: inline-block;
     width: 100px;
@@ -44,7 +44,7 @@
     z-index: 3;
 }
 
-.modal-book .right:after {
+.modal-loading .right:after {
     content: '';
     display: inline-block;
     width: 100px;
@@ -56,11 +56,11 @@
     z-index: 3;
 }
 
-.modal-book {
+.modal-loading {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 50vh;
 }
 
 .middle {

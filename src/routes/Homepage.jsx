@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
-import '../styles/loading.css';
 import CreateBookModal from "../components/CreateBookModal";
 import Notification from "../components/Notification";
 import { jwtDecode } from 'jwt-decode';
 import { fetchData } from '../utils/fetch.js';
+import Loading from "../components/Loading.jsx";
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -36,6 +36,7 @@ export default function Homepage() {
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationKey, setNotificationKey] = useState(0);
+  const [errorFetching, setErrorFetching] = useState(false)
 
   const navigate = useNavigate();
 
@@ -104,7 +105,8 @@ export default function Homepage() {
     } catch (error) {
       setNotificationMessage(error.message);
       setNotificationKey(prevKey => prevKey + 1);
-      console.error("Failed to fetch books:", error);
+      setErrorFetching(true);
+      console.error(error.message);
     } finally {
       setAtBottom(false);
     }
@@ -241,65 +243,32 @@ export default function Homepage() {
 
   if (books === null) {
     return (
-      <div className="modal-book" style={{ height: "2000px" }}>
-        <span className="page left"></span>
-        <span className="middle"></span>
-        <span className="page right"></span>
-      </div>
+      <Loading />
     );
   }
 
   return (
-    <>
-      <div className="fade-in" style={{ paddingBottom: `${extraBottomSpace}px` }}>
-        {hasPermissions && (
-          <div>
-            <button className="btn btn-primary" onClick={openModal}>
-              Create New Book
-            </button>
-          </div>
-        )}
-        {notificationMessage && (
+    <div className="fade-in d-flex flex-column justify-content-center align-items-center" style={{ paddingBottom: `${extraBottomSpace}px` }}>
+      
+      {notificationMessage && (
+        <div className="mb-4 text-center d-flex justify-content-left">
           <Notification key={notificationKey} message={notificationMessage} />
+        </div>
+      )}
+  
+      <div className="container text-center d-flex flex-column align-items-center justify-content-center" style={{ height: '50vh' }}>
+        
+        <h1 className="mb-4">Book List</h1>
+        
+                
+        {hasPermissions && (
+          <button className="btn btn-primary mb-3" onClick={openModal}>
+            Create New Book
+          </button>
         )}
-
-
-        <CreateBookModal
-          showModal={showModal}
-          closeModal={closeModal}
-          handleSave={handleSave}
-          bookTitle={bookTitle}
-          setBookTitle={setBookTitle}
-          bookAuthors={bookAuthors}
-          setBookAuthors={setBookAuthors}
-          authors={authors}
-          searchStringAuthors={searchStringAuthors}
-          handleAuthorsSearchChange={handleAuthorsSearchChange}
-          handleAuthorChange={handleAuthorChange}
-          bookGenres={bookGenres}
-          setBookGenres={setBookGenres}
-          genres={genres}
-          searchStringGenres={searchStringGenres}
-          handleGenresSearchChange={handleGenresSearchChange}
-          handleGenreChange={handleGenreChange}
-          bookQuantity={bookQuantity}
-          setBookQuantity={setBookQuantity}
-          bookLocation={bookLocation}
-          setBookLocation={setBookLocation}
-          bookSynopsis={bookSynopsis}
-          setBookSynopsis={setBookSynopsis}
-          bookPublicationDate={bookPublicationDate}
-          setBookPublicationDate={setBookPublicationDate}
-          bookIsAdult={bookIsAdult}
-          setBookIsAdult={setBookIsAdult}
-          setBookImageBase64={setBookImageBase64}
-          notificationMessage={notificationMessage}
-          notificationKey={notificationKey}
-        />
-
-        <div className="container mt-5">
-          <h1>Book List</h1>
-          <div className="col-md-8 mr-5">
+        
+        <div className="row w-100 justify-content-center mb-4">
+          <div className="col-md-8">
             <input
               type="text"
               className="form-control"
@@ -308,8 +277,10 @@ export default function Homepage() {
               onChange={handleSearchChange}
             />
           </div>
-
-          <div className="col-md-4 my-3">
+        </div>
+  
+        <div className="row w-100 justify-content-center">
+          <div className="col-md-4">
             <div className="btn-group w-100" role="group" aria-label="Card size selector">
               <button
                 type="button"
@@ -334,12 +305,16 @@ export default function Homepage() {
               </button>
             </div>
           </div>
-
-          <div className="row">
-            {filteredBooks.map(book => (
+        </div>
+      </div>
+  
+      <div className="container mt-5">
+        <div className="row">
+          {errorFetching ? (
+            filteredBooks.map((book) => (
               <div key={book.title} className={calculateColumns()}>
                 <div
-                  className="card mb-4 customizedCard"
+                  className="card mb-4 customized-card"
                   onClick={() => navigateToBookDetails(book.title)}
                   style={{ height: `${cardSize}px`, minHeight: `${cardSize}px`, minWidth: `${cardSize}px` }}
                 >
@@ -354,20 +329,24 @@ export default function Homepage() {
                       style={{ maxHeight: '100%', maxWidth: '100%' }}
                     />
                   </div>
-
+  
                   <div className="d-flex justify-content-center">
                     <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
                   </div>
-
+  
                   <div className="card-body">
                     <h5 className="card-title text-center my-4">{book.title}</h5>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <Loading />
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
+  
+  
 }

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/loading.css';
 import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
+import Loading from '../components/Loading.jsx';
 
 const UserLoans = () => {
   const [loans, setLoans] = useState([]);
@@ -18,6 +18,8 @@ const UserLoans = () => {
   const [loading, setLoading] = useState(false);
   const [notificationKey, setNotificationKey] = useState(0);
   const [message, setMessage] = useState("");
+  const [loadingStartTime, setLoadingStartTime] = useState(null);
+  const [loadingVisible, setLoadingVisible] = useState(false);
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
@@ -31,6 +33,8 @@ const UserLoans = () => {
 
     const fetchLoans = async () => {
       setLoading(true);
+      setLoadingStartTime(Date.now()); // Marca el inicio de la carga
+
       try {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
@@ -46,7 +50,15 @@ const UserLoans = () => {
       } finally {
         setAtBottom(false);
         setLoading(false);
-        setNotificationKey(prevKey => prevKey + 1);
+
+        const elapsedTime = Date.now() - loadingStartTime;
+        const minLoadingTime = 1000; // 1 segundo
+        const delay = Math.max(minLoadingTime - elapsedTime, 0);
+
+        setLoadingVisible(true);
+        setTimeout(() => {
+          setLoadingVisible(false);
+        }, delay);
       }
     };
 
@@ -131,25 +143,18 @@ const UserLoans = () => {
     setReturnedFilter('all');
   };
 
-  if (error) {
-    return <div className="alert alert-danger" role="alert">Error: {error}</div>;
-  }
-
-  if (loans.length === 0 && !loading) {
-    console.log(loans)
-    return (
-      <div className={`modal-book fade-in`}>
-        <span className="page left"></span>
-        <span className="middle"></span>
-        <span className="page right"></span>
-      </div>
-    );
-  }
-
   const calculateColumns = () => {
     const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardHeight / 100))));
     return `col-${Math.floor(12 / columns)}`;
   };
+  
+  if (error) {
+    return <div className="alert alert-danger" role="alert">Error: {error}</div>;
+  }
+
+  if (loadingVisible) {
+    return <Loading />;
+  }
 
   return (
     <div className="container mt-5">
