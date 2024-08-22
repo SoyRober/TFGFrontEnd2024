@@ -113,31 +113,16 @@ export default function ViewBook() {
       }
     };
 
-    const fetchExistingReview = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
-
-        console.log("data "+data);
-        if(data.success == true){
-          setAlreadyRated(true);
-          setCurrentUserScore(data.currentUserScore); 
-          setCurrentUserComment(data.currentUserComment);
-          console.log("AlreadyRated");
-        } else { 
-          console.log("No Current review");
-        }
-      } catch (error) {
-        console.error("Failed to fetch Existing Review:", error);
-      }    
-    } 
+    const autoCheckExistingReview = async () => {
+      fetchExistingReview();
+    }
 
     fetchBookData();
     fetchReviews();
     fetchAuthors();
     fetchGenres();
     checkLoanStatus(); 
-    fetchExistingReview();
+    autoCheckExistingReview();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -167,11 +152,31 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
       setReviewData({ score: '', comment: '' });
+      await fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to submit review:", error);
     }
   };
+
+  const fetchExistingReview = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+
+      console.log("data "+data);
+      if(data.success == true){
+        setAlreadyRated(true);
+        setCurrentUserScore(data.currentUserScore); 
+        setCurrentUserComment(data.currentUserComment);
+        console.log("AlreadyRated");
+      } else { 
+        console.log("No Current review");
+      }
+    } catch (error) {
+      console.error("Failed to fetch Existing Review:", error);
+    }    
+  }
 
   const handleEditClick = (attribute) => {
     setEditingAttribute(attribute);
