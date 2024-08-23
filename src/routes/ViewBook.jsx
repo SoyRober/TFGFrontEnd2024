@@ -27,6 +27,9 @@ export default function ViewBook() {
   const [alreadyRated, setAlreadyRated] = useState(false);
   const [currentUserScore, setCurrentUserScore] = useState('');
   const [currentUserComment, setCurrentUserComment] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -448,6 +451,55 @@ export default function ViewBook() {
     }
   };
 
+  const handleEditReview = () => {
+    setIsEditing(true);
+    setTempReviewData({ score: currentUserScore, comment: currentUserComment });
+  };
+
+  const handleTempReviewChange = (e) => {
+    const { name, value } = e.target;
+    setTempReviewData(prevData => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleTempStarClick = (star) => {
+    setTempReviewData(prevData => ({
+      ...prevData,
+      score: star
+    }));
+  };
+
+  const handleSaveEditedReview = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData('/editReview', 'POST', {
+        title,
+        score: tempReviewData.score,
+        comment: tempReviewData.comment
+      }, token);
+
+      setCurrentUserScore(tempReviewData.score);
+      setCurrentUserComment(tempReviewData.comment);
+      setIsEditing(false);
+      fetchExistingReview();
+
+    } catch (error) {
+      console.error("Failed to edit review:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setTempReviewData({ score: '', comment: '' });
+  };
+
   if (!book) {
     return (
       <div className="modal-book">
@@ -549,29 +601,63 @@ export default function ViewBook() {
         </form>
       )}
 
-      {isLoggedIn && alreadyRated && ( 
-        <div className="user-review">
-          <h4>Your Review</h4>
-          <div className="form-group">
-            <label>Score:</label>
-            <div className="star-rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className="star"
-                  style={{ fontSize: '2rem', color: star <= currentUserScore ? 'gold' : 'grey' }}>
-                  &#9733;
-                </span>
-              ))}
+      {isLoggedIn && alreadyRated && (
+        isEditing ? (
+          <form onSubmit={(e) => { e.preventDefault(); handleSaveEditedReview(); }}>
+            <div className="form-group">
+              <label>Score:</label>
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    type="button"
+                    key={star}
+                    className={star <= tempReviewData.score ? 'on' : 'off'}
+                    onClick={() => handleTempStarClick(star)}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2rem', color: star <= tempReviewData.score ? 'gold' : 'grey' }}
+                  >
+                  <span className="star">&#9733;</span>
+                  </button>
+                ))}
+              </div>
             </div>
+            <div className="form-group">
+              <label htmlFor="comment">Comment:</label>
+              <textarea
+                className="form-control"
+                id="comment"
+                name="comment"
+                value={tempReviewData.comment}
+                onChange={handleTempReviewChange}
+                required
+              ></textarea>
+            </div>
+            <button type="submit" className="btn btn-primary mt-3">Save</button>
+            <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={handleCancelEdit}>Cancel</button>
+          </form>
+        ) : (
+          <div className="user-review">
+            <h4>Your Review</h4>
+            <div className="form-group">
+              <label>Score:</label>
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className="star"
+                    style={{ fontSize: '2rem', color: star <= currentUserScore ? 'gold' : 'grey' }}>
+                    &#9733;
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Comment:</label>
+              <p className="user-comment">{currentUserComment}</p>
+            </div>
+            <button className="btn btn-warning mt-3" onClick={handleEditReview}>Edit Review</button>
+            <button className="btn btn-danger mt-3 ms-2" >Delete Review</button>
           </div>
-          <div className="form-group">
-            <label>Comment:</label>
-            <p className="user-comment">{currentUserComment}</p>
-          </div>
-          <button className="btn btn-warning mt-3" >Edit Review</button>
-          <button className="btn btn-danger mt-3 ms-2" >Delete Review</button>
-        </div>
+        )
       )}
 
 
