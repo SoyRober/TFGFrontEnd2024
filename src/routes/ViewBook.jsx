@@ -500,6 +500,29 @@ export default function ViewBook() {
     setTempReviewData({ score: '', comment: '' });
   };
 
+  const handleDeleteReview = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData(`/deleteReview?title=${encodeURIComponent(title)}`, 'DELETE', null, token);
+
+      setAlreadyRated(false);
+      setReviewData({ score: '', comment: '' });
+      setCurrentUserScore('');
+      setCurrentUserComment('');
+
+      const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+      setReviews(reviewsData);
+    } catch (error) {
+        console.error("Failed to delete review:", error);
+    }
+};
+
+
   if (!book) {
     return (
       <div className="modal-book">
@@ -655,7 +678,7 @@ export default function ViewBook() {
               <p className="user-comment">{currentUserComment}</p>
             </div>
             <button className="btn btn-warning mt-3" onClick={handleEditReview}>Edit Review</button>
-            <button className="btn btn-danger mt-3 ms-2" >Delete Review</button>
+            <button className="btn btn-danger mt-3 ms-2" onClick={handleDeleteReview}>Delete Review</button>
           </div>
         )
       )}
