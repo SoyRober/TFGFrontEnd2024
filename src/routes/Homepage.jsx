@@ -37,6 +37,7 @@ export default function Homepage() {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationKey, setNotificationKey] = useState(0);
   const [errorFetching, setErrorFetching] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const navigate = useNavigate();
 
@@ -102,6 +103,7 @@ export default function Homepage() {
 
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
+      console.log(isLoading)
     } catch (error) {
       setNotificationMessage(error.message);
       setNotificationKey(prevKey => prevKey + 1);
@@ -109,6 +111,8 @@ export default function Homepage() {
       console.error(error.message);
     } finally {
       setAtBottom(false);
+      setIsLoading(false);
+      console.log(isLoading)
     }
   };
 
@@ -241,12 +245,6 @@ export default function Homepage() {
     }
   };
 
-  if (books === null) {
-    return (
-      <Loading />
-    );
-  }
-
   return (
     <div className="fade-in d-flex flex-column justify-content-center align-items-center" style={{ paddingBottom: `${extraBottomSpace}px` }}>
       
@@ -310,7 +308,7 @@ export default function Homepage() {
   
       <div className="container mt-5">
         <div className="row">
-          {errorFetching ? (
+          {!isLoading ? (
             filteredBooks.map((book) => (
               <div key={book.title} className={calculateColumns()}>
                 <div
@@ -347,6 +345,4 @@ export default function Homepage() {
       </div>
     </div>
   );
-  
-  
 }
