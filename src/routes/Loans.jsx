@@ -19,8 +19,9 @@ const UserLoans = () => {
   const [message, setMessage] = useState("");
   const [loadingStartTime, setLoadingStartTime] = useState(null);
   const [loadingVisible, setLoadingVisible] = useState(false);
-  const [cardSize, setCardSize] = useState(300);
-  const token = localStorage.getItem('token');
+  const [cardSize, setCardSize] = useState(() => {
+    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
+  }); const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +65,10 @@ const UserLoans = () => {
 
     fetchLoans();
   }, [page, token, navigate]);
+
+  useEffect(() => {
+    localStorage.setItem('cardSize', cardSize);
+  }, [cardSize]);
 
   useEffect(() => {
     const applyFilters = () => {
@@ -245,12 +250,19 @@ const UserLoans = () => {
           filteredLoans.map((loan, index) => (
             <div key={index} className={calculateColumns()}>
               <div className="card mb-4" style={{ height: `${cardSize}px`, minWidth: `${cardSize}`, minHeight: `${cardSize}`, display: 'flex', flexDirection: 'column' }}>
-                <div className="card-img-container" style={{ flex: '1 0 60%' }}>
+                <div className="card-img-container"
+                  style={{
+                    flex: '1 0 40%',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}>
                   <img
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
-                    className="card-img-top"
+                    className="img-fluid"
                     alt={`Cover of ${loan.book}`}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} // Ajusta la imagen dentro del contenedor
                   />
                 </div>
                 <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>

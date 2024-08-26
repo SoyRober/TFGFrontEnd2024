@@ -36,7 +36,6 @@ export default function Homepage() {
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationKey, setNotificationKey] = useState(0);
-  const [errorFetching, setErrorFetching] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
   const navigate = useNavigate();
@@ -107,7 +106,6 @@ export default function Homepage() {
     } catch (error) {
       setNotificationMessage(error.message);
       setNotificationKey(prevKey => prevKey + 1);
-      setErrorFetching(true);
       console.error(error.message);
     } finally {
       setAtBottom(false);
