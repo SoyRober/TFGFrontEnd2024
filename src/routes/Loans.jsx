@@ -9,7 +9,6 @@ const UserLoans = () => {
   const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
-  const [cardHeight, setCardHeight] = useState(400);
   const [startDateFilter, setStartDateFilter] = useState('');
   const [authorFilter, setAuthorFilter] = useState('');
   const [returnedFilter, setReturnedFilter] = useState('all');
@@ -20,6 +19,7 @@ const UserLoans = () => {
   const [message, setMessage] = useState("");
   const [loadingStartTime, setLoadingStartTime] = useState(null);
   const [loadingVisible, setLoadingVisible] = useState(false);
+  const [cardSize, setCardSize] = useState(300);
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ const UserLoans = () => {
 
     const fetchLoans = async () => {
       setLoading(true);
-      setLoadingStartTime(Date.now()); // Marca el inicio de la carga
+      setLoadingStartTime(Date.now());
 
       try {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
@@ -52,7 +52,7 @@ const UserLoans = () => {
         setLoading(false);
 
         const elapsedTime = Date.now() - loadingStartTime;
-        const minLoadingTime = 1000; // 1 segundo
+        const minLoadingTime = 1000;
         const delay = Math.max(minLoadingTime - elapsedTime, 0);
 
         setLoadingVisible(true);
@@ -144,10 +144,10 @@ const UserLoans = () => {
   };
 
   const calculateColumns = () => {
-    const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardHeight / 100))));
+    const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardSize / 100))));
     return `col-${Math.floor(12 / columns)}`;
   };
-  
+
   if (error) {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
@@ -162,17 +162,32 @@ const UserLoans = () => {
         <Notification key={notificationKey} message={message} />
       )}
       <h1 className="display-4 text-center mb-4">User Loans</h1>
-      <div className="mb-3">
-        <label htmlFor="cardHeightRange" className="form-label">Card Height</label>
-        <input
-          type="range"
-          className="form-range"
-          id="cardHeightRange"
-          min="300"
-          max="600"
-          value={cardHeight}
-          onChange={(e) => setCardHeight(e.target.value)}
-        />
+      <div className="row w-100 justify-content-center">
+        <div className="col-md-4">
+          <div className="btn-group w-100" role="group" aria-label="Card size selector">
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
+              onClick={() => setCardSize(250)}
+            >
+              <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
+              onClick={() => setCardSize(350)}
+            >
+              <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
+              onClick={() => setCardSize(600)}
+            >
+              <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="mb-3">
@@ -229,7 +244,7 @@ const UserLoans = () => {
         {filteredLoans.length > 0 ? (
           filteredLoans.map((loan, index) => (
             <div key={index} className={calculateColumns()}>
-              <div className="card mb-4" style={{ height: `${cardHeight}px`, display: 'flex', flexDirection: 'column' }}>
+              <div className="card mb-4" style={{ height: `${cardSize}px`, minWidth: `${cardSize}`, minHeight: `${cardSize}`, display: 'flex', flexDirection: 'column' }}>
                 <div className="card-img-container" style={{ flex: '1 0 60%' }}>
                   <img
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
@@ -239,6 +254,7 @@ const UserLoans = () => {
                   />
                 </div>
                 <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
+
                   <h5 className="card-title">
                     <Link to={`/viewBook/${loan.book}`} className="text-decoration-none d-flex align-items-center">
                       {loan.book}
