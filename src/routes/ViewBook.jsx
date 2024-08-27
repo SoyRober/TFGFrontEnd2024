@@ -167,14 +167,10 @@ export default function ViewBook() {
       const token = localStorage.getItem('token');
       const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
-      console.log("data "+data);
-      if(data.success == true){
+      if(data.existingReview == true){
         setAlreadyRated(true);
         setCurrentUserScore(data.currentUserScore); 
         setCurrentUserComment(data.currentUserComment);
-        console.log("AlreadyRated");
-      } else { 
-        console.log("No Current review");
       }
     } catch (error) {
       console.error("Failed to fetch Existing Review:", error);
