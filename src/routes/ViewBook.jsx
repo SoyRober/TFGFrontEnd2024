@@ -73,14 +73,14 @@ export default function ViewBook() {
       }
     };
 
-    // const fetchReviews = async () => {
-    //   try {
-    //     const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-    //     setReviews(data);
-    //   } catch (error) {
-    //     console.error("Failed to fetch reviews:", error);
-    //   }
-    // };
+     const fetchReviews = async () => {
+       try {
+         const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+         setReviews(data);
+       } catch (error) {
+         console.error("Failed to fetch reviews:", error);
+       }
+     };
 
     const fetchAuthors = async () => {
       const endpoint = '/searchAuthors';
@@ -104,16 +104,16 @@ export default function ViewBook() {
       }
     };
 
-    // const autoCheckExistingReview = async () => {
-    //   fetchExistingReview();
-    // }
+     const autoCheckExistingReview = async () => {
+       fetchExistingReview();
+     }
 
     fetchBookData();
-    //fetchReviews();
+    fetchReviews();
     fetchAuthors();
     fetchGenres();
     checkLoanStatus();
-    //autoCheckExistingReview();
+    autoCheckExistingReview();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -142,7 +142,7 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
       setReviewData({ score: '', comment: '' });
-      //await fetchExistingReview();
+      await fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -216,7 +216,6 @@ export default function ViewBook() {
     } else if (editingAttribute === 'genres') {
       payload.append('value', JSON.stringify(selectedGenres));
     } else if (editingAttribute === 'isAdult') {
-      // Aquí convertimos el valor a booleano si es 'isAdult'
       const booleanValue = editValue === 'true';
       payload.append('value', booleanValue);
     } else {
@@ -452,7 +451,7 @@ export default function ViewBook() {
       setCurrentUserScore(tempReviewData.score);
       setCurrentUserComment(tempReviewData.comment);
       setIsEditing(false);
-      //fetchExistingReview();
+      fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to edit review:", error);
