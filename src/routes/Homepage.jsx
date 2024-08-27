@@ -102,7 +102,6 @@ export default function Homepage() {
 
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
-      console.log(isLoading)
     } catch (error) {
       setNotificationMessage(error.message);
       setNotificationKey(prevKey => prevKey + 1);
@@ -110,7 +109,6 @@ export default function Homepage() {
     } finally {
       setAtBottom(false);
       setIsLoading(false);
-      console.log(isLoading)
     }
   };
 
@@ -245,24 +243,57 @@ export default function Homepage() {
 
   return (
     <div className="fade-in d-flex flex-column justify-content-center align-items-center" style={{ paddingBottom: `${extraBottomSpace}px` }}>
-      
+
       {notificationMessage && (
         <div className="mb-4 text-center d-flex justify-content-left">
           <Notification key={notificationKey} message={notificationMessage} />
         </div>
       )}
-  
+
+      <CreateBookModal
+        showModal={showModal}
+        closeModal={closeModal}
+        handleSave={handleSave}
+        bookTitle={bookTitle}
+        setBookTitle={setBookTitle}
+        bookAuthors={bookAuthors}
+        setBookAuthors={setBookAuthors}
+        authors={authors}
+        searchStringAuthors={searchStringAuthors}
+        handleAuthorsSearchChange={handleAuthorsSearchChange}
+        handleAuthorChange={handleAuthorChange}
+        bookGenres={bookGenres}
+        setBookGenres={setBookGenres}
+        genres={genres}
+        searchStringGenres={searchStringGenres}
+        handleGenresSearchChange={handleGenresSearchChange}
+        handleGenreChange={handleGenreChange}
+        bookQuantity={bookQuantity}
+        setBookQuantity={setBookQuantity}
+        bookLocation={bookLocation}
+        setBookLocation={setBookLocation}
+        bookSynopsis={bookSynopsis}
+        setBookSynopsis={setBookSynopsis}
+        bookPublicationDate={bookPublicationDate}
+        setBookPublicationDate={setBookPublicationDate}
+        bookIsAdult={bookIsAdult}
+        setBookIsAdult={setBookIsAdult}
+        setBookImageBase64={setBookImageBase64}
+        notificationMessage={notificationMessage}
+        notificationKey={notificationKey}
+      />
+
       <div className="container text-center d-flex flex-column align-items-center justify-content-center" style={{ height: '50vh' }}>
-        
+
         <h1 className="mb-4">Book List</h1>
-        
-                
+
+
         {hasPermissions && (
           <button className="btn btn-primary mb-3" onClick={openModal}>
             Create New Book
           </button>
         )}
-        
+
         <div className="row w-100 justify-content-center mb-4">
           <div className="col-md-8">
             <input
@@ -274,7 +305,7 @@ export default function Homepage() {
             />
           </div>
         </div>
-  
+
         <div className="row w-100 justify-content-center">
           <div className="col-md-4">
             <div className="btn-group w-100" role="group" aria-label="Card size selector">
@@ -303,7 +334,7 @@ export default function Homepage() {
           </div>
         </div>
       </div>
-  
+
       <div className="container mt-5">
         <div className="row">
           {!isLoading ? (
@@ -325,11 +356,11 @@ export default function Homepage() {
                       style={{ maxHeight: '100%', maxWidth: '100%' }}
                     />
                   </div>
-  
+
                   <div className="d-flex justify-content-center">
                     <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
                   </div>
-  
+
                   <div className="card-body">
                     <h5 className="card-title text-center my-4">{book.title}</h5>
                   </div>

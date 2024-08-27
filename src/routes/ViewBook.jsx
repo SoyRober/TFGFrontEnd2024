@@ -19,7 +19,7 @@ export default function ViewBook() {
   const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [loanStatus, setLoanStatus] = useState(null);
+  const [isLoaned, setLoanStatus] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -29,7 +29,7 @@ export default function ViewBook() {
   const [currentUserComment, setCurrentUserComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
-
+  const [usersLoans, setUsersLoans] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,10 +38,10 @@ export default function ViewBook() {
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-      
+
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
-      }      
+      }
     }
   }, []);
 
@@ -58,32 +58,34 @@ export default function ViewBook() {
       }
     };
 
-    const fetchReviews = async () => {
+    const checkLoanStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No token found, user might not be authenticated");
+        return;
+      }
+
       try {
-        const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-        setReviews(data);
+        const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
+        setLoanStatus(response);
       } catch (error) {
-        console.error("Failed to fetch reviews:", error);
+        console.error("Failed to check loan status:", error);
       }
     };
 
+    // const fetchReviews = async () => {
+    //   try {
+    //     const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+    //     setReviews(data);
+    //   } catch (error) {
+    //     console.error("Failed to fetch reviews:", error);
+    //   }
+    // };
+
     const fetchAuthors = async () => {
+      const endpoint = '/searchAuthors';
       try {
-        const url = "http://localhost:8080/searchAuthors";
-        const bodyContent = '';
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-          },
-          body: bodyContent
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchData(endpoint, 'POST');
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -92,23 +94,9 @@ export default function ViewBook() {
     };
 
     const fetchGenres = async () => {
+      const endpoint = '/searchGenres';
       try {
-        const url = "http://localhost:8080/searchGenres";
-        const bodyContent = '';
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-          },
-          body: bodyContent
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await fetchData(endpoint, 'POST');
         setGenres(data);
       } catch (error) {
         console.error("Failed to fetch genres:", error);
@@ -116,16 +104,16 @@ export default function ViewBook() {
       }
     };
 
-    const autoCheckExistingReview = async () => {
-      fetchExistingReview();
-    }
+    // const autoCheckExistingReview = async () => {
+    //   fetchExistingReview();
+    // }
 
     fetchBookData();
-    fetchReviews();
+    //fetchReviews();
     fetchAuthors();
     fetchGenres();
-    checkLoanStatus(); 
-    autoCheckExistingReview();
+    checkLoanStatus();
+    //autoCheckExistingReview();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -139,7 +127,6 @@ export default function ViewBook() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    console.log("token: " + token);
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
@@ -155,7 +142,7 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
       setReviewData({ score: '', comment: '' });
-      await fetchExistingReview();
+      //await fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -163,9 +150,9 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+     try {
+       const token = localStorage.getItem('token');
+       const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
       if(data.existingReview == true){
         setAlreadyRated(true);
@@ -223,16 +210,15 @@ export default function ViewBook() {
 
     const payload = new FormData();
     payload.append('title', title);
-    console.log("title " + title);
     payload.append('attribute', editingAttribute);
     if (editingAttribute === 'authors') {
       payload.append('value', JSON.stringify(selectedAuthors));
     } else if (editingAttribute === 'genres') {
       payload.append('value', JSON.stringify(selectedGenres));
     } else if (editingAttribute === 'isAdult') {
-        // Aquí convertimos el valor a booleano si es 'isAdult'
-        const booleanValue = editValue === 'true';
-        payload.append('value', booleanValue);
+      // Aquí convertimos el valor a booleano si es 'isAdult'
+      const booleanValue = editValue === 'true';
+      payload.append('value', booleanValue);
     } else {
       payload.append('value', editValue);
     }
@@ -391,25 +377,6 @@ export default function ViewBook() {
     setNewImage(e.target.files[0]);
   };
 
-  const checkLoanStatus = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error("No token found, user might not be authenticated");
-      return;
-    }
-  
-    try {
-      const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
-      if (response === false) {
-        console.error("Failed to check loan status:", response.message);
-        return;
-      }
-      setLoanStatus(response); 
-    } catch (error) {
-      console.error("Failed to check loan status:", error);
-    }
-  };  
-
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -432,17 +399,18 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
-  
+
     try {
-      if (loanStatus) {
-        await fetchData('/return', 'PUT', title, token, 'text/plain');
-        setLoanStatus(false); 
+      if (!isLoaned) {
+        await fetchData('/loan', 'POST', title, token, 'text/plain');
+        setLoanStatus(true);
       } else {
-        await fetchData('/loan', 'POST', title , token, 'text/plain'); 
-        setLoanStatus(true); 
+        await fetchData('/return', 'PUT', title, token, 'text/plain');
+        setLoanStatus(false);
       }
+
     } catch (error) {
-      alert(`Error trying to loan the book`);
+      alert(error.message);
       console.error("Failed to update loan status:", error);
     }
   };
@@ -484,7 +452,7 @@ export default function ViewBook() {
       setCurrentUserScore(tempReviewData.score);
       setCurrentUserComment(tempReviewData.comment);
       setIsEditing(false);
-      fetchExistingReview();
+      //fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to edit review:", error);
@@ -514,9 +482,15 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
     } catch (error) {
-        console.error("Failed to delete review:", error);
+      console.error("Failed to delete review:", error);
     }
-};
+  };
+
+  const openModal = () => {
+    const token = localStorage.getItem('token');
+
+    setShowModal(true);
+  };
 
 
   if (!book) {
@@ -531,24 +505,34 @@ export default function ViewBook() {
 
   return (
     <div className="container mt-5">
+      {hasPermissions && (
+        <div>
+          <h2>Users loans</h2>
+          <p>{usersLoans}</p>
+        </div>
+      )}
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
-        {isLoggedIn && (
-          <>
-            <button
-              onClick={handleLoanClick}
-              className={`btn ${loanStatus ? 'btn-danger' : 'btn-primary'}`}
-            >
-              {loanStatus ? 'Return' : 'Loan'}
-            </button>
-            {hasPermissions && (
-              <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
-              Delete Book
-            </button>
-            )}
-          </>
-        )}
+          {isLoggedIn && (
+            <>
+              <button
+                onClick={handleLoanClick}
+                className={isLoaned ? 'btn btn-danger' : 'btn btn-primary'}
+              >
+                {isLoaned ? 'Return' : 'Loan'}
+              </button>
+              {hasPermissions && (
+                <button
+                  onClick={() => setShowDeleteConfirmation(true)}
+                  className="btn btn-danger ml-2"
+                >
+                  Delete Book
+                </button>
+              )}
+            </>
+          )}
+
         </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (
@@ -585,7 +569,7 @@ export default function ViewBook() {
         </div>
       </div>
 
-      {isLoggedIn && alreadyRated==false && ( 
+      {isLoggedIn && alreadyRated == false && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
@@ -634,7 +618,7 @@ export default function ViewBook() {
                     onClick={() => handleTempStarClick(star)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2rem', color: star <= tempReviewData.score ? 'gold' : 'grey' }}
                   >
-                  <span className="star">&#9733;</span>
+                    <span className="star">&#9733;</span>
                   </button>
                 ))}
               </div>
@@ -698,7 +682,6 @@ export default function ViewBook() {
 
       {renderEditModal()}
 
-      {/* Ventana de confirmación para eliminar libro */}
       {showDeleteConfirmation && (
         <div className="modal show" style={{ display: "block" }}>
           <div className="modal-dialog">
