@@ -83,22 +83,9 @@ export default function ViewBook() {
     // };
 
     const fetchAuthors = async () => {
+      const endpoint = '/searchAuthors';
       try {
-        const url = "http://localhost:8080/searchAuthors";
-        const bodyContent = '';
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-          },
-          body: bodyContent
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const data = await response.json();
+        const data = await fetchData(endpoint, 'POST');
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -107,23 +94,9 @@ export default function ViewBook() {
     };
 
     const fetchGenres = async () => {
+      const endpoint = '/searchGenres';
       try {
-        const url = "http://localhost:8080/searchGenres";
-        const bodyContent = '';
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'text/plain',
-          },
-          body: bodyContent
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
+        const data = await fetchData(endpoint, 'POST');
         setGenres(data);
       } catch (error) {
         console.error("Failed to fetch genres:", error);
