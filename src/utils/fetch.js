@@ -26,6 +26,7 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
 
     try {
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
+        console.log(response)
 
         if (!response.ok) {
             const errorText = await response.text();

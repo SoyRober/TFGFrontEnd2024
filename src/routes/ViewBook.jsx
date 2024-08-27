@@ -29,7 +29,7 @@ export default function ViewBook() {
   const [currentUserComment, setCurrentUserComment] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
-
+  const [usersLoans, setUsersLoans] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,10 +38,10 @@ export default function ViewBook() {
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-      
+
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
-      }      
+      }
     }
   }, []);
 
@@ -58,14 +58,25 @@ export default function ViewBook() {
       }
     };
 
-    const fetchReviews = async () => {
+    const fetchUsersLoans = async () => {
       try {
-        const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-        setReviews(data);
+        const token = localStorage.getItem('token');
+        const data = await fetchData(`/userLoans`, 'POST', null);
+        
+        console.log(data);
       } catch (error) {
-        console.error("Failed to fetch reviews:", error);
+        console.error("Hola:", error);
       }
-    };
+    }
+
+    // const fetchReviews = async () => {
+    //   try {
+    //     const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+    //     setReviews(data);
+    //   } catch (error) {
+    //     console.error("Failed to fetch reviews:", error);
+    //   }
+    // };
 
     const fetchAuthors = async () => {
       try {
@@ -116,16 +127,17 @@ export default function ViewBook() {
       }
     };
 
-    const autoCheckExistingReview = async () => {
-      fetchExistingReview();
-    }
+    // const autoCheckExistingReview = async () => {
+    //   fetchExistingReview();
+    // }
 
     fetchBookData();
-    fetchReviews();
+    //fetchReviews();
     fetchAuthors();
     fetchGenres();
-    checkLoanStatus(); 
-    autoCheckExistingReview();
+    checkLoanStatus();
+    //autoCheckExistingReview();
+    fetchUsersLoans();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -139,7 +151,6 @@ export default function ViewBook() {
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    console.log("token: " + token);
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
@@ -155,31 +166,31 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
       setReviewData({ score: '', comment: '' });
-      await fetchExistingReview();
+      //await fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to submit review:", error);
     }
   };
 
-  const fetchExistingReview = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+  // const fetchExistingReview = async () => {
+  //   try {
+  //     const token = localStorage.getItem('token');
+  //     const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
-      console.log("data "+data);
-      if(data.success == true){
-        setAlreadyRated(true);
-        setCurrentUserScore(data.currentUserScore); 
-        setCurrentUserComment(data.currentUserComment);
-        console.log("AlreadyRated");
-      } else { 
-        console.log("No Current review");
-      }
-    } catch (error) {
-      console.error("Failed to fetch Existing Review:", error);
-    }    
-  }
+  //     console.log("data " + data);
+  //     if (data.success == true) {
+  //       setAlreadyRated(true);
+  //       setCurrentUserScore(data.currentUserScore);
+  //       setCurrentUserComment(data.currentUserComment);
+  //       console.log("AlreadyRated");
+  //     } else {
+  //       console.log("No Current review");
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to fetch Existing Review:", error);
+  //   }
+  // }
 
   const handleEditClick = (attribute) => {
     setEditingAttribute(attribute);
@@ -227,16 +238,15 @@ export default function ViewBook() {
 
     const payload = new FormData();
     payload.append('title', title);
-    console.log("title " + title);
     payload.append('attribute', editingAttribute);
     if (editingAttribute === 'authors') {
       payload.append('value', JSON.stringify(selectedAuthors));
     } else if (editingAttribute === 'genres') {
       payload.append('value', JSON.stringify(selectedGenres));
     } else if (editingAttribute === 'isAdult') {
-        // Aquí convertimos el valor a booleano si es 'isAdult'
-        const booleanValue = editValue === 'true';
-        payload.append('value', booleanValue);
+      // Aquí convertimos el valor a booleano si es 'isAdult'
+      const booleanValue = editValue === 'true';
+      payload.append('value', booleanValue);
     } else {
       payload.append('value', editValue);
     }
@@ -401,18 +411,18 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
-  
+
     try {
       const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
       if (response === false) {
         console.error("Failed to check loan status:", response.message);
         return;
       }
-      setLoanStatus(response); 
+      setLoanStatus(response);
     } catch (error) {
       console.error("Failed to check loan status:", error);
     }
-  };  
+  };
 
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
@@ -436,14 +446,14 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
-  
+
     try {
       if (loanStatus) {
         await fetchData('/return', 'PUT', title, token, 'text/plain');
-        setLoanStatus(false); 
+        setLoanStatus(false);
       } else {
-        await fetchData('/loan', 'POST', title , token, 'text/plain'); 
-        setLoanStatus(true); 
+        await fetchData('/loan', 'POST', title, token, 'text/plain');
+        setLoanStatus(true);
       }
     } catch (error) {
       alert(`Error trying to loan the book`);
@@ -488,7 +498,7 @@ export default function ViewBook() {
       setCurrentUserScore(tempReviewData.score);
       setCurrentUserComment(tempReviewData.comment);
       setIsEditing(false);
-      fetchExistingReview();
+      //fetchExistingReview();
 
     } catch (error) {
       console.error("Failed to edit review:", error);
@@ -518,9 +528,15 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
     } catch (error) {
-        console.error("Failed to delete review:", error);
+      console.error("Failed to delete review:", error);
     }
-};
+  };
+
+  const openModal = () => {
+    const token = localStorage.getItem('token');
+    
+    setShowModal(true);
+  };
 
 
   if (!book) {
@@ -535,24 +551,30 @@ export default function ViewBook() {
 
   return (
     <div className="container mt-5">
+      {hasPermissions && (
+        <div>
+          <h2>Users loans</h2>
+          <p>{usersLoans}</p>
+        </div>
+      )}
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
-        {isLoggedIn && (
-          <>
-            <button
-              onClick={handleLoanClick}
-              className={`btn ${loanStatus ? 'btn-danger' : 'btn-primary'}`}
-            >
-              {loanStatus ? 'Return' : 'Loan'}
-            </button>
-            {hasPermissions && (
-              <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
-              Delete Book
-            </button>
-            )}
-          </>
-        )}
+          {isLoggedIn && (
+            <>
+              <button
+                onClick={handleLoanClick}
+                className={`btn ${!loanStatus ? 'btn-danger' : 'btn-primary'}`}
+              >
+                {!loanStatus ? 'Return' : 'Loan'}
+              </button>
+              {hasPermissions && (
+                <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
+                  Delete Book
+                </button>
+              )}
+            </>
+          )}
         </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (
@@ -589,7 +611,7 @@ export default function ViewBook() {
         </div>
       </div>
 
-      {isLoggedIn && alreadyRated==false && ( 
+      {isLoggedIn && alreadyRated == false && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
@@ -638,7 +660,7 @@ export default function ViewBook() {
                     onClick={() => handleTempStarClick(star)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2rem', color: star <= tempReviewData.score ? 'gold' : 'grey' }}
                   >
-                  <span className="star">&#9733;</span>
+                    <span className="star">&#9733;</span>
                   </button>
                 ))}
               </div>
@@ -702,7 +724,6 @@ export default function ViewBook() {
 
       {renderEditModal()}
 
-      {/* Ventana de confirmación para eliminar libro */}
       {showDeleteConfirmation && (
         <div className="modal show" style={{ display: "block" }}>
           <div className="modal-dialog">
