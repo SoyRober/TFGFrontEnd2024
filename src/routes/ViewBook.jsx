@@ -19,7 +19,7 @@ export default function ViewBook() {
   const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [loanStatus, setLoanStatus] = useState(null);
+  const [isLoaned, setLoanStatus] = useState(null);
   const [authors, setAuthors] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -58,16 +58,20 @@ export default function ViewBook() {
       }
     };
 
-    const fetchUsersLoans = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const data = await fetchData(`/userLoans`, 'POST', null);
-        
-        console.log(data);
-      } catch (error) {
-        console.error("Hola:", error);
+    const checkLoanStatus = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No token found, user might not be authenticated");
+        return;
       }
-    }
+
+      try {
+        const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
+        setLoanStatus(response);
+      } catch (error) {
+        console.error("Failed to check loan status:", error);
+      }
+    };
 
     // const fetchReviews = async () => {
     //   try {
@@ -137,7 +141,6 @@ export default function ViewBook() {
     fetchGenres();
     checkLoanStatus();
     //autoCheckExistingReview();
-    fetchUsersLoans();
   }, [title]);
 
   const handleReviewChange = (e) => {
@@ -405,25 +408,6 @@ export default function ViewBook() {
     setNewImage(e.target.files[0]);
   };
 
-  const checkLoanStatus = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      console.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
-      if (response === false) {
-        console.error("Failed to check loan status:", response.message);
-        return;
-      }
-      setLoanStatus(response);
-    } catch (error) {
-      console.error("Failed to check loan status:", error);
-    }
-  };
-
   const handleDeleteBook = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -448,15 +432,16 @@ export default function ViewBook() {
     }
 
     try {
-      if (loanStatus) {
-        await fetchData('/return', 'PUT', title, token, 'text/plain');
-        setLoanStatus(false);
-      } else {
+      if (!isLoaned) {
         await fetchData('/loan', 'POST', title, token, 'text/plain');
         setLoanStatus(true);
+      } else {
+        await fetchData('/return', 'PUT', title, token, 'text/plain');
+        setLoanStatus(false);
       }
+
     } catch (error) {
-      alert(`Error trying to loan the book`);
+      alert(error.message);
       console.error("Failed to update loan status:", error);
     }
   };
@@ -534,7 +519,7 @@ export default function ViewBook() {
 
   const openModal = () => {
     const token = localStorage.getItem('token');
-    
+
     setShowModal(true);
   };
 
@@ -564,17 +549,21 @@ export default function ViewBook() {
             <>
               <button
                 onClick={handleLoanClick}
-                className={`btn ${!loanStatus ? 'btn-danger' : 'btn-primary'}`}
+                className={isLoaned ? 'btn btn-danger' : 'btn btn-primary'}
               >
-                {!loanStatus ? 'Return' : 'Loan'}
+                {isLoaned ? 'Return' : 'Loan'}
               </button>
               {hasPermissions && (
-                <button onClick={() => setShowDeleteConfirmation(true)} className="btn btn-danger ml-2">
+                <button
+                  onClick={() => setShowDeleteConfirmation(true)}
+                  className="btn btn-danger ml-2"
+                >
                   Delete Book
                 </button>
               )}
             </>
           )}
+
         </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (
