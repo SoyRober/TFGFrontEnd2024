@@ -662,8 +662,6 @@ export default function ViewBook() {
         )
       )}
 
-
-
       <h2 className="mt-5">Reviews</h2>
       <div className="list-group mb-3">
         {reviews.length > 0 ? (
