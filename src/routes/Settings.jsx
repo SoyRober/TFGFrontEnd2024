@@ -17,6 +17,7 @@ export default function Settings() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    console.log(token);
     if (token) {
       setIsLoggedIn(true);
       const decodedToken = jwtDecode(token);
@@ -59,6 +60,9 @@ export default function Settings() {
       if (data.success) {
         setUsername(newUsername);
         setShowModal(false);
+        console.log(token);
+        console.log(data.token);
+        localStorage.setItem("token", data.token);
       } else {
         console.log("Error: Username not changed");
       }
