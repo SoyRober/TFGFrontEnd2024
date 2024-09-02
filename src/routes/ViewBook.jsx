@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import { fetchData } from '../utils/fetch.js';
 import { jwtDecode } from 'jwt-decode'
+import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -30,7 +31,11 @@ export default function ViewBook() {
   const [isEditing, setIsEditing] = useState(false);
   const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
   const [usersLoans, setUsersLoans] = useState([]);
+  const [page, setPage] = useState(0);
+  const [show, setShow] = useState(false);
 
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -65,7 +70,7 @@ export default function ViewBook() {
         return;
       }
       try {
-        const data = await fetchData(`/usersLoans?title=${encodeURIComponent(title)}`, 'POST', null, token)
+        const data = await fetchData(`/usersLoans?page=${page}&size=10`, 'POST', title, token, 'text/plain')
         setUsersLoans(data.message);
       } catch (error) {
         console.error(error)
@@ -87,14 +92,14 @@ export default function ViewBook() {
       }
     };
 
-     const fetchReviews = async () => {
-       try {
-         const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
-         setReviews(data);
-       } catch (error) {
-         console.error("Failed to fetch reviews:", error);
-       }
-     };
+    const fetchReviews = async () => {
+      try {
+        const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+        setReviews(data);
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      }
+    };
 
     const fetchAuthors = async () => {
       const endpoint = '/searchAuthors';
@@ -118,9 +123,9 @@ export default function ViewBook() {
       }
     };
 
-     const autoCheckExistingReview = async () => {
-       fetchExistingReview();
-     }
+    const autoCheckExistingReview = async () => {
+      fetchExistingReview();
+    }
 
     fetchBookData();
     fetchReviews();
@@ -165,18 +170,18 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
-     try {
-       const token = localStorage.getItem('token');
-       const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+    try {
+      const token = localStorage.getItem('token');
+      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
-      if(data.existingReview == true){
+      if (data.existingReview == true) {
         setAlreadyRated(true);
-        setCurrentUserScore(data.currentUserScore); 
+        setCurrentUserScore(data.currentUserScore);
         setCurrentUserComment(data.currentUserComment);
       }
     } catch (error) {
       console.error("Failed to fetch Existing Review:", error);
-    }    
+    }
   }
 
   const handleEditClick = (attribute) => {
@@ -500,12 +505,6 @@ export default function ViewBook() {
     }
   };
 
-  const openModal = () => {
-    const token = localStorage.getItem('token');
-
-    setShowModal(true);
-  };
-
 
   if (!book) {
     return (
@@ -520,11 +519,29 @@ export default function ViewBook() {
   return (
     <div className="container mt-5">
       {hasPermissions && (
-        <div>
-          <h2>Users loans</h2>
-          <p>{usersLoans}</p>
-        </div>
+        <>
+          <Button variant="primary" onClick={handleShow}>
+            Show Users Loans
+          </Button>
+
+          <Modal show={show} onHide={handleClose}>
+            <Modal.Header closeButton>
+              <Modal.Title>Users Loans</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {usersLoans.map((loan, index) => (
+                <li key={index}>{loan}</li>
+              ))}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleClose}>
+                Close
+              </Button>
+            </Modal.Footer>
+          </Modal>
+        </>
       )}
+
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <div className="row">
         <div>
