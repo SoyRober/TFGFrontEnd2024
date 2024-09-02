@@ -58,6 +58,20 @@ export default function ViewBook() {
       }
     };
 
+    const fetchUsersLoans = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error("No token found, user might not be authenticated");
+        return;
+      }
+      try {
+        const data = await fetchData(`/usersLoans?title=${encodeURIComponent(title)}`, 'POST', null, token)
+        setUsersLoans(data.message);
+      } catch (error) {
+        console.error(error)
+      }
+    }
+
     const checkLoanStatus = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
@@ -114,6 +128,7 @@ export default function ViewBook() {
     fetchGenres();
     checkLoanStatus();
     autoCheckExistingReview();
+    fetchUsersLoans();
   }, [title]);
 
   const handleReviewChange = (e) => {

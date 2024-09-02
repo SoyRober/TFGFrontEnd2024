@@ -3,8 +3,10 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import useCheckTokenExpiration from '../hooks/checkToken.jsx';
 
 export default function Root() {
+  useCheckTokenExpiration();
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') ? true : false;
   });
