@@ -12,9 +12,12 @@ export default function Settings() {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [role, setRole] = useState('');
   const [username, setUsername] = useState('');
-  const [showModal, setShowModal] = useState(false);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -40,10 +43,14 @@ export default function Settings() {
   }, []);
 
   const handleEditUsername = () => {
-    setShowModal(true);
+    setShowUsernameModal(true);
   };
 
-  const handleSave = async () => {
+  const handleChangePassword = () => {
+    setShowPasswordModal(true);
+  };
+
+  const handleSaveUsername = async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8080/changeUsername', {
@@ -60,9 +67,7 @@ export default function Settings() {
       const data = await response.json();
       if (data.success) {
         setUsername(newUsername);
-        setShowModal(false);
-        console.log(token);
-        console.log(data.token);
+        setShowUsernameModal(false);
         setErrorMessage('');
         localStorage.setItem("token", data.token);
       } else {
@@ -78,16 +83,53 @@ export default function Settings() {
     }
   };
 
+  const handleSavePassword = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:8080/changePassword', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          username: username,
+          currentPassword: currentPassword,
+          newPassword: newPassword
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setShowPasswordModal(false);
+        setErrorMessage('');
+      } else {
+        if (data.message) {
+          setErrorMessage(data.message);
+        } else {
+          setErrorMessage("Error: Password not changed");
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage("An unexpected error occurred.");
+    }
+  };
+
   const handleCancel = () => {
-    setShowModal(false);
+    setShowUsernameModal(false);
+    setShowPasswordModal(false);
     setErrorMessage('');
   };
 
 return (
   <div>
     <h1>Settings</h1>
-    <p>User: {username}</p> <button className="btn btn-primary mt-3" onClick={handleEditUsername}>Edit Username</button>
-    <Modal show={showModal} onHide={handleCancel}>
+    <p>User: {username}</p> 
+    <button className="btn btn-primary mt-3" onClick={handleEditUsername}>Edit Username</button>
+    <button className="btn btn-secondary mt-3 ml-2" onClick={handleChangePassword}>Change Password</button>
+
+    {/* Change username modal */}
+    <Modal show={showUsernameModal} onHide={handleCancel}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Username</Modal.Title>
         </Modal.Header>
@@ -109,7 +151,45 @@ return (
           <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSave}>
+          <Button variant="primary" onClick={handleSaveUsername}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Change password modal */}
+      <Modal show={showPasswordModal} onHide={handleCancel}>
+        <Modal.Header closeButton>
+          <Modal.Title>Change Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Current Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              placeholder="Current Password"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>New Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New Password"
+            />
+          </Form.Group>
+          {errorMessage && (
+            <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSavePassword}>
             Save
           </Button>
         </Modal.Footer>
