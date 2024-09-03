@@ -14,6 +14,7 @@ export default function Settings() {
   const [username, setUsername] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [newUsername, setNewUsername] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -62,17 +63,24 @@ export default function Settings() {
         setShowModal(false);
         console.log(token);
         console.log(data.token);
+        setErrorMessage('');
         localStorage.setItem("token", data.token);
       } else {
-        console.log("Error: Username not changed");
+        if(data.message){
+          setErrorMessage(data.message);
+        } else {
+          setErrorMessage("Error: Username not changed");
+        }
       }
     } catch (error) {
       console.error("Error:", error);
+      setErrorMessage("An unexpected error occurred.");
     }
   };
 
   const handleCancel = () => {
     setShowModal(false);
+    setErrorMessage('');
   };
 
 return (
@@ -93,6 +101,9 @@ return (
               placeholder="Enter new username"
             />
           </Form.Group>
+          {errorMessage && (
+            <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCancel}>
