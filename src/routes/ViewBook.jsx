@@ -506,6 +506,21 @@ export default function ViewBook() {
     }
   };
 
+  const handleReturnModal = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData('/return', 'PUT', title, token, 'text/plain');
+      setUsersLoans(usersLoans.filter(existingLoan => existingLoan !== loan));
+    } catch (error) {
+      alert(error.message);
+      console.error("Failed to update loan status:", error);
+    }
+  };
 
   if (!book) {
     return (
@@ -518,9 +533,11 @@ export default function ViewBook() {
   }
 
   return (
+    
     <div className="container mt-5">
       {hasPermissions && (
-        <BookLoansModal usersLoans={usersLoans}/>
+        <BookLoansModal usersLoans={usersLoans} onReturnLoan={handleReturnModal} />
+        
       )}
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
