@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import { fetchData } from '../utils/fetch.js';
 import { jwtDecode } from 'jwt-decode'
-import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
+import BookLoansModal from '../components/BookLoansModal.jsx';
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -519,27 +520,7 @@ export default function ViewBook() {
   return (
     <div className="container mt-5">
       {hasPermissions && (
-        <>
-          <Button variant="primary" onClick={handleShow}>
-            Show Users Loans
-          </Button>
-
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>Users Loans</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {usersLoans.map((loan, index) => (
-                <li key={index}>{loan}</li>
-              ))}
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={handleClose}>
-                Close
-              </Button>
-            </Modal.Footer>
-          </Modal>
-        </>
+        <BookLoansModal usersLoans={usersLoans}/>
       )}
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
