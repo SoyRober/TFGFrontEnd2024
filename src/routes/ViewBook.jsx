@@ -714,6 +714,7 @@ export default function ViewBook() {
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={handleDeleteBook}
+        message={`This book "${book.title}" will be deleted. Are you sure?`}
       />
     </div>
   );
