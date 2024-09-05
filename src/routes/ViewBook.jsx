@@ -6,6 +6,7 @@ import { fetchData } from '../utils/fetch.js';
 import { jwtDecode } from 'jwt-decode'
 import { Modal, Button } from 'react-bootstrap';
 import BookLoansModal from '../components/BookLoansModal.jsx';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -709,25 +710,11 @@ export default function ViewBook() {
 
       {renderEditModal()}
 
-      {showDeleteConfirmation && (
-        <div className="modal show" style={{ display: "block" }}>
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirm Delete</h5>
-                <button type="button" className="btn-close" onClick={() => setShowDeleteConfirmation(false)}></button>
-              </div>
-              <div className="modal-body">
-                <p>This book will be deleted. Are you sure?</p>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowDeleteConfirmation(false)}>Cancel</button>
-                <button type="button" className="btn btn-danger" onClick={handleDeleteBook}>Delete</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmationModal
+        show={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onDelete={handleDeleteBook}
+      />
     </div>
   );
 }
