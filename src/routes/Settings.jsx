@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/main.css';
 import { fetchData } from '../utils/fetch.js';
 import { jwtDecode } from 'jwt-decode'
-
+import EditAttributeModal from '../components/EditAttributeModal';
 
 export default function Settings() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -128,72 +128,55 @@ return (
     <button className="btn btn-primary mt-3" onClick={handleEditUsername}>Edit Username</button>
     <button className="btn btn-secondary mt-3 ml-2" onClick={handleChangePassword}>Change Password</button>
 
-    {/* Change username modal */}
-    <Modal show={showUsernameModal} onHide={handleCancel}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Username</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>New Username</Form.Label>
-            <Form.Control
-              type="text"
-              value={newUsername}
-              onChange={(e) => setNewUsername(e.target.value)}
-              placeholder="Enter new username"
-            />
-          </Form.Group>
-          {errorMessage && (
-            <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSaveUsername}>
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+    {/* Change username */}
+    <EditAttributeModal
+      show={showUsernameModal}
+      onClose={handleCancel}
+      attribute="Username"
+      value={newUsername}
+      onChange={(e) => setNewUsername(e.target.value)}
+      placeholder="Enter new username"
+      onSave={handleSaveUsername}
+      errorMessage={errorMessage}
+    />
 
-      {/* Change password modal */}
-      <Modal show={showPasswordModal} onHide={handleCancel}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change Password</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Current Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Current Password"
-            />
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>New Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="New Password"
-            />
-          </Form.Group>
-          {errorMessage && (
-            <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancel}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSavePassword}>
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+    {/* Change password */}
+    <Modal show={showPasswordModal} onHide={handleCancel}>
+      <Modal.Header closeButton>
+        <Modal.Title>Change Password</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Form.Group>
+          <Form.Label>Current Password</Form.Label>
+          <Form.Control
+            type="password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+            placeholder="Current Password"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>New Password</Form.Label>
+          <Form.Control
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="New Password"
+          />
+        </Form.Group>
+        {errorMessage && (
+          <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCancel}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSavePassword}>
+          Save
+        </Button>
+      </Modal.Footer>
+    </Modal>
   </div>
 );
 }
