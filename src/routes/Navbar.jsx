@@ -3,16 +3,19 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { jwtDecode } from 'jwt-decode'
 import useCheckTokenExpiration from '../hooks/checkToken.jsx';
 
 export default function Root() {
-  useCheckTokenExpiration();
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const location = useLocation();
+  const key = useState(Date.now());
+
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('token') ? true : false;
   });
-  
-  const location = useLocation();
-  const key = useState(Date.now());
+
+  useCheckTokenExpiration();
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -24,6 +27,18 @@ export default function Root() {
     setIsLoggedIn(false);
   };
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+
+      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+        setHasPermissions(true);
+      }
+    }
+  }, []);
+
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top" key={key}>
@@ -31,7 +46,11 @@ export default function Root() {
           <Link className="navbar-brand" to="/">Home</Link>
           
           {isLoggedIn && (
-            <Link className="nav-link" to="/user/loans">My Loans</Link>
+            <Link className="nav-link ms-3" to="/user/loans">My Loans</Link>
+          )}
+          
+          {hasPermissions && (
+            <Link className="nav-link ms-3" to="/usersList">Users List</Link>
           )}
           
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

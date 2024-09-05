@@ -34,10 +34,7 @@ export default function ViewBook() {
   const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
   const [usersLoans, setUsersLoans] = useState([]);
   const [page, setPage] = useState(0);
-  const [show, setShow] = useState(false);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -516,7 +513,6 @@ export default function ViewBook() {
 
     try {
       await fetchData('/return', 'PUT', title, token, 'text/plain');
-      setUsersLoans(usersLoans.filter(existingLoan => existingLoan !== loan));
     } catch (error) {
       alert(error.message);
       console.error("Failed to update loan status:", error);

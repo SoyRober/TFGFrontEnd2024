@@ -8,6 +8,7 @@ import Register from "./routes/Register.jsx";
 import ViewBook from "./routes/ViewBook.jsx";
 import Loans from "./routes/Loans.jsx";
 import Settings from "./routes/Settings.jsx";
+import UsersList from "./routes/UsersList.jsx";
 
 const router = createBrowserRouter([
   {
@@ -37,6 +38,10 @@ const router = createBrowserRouter([
       {
         path: "/viewBook/:title",
         element: <ViewBook />,
+      },
+      {
+        path: "/usersList",
+        element: <UsersList />,
       },
     ],
   },
