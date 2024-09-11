@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal.jsx';
 
 const UsersList = () => {
@@ -11,7 +11,7 @@ const UsersList = () => {
     const [page, setPage] = useState(0);
     const navigate = useNavigate();
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [selectedUserEmail, setSelectedUserEmail] = useState("");  
+    const [selectedUserEmail, setSelectedUserEmail] = useState("");
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -33,7 +33,7 @@ const UsersList = () => {
             const data = await fetchData(`/getUsers?page=${page}`, 'GET', null, token);
             setUsers(data.message);
         } catch (error) {
-            setErrorMessage("Error al cargar la lista de usuarios");
+            setErrorMessage("Error loading the users list");
         }
     };
 
@@ -41,7 +41,7 @@ const UsersList = () => {
         fetchUsers();
     }, [page]);
 
-    const deleteUser = async () => {  
+    const deleteUser = async () => {
         const token = localStorage.getItem('token');
         if (!token) navigate("/");
 
@@ -51,20 +51,24 @@ const UsersList = () => {
                 setErrorMessage(`User ${selectedUserEmail} deleted`);
             }
             setUsers(users.filter(user => user.email !== selectedUserEmail));
-            setShowDeleteConfirmation(false);  
+            setShowDeleteConfirmation(false);
         } catch (error) {
-            setErrorMessage("Error al eliminar usuario");
+            setErrorMessage("Error deleting user");
         }
     };
 
     const handleDeleteClick = (email) => {
-        setSelectedUserEmail(email); 
-        setShowDeleteConfirmation(true);  
+        setSelectedUserEmail(email);
+        setShowDeleteConfirmation(true);
+    };
+
+    const handleViewProfile = (email) => {
+        navigate(`/profile/${encodeURIComponent(email)}`);
     };
 
     return (
         <div className="container">
-            <h2>Lista de Usuarios</h2>
+            <h2>User List</h2>
             {errorMessage && <Notification message={errorMessage} />}
 
             <table className="table table-striped">
@@ -72,7 +76,7 @@ const UsersList = () => {
                     <tr>
                         <th scope="col">Username</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Acciones</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,9 +86,16 @@ const UsersList = () => {
                             <td>{user.email}</td>
                             <td>
                                 <button
-                                    onClick={() => handleDeleteClick(user.email)}  
+                                    onClick={() => handleDeleteClick(user.email)}
                                     className="btn btn-danger ml-2">
                                     Delete
+                                </button>
+                            </td>
+                            <td>
+                                <button
+                                    onClick={() => handleViewProfile(user.email)}  
+                                    className="btn btn-primary">
+                                    View Profile
                                 </button>
                             </td>
                         </tr>
@@ -95,7 +106,7 @@ const UsersList = () => {
             <DeleteConfirmationModal
                 show={showDeleteConfirmation}
                 onClose={() => setShowDeleteConfirmation(false)}
-                onDelete={deleteUser} 
+                onDelete={deleteUser}
                 message={`This user with email "${selectedUserEmail}" will be deleted. Are you sure?`}
             />
         </div>

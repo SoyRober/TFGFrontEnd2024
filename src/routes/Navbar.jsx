@@ -32,8 +32,8 @@ export default function Root() {
     if (token) {
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-
-      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+      console.log(userRole)
+      if (userRole !== "USER") {
         setHasPermissions(true);
       }
     }

@@ -64,6 +64,7 @@ const UserLoans = () => {
     };
 
     fetchLoans();
+    console.log(loans)
   }, [page, token, navigate]);
 
   useEffect(() => {
@@ -262,7 +263,7 @@ const UserLoans = () => {
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
                     className="img-fluid"
                     alt={`Cover of ${loan.book}`}
-                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} // Ajusta la imagen dentro del contenedor
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} 
                   />
                 </div>
                 <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
