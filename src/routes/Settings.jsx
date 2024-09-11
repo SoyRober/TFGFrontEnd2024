@@ -212,7 +212,7 @@ return (
     <p>BirthDate: {birthDate ? new Date(birthDate).toLocaleDateString() : 'N/A'}</p>
     <p>Role: {role}</p>
     <button className="btn btn-primary mt-3" onClick={handleEditUsername}>Edit Username</button>
-    {/*<button className="btn btn-primary mt-3" onClick={handleEditEmail}>Edit Email</button>*/}
+    <button className="btn btn-primary mt-3" onClick={handleEditEmail}>Edit Email</button>
     <button className="btn btn-primary mt-3" onClick={handleEditBirthDate}>Edit BirthDate</button>
     <button className="btn btn-secondary mt-3 ml-2" onClick={handleChangePassword}>Change Password</button>
 
