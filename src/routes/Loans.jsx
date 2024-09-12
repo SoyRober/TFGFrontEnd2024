@@ -24,6 +24,8 @@ const UserLoans = () => {
   }); const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
+
+
   useEffect(() => {
     if (!token) {
       setMessage("No token found, user might not be authenticated");
@@ -39,7 +41,12 @@ const UserLoans = () => {
       try {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
-          setLoans(prevLoans => [...prevLoans, ...data.message]);
+          setLoans(prevLoans => {
+            const newLoans = data.message.filter(newLoan =>
+              !prevLoans.some(prevLoan => prevLoan.book === newLoan.book)
+            );
+            return [...prevLoans, ...newLoans];
+          });
           if (data.message.length === 0) {
             setMessage("No hay más libros por cargar.");
           }
@@ -64,7 +71,6 @@ const UserLoans = () => {
     };
 
     fetchLoans();
-    console.log(loans)
   }, [page, token, navigate]);
 
   useEffect(() => {
@@ -73,11 +79,13 @@ const UserLoans = () => {
 
   useEffect(() => {
     const applyFilters = () => {
-      let result = loans;
+      let result = [...loans];
 
       if (startDateFilter) {
         const formattedStartDate = new Date(startDateFilter).toLocaleDateString();
-        result = result.filter(loan => new Date(loan.startDate).toLocaleDateString() === formattedStartDate);
+        result = result.filter(loan =>
+          new Date(loan.startDate).toLocaleDateString() === formattedStartDate
+        );
       }
 
       if (authorFilter) {
@@ -94,11 +102,17 @@ const UserLoans = () => {
         result = result.filter(loan => loan.isReturned === isReturned);
       }
 
-      setFilteredLoans(result);
+      setFilteredLoans(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(result)) {
+          return result;
+        }
+        return prev;
+      });
     };
 
     applyFilters();
   }, [startDateFilter, authorFilter, returnedFilter, loans]);
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -115,6 +129,8 @@ const UserLoans = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    console.log(loans)
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom, loading]);
 
@@ -263,7 +279,7 @@ const UserLoans = () => {
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
                     className="img-fluid"
                     alt={`Cover of ${loan.book}`}
-                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }} 
+                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
                   />
                 </div>
                 <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
