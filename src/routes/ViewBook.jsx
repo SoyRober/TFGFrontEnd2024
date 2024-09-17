@@ -403,7 +403,7 @@ export default function ViewBook() {
     }
 
     try {
-      await fetchData(`/deleteBook?title=${encodeURIComponent(title)}`, 'DELETE', null, true);
+      await fetchData(`/deleteBook?title=${encodeURIComponent(title)}`, 'DELETE', null, token);
       setShowDeleteConfirmation(false);
       navigate('/');
     } catch (error) {
