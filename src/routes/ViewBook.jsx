@@ -84,7 +84,7 @@ export default function ViewBook() {
       }
 
       try {
-        const response = await fetchData('/isLoaned', 'POST', title, token, 'plain/text');
+        const response = await fetchData('/isLoaned', 'POST', {title: title}, token);
         setLoanStatus(response);
       } catch (error) {
         console.error("Failed to check loan status:", error);
