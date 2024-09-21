@@ -8,36 +8,43 @@ import useCheckTokenExpiration from '../hooks/checkToken.jsx';
 
 export default function Root() {
   const [hasPermissions, setHasPermissions] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const location = useLocation();
   const key = useState(Date.now());
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('token') ? true : false;
-  });
-
   useCheckTokenExpiration();
 
-  useEffect(() => {
+  const updatePermissions = () => {
     const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-  }, [location]); 
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+      if (userRole !== "USER") {
+        setHasPermissions(true);
+      } else {
+        setHasPermissions(false);
+      }
+    } else {
+      setHasPermissions(false);
+    }
   };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-      console.log(userRole)
-      if (userRole !== "USER") {
-        setHasPermissions(true);
-      }
+      setIsLoggedIn(true);
+      updatePermissions();
+    } else {
+      setIsLoggedIn(false);
+      setHasPermissions(false);
     }
-  }, []);
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setHasPermissions(false);
+  };
 
   return (
     <>
