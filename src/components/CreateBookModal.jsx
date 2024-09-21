@@ -118,6 +118,9 @@ export default function CreateBookModal({
                 />
               </Form.Group>
             </Col>
+            <div>
+              <hr/>
+            </div>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookLocation">
                 <Form.Label>Book Location:</Form.Label>

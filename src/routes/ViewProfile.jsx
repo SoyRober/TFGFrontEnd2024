@@ -61,53 +61,72 @@ const ViewProfile = () => {
     };
 
     return (
-        <div className="container">
-            <h2>User Profile</h2>
-            {errorMessage && <Notification message={errorMessage} type="error" />}
-            {message && <Notification message={message} type="success" />}
-            <div className="user-details">
-                <p><strong>Username:</strong> {userData?.username || 'N/A'}</p>
-                <p><strong>Email:</strong> {userData?.email || 'N/A'}</p>
-                <p><strong>Birth Date:</strong> {userData?.birthDate || 'N/A'}</p>
-                <p><strong>Role:</strong> {typeof userData?.role === 'string' ? userData.role.toLowerCase() : 'N/A'}</p>
+<div className="container my-5">
+  {errorMessage && <Notification message={errorMessage} type="error" />}
+  {message && <Notification message={message} type="success" />}
+  
+  <div className="card p-4 mb-4 shadow">
+    <div className="card-body">
+      <p><strong>Username:</strong> {userData?.username || 'N/A'}</p>
+      <p><strong>Email:</strong> {userData?.email || 'N/A'}</p>
+      <p><strong>Birth Date:</strong> {userData?.birthDate || 'N/A'}</p>
+      <p><strong>Role:</strong> {typeof userData?.role === 'string' ? userData.role.toLowerCase() : 'N/A'}</p>
+    </div>
+  </div>
 
-                <div className="user-reservations">
-                    <h3>Reservations</h3>
-                    {userData?.reservationList?.length > 0 ? (
-                        <ul>
-                            {userData.reservationList.map((reservation, index) => (
-                                <li key={index}>Reservation {index + 1}</li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No reservations found.</p>
-                    )}
+  <div className="card p-4 mb-4 shadow">
+    <div className="card-body">
+      <h3 className="mb-3">Reservations</h3>
+      {userData?.reservationList?.length > 0 ? (
+        <div className="row">
+          {userData.reservationList.map((reservation, index) => (
+            <div key={index} className="col-md-6 mb-3">
+              <div className="card shadow-sm">
+                <div className="card-body">
+                  <i className="bi bi-calendar-check me-2"></i>
+                  Reservation {index + 1}
                 </div>
-
-                <div className="user-loans">
-                    <h3>Loans</h3>
-                    {userData?.loanList?.length > 0 ? (
-                        <ul>
-                            {userData.loanList.map((loan, index) => (
-                                <li key={index}>
-                                    {loan.book} 
-                                    {!loan.isReturned && (
-                                        <button 
-                                            className="btn btn-primary ms-2"
-                                            onClick={() => handleReturnBook(loan.book, userData.email)}
-                                        >
-                                            Return
-                                        </button>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p>No loans found.</p>
-                    )}
-                </div>
+              </div>
             </div>
+          ))}
         </div>
+      ) : (
+        <p>No reservations found.</p>
+      )}
+    </div>
+  </div>
+
+  <div className="card p-4 shadow">
+    <div className="card-body">
+      <h3 className="mb-3">Loans</h3>
+      {userData?.loanList?.length > 0 ? (
+        <div className="row">
+          {userData.loanList.map((loan, index) => (
+            <div key={index} className="col-md-6 mb-3">
+              <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
+                <div>
+                  <i className="bi bi-book me-2"></i>
+                  {loan.book}
+                </div>
+                {!loan.isReturned && (
+                  <button 
+                    className="btn btn-primary btn-sm ms-2 my-2"
+                    onClick={() => handleReturnBook(loan.book, userData.email)}
+                  >
+                    Return
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p>No loans found.</p>
+      )}
+    </div>
+  </div>
+</div>
+
     );
 };
 
