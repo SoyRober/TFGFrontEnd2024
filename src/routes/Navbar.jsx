@@ -25,6 +25,7 @@ export default function Root() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setIsLoggedIn(false);
+    setHasPermissions(false);
   };
 
   useEffect(() => {
@@ -35,9 +36,13 @@ export default function Root() {
       console.log(userRole)
       if (userRole !== "USER") {
         setHasPermissions(true);
+      } else {
+        setHasPermissions(false);
       }
+    } else {
+      setHasPermissions(false);
     }
-  }, []);
+  }, [isLoggedIn, location]);
 
   return (
     <>
