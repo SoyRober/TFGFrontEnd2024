@@ -7,6 +7,8 @@ import { jwtDecode } from 'jwt-decode'
 import { Modal, Button } from 'react-bootstrap';
 import BookLoansModal from '../components/BookLoansModal.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import BookReservationModal from "../components/BookReservationModal.jsx";
+import Notification from "../components/Notification";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -34,6 +36,11 @@ export default function ViewBook() {
   const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
   const [usersLoans, setUsersLoans] = useState([]);
   const [page, setPage] = useState(0);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationKey, setNotificationKey] = useState(0);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -84,7 +91,7 @@ export default function ViewBook() {
       }
 
       try {
-        const response = await fetchData('/isLoaned', 'POST', {title: title}, token);
+        const response = await fetchData('/isLoaned', 'POST', { title: title }, token);
         setLoanStatus(response);
       } catch (error) {
         console.error("Failed to check loan status:", error);
@@ -419,19 +426,49 @@ export default function ViewBook() {
     }
 
     try {
-      if (!isLoaned) {
+      const response = await fetchData(`/isAvailable?title=${encodeURIComponent(title)}`, 'POST', null, token);
+      if (response == false) {
+        setShowUnavailableModal(true);
+        return;
+      }
+    } catch (error) {
+      console.error("Error en isBookAvailable:", error);
+      return false;
+    }
+
+    try {
+      if (!isLoaned && isAvailable) {
         await fetchData('/loan', 'POST', title, token, 'text/plain');
         setLoanStatus(true);
       } else {
         await fetchData('/return', 'PUT', title, token, 'text/plain');
         setLoanStatus(false);
       }
-
     } catch (error) {
       alert(error.message);
       console.error("Failed to update loan status:", error);
     }
   };
+
+  const handleReservation = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      const response = await fetchData(`/reserve?title=${encodeURIComponent(title)}`, 'POST', null, token);
+      console.log(response);
+      setNotificationMessage("Book reserved");
+      setNotificationKey(prevKey => prevKey + 1);
+    } catch (error) {
+      console.error(error)
+      setNotificationMessage(error.message);
+      setNotificationKey(prevKey => prevKey + 1);
+      return;
+    }
+  }
 
   const handleEditReview = () => {
     setIsEditing(true);
@@ -530,11 +567,10 @@ export default function ViewBook() {
   }
 
   return (
-    
+
     <div className="container mt-5">
       {hasPermissions && (
         <BookLoansModal usersLoans={usersLoans} onReturnLoan={handleReturnModal} />
-        
       )}
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
@@ -712,6 +748,16 @@ export default function ViewBook() {
         onDelete={handleDeleteBook}
         message={`This book "${book.title}" will be deleted. Are you sure?`}
       />
+
+      <BookReservationModal
+        show={showUnavailableModal}
+        onClose={() => setShowUnavailableModal(false)}
+        onConfirm={handleReservation}
+        onCancel={() => setShowUnavailableModal(false)}
+      />
+
+      <Notification key={notificationKey} message={notificationMessage} />
+
     </div>
   );
 }

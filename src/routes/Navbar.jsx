@@ -14,18 +14,7 @@ export default function Root() {
 
   useCheckTokenExpiration();
 
-  const updatePermissions = (() => {
-    const token = localStorage.getItem('token');
-    setIsLoggedIn(!!token);
-  }, [location]); 
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    setHasPermissions(false);
-  };
-
-  useEffect(() => {
+  const updatePermissions = () => {
     const token = localStorage.getItem('token');
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -38,7 +27,24 @@ export default function Root() {
     } else {
       setHasPermissions(false);
     }
-  }, [isLoggedIn, location]);
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true);
+      updatePermissions();
+    } else {
+      setIsLoggedIn(false);
+      setHasPermissions(false);
+    }
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setIsLoggedIn(false);
+    setHasPermissions(false);
+  };
 
   return (
     <>
