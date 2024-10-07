@@ -24,7 +24,7 @@ export default function ViewBook() {
   const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [isLoaned, setLoanStatus] = useState(null);
+  const [isLoaned, setLoanStatus] = useState();
   const [authors, setAuthors] = useState([]);
   const [selectedAuthors, setSelectedAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
@@ -428,20 +428,26 @@ export default function ViewBook() {
     try {
       const response = await fetchData(`/isAvailable?title=${encodeURIComponent(title)}`, 'POST', null, token);
       if (response == false) {
+        setIsAvailable(false);
         setShowUnavailableModal(true);
         return;
       }
+      setIsAvailable(true);
     } catch (error) {
       console.error("Error en isBookAvailable:", error);
       return false;
     }
 
+
     try {
       if (!isLoaned && isAvailable) {
         await fetchData('/loan', 'POST', title, token, 'text/plain');
         setLoanStatus(true);
-      } else {
-        await fetchData('/return', 'PUT', title, token, 'text/plain');
+      } 
+      if(isLoaned) {
+        console.log("return: " + isAvailable)
+
+        await fetchData('/return', 'PUT', {title: title}, token);
         setLoanStatus(false);
       }
     } catch (error) {
