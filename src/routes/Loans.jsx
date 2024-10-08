@@ -183,7 +183,6 @@ const UserLoans = () => {
       {message && (
         <Notification key={notificationKey} message={message} />
       )}
-      <h1 className="display-4 text-center mb-4">User Loans</h1>
       <div className="row w-100 justify-content-center">
         <div className="col-md-4">
           <div className="btn-group w-100" role="group" aria-label="Card size selector">

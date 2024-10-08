@@ -59,7 +59,8 @@ export default function Root() {
           {hasPermissions && (
             <Link className="nav-link ms-3" to="/usersList">Users List</Link>
           )}
-          
+          <Link className="nav-link ms-3" to="/userBookDetails">userBookDetails</Link>
+
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>

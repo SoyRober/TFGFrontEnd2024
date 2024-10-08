@@ -10,6 +10,7 @@ import Loans from "./routes/Loans.jsx";
 import Settings from "./routes/Settings.jsx";
 import UsersList from "./routes/UsersList.jsx";
 import ViewProfile from "./routes/ViewProfile.jsx";
+import UserBooksDetails from "./routes/UserBooksDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "/profile/:email",
         element: <ViewProfile />,
+      },
+      {
+        path: "/userBookDetails",
+        element: <UserBooksDetails />,
       },
     ],
   },
