@@ -5,7 +5,7 @@ import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
 import Loading from '../components/Loading.jsx';
 
-const UserLoans = () => {
+const UserLoans = ({ cardSize }) => {
   const [loans, setLoans] = useState([]);
   const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
@@ -17,14 +17,8 @@ const UserLoans = () => {
   const [loading, setLoading] = useState(false);
   const [notificationKey, setNotificationKey] = useState(0);
   const [message, setMessage] = useState("");
-  const [loadingStartTime, setLoadingStartTime] = useState(null);
-  const [loadingVisible, setLoadingVisible] = useState(false);
-  const [cardSize, setCardSize] = useState(() => {
-    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
-  }); const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token');
   const navigate = useNavigate();
-
-
 
   useEffect(() => {
     if (!token) {
@@ -35,9 +29,6 @@ const UserLoans = () => {
     }
 
     const fetchLoans = async () => {
-      setLoading(true);
-      setLoadingStartTime(Date.now());
-
       try {
         const data = await fetchData(`/getUserLoans?page=${page}&size=10`, 'GET', null, token);
         if (data.success) {
@@ -57,16 +48,6 @@ const UserLoans = () => {
         setMessage(err.message);
       } finally {
         setAtBottom(false);
-        setLoading(false);
-
-        const elapsedTime = Date.now() - loadingStartTime;
-        const minLoadingTime = 1000;
-        const delay = Math.max(minLoadingTime - elapsedTime, 0);
-
-        setLoadingVisible(true);
-        setTimeout(() => {
-          setLoadingVisible(false);
-        }, delay);
       }
     };
 
@@ -129,7 +110,6 @@ const UserLoans = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-    console.log(loans)
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom, loading]);
@@ -174,7 +154,7 @@ const UserLoans = () => {
     return <div className="alert alert-danger" role="alert">Error: {error}</div>;
   }
 
-  if (loadingVisible) {
+  if (loading) {
     return <Loading />;
   }
 
@@ -183,33 +163,6 @@ const UserLoans = () => {
       {message && (
         <Notification key={notificationKey} message={message} />
       )}
-      <div className="row w-100 justify-content-center">
-        <div className="col-md-4">
-          <div className="btn-group w-100" role="group" aria-label="Card size selector">
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
-              onClick={() => setCardSize(250)}
-            >
-              <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
-            </button>
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
-              onClick={() => setCardSize(350)}
-            >
-              <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
-            </button>
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
-              onClick={() => setCardSize(600)}
-            >
-              <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
-            </button>
-          </div>
-        </div>
-      </div>
 
       <div className="mb-3">
         <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
@@ -319,12 +272,6 @@ const UserLoans = () => {
           <div className="alert alert-info" role="alert">No loans found</div>
         )}
       </div>
-
-      {loading && (
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      )}
     </div>
   );
 };

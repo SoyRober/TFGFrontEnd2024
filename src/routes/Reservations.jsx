@@ -1,14 +1,43 @@
+import { useEffect, useState } from "react";
+import { fetchData } from "../utils/fetch";
+
 const ReservationsComponent = () => {
-    const squareStyle = {
-        width: '200px',
-        height: '200px',
-        backgroundColor: 'red',
-        margin: '20px auto'
-    };
+    const [page] = useState(0);
+    const [cardSize, setCardSize] = useState(() => {
+        return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
+    });
+    const [reservations, setReservations] = useState(null);
+    const [token, setToken] = useState(() => {
+        return localStorage.getItem("token") ? localStorage.getItem("token") : null;
+    });
+
+    useEffect(() => {
+        const fetchReservations = async () => {
+            try {
+                if (!token) {
+                    console.error("No token available");
+                    return;
+                }
+
+                const response = await fetchData(`/getUserReservations?page=${page}&size=10`, 'GET', null, token);
+
+                setReservations(response.message);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchReservations();
+    }, [token, page]); 
 
     return (
-        <div className="mt-3">
-            <div style={squareStyle}></div>
+        <div>
+            <p>Pollita</p>
+            {reservations && reservations.map(reservation => (
+                <div>
+                    <p>{reservation.name}</p>
+                </div>
+            ))}
         </div>
     );
 };
