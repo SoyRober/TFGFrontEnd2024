@@ -51,20 +51,19 @@ export default function Root() {
       <nav className="navbar navbar-expand-lg navbar-light bg-light sticky-top" key={key}>
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Home</Link>
-          
+
           {isLoggedIn && (
-            <Link className="nav-link ms-3" to="/user/loans">My Loans</Link>
+            <Link className="nav-link ms-3" to="/userBookDetails">My books</Link>
           )}
-          
+
           {hasPermissions && (
             <Link className="nav-link ms-3" to="/usersList">Users List</Link>
           )}
-          <Link className="nav-link ms-3" to="/userBookDetails">userBookDetails</Link>
 
           <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span className="navbar-toggler-icon"></span>
           </button>
-          
+
           <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul className="navbar-nav">
               {!isLoggedIn ? (
@@ -83,7 +82,7 @@ export default function Root() {
                     id="navbarDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
-                    style={{ marginLeft: '-10px' }} 
+                    style={{ marginLeft: '-10px' }}
                   >
                     Profile
                   </button>
