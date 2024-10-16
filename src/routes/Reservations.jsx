@@ -1,43 +1,156 @@
 import { useEffect, useState } from "react";
 import { fetchData } from "../utils/fetch";
+import { Link, useNavigate } from 'react-router-dom';
+import Notification from "../components/Notification";
 
 const ReservationsComponent = () => {
+    const navigate = useNavigate();
     const [page] = useState(0);
-    const [cardSize, setCardSize] = useState(() => {
-        return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
-    });
-    const [reservations, setReservations] = useState(null);
+    const [reservations, setReservations] = useState([]);
+    const [filteredReservations, setFilteredReservations] = useState([]);
+    const [atBottom, setAtBottom] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState("");
+    const [notificationKey, setNotificationKey] = useState(0);
+    const [startDateFilter, setStartDateFilter] = useState('');
     const [token, setToken] = useState(() => {
         return localStorage.getItem("token") ? localStorage.getItem("token") : null;
+    });
+    const [cardSize, setCardSize] = useState(() => {
+        return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
     });
 
     useEffect(() => {
         const fetchReservations = async () => {
             try {
-                if (!token) {
-                    console.error("No token available");
-                    return;
+                const data = await fetchData(`/getUserReservations?page=${page}&size=10`, 'GET', null, token);
+                if (data.success) {
+                    setReservations(prevReservations => {
+                        const newReservations = data.message.filter(newReservation =>
+                            !prevReservations.some(prevReservation => prevReservation.bookTitle === newReservation.bookTitle)
+                        );
+                        return [...prevReservations, ...newReservations];
+                    });
+                    if (data.message.length === 0) {
+                        setMessage("No hay más reservas por cargar.");
+                    }
+                } else {
+                    setMessage(data.message);
                 }
+            } catch (err) {
+                setMessage(err.message);
+            } finally {
+                setAtBottom(false);
+            }
+        };
+        fetchReservations();
+    }, [page, token, navigate]);
 
-                const response = await fetchData(`/getUserReservations?page=${page}&size=10`, 'GET', null, token);
+    // Nuevo useEffect para aplicar el filtro de la fecha de inicio
+    useEffect(() => {
+        const applyFilters = () => {
+            let result = [...reservations];
 
-                setReservations(response.message);
-            } catch (error) {
-                console.error(error);
+            if (startDateFilter) {
+                const formattedStartDate = new Date(startDateFilter).toLocaleDateString();
+                result = result.filter(reservation =>
+                    new Date(reservation.reservationDate).toLocaleDateString() === formattedStartDate
+                );
+            }
+
+            setFilteredReservations(result);
+        };
+
+        applyFilters();
+    }, [startDateFilter, reservations]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const documentHeight = document.documentElement.scrollHeight;
+            const windowHeight = window.innerHeight;
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+            if (scrollTop + windowHeight >= documentHeight - 5) {
+                if (!atBottom && !loading) {
+                    setAtBottom(true);
+                    setPage(prevPage => prevPage + 1);
+                }
             }
         };
 
-        fetchReservations();
-    }, [token, page]); 
+        window.addEventListener('scroll', handleScroll);
+
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [atBottom, loading]);
+
+    const calculateColumns = () => {
+        const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardSize / 100))));
+        return `col-${Math.floor(12 / columns)}`;
+    };
+
+    const resetStartDateFilter = () => setStartDateFilter('');
 
     return (
-        <div>
-            <p>Pollita</p>
-            {reservations && reservations.map(reservation => (
-                <div>
-                    <p>{reservation.name}</p>
+        <div className="row">
+            {message && (
+                <Notification key={notificationKey} message={message} />
+            )}
+            <div className="mb-3">
+                <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
+                <div className="d-flex">
+                    <input
+                        type="date"
+                        id="startDateFilter"
+                        className="form-control"
+                        value={startDateFilter}
+                        onChange={(e) => setStartDateFilter(e.target.value)}
+                    />
+                    <button className="btn btn-secondary ms-2" onClick={resetStartDateFilter}>Reset</button>
                 </div>
-            ))}
+            </div>
+
+            {filteredReservations.length > 0 ? (
+                filteredReservations.map((reservation, index) => (
+                    <div key={index} className={calculateColumns()}>
+                        <div className="card mb-4" style={{ height: `${cardSize}px`, minWidth: `${cardSize}`, minHeight: `${cardSize}`, display: 'flex', flexDirection: 'column' }}>
+                            <div className="card-img-container"
+                                style={{
+                                    flex: '1 0 40%',
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}>
+                                <img
+                                    src={`data:image/jpeg;base64,${reservation.bookImage}`}
+                                    className="img-fluid"
+                                    alt={`Cover of ${reservation.bookTitle}`}
+                                    style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'cover' }}
+                                />
+                            </div>
+                            <div className="card-body" style={{ flex: '1 0 40%', overflowY: 'auto' }}>
+                                <h5 className="card-title">
+                                    <Link to={`/viewBook/${reservation.bookTitle}`} className="text-decoration-none d-flex align-items-center">
+                                        {reservation.bookTitle}
+                                        <i className="fas fa-mouse-pointer ms-2" title="Click to view details"></i>
+                                    </Link>
+                                </h5>
+                                <p className="card-text">
+                                    <strong>Reservation Date:</strong> {new Date(reservation.reservationDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                </p>
+                                <p className="card-text">
+                                    <strong>Loaned:</strong> {reservation.isLoaned ? 'Yes' : 'No'}
+                                </p>
+                                <p className="card-text">
+                                    <strong>Available:</strong> {reservation.isAvailable ? 'Yes' : 'No'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                ))
+            ) : (
+                <p>No reservations found</p>
+            )}
         </div>
     );
 };
