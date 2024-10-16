@@ -12,14 +12,9 @@ const UserBooksDetails = () => {
         setSelectedButton(button);
     };
 
-    useEffect(() => {
-        console.log("🚀 ~ UserBooksDetails ~ selectedButton:", selectedButton)
-
-    }, [selectedButton])
-
     return (
         <div className="container text-center mt-5">
-            <h1>What do you wanna see?</h1>
+            <h1 className='mb-4'>What do you wanna see?</h1>
 
             <div className="btn-group" role="group">
                 <button
@@ -39,36 +34,38 @@ const UserBooksDetails = () => {
                 </button>
             </div>
 
-            <div className="row w-100 justify-content-center mt-4">
-                <div className="col-md-4">
-                    <div className="btn-group w-100" role="group" aria-label="Card size selector">
-                        <button
-                            type="button"
-                            className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
-                            onClick={() => setCardSize(250)}
-                        >
-                            <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
-                        </button>
-                        <button
-                            type="button"
-                            className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
-                            onClick={() => setCardSize(350)}
-                        >
-                            <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
-                        </button>
-                        <button
-                            type="button"
-                            className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
-                            onClick={() => setCardSize(600)}
-                        >
-                            <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
-                        </button>
+            {selectedButton &&
+                <div className="row w-100 justify-content-center mt-4">
+                    <div className="col-md-4">
+                        <div className="btn-group w-100" role="group" aria-label="Card size selector">
+                            <button
+                                type="button"
+                                className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
+                                onClick={() => setCardSize(250)}
+                            >
+                                <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
+                                onClick={() => setCardSize(350)}
+                            >
+                                <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
+                                onClick={() => setCardSize(600)}
+                            >
+                                <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
 
-            {selectedButton === 'Loans' && <Loans cardSize={cardSize}/>}
-            {selectedButton === 'Reservations' && <Reservations cardSize={cardSize}/>}
+            {selectedButton === 'Loans' && <Loans cardSize={cardSize} />}
+            {selectedButton === 'Reservations' && <Reservations cardSize={cardSize} />}
         </div>
     );
 }
