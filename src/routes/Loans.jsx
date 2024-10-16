@@ -243,10 +243,10 @@ const UserLoans = ({ cardSize }) => {
                     </Link>
                   </h5>
                   <p className="card-text">
-                    <strong>Start Date:</strong> {new Date(loan.startDate).toLocaleDateString()}
+                    <strong>Start Date:</strong> {new Date(loan.startDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                   </p>
                   <p className="card-text">
-                    <strong>Return Date:</strong> {loan.returnDate ? new Date(loan.returnDate).toLocaleDateString() : 'N/A'}
+                    <strong>Return Date:</strong> {loan.returnDate ? new Date(loan.returnDate).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'N/A'}
                   </p>
                   <p className="card-text">
                     <strong>Authors:</strong> {loan.author.map((author, i) => (
