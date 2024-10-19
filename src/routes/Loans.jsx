@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Notification from "../components/Notification";
 import { fetchData } from '../utils/fetch.js';
-import Loading from '../components/Loading.jsx';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const UserLoans = ({ cardSize }) => {
   const [loans, setLoans] = useState([]);
@@ -167,12 +168,13 @@ const UserLoans = ({ cardSize }) => {
       <div className="mb-3">
         <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
         <div className="d-flex">
-          <input
-            type="date"
-            id="startDateFilter"
+          <DatePicker
+            selected={startDateFilter}
+            onChange={(date) => setStartDateFilter(date)}
             className="form-control"
-            value={startDateFilter}
-            onChange={(e) => setStartDateFilter(e.target.value)}
+            dateFormat="dd/MM/yyyy"
+            placeholderText="Select a date"
+            id="startDateFilter"
           />
           <button className="btn btn-secondary ms-2" onClick={resetStartDateFilter}>Reset</button>
         </div>
@@ -218,7 +220,7 @@ const UserLoans = ({ cardSize }) => {
         {filteredLoans.length > 0 ? (
           filteredLoans.map((loan, index) => (
             <div key={index} className={calculateColumns()}>
-              <div className="card mb-4" style={{ height: `${cardSize}px`, minWidth: `${cardSize}`, minHeight: `${cardSize}`, display: 'flex', flexDirection: 'column' }}>
+              <div className="card mb-4 d-flex flex-column" style={{ height: `${cardSize}px`, minWidth: `${cardSize}`, minHeight: `${cardSize}` }}>
                 <div className="card-img-container"
                   style={{
                     flex: '1 0 40%',
