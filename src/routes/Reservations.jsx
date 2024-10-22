@@ -15,6 +15,7 @@ const ReservationsComponent = () => {
   const [message, setMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
   const [startDateFilter, setStartDateFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [token, setToken] = useState(() => {
     return localStorage.getItem("token") ? localStorage.getItem("token") : null;
   });
@@ -90,7 +91,24 @@ const ReservationsComponent = () => {
   };
 
   const resetStartDateFilter = () => setStartDateFilter('');
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    filterBooks(e.target.value);
+  };
 
+  const filterBooks = (term) => {
+    if (!term) {
+      setFilteredReservations(reservations);
+    } else {
+
+      const lowerCaseTerm = term.toLowerCase();
+      const filtered = reservations.filter(reservations =>
+        reservations.bookTitle.toLowerCase().includes(lowerCaseTerm)
+      );
+      setFilteredReservations(filtered);
+    }
+  };
+  
   return (
     <div className="row">
       {message && (
@@ -108,6 +126,18 @@ const ReservationsComponent = () => {
             id="startDateFilter"
           />
           <button className="btn btn-secondary ms-2" onClick={resetStartDateFilter}>Reset</button>
+        </div>
+      </div>
+
+      <div className="row w-100 justify-content-center mb-4">
+        <div className="col-md-8">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search books..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+          />
         </div>
       </div>
 
