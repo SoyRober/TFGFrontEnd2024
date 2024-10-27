@@ -7,6 +7,8 @@ import Notification from "../components/Notification";
 import { jwtDecode } from 'jwt-decode';
 import { fetchData } from '../utils/fetch.js';
 import Loading from "../components/Loading.jsx";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -25,10 +27,6 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
-  const [cardSize, setCardSize] = useState(300);
-  const [cardSizeSave, setCardSizeSave] = useState(() => {
-    return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
-  });
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
@@ -37,6 +35,10 @@ export default function Homepage() {
   const [notificationMessage, setNotificationMessage] = useState('');
   const [notificationKey, setNotificationKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true)
+  const [startDateFilter, setStartDateFilter] = useState('');
+  const [cardSize, setCardSize] = useState(() => {
+    return localStorage.getItem('cardSize') ? localStorage.getItem('cardSize') : "medium";
+  });
 
   const navigate = useNavigate();
 
@@ -57,15 +59,14 @@ export default function Homepage() {
   }, [page]);
 
   useEffect(() => {
-    setCardSize(cardSizeSave);
-  }, [cardSizeSave]);
+    setCardSize(cardSize);
+  }, [cardSize]);
 
   useEffect(() => {
     const handleScroll = () => {
       const documentHeight = document.documentElement.scrollHeight;
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
       if (scrollTop + windowHeight >= documentHeight - 5 && !atBottom) {
         setAtBottom(true);
         fetchBooksData(page + 1);
@@ -76,6 +77,10 @@ export default function Homepage() {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [atBottom, page]);
+
+  useEffect(() => {
+    filterBooks(searchTerm);
+  }, [books, searchTerm, startDateFilter]);
 
 
   useEffect(() => {
@@ -217,85 +222,154 @@ export default function Homepage() {
     }
   };
 
-  const calculateColumns = () => {
-    const columns = Math.min(5, Math.max(1, Math.floor(12 / (cardSize / 100))));
-    return `col-${Math.floor(12 / columns)}`;
-  };
-
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     filterBooks(e.target.value);
   };
+  const resetStartDateFilter = () => setStartDateFilter('');
 
   const filterBooks = (term) => {
-    if (!term) {
-      setFilteredBooks(books);
-    } else {
+    let filtered = books;
+    if (term) {
       const lowerCaseTerm = term.toLowerCase();
-      const filtered = books.filter(book =>
+      filtered = filtered.filter(book =>
         book.title.toLowerCase().includes(lowerCaseTerm) ||
         book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) ||
         book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm))
       );
-      setFilteredBooks(filtered);
+    }
+    if (startDateFilter) {
+      const formattedStartDate = startDateFilter.toISOString().split('T')[0];
+      filtered = filtered.filter(book => {
+        return book.publicationDate >= formattedStartDate;
+      });
+    }
+    setFilteredBooks(filtered);
+  };
+
+  const getColumnClass = (cardSize) => {
+    localStorage.setItem("cardSize", cardSize);
+    switch (cardSize) {
+      case 'small':
+        return 'col-12 col-sm-6 col-md-4 col-lg-3';
+      case 'medium':
+        return 'col-12 col-sm-6 col-md-6 col-lg-4';
+      case 'large':
+        return 'col-12 col-md-6';
+      default:
+        return 'col-12';
     }
   };
 
+  useEffect(() => {
+    localStorage.setItem('cardSize', cardSize);
+  }, [cardSize]);
+  
   return (
-    <div className="fade-in d-flex flex-column justify-content-center align-items-center" style={{ paddingBottom: `${extraBottomSpace}px` }}>
-
+    <div
+      className="fade-in d-flex flex-column justify-content-center align-items-center"
+      style={{
+        paddingBottom: `${extraBottomSpace}px`,
+        width: '100%',
+        maxWidth: '1200px',
+        margin: 'auto'
+      }}
+    >
       {notificationMessage && (
         <div className="mb-4 text-center d-flex justify-content-left">
           <Notification key={notificationKey} message={notificationMessage} />
         </div>
       )}
-
+  
       <CreateBookModal
-        showModal={showModal}
-        closeModal={closeModal}
-        handleSave={handleSave}
-        bookTitle={bookTitle}
-        setBookTitle={setBookTitle}
-        bookAuthors={bookAuthors}
-        setBookAuthors={setBookAuthors}
-        authors={authors}
-        searchStringAuthors={searchStringAuthors}
-        handleAuthorsSearchChange={handleAuthorsSearchChange}
-        handleAuthorChange={handleAuthorChange}
-        bookGenres={bookGenres}
-        setBookGenres={setBookGenres}
-        genres={genres}
-        searchStringGenres={searchStringGenres}
-        handleGenresSearchChange={handleGenresSearchChange}
-        handleGenreChange={handleGenreChange}
-        bookQuantity={bookQuantity}
-        setBookQuantity={setBookQuantity}
-        bookLocation={bookLocation}
-        setBookLocation={setBookLocation}
-        bookSynopsis={bookSynopsis}
-        setBookSynopsis={setBookSynopsis}
-        bookPublicationDate={bookPublicationDate}
-        setBookPublicationDate={setBookPublicationDate}
-        bookIsAdult={bookIsAdult}
-        setBookIsAdult={setBookIsAdult}
-        setBookImageBase64={setBookImageBase64}
-        notificationMessage={notificationMessage}
-        notificationKey={notificationKey}
+        {...{
+          showModal,
+          closeModal,
+          handleSave,
+          bookTitle,
+          setBookTitle,
+          bookAuthors,
+          setBookAuthors,
+          authors,
+          searchStringAuthors,
+          handleAuthorsSearchChange,
+          handleAuthorChange,
+          bookGenres,
+          setBookGenres,
+          genres,
+          searchStringGenres,
+          handleGenresSearchChange,
+          handleGenreChange,
+          bookQuantity,
+          setBookQuantity,
+          bookLocation,
+          setBookLocation,
+          bookSynopsis,
+          setBookSynopsis,
+          bookPublicationDate,
+          setBookPublicationDate,
+          bookIsAdult,
+          setBookIsAdult,
+          setBookImageBase64,
+          notificationMessage,
+          notificationKey,
+        }}
       />
-
-      <div className="container text-center d-flex flex-column align-items-center justify-content-center" style={{ height: '50vh' }}>
-
+  
+      <div className="container text-center d-flex flex-column align-items-center justify-content-center" style={{ height: '50vh', padding: '10px' }}>
         <h1 className="mb-4">Book List</h1>
-
-
+  
         {hasPermissions && (
-          <button className="btn btn-primary mb-3" onClick={openModal}>
+          <button className="btn btn-primary mb-3" onClick={openModal} style={{ width: '100%', maxWidth: '300px' }}>
             Create New Book
           </button>
         )}
-
+  
         <div className="row w-100 justify-content-center mb-4">
-          <div className="col-md-8">
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+            <div className="btn-group w-100" role="group" aria-label="Card size selector">
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 'small' ? 'active' : ''}`}
+                onClick={() => setCardSize('small')}
+              >
+                Pequeño
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 'medium' ? 'active' : ''}`}
+                onClick={() => setCardSize('medium')}
+              >
+                Mediano
+              </button>
+              <button
+                type="button"
+                className={`btn btn-outline-primary ${cardSize === 'large' ? 'active' : ''}`}
+                onClick={() => setCardSize('large')}
+              >
+                Grande
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        <div className="mb-3">
+          <div className="d-flex flex-column align-items-center">
+            <DatePicker
+              selected={startDateFilter}
+              onChange={(date) => setStartDateFilter(date)}
+              className="form-control"
+              dateFormat="dd/MM/yyyy"
+              placeholderText="Select a date"
+              id="startDateFilter"
+              style={{ zIndex: 100, width: '100%', maxWidth: '300px' }}
+            />
+            <button className="btn btn-secondary mt-2 w-100" onClick={resetStartDateFilter} style={{ maxWidth: '300px' }}>Reset</button>
+          </div>
+        </div>
+  
+        <div className="row w-100 justify-content-center">
+          <div className="col-12 col-md-6 col-lg-4">
             <input
               type="text"
               className="form-control"
@@ -305,68 +379,49 @@ export default function Homepage() {
             />
           </div>
         </div>
-
-        <div className="row w-100 justify-content-center">
-          <div className="col-md-4">
-            <div className="btn-group w-100" role="group" aria-label="Card size selector">
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${cardSize === 250 ? 'active' : ''}`}
-                onClick={() => setCardSize(250)}
-              >
-                <i className="fas fa-square" style={{ fontSize: '8px' }}></i>
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${cardSize === 350 ? 'active' : ''}`}
-                onClick={() => setCardSize(350)}
-              >
-                <i className="fas fa-square" style={{ fontSize: '16px' }}></i>
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${cardSize === 600 ? 'active' : ''}`}
-                onClick={() => setCardSize(600)}
-              >
-                <i className="fas fa-square" style={{ fontSize: '32px' }}></i>
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
-
+  
       <div className="container mt-5">
         <div className="row">
           {!isLoading ? (
-            filteredBooks.map((book) => (
-              <div key={book.title} className={calculateColumns()}>
-                <div
-                  className="card mb-4 customized-card"
-                  onClick={() => navigateToBookDetails(book.title)}
-                  style={{ height: `${cardSize}px`, minHeight: `${cardSize}px`, minWidth: `${cardSize}px` }}
-                >
+            filteredBooks.map((book) => {
+              return (
+                <div key={book.title} className={`${getColumnClass(cardSize)} mb-4`}>
                   <div
-                    className="d-flex justify-content-center align-items-center"
-                    style={{ height: '60%', objectFit: 'cover' }}
+                    className="card customized-card"
+                    onClick={() => navigateToBookDetails(book.title)}
+                    style={{
+                      height: cardSize === 'small' ? '250px' : cardSize === 'medium' ? '350px' : '600px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer'
+                    }}
                   >
-                    <img
-                      src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
-                      className="img-fluid"
-                      alt={book.title}
-                      style={{ maxHeight: '100%', maxWidth: '100%' }}
-                    />
-                  </div>
-
-                  <div className="d-flex justify-content-center">
-                    <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
-                  </div>
-
-                  <div className="card-body">
-                    <h5 className="card-title text-center my-4">{book.title}</h5>
+                    <div
+                      className="d-flex justify-content-center align-items-center"
+                      style={{ height: '60%', width: '100%', overflow: 'hidden' }}
+                    >
+                      <img
+                        src={book.image ? `data:image/jpeg;base64,${book.image}` : 'placeholder-image-url'}
+                        className="img-fluid"
+                        alt={book.title}
+                        style={{ maxHeight: '100%', maxWidth: '100%' }}
+                      />
+                    </div>
+  
+                    <div className="d-flex justify-content-center">
+                      <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
+                    </div>
+  
+                    <div className="card-body">
+                      <h5 className="card-title text-center my-4">{book.title}</h5>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           ) : (
             <Loading />
           )}
@@ -374,4 +429,6 @@ export default function Homepage() {
       </div>
     </div>
   );
-}
+  
+  
+}  
