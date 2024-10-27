@@ -7,19 +7,19 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 const ReservationsComponent = () => {
   const navigate = useNavigate();
-  const [page] = useState(0);
+  const [page, setPage] = useState(0);
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [message, setMessage] = useState("");
-  const [notificationKey, setNotificationKey] = useState(0);
+  const [notificationKey] = useState(0);
   const [startDateFilter, setStartDateFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
-  const [token, setToken] = useState(() => {
+  const [token] = useState(() => {
     return localStorage.getItem("token") ? localStorage.getItem("token") : null;
   });
-  const [cardSize, setCardSize] = useState(() => {
+  const [cardSize] = useState(() => {
     return localStorage.getItem('cardSize') ? parseInt(localStorage.getItem('cardSize')) : 450;
   });
 
