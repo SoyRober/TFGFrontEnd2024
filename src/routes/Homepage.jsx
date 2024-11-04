@@ -56,6 +56,8 @@ export default function Homepage() {
 
   useEffect(() => {
     fetchBooksData(page);
+  console.log("🚀 ~ Homepage ~ books:", books)
+
   }, [page]);
 
   useEffect(() => {
@@ -87,23 +89,45 @@ export default function Homepage() {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
 
-  const fetchBooksData = async (page) => {
+  useEffect(() => {
+    if (startDateFilter) {
+      const year = startDateFilter.getFullYear();
+      fetchBooksData(0, year);
+    }
+  }, [startDateFilter]);
+
+  const fetchBooksData = async (page, dateFilter = null) => {
     try {
-      const data = await fetchData(`/getAllBooks?page=${page}&size=10`);
+      const url = dateFilter
+        ? `/getAllBooks?page=${page}&size=10&date=${dateFilter}`
+        : `/getAllBooks?page=${page}&size=10`;
 
-      setBooks(prevBooks => {
-        const newBooks = data.books.filter(
-          newBook => !prevBooks.some(book => book.title === newBook.title)
-        );
-        return [...prevBooks, ...newBooks];
-      });
+      const data = await fetchData(url);
+      console.log("🚀 ~ fetchBooksData ~ data:", data);
 
-      setFilteredBooks(prevBooks => {
-        const newBooks = data.books.filter(
-          newBook => !prevBooks.some(book => book.title === newBook.title)
-        );
-        return [...prevBooks, ...newBooks];
-      });
+      if (dateFilter) {
+        const filteredBooks = data.books.filter(book => {
+          const bookYear = new Date(book.publicationDate).getFullYear();
+          return bookYear === parseInt(dateFilter, 10);
+        });
+
+        setBooks(filteredBooks);
+        setFilteredBooks(filteredBooks);
+      } else {
+        setBooks(prevBooks => {
+          const newBooks = data.books.filter(
+            newBook => !prevBooks.some(book => book.title === newBook.title)
+          );
+          return [...prevBooks, ...newBooks];
+        });
+
+        setFilteredBooks(prevBooks => {
+          const newBooks = data.books.filter(
+            newBook => !prevBooks.some(book => book.title === newBook.title)
+          );
+          return [...prevBooks, ...newBooks];
+        });
+      }
 
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
@@ -116,7 +140,6 @@ export default function Homepage() {
       setIsLoading(false);
     }
   };
-
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -264,7 +287,7 @@ export default function Homepage() {
   useEffect(() => {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
-  
+
   return (
     <div
       className="fade-in d-flex flex-column justify-content-center align-items-center"
@@ -280,7 +303,7 @@ export default function Homepage() {
           <Notification key={notificationKey} message={notificationMessage} />
         </div>
       )}
-  
+
       <CreateBookModal
         {...{
           showModal,
@@ -315,16 +338,16 @@ export default function Homepage() {
           notificationKey,
         }}
       />
-  
+
       <div className="container text-center d-flex flex-column align-items-center justify-content-center" style={{ height: '50vh', padding: '10px' }}>
         <h1 className="mb-4">Book List</h1>
-  
+
         {hasPermissions && (
           <button className="btn btn-primary mb-3" onClick={openModal} style={{ width: '100%', maxWidth: '300px' }}>
             Create New Book
           </button>
         )}
-  
+
         <div className="row w-100 justify-content-center mb-4">
           <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <div className="btn-group w-100" role="group" aria-label="Card size selector">
@@ -352,22 +375,29 @@ export default function Homepage() {
             </div>
           </div>
         </div>
-  
+
         <div className="mb-3">
           <div className="d-flex flex-column align-items-center">
             <DatePicker
               selected={startDateFilter}
               onChange={(date) => setStartDateFilter(date)}
               className="form-control"
-              dateFormat="dd/MM/yyyy"
-              placeholderText="Select a date"
+              dateFormat="yyyy"
+              placeholderText="Select a year"
               id="startDateFilter"
+              showYearPicker
               style={{ zIndex: 100, width: '100%', maxWidth: '300px' }}
             />
-            <button className="btn btn-secondary mt-2 w-100" onClick={resetStartDateFilter} style={{ maxWidth: '300px' }}>Reset</button>
+            <button
+              className="btn btn-secondary mt-2 w-100"
+              onClick={resetStartDateFilter}
+              style={{ maxWidth: '300px' }}
+            >
+              Reset
+            </button>
           </div>
         </div>
-  
+
         <div className="row w-100 justify-content-center">
           <div className="col-12 col-md-6 col-lg-4">
             <input
@@ -380,7 +410,7 @@ export default function Homepage() {
           </div>
         </div>
       </div>
-  
+
       <div className="container mt-5">
         <div className="row">
           {!isLoading ? (
@@ -410,11 +440,11 @@ export default function Homepage() {
                         style={{ maxHeight: '100%', maxWidth: '100%' }}
                       />
                     </div>
-  
+
                     <div className="d-flex justify-content-center">
                       <hr className="my-0" style={{ borderTop: '1px solid black', width: '80%' }} />
                     </div>
-  
+
                     <div className="card-body">
                       <h5 className="card-title text-center my-4">{book.title}</h5>
                     </div>
@@ -429,6 +459,6 @@ export default function Homepage() {
       </div>
     </div>
   );
-  
-  
+
+
 }  
