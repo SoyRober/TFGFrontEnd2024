@@ -28,7 +28,6 @@ export default function Homepage() {
   const [searchStringAuthors, setSearchStringAuthors] = useState('');
   const [searchStringGenres, setSearchStringGenres] = useState('');
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredBooks, setFilteredBooks] = useState([]);
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
@@ -56,7 +55,7 @@ export default function Homepage() {
 
   useEffect(() => {
     fetchBooksData(page);
-  console.log("🚀 ~ Homepage ~ books:", books)
+    console.log("🚀 ~ Homepage ~ books:", books)
 
   }, [page]);
 
@@ -81,11 +80,6 @@ export default function Homepage() {
   }, [atBottom, page]);
 
   useEffect(() => {
-    filterBooks(searchTerm);
-  }, [books, searchTerm, startDateFilter]);
-
-
-  useEffect(() => {
     localStorage.setItem('cardSize', cardSize);
   }, [cardSize]);
 
@@ -105,30 +99,7 @@ export default function Homepage() {
       const data = await fetchData(url);
       console.log("🚀 ~ fetchBooksData ~ data:", data);
 
-      if (dateFilter) {
-        const filteredBooks = data.books.filter(book => {
-          const bookYear = new Date(book.publicationDate).getFullYear();
-          return bookYear === parseInt(dateFilter, 10);
-        });
-
-        setBooks(filteredBooks);
-        setFilteredBooks(filteredBooks);
-      } else {
-        setBooks(prevBooks => {
-          const newBooks = data.books.filter(
-            newBook => !prevBooks.some(book => book.title === newBook.title)
-          );
-          return [...prevBooks, ...newBooks];
-        });
-
-        setFilteredBooks(prevBooks => {
-          const newBooks = data.books.filter(
-            newBook => !prevBooks.some(book => book.title === newBook.title)
-          );
-          return [...prevBooks, ...newBooks];
-        });
-      }
-
+      setBooks(data.books);
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
     } catch (error) {
@@ -247,28 +218,21 @@ export default function Homepage() {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
-    filterBooks(e.target.value);
   };
-  const resetStartDateFilter = () => setStartDateFilter('');
+  
+  const resetStartDateFilter = () => {
+    setStartDateFilter('');
+    fetchBooksData(0);
+  };
 
-  const filterBooks = (term) => {
-    let filtered = books;
-    if (term) {
-      const lowerCaseTerm = term.toLowerCase();
-      filtered = filtered.filter(book =>
-        book.title.toLowerCase().includes(lowerCaseTerm) ||
-        book.authors.some(author => author.toLowerCase().includes(lowerCaseTerm)) ||
-        book.genres.some(genre => genre.toLowerCase().includes(lowerCaseTerm))
-      );
-    }
+  useEffect(() => {
     if (startDateFilter) {
-      const formattedStartDate = startDateFilter.toISOString().split('T')[0];
-      filtered = filtered.filter(book => {
-        return book.publicationDate >= formattedStartDate;
-      });
+      const year = startDateFilter.getFullYear();
+      fetchBooksData(0, year);
+    } else {
+      fetchBooksData(0);
     }
-    setFilteredBooks(filtered);
-  };
+  }, [startDateFilter]);
 
   const getColumnClass = (cardSize) => {
     localStorage.setItem("cardSize", cardSize);
@@ -414,7 +378,7 @@ export default function Homepage() {
       <div className="container mt-5">
         <div className="row">
           {!isLoading ? (
-            filteredBooks.map((book) => {
+            books.map((book) => {
               return (
                 <div key={book.title} className={`${getColumnClass(cardSize)} mb-4`}>
                   <div
