@@ -12,6 +12,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "datatables.net-bs5": "^2.0.8",
     "date-fns": "^4.1.0",
     "jquery": "^3.7.1",

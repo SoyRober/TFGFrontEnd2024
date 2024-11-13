@@ -9,6 +9,7 @@ import BookLoansModal from '../components/BookLoansModal.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import BookReservationModal from "../components/BookReservationModal.jsx";
 import Notification from "../components/Notification";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -739,6 +740,11 @@ export default function ViewBook() {
               <p><strong>User:</strong> {review.userName}</p>
               <p><strong>Score:</strong> {review.score}</p>
               <p><strong>Comment:</strong> {review.comment}</p>
+              <div>
+                <button><i class="bi bi-hand-thumbs-down"></i></button>
+                <button><i class="bi bi-hand-thumbs-up"></i></button>
+              </div>
+              
             </div>
           ))
         ) : (
