@@ -41,6 +41,8 @@ export default function ViewBook() {
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
 
 
   useEffect(() => {
@@ -563,6 +565,36 @@ export default function ViewBook() {
     }
   };
 
+  const handleVotes = async (reviewId, value) => {
+    console.log("🚀 ~ handleVotes ~ value:", value)
+    console.log("🚀 ~ handleThumbsUp ~ reviewId:", reviewId);
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.error("No token found, user might not be authenticated");
+      //TODO MODAL to LOGIN
+      return;
+    }
+
+    setDisliked(!value);
+    setLiked(value);
+
+    let body = {
+      reviewId: reviewId,
+      positive: value
+    };
+    try {
+      await fetchData('/addVote', 'PUT', {
+        reviewId: reviewId,
+        positive: value
+      }, token);
+    } catch (error) {
+      alert(error.message);
+      console.error("Failed to update Vote: ", error);
+    }
+  };
+
+
   if (!book) {
     return (
       <div className="modal-book">
@@ -741,8 +773,16 @@ export default function ViewBook() {
               <p><strong>Score:</strong> {review.score}</p>
               <p><strong>Comment:</strong> {review.comment}</p>
               <div>
-                <button><i class="bi bi-hand-thumbs-down"></i></button>
-                <button><i class="bi bi-hand-thumbs-up"></i></button>
+                <button 
+                  onClick={() => handleVotes(review.id, false)} style={{
+                  backgroundColor: disliked ? "#ff3535" : "transparent",
+                  }}><i class="bi bi-hand-thumbs-down"></i>
+                </button>
+                <button 
+                  onClick={() => handleVotes(review.id, true)} style={{
+                  backgroundColor: liked ? "#35ff35" : "transparent",
+                  }}><i class="bi bi-hand-thumbs-up"></i>
+                </button>
               </div>
               
             </div>
