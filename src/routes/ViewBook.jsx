@@ -75,7 +75,7 @@ export default function ViewBook() {
     const fetchUsersLoans = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error("No token found, user might not be authenticated");
+        //console.error("No token found, user might not be authenticated");
         return;
       }
       try {
@@ -89,7 +89,7 @@ export default function ViewBook() {
     const checkLoanStatus = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
-        console.error("No token found, user might not be authenticated");
+        //console.error("No token found, user might not be authenticated");
         return;
       }
 
@@ -157,7 +157,6 @@ export default function ViewBook() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -179,6 +178,9 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
+    if (!token) {
+      return;
+    }
     try {
       const token = localStorage.getItem('token');
       const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
@@ -571,13 +573,14 @@ export default function ViewBook() {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      console.error("No token found, user might not be authenticated");
-      //TODO MODAL to LOGIN
+      //TODO MODAL to suggest LOGIN
       return;
     }
 
+    //TODO if already voted, remove vote
     setDisliked(!value);
     setLiked(value);
+    //TODO recharge the value of the vote
 
     let body = {
       reviewId: reviewId,
@@ -772,19 +775,25 @@ export default function ViewBook() {
               <p><strong>User:</strong> {review.userName}</p>
               <p><strong>Score:</strong> {review.score}</p>
               <p><strong>Comment:</strong> {review.comment}</p>
-              <div>
-                <button 
-                  onClick={() => handleVotes(review.id, false)} style={{
-                  backgroundColor: disliked ? "#ff3535" : "transparent",
-                  }}><i class="bi bi-hand-thumbs-down"></i>
-                </button>
-                <button 
-                  onClick={() => handleVotes(review.id, true)} style={{
-                  backgroundColor: liked ? "#35ff35" : "transparent",
-                  }}><i class="bi bi-hand-thumbs-up"></i>
-                </button>
+              //TODO Decorate better
+              <div className="d-flex justify-content-start">
+                <div className="d-flex align-items-center me-3"> 
+                  <button 
+                    onClick={() => handleVotes(review.id, false)} style={{
+                    backgroundColor: disliked ? "#ff3535" : "transparent",
+                    }}><i class="bi bi-hand-thumbs-down"></i>
+                  </button>
+                  <p>{review.reviewDislikes}</p>
+                </div>
+                <div className="d-flex align-items-center"> 
+                  <button 
+                    onClick={() => handleVotes(review.id, true)} style={{
+                    backgroundColor: liked ? "#35ff35" : "transparent",
+                    }}><i class="bi bi-hand-thumbs-up"></i>
+                  </button>
+                  <p>{review.reviewLikes}</p>
+                </div>
               </div>
-              
             </div>
           ))
         ) : (
