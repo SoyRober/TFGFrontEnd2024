@@ -165,56 +165,51 @@ const UserLoans = ({ cardSize }) => {
         <Notification key={notificationKey} message={message} />
       )}
 
-      <div className="mb-3">
-        <label htmlFor="startDateFilter" className="form-label">Start Date Filter</label>
-        <div className="d-flex">
-          <DatePicker
-            selected={startDateFilter}
-            onChange={(date) => setStartDateFilter(date)}
-            className="form-control"
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Select a date"
-            id="startDateFilter"
-          />
-          <button className="btn btn-secondary ms-2" onClick={resetStartDateFilter}>Reset</button>
-        </div>
-      </div>
+<div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
+  <div className="d-flex align-items-center">
+    <label htmlFor="startDateFilter" className="me-2">Date:</label>
+    <DatePicker
+      selected={startDateFilter}
+      onChange={(date) => setStartDateFilter(date)}
+      className="form-control form-control"
+      dateFormat="dd/MM/yyyy"
+      placeholderText="Select a date"
+      id="startDateFilter"
+    />
+    <button className="btn btn-outline-secondary btn-sm ms-2" onClick={resetStartDateFilter}>⟲</button>
+  </div>
 
-      <div className="mb-3">
-        <label htmlFor="authorFilter" className="form-label">Author Filter</label>
-        <div className="d-flex">
-          <input
-            type="text"
-            id="authorFilter"
-            className="form-control"
-            placeholder="Enter author name or surname"
-            value={authorFilter}
-            onChange={(e) => setAuthorFilter(e.target.value)}
-          />
-          <button className="btn btn-secondary ms-2" onClick={resetAuthorFilter}>Reset</button>
-        </div>
-      </div>
+  <div className="d-flex align-items-center">
+    <label htmlFor="authorFilter" className="me-2">Author:</label>
+    <input
+      type="text"
+      id="authorFilter"
+      className="form-control form-control"
+      placeholder="Name or surname"
+      value={authorFilter}
+      onChange={(e) => setAuthorFilter(e.target.value)}
+    />
+    <button className="btn btn-outline-secondary btn-sm ms-2" onClick={resetAuthorFilter}>⟲</button>
+  </div>
 
-      <div className="mb-3">
-        <label htmlFor="returnedFilter" className="form-label">Returned Filter</label>
-        <div className="d-flex">
-          <select
-            id="returnedFilter"
-            className="form-select"
-            value={returnedFilter}
-            onChange={(e) => setReturnedFilter(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="returned">Returned</option>
-            <option value="notReturned">Not Returned</option>
-          </select>
-          <button className="btn btn-secondary ms-2" onClick={resetReturnedFilter}>Reset</button>
-        </div>
-      </div>
+  <div className="d-flex align-items-center">
+    <label htmlFor="returnedFilter" className="me-2">Status:</label>
+    <select
+      id="returnedFilter"
+      className="form-select form-select"
+      value={returnedFilter}
+      onChange={(e) => setReturnedFilter(e.target.value)}
+    >
+      <option value="all">All</option>
+      <option value="returned">Returned</option>
+      <option value="notReturned">Not Returned</option>
+    </select>
+    <button className="btn btn-outline-secondary btn ms-2" onClick={resetReturnedFilter}>⟲</button>
+  </div>
 
-      <div className="mb-3">
-        <button className="btn btn-warning" onClick={resetAllFilters}>Reset All Filters</button>
-      </div>
+  <button className="btn btn-warning btn" onClick={resetAllFilters}>Reset Filters</button>
+</div>
+
 
       <div className="row">
         {filteredLoans.length > 0 ? (
