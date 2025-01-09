@@ -1,0 +1,4 @@
+Borrar este archivo al terminar
+
+- Boton para añadir Autores
+- Boton para añadir Generos

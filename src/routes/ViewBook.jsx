@@ -41,9 +41,6 @@ export default function ViewBook() {
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
-
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -105,6 +102,22 @@ export default function ViewBook() {
       try {
         const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
         setReviews(data);
+
+        const token = localStorage.getItem('token');
+        if (token) {
+          //for each review, fetch user vote
+          const updatedReviews = await Promise.all(data.map(async (review) => {
+            const userVote = await fetchUserVote(review.id, token);
+            console.log("🚀 ~ updatedReviews ~ userVote:", userVote)
+            return {
+              ...review,
+              userLiked: userVote === 'liked',
+              userDisliked: userVote === 'disliked'
+            };
+          }));
+          setReviews(updatedReviews);          
+        }
+
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
@@ -170,6 +183,7 @@ export default function ViewBook() {
       const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
       setReviews(reviewsData);
       setReviewData({ score: '', comment: '' });
+      setAlreadyRated(true);
       await fetchExistingReview();
 
     } catch (error) {
@@ -178,14 +192,18 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
+    const token = localStorage.getItem('token');
     if (!token) {
       return;
     }
+
     try {
       const token = localStorage.getItem('token');
       const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
 
       if (data.existingReview == true) {
+        console.log("fetchExistingReview3");
+
         setAlreadyRated(true);
         setCurrentUserScore(data.currentUserScore);
         setCurrentUserComment(data.currentUserComment);
@@ -540,8 +558,8 @@ export default function ViewBook() {
     try {
       await fetchData(`/deleteReview?title=${encodeURIComponent(title)}`, 'DELETE', null, token);
 
-      setAlreadyRated(false);
       setReviewData({ score: '', comment: '' });
+      setAlreadyRated(false);
       setCurrentUserScore('');
       setCurrentUserComment('');
 
@@ -567,25 +585,54 @@ export default function ViewBook() {
     }
   };
 
-  const handleVotes = async (reviewId, value) => {
-    console.log("🚀 ~ handleVotes ~ value:", value)
-    console.log("🚀 ~ handleThumbsUp ~ reviewId:", reviewId);
+  const fetchUserVote = async (reviewId, token) => {
+    try {
+      const response = await fetchData(`/getUserVote?reviewId=${reviewId}`, 'GET', null, token);
+      console.log("🚀 ~ fetchUserVote ~ response:", response)
+      return response; //response = 'liked' || 'disliked' || 'none'
+    } catch (error) {
+      console.error("Failed to fetch user vote:", error);
+      return null;
+    }
+  };
 
+  const handleVotes = async (reviewId, value) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      //TODO MODAL to suggest LOGIN
+      alert("Please log in to vote.");
       return;
     }
 
-    //TODO if already voted, remove vote
-    setDisliked(!value);
-    setLiked(value);
-    //TODO recharge the value of the vote
+    const review = reviews.find(r => r.id === reviewId);
 
-    let body = {
-      reviewId: reviewId,
-      positive: value
-    };
+    let updatedReviews;
+
+    if ((value && review.userLiked) || (!value && review.userDisliked)) {
+      // User has already voted the same way, remove the vote
+      updatedReviews = reviews.map(r => 
+        r.id === reviewId ? {
+          ...r, 
+          userLiked: false, 
+          userDisliked: false, 
+          reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes, 
+          reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes 
+        } : r
+      );
+    } else {
+      // Update votes and ensure only one type of vote is active
+      updatedReviews = reviews.map(r => 
+        r.id === reviewId ? {
+          ...r, 
+          userLiked: value, 
+          userDisliked: !value, 
+          reviewLikes: value ? (r.userLiked ? r.reviewLikes : r.reviewLikes + 1) : (r.userLiked ? r.reviewLikes - 1 : r.reviewLikes), 
+          reviewDislikes: !value ? (r.userDisliked ? r.reviewDislikes : r.reviewDislikes + 1) : (r.userDisliked ? r.reviewDislikes - 1 : r.reviewDislikes)
+        } : r
+      );
+    }
+
+    setReviews(updatedReviews);
+
     try {
       await fetchData('/addVote', 'PUT', {
         reviewId: reviewId,
@@ -780,7 +827,7 @@ export default function ViewBook() {
                 <div className="d-flex align-items-center me-3"> 
                   <button 
                     onClick={() => handleVotes(review.id, false)} style={{
-                    backgroundColor: disliked ? "#ff3535" : "transparent",
+                    backgroundColor: review.userDisliked ? "#ff3535" : "transparent",
                     }}><i class="bi bi-hand-thumbs-down"></i>
                   </button>
                   <p>{review.reviewDislikes}</p>
@@ -788,7 +835,7 @@ export default function ViewBook() {
                 <div className="d-flex align-items-center"> 
                   <button 
                     onClick={() => handleVotes(review.id, true)} style={{
-                    backgroundColor: liked ? "#35ff35" : "transparent",
+                    backgroundColor: review.userLiked ? "#35ff35" : "transparent",
                     }}><i class="bi bi-hand-thumbs-up"></i>
                   </button>
                   <p>{review.reviewLikes}</p>
