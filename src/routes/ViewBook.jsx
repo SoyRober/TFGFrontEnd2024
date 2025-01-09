@@ -316,41 +316,36 @@ export default function ViewBook() {
   const resizeImage = (file, maxWidth, maxHeight) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = ({ target: { result } }) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
+          const { width, height } = img;
+          const ratio = width / height;
 
-          // Calcular proporciones
-          if (width > maxWidth || height > maxHeight) {
-            if (width > height) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            } else {
-              width = Math.round((width * maxHeight) / height);
-              height = maxHeight;
-            }
+          canvas.width = width > maxWidth ? maxWidth : width;
+          canvas.height = height > maxHeight ? maxHeight : height;
+
+          if (canvas.width / ratio > maxHeight) {
+            canvas.height = maxHeight;
+            canvas.width = Math.round(maxHeight * ratio);
+          } else if (canvas.width < maxWidth) {
+            canvas.height = Math.round(canvas.width / ratio);
           }
 
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
+          canvas
+            .getContext("2d")
+            .drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // Convertir a Blob
           canvas.toBlob(
-            (blob) => {
-              if (blob) resolve(blob);
-              else reject(new Error("Canvas is empty"));
-            },
+            (blob) =>
+              blob ? resolve(blob) : reject(new Error("Canvas is empty")),
             "image/jpeg",
-            0.75 // Calidad
+            0.75
           );
         };
         img.onerror = reject;
-        img.src = e.target.result;
+        img.src = result;
       };
       reader.onerror = reject;
       reader.readAsDataURL(file);
