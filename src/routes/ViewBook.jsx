@@ -123,21 +123,22 @@ export default function ViewBook() {
         );
         setReviews(data);
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (token) {
           //for each review, fetch user vote
-          const updatedReviews = await Promise.all(data.map(async (review) => {
-            const userVote = await fetchUserVote(review.id, token);
-            console.log("🚀 ~ updatedReviews ~ userVote:", userVote)
-            return {
-              ...review,
-              userLiked: userVote === 'liked',
-              userDisliked: userVote === 'disliked'
-            };
-          }));
-          setReviews(updatedReviews);          
+          const updatedReviews = await Promise.all(
+            data.map(async (review) => {
+              const userVote = await fetchUserVote(review.id, token);
+              console.log("🚀 ~ updatedReviews ~ userVote:", userVote);
+              return {
+                ...review,
+                userLiked: userVote === "liked",
+                userDisliked: userVote === "disliked",
+              };
+            })
+          );
+          setReviews(updatedReviews);
         }
-
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
@@ -209,7 +210,7 @@ export default function ViewBook() {
         `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
       );
       setReviews(reviewsData);
-      setReviewData({ score: "" , comment: ""  });
+      setReviewData({ score: "", comment: "" });
       setAlreadyRated(true);
       await fetchExistingReview();
     } catch (error) {
@@ -218,7 +219,7 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
@@ -701,7 +702,12 @@ export default function ViewBook() {
 
   const fetchUserVote = async (reviewId, token) => {
     try {
-      const response = await fetchData(`/getUserVote?reviewId=${reviewId}`, 'GET', null, token);
+      const response = await fetchData(
+        `/getUserVote?reviewId=${reviewId}`,
+        "GET",
+        null,
+        token
+      );
       return response;
     } catch (error) {
       console.error("Failed to fetch user vote:", error);
@@ -716,57 +722,75 @@ export default function ViewBook() {
       return;
     }
 
-    const review = reviews.find(r => r.id === reviewId);
+    const review = reviews.find((r) => r.id === reviewId);
 
     let updatedReviews;
 
     if ((value && review.userLiked) || (!value && review.userDisliked)) {
       // User has already voted the same way, remove the vote
-      updatedReviews = reviews.map(r => 
-        r.id === reviewId ? {
-          ...r, 
-          userLiked: false, 
-          userDisliked: false, 
-          reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes, 
-          reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes 
-        } : r
+      updatedReviews = reviews.map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              userLiked: false,
+              userDisliked: false,
+              reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
+              reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
+            }
+          : r
       );
 
       try {
-        await fetchData(`/deleteVote?reviewId=${reviewId}`, 'DELETE', null, token);
+        await fetchData(
+          `/deleteVote?reviewId=${reviewId}`,
+          "DELETE",
+          null,
+          token
+        );
         setReviews(updatedReviews);
-
       } catch (error) {
         alert(error.message);
         console.error("Failed to delete Vote: ", error);
       }
-
     } else {
       // Update votes and ensure only one type of vote is active
-      updatedReviews = reviews.map(r => 
-        r.id === reviewId ? {
-          ...r, 
-          userLiked: value, 
-          userDisliked: !value, 
-          reviewLikes: value ? (r.userLiked ? r.reviewLikes : r.reviewLikes + 1) : (r.userLiked ? r.reviewLikes - 1 : r.reviewLikes), 
-          reviewDislikes: !value ? (r.userDisliked ? r.reviewDislikes : r.reviewDislikes + 1) : (r.userDisliked ? r.reviewDislikes - 1 : r.reviewDislikes)
-        } : r
+      updatedReviews = reviews.map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              userLiked: value,
+              userDisliked: !value,
+              reviewLikes: value
+                ? r.userLiked
+                  ? r.reviewLikes
+                  : r.reviewLikes + 1
+                : r.userLiked
+                ? r.reviewLikes - 1
+                : r.reviewLikes,
+              reviewDislikes: !value
+                ? r.userDisliked
+                  ? r.reviewDislikes
+                  : r.reviewDislikes + 1
+                : r.userDisliked
+                ? r.reviewDislikes - 1
+                : r.reviewDislikes,
+            }
+          : r
       );
 
       try {
         let body = {
           reviewId: reviewId,
-          positive: value
+          positive: value,
         };
-        await fetchData(`/addVote`, 'PUT', body, token);
+        await fetchData(`/addVote`, "PUT", body, token);
         setReviews(updatedReviews);
-
       } catch (error) {
         alert(error.message);
         console.error("Failed to update Vote: ", error);
       }
-    };
     }
+  };
 
   if (!book) {
     return (
@@ -825,104 +849,113 @@ export default function ViewBook() {
           )}
         </div>
         <div className="col-md-6 mb-3">
-          <p>
-            <span className="label">Title:</span> {book.title}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("title")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Authors:</span>{" "}
-            {book.authors ? book.authors.join(", ") : "N/A"}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("authors")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Genres:</span>{" "}
-            {book.genres ? book.genres.join(", ") : "N/A"}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("genres")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Quantity:</span> {book.quantity}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("quantity")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Location:</span> {book.location}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("location")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Synopsis:</span> {book.synopsis}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("synopsis")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Publication Date:</span>{" "}
-            {book.publicationDate}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("publicationDate")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
-
-          <p>
-            <span className="label">Adult:</span> {book.adult ? "Yes" : "No"}
-          </p>
-          {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("isAdult")}
-              className="btn btn-primary"
-            >
-              Edit
-            </button>
-          )}
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Title:</span> {book.title}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("title")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Authors:</span>{" "}
+              {book.authors ? book.authors.join(", ") : "N/A"}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("authors")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Genres:</span>{" "}
+              {book.genres ? book.genres.join(", ") : "N/A"}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("genres")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Quantity:</span> {book.quantity}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("quantity")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Location:</span> {book.location}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("location")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Synopsis:</span> {book.synopsis}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("synopsis")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Publication Date:</span>{" "}
+              {book.publicationDate}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("publicationDate")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="mb-2">
+            <p className="mb-0">
+              <span className="label">Adult:</span> {book.adult ? "Yes" : "No"}
+            </p>
+            {isLoggedIn && hasPermissions && (
+              <button
+                onClick={() => handleEditClick("isAdult")}
+                className="btn btn-primary"
+              >
+                Edit
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -1075,23 +1108,44 @@ export default function ViewBook() {
               <p>
                 <strong>Comment:</strong> {review.comment}
               </p>
-              //TODO Decorate better
               <div className="d-flex justify-content-start">
-                <div className="d-flex align-items-center me-3"> 
-                  <button 
-                    onClick={() => handleVotes(review.id, false)} style={{
-                    backgroundColor: review.userDisliked ? "#ff3535" : "transparent",
-                    }}><i class="bi bi-hand-thumbs-down"></i>
+                <div className="d-flex align-items-center me-3">
+                  <button
+                    onClick={() => handleVotes(review.id, false)}
+                    className="btn btn-link p-0"
+                  >
+                    <i
+                      className={`bi ${
+                        review.userDisliked
+                          ? "bi-hand-thumbs-down-fill"
+                          : "bi-hand-thumbs-down"
+                      }`}
+                      style={{
+                        fontSize: "1.5rem",
+                        color: review.userDisliked ? "#dc3545" : "inherit",
+                      }}
+                    ></i>
                   </button>
-                  <p>{review.reviewDislikes}</p>
+                  <p className="mb-0 ms-2">{review.reviewDislikes}</p>
                 </div>
-                <div className="d-flex align-items-center"> 
-                  <button 
-                    onClick={() => handleVotes(review.id, true)} style={{
-                    backgroundColor: review.userLiked ? "#35ff35" : "transparent",
-                    }}><i class="bi bi-hand-thumbs-up"></i>
+                <div className="d-flex align-items-center">
+                  <button
+                    onClick={() => handleVotes(review.id, true)}
+                    className="btn btn-link p-0"
+                  >
+                    <i
+                      className={`bi ${
+                        review.userLiked
+                          ? "bi-hand-thumbs-up-fill"
+                          : "bi-hand-thumbs-up"
+                      }`}
+                      style={{
+                        fontSize: "1.5rem",
+                        color: review.userLiked ? "#28a745" : "inherit",
+                      }}
+                    ></i>
                   </button>
-                  <p>{review.reviewLikes}</p>
+                  <p className="mb-0 ms-2">{review.reviewLikes}</p>
                 </div>
               </div>
             </div>
