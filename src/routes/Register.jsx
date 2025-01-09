@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Notification from "../components/Notification";
-import { fetchData } from '../utils/fetch.js';
+import { fetchData } from "../utils/fetch.js";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -8,7 +9,8 @@ const Register = () => {
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [message, setMessage] = useState("");
-  const [notificationKey, setNotificationKey] = useState(0); 
+  const [notificationKey, setNotificationKey] = useState(0);
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -24,17 +26,18 @@ const Register = () => {
       const response = await fetchData("/register", "POST", userData);
 
       if (response.success) {
+        navigate("/");
         setMessage("Registration successful");
       } else {
         setMessage(response.message || "Registration error. Please try again.");
       }
 
-      setNotificationKey(prevKey => prevKey + 1);
+      setNotificationKey((prevKey) => prevKey + 1);
     } catch (error) {
       console.error("Error during registration:", error);
       setMessage("Error connecting to the server.");
 
-      setNotificationKey(prevKey => prevKey + 1);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -67,7 +70,9 @@ const Register = () => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email:</label>
+          <label htmlFor="email" className="form-label">
+            Email:
+          </label>
           <input
             type="email"
             className="form-control form-control-lg w-100"
@@ -77,7 +82,9 @@ const Register = () => {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="birthDate" className="form-label">Birth Date:</label>
+          <label htmlFor="birthDate" className="form-label">
+            Birth Date:
+          </label>
           <input
             type="date"
             className="form-control form-control-lg w-100"
