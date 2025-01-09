@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import EditAttributeModal from "../components/EditAttributeModal";
 import EditDateModal from "../components/EditDateModal";
 import { fetchData } from "../utils/fetch";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -23,6 +24,7 @@ export default function Settings() {
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
