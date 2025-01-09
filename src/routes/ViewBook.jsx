@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import '../styles/main.css';
-import { fetchData } from '../utils/fetch.js';
-import { jwtDecode } from 'jwt-decode'
-import { Modal, Button } from 'react-bootstrap';
-import BookLoansModal from '../components/BookLoansModal.jsx';
-import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../styles/main.css";
+import { fetchData } from "../utils/fetch.js";
+import { jwtDecode } from "jwt-decode";
+import { Modal, Button } from "react-bootstrap";
+import BookLoansModal from "../components/BookLoansModal.jsx";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import BookReservationModal from "../components/BookReservationModal.jsx";
 import Notification from "../components/Notification";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -19,9 +19,9 @@ export default function ViewBook() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState(null);
-  const [editValue, setEditValue] = useState('');
-  const [imageSrc, setImageSrc] = useState('');
-  const [reviewData, setReviewData] = useState({ score: '', comment: '' });
+  const [editValue, setEditValue] = useState("");
+  const [imageSrc, setImageSrc] = useState("");
+  const [reviewData, setReviewData] = useState({ score: "", comment: "" });
   const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -31,19 +31,24 @@ export default function ViewBook() {
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [alreadyRated, setAlreadyRated] = useState(false);
-  const [currentUserScore, setCurrentUserScore] = useState('');
-  const [currentUserComment, setCurrentUserComment] = useState('');
+  const [currentUserScore, setCurrentUserScore] = useState("");
+  const [currentUserComment, setCurrentUserComment] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [tempReviewData, setTempReviewData] = useState({ score: '', comment: '' });
+  const [tempReviewData, setTempReviewData] = useState({
+    score: "",
+    comment: "",
+  });
   const [usersLoans, setUsersLoans] = useState([]);
   const [page, setPage] = useState(0);
   const [isAvailable, setIsAvailable] = useState(false);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
+  const [liked, setLiked] = useState(false);
+  const [disliked, setDisliked] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
 
@@ -59,9 +64,11 @@ export default function ViewBook() {
   useEffect(() => {
     const fetchBookData = async () => {
       try {
-        const data = await fetchData(`/getBookByTitle?title=${encodeURIComponent(title)}`);
+        const data = await fetchData(
+          `/getBookByTitle?title=${encodeURIComponent(title)}`
+        );
         setBook(data.book);
-        setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : '');
+        setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
         setSelectedAuthors(data.book.authors || []);
         setSelectedGenres(data.book.genres || []);
       } catch (error) {
@@ -70,28 +77,39 @@ export default function ViewBook() {
     };
 
     const fetchUsersLoans = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         //console.error("No token found, user might not be authenticated");
         return;
       }
       try {
-        const data = await fetchData(`/usersLoans?page=${page}&size=10`, 'POST', title, token, 'text/plain')
+        const data = await fetchData(
+          `/usersLoans?page=${page}&size=10`,
+          "POST",
+          title,
+          token,
+          "text/plain"
+        );
         setUsersLoans(data.message);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-    }
+    };
 
     const checkLoanStatus = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         //console.error("No token found, user might not be authenticated");
         return;
       }
 
       try {
-        const response = await fetchData('/isLoaned', 'POST', { title: title }, token);
+        const response = await fetchData(
+          "/isLoaned",
+          "POST",
+          { title: title },
+          token
+        );
         setLoanStatus(response);
       } catch (error) {
         console.error("Failed to check loan status:", error);
@@ -100,7 +118,9 @@ export default function ViewBook() {
 
     const fetchReviews = async () => {
       try {
-        const data = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+        const data = await fetchData(
+          `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
+        );
         setReviews(data);
 
         const token = localStorage.getItem('token');
@@ -124,9 +144,9 @@ export default function ViewBook() {
     };
 
     const fetchAuthors = async () => {
-      const endpoint = '/searchAuthors';
+      const endpoint = "/searchAuthors";
       try {
-        const data = await fetchData(endpoint, 'POST');
+        const data = await fetchData(endpoint, "POST");
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -135,9 +155,9 @@ export default function ViewBook() {
     };
 
     const fetchGenres = async () => {
-      const endpoint = '/searchGenres';
+      const endpoint = "/searchGenres";
       try {
-        const data = await fetchData(endpoint, 'POST');
+        const data = await fetchData(endpoint, "POST");
         setGenres(data);
       } catch (error) {
         console.error("Failed to fetch genres:", error);
@@ -147,7 +167,7 @@ export default function ViewBook() {
 
     const autoCheckExistingReview = async () => {
       fetchExistingReview();
-    }
+    };
 
     fetchBookData();
     fetchReviews();
@@ -160,32 +180,38 @@ export default function ViewBook() {
 
   const handleReviewChange = (e) => {
     const { name, value } = e.target;
-    setReviewData(prevData => ({
+    setReviewData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       return;
     }
 
     try {
-      await fetchData('/addReview', 'POST', {
-        title,
-        score: reviewData.score,
-        comment: reviewData.comment
-      }, token);
+      await fetchData(
+        "/addReview",
+        "POST",
+        {
+          title,
+          score: reviewData.score,
+          comment: reviewData.comment,
+        },
+        token
+      );
 
-      const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+      const reviewsData = await fetchData(
+        `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
+      );
       setReviews(reviewsData);
-      setReviewData({ score: '', comment: '' });
+      setReviewData({ score: "" , comment: ""  });
       setAlreadyRated(true);
       await fetchExistingReview();
-
     } catch (error) {
       console.error("Failed to submit review:", error);
     }
@@ -198,8 +224,13 @@ export default function ViewBook() {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const data = await fetchData(`/getReview?title=${encodeURIComponent(title)}`, 'GET', null, token);
+      const token = localStorage.getItem("token");
+      const data = await fetchData(
+        `/getReview?title=${encodeURIComponent(title)}`,
+        "GET",
+        null,
+        token
+      );
 
       if (data.existingReview == true) {
         console.log("fetchExistingReview3");
@@ -211,14 +242,14 @@ export default function ViewBook() {
     } catch (error) {
       console.error("Failed to fetch Existing Review:", error);
     }
-  }
+  };
 
   const handleEditClick = (attribute) => {
     setEditingAttribute(attribute);
     setEditValue(book[attribute]);
-    if (attribute === 'authors') {
+    if (attribute === "authors") {
       setSelectedAuthors(book.authors || []);
-    } else if (attribute === 'genres') {
+    } else if (attribute === "genres") {
       setSelectedGenres(book.genres || []);
     }
   };
@@ -251,36 +282,48 @@ export default function ViewBook() {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     const payload = new FormData();
-    payload.append('title', title);
-    payload.append('attribute', editingAttribute);
-    if (editingAttribute === 'authors') {
-      payload.append('value', JSON.stringify(selectedAuthors));
-    } else if (editingAttribute === 'genres') {
-      payload.append('value', JSON.stringify(selectedGenres));
-    } else if (editingAttribute === 'isAdult') {
-      const booleanValue = editValue === 'true';
-      payload.append('value', booleanValue);
+    payload.append("title", title);
+    payload.append("attribute", editingAttribute);
+    if (editingAttribute === "authors") {
+      payload.append("value", JSON.stringify(selectedAuthors));
+    } else if (editingAttribute === "genres") {
+      payload.append("value", JSON.stringify(selectedGenres));
+    } else if (editingAttribute === "isAdult") {
+      const booleanValue = editValue === "true";
+      payload.append("value", booleanValue);
     } else {
-      payload.append('value', editValue);
+      payload.append("value", editValue);
     }
 
     if (newImage) {
-      payload.append('image', newImage);
+      try {
+        // Redimensionar la imagen antes de enviarla
+        const resizedImageBlob = await resizeImage(newImage, 300, 300); // Tamaño deseado
+        payload.append("image", resizedImageBlob);
+      } catch (error) {
+        console.error("Error resizing image:", error);
+        return;
+      }
     }
 
     try {
-      const updatedBook = await fetchData('/updateBook', 'POST', payload, token);
+      const updatedBook = await fetchData(
+        "/updateBook",
+        "POST",
+        payload,
+        token
+      );
       setBook(updatedBook);
       setEditingAttribute(null);
 
-      if (editingAttribute === 'title') {
+      if (editingAttribute === "title") {
         navigate(`/viewBook/${editValue}`);
       } else {
         location.reload();
@@ -288,6 +331,46 @@ export default function ViewBook() {
     } catch (error) {
       console.error("Failed to update book:", error);
     }
+  };
+
+  // Función para redimensionar imágenes
+  const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = ({ target: { result } }) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const { width, height } = img;
+          const ratio = width / height;
+
+          canvas.width = width > maxWidth ? maxWidth : width;
+          canvas.height = height > maxHeight ? maxHeight : height;
+
+          if (canvas.width / ratio > maxHeight) {
+            canvas.height = maxHeight;
+            canvas.width = Math.round(maxHeight * ratio);
+          } else if (canvas.width < maxWidth) {
+            canvas.height = Math.round(canvas.width / ratio);
+          }
+
+          canvas
+            .getContext("2d")
+            .drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(
+            (blob) =>
+              blob ? resolve(blob) : reject(new Error("Canvas is empty")),
+            "image/jpeg",
+            0.75
+          );
+        };
+        img.onerror = reject;
+        img.src = result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleCloseModal = () => {
@@ -300,7 +383,7 @@ export default function ViewBook() {
     let inputField;
 
     switch (editingAttribute) {
-      case 'authors':
+      case "authors":
         inputField = (
           <select
             multiple
@@ -318,7 +401,7 @@ export default function ViewBook() {
           </select>
         );
         break;
-      case 'genres':
+      case "genres":
         inputField = (
           <select
             multiple
@@ -336,7 +419,7 @@ export default function ViewBook() {
           </select>
         );
         break;
-      case 'quantity':
+      case "quantity":
         inputField = (
           <input
             type="number"
@@ -348,7 +431,7 @@ export default function ViewBook() {
           />
         );
         break;
-      case 'isAdult':
+      case "isAdult":
         inputField = (
           <select
             className="form-control"
@@ -362,7 +445,7 @@ export default function ViewBook() {
           </select>
         );
         break;
-      case 'publicationDate':
+      case "publicationDate":
         inputField = (
           <input
             type="date"
@@ -374,7 +457,7 @@ export default function ViewBook() {
           />
         );
         break;
-      case 'image':
+      case "image":
         inputField = (
           <input
             type="file"
@@ -404,7 +487,11 @@ export default function ViewBook() {
           <div className="modal-content">
             <div className="modal-header">
               <h5 className="modal-title">Edit {editingAttribute}</h5>
-              <button type="button" className="btn-close" onClick={handleCloseModal}></button>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={handleCloseModal}
+              ></button>
             </div>
             <div className="modal-body">
               <form onSubmit={handleEditSubmit}>
@@ -412,7 +499,9 @@ export default function ViewBook() {
                   <label htmlFor="editValue">New Value</label>
                   {inputField}
                 </div>
-                <button type="submit" className="btn btn-primary mt-3">Save changes</button>
+                <button type="submit" className="btn btn-primary mt-3">
+                  Save changes
+                </button>
               </form>
             </div>
           </div>
@@ -426,30 +515,40 @@ export default function ViewBook() {
   };
 
   const handleDeleteBook = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      await fetchData(`/deleteBook?title=${encodeURIComponent(title)}`, 'DELETE', null, token);
+      await fetchData(
+        `/deleteBook?title=${encodeURIComponent(title)}`,
+        "DELETE",
+        null,
+        token
+      );
       setShowDeleteConfirmation(false);
-      navigate('/');
+      navigate("/");
     } catch (error) {
       console.error("Failed to delete book:", error);
     }
   };
 
   const handleLoanClick = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      const response = await fetchData(`/isAvailable?title=${encodeURIComponent(title)}`, 'POST', null, token);
+      const response = await fetchData(
+        `/isAvailable?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
       if (response == false) {
         setIsAvailable(false);
         setShowUnavailableModal(true);
@@ -461,16 +560,15 @@ export default function ViewBook() {
       return false;
     }
 
-
     try {
       if (!isLoaned && isAvailable) {
-        await fetchData('/loan', 'POST', title, token, 'text/plain');
+        await fetchData("/loan", "POST", title, token, "text/plain");
         setLoanStatus(true);
-      } 
-      if(isLoaned) {
-        console.log("return: " + isAvailable)
+      }
+      if (isLoaned) {
+        console.log("return: " + isAvailable);
 
-        await fetchData('/return', 'PUT', {title: title}, token);
+        await fetchData("/return", "PUT", { title: title }, token);
         setLoanStatus(false);
       }
     } catch (error) {
@@ -480,24 +578,29 @@ export default function ViewBook() {
   };
 
   const handleReservation = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      const response = await fetchData(`/reserve?title=${encodeURIComponent(title)}`, 'POST', null, token);
+      const response = await fetchData(
+        `/reserve?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
       console.log(response);
       setNotificationMessage("Book reserved");
-      setNotificationKey(prevKey => prevKey + 1);
+      setNotificationKey((prevKey) => prevKey + 1);
     } catch (error) {
-      console.error(error)
+      console.error(error);
       setNotificationMessage(error.message);
-      setNotificationKey(prevKey => prevKey + 1);
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
-  }
+  };
 
   const handleEditReview = () => {
     setIsEditing(true);
@@ -506,38 +609,42 @@ export default function ViewBook() {
 
   const handleTempReviewChange = (e) => {
     const { name, value } = e.target;
-    setTempReviewData(prevData => ({
+    setTempReviewData((prevData) => ({
       ...prevData,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleTempStarClick = (star) => {
-    setTempReviewData(prevData => ({
+    setTempReviewData((prevData) => ({
       ...prevData,
-      score: star
+      score: star,
     }));
   };
 
   const handleSaveEditedReview = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      await fetchData('/editReview', 'POST', {
-        title,
-        score: tempReviewData.score,
-        comment: tempReviewData.comment
-      }, token);
+      await fetchData(
+        "/editReview",
+        "POST",
+        {
+          title,
+          score: tempReviewData.score,
+          comment: tempReviewData.comment,
+        },
+        token
+      );
 
       setCurrentUserScore(tempReviewData.score);
       setCurrentUserComment(tempReviewData.comment);
       setIsEditing(false);
       fetchExistingReview();
-
     } catch (error) {
       console.error("Failed to edit review:", error);
     }
@@ -545,25 +652,32 @@ export default function ViewBook() {
 
   const handleCancelEdit = () => {
     setIsEditing(false);
-    setTempReviewData({ score: '', comment: '' });
+    setTempReviewData({ score: "", comment: "" });
   };
 
   const handleDeleteReview = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      await fetchData(`/deleteReview?title=${encodeURIComponent(title)}`, 'DELETE', null, token);
+      await fetchData(
+        `/deleteReview?title=${encodeURIComponent(title)}`,
+        "DELETE",
+        null,
+        token
+      );
 
-      setReviewData({ score: '', comment: '' });
       setAlreadyRated(false);
-      setCurrentUserScore('');
-      setCurrentUserComment('');
+      setReviewData({ score: "", comment: "" });
+      setCurrentUserScore("");
+      setCurrentUserComment("");
 
-      const reviewsData = await fetchData(`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`);
+      const reviewsData = await fetchData(
+        `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
+      );
       setReviews(reviewsData);
     } catch (error) {
       console.error("Failed to delete review:", error);
@@ -571,14 +685,14 @@ export default function ViewBook() {
   };
 
   const handleReturnModal = async () => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      await fetchData('/return', 'PUT', title, token, 'text/plain');
+      await fetchData("/return", "PUT", title, token, "text/plain");
     } catch (error) {
       alert(error.message);
       console.error("Failed to update loan status:", error);
@@ -597,7 +711,7 @@ export default function ViewBook() {
   };
 
   const handleVotes = async (reviewId, value) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Please log in to vote.");
       return;
@@ -634,16 +748,20 @@ export default function ViewBook() {
     setReviews(updatedReviews);
 
     try {
-      await fetchData('/addVote', 'PUT', {
-        reviewId: reviewId,
-        positive: value
-      }, token);
+      await fetchData(
+        "/addVote",
+        "PUT",
+        {
+          reviewId: reviewId,
+          positive: value,
+        },
+        token
+      );
     } catch (error) {
       alert(error.message);
       console.error("Failed to update Vote: ", error);
     }
   };
-
 
   if (!book) {
     return (
@@ -656,10 +774,12 @@ export default function ViewBook() {
   }
 
   return (
-
     <div className="container mt-5">
       {hasPermissions && (
-        <BookLoansModal usersLoans={usersLoans} onReturnLoan={handleReturnModal} />
+        <BookLoansModal
+          usersLoans={usersLoans}
+          onReturnLoan={handleReturnModal}
+        />
       )}
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
@@ -669,9 +789,9 @@ export default function ViewBook() {
             <>
               <button
                 onClick={handleLoanClick}
-                className={isLoaned ? 'btn btn-danger' : 'btn btn-primary'}
+                className={isLoaned ? "btn btn-danger" : "btn btn-primary"}
               >
-                {isLoaned ? 'Return' : 'Loan'}
+                {isLoaned ? "Return" : "Loan"}
               </button>
               {hasPermissions && (
                 <button
@@ -683,7 +803,6 @@ export default function ViewBook() {
               )}
             </>
           )}
-
         </div>
         <div className="col-md-6 mb-3">
           {imageSrc ? (
@@ -691,32 +810,114 @@ export default function ViewBook() {
           ) : (
             <div>No image available</div>
           )}
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('image')} className="btn btn-primary">Edit image</button>}
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("image")}
+              className="btn btn-primary"
+            >
+              Edit image
+            </button>
+          )}
         </div>
         <div className="col-md-6 mb-3">
-          <p><span className="label">Title:</span> {book.title}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('title')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Title:</span> {book.title}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("title")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Authors:</span> {book.authors ? book.authors.join(', ') : 'N/A'}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('authors')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Authors:</span>{" "}
+            {book.authors ? book.authors.join(", ") : "N/A"}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("authors")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Genres:</span> {book.genres ? book.genres.join(', ') : 'N/A'}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('genres')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Genres:</span>{" "}
+            {book.genres ? book.genres.join(", ") : "N/A"}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("genres")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Quantity:</span> {book.quantity}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('quantity')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Quantity:</span> {book.quantity}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("quantity")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Location:</span> {book.location}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('location')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Location:</span> {book.location}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("location")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Synopsis:</span> {book.synopsis}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('synopsis')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Synopsis:</span> {book.synopsis}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("synopsis")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Publication Date:</span> {book.publicationDate}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('publicationDate')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Publication Date:</span>{" "}
+            {book.publicationDate}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("publicationDate")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
 
-          <p><span className="label">Adult:</span> {book.adult ? 'Yes' : 'No'}</p>
-          {isLoggedIn && hasPermissions && <button onClick={() => handleEditClick('isAdult')} className="btn btn-primary">Edit</button>}
+          <p>
+            <span className="label">Adult:</span> {book.adult ? "Yes" : "No"}
+          </p>
+          {isLoggedIn && hasPermissions && (
+            <button
+              onClick={() => handleEditClick("isAdult")}
+              className="btn btn-primary"
+            >
+              Edit
+            </button>
+          )}
         </div>
       </div>
 
@@ -729,11 +930,20 @@ export default function ViewBook() {
                 <button
                   type="button"
                   key={star}
-                  className={star <= (hover || reviewData.score) ? 'on' : 'off'}
-                  onClick={() => setReviewData(prevData => ({ ...prevData, score: star }))}
+                  className={star <= (hover || reviewData.score) ? "on" : "off"}
+                  onClick={() =>
+                    setReviewData((prevData) => ({ ...prevData, score: star }))
+                  }
                   onMouseEnter={() => setHover(star)}
                   onMouseLeave={() => setHover(reviewData.score)}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2rem', color: star <= (hover || reviewData.score) ? 'gold' : 'grey' }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "2rem",
+                    color:
+                      star <= (hover || reviewData.score) ? "gold" : "grey",
+                  }}
                 >
                   <span className="star">&#9733;</span>
                 </button>
@@ -751,13 +961,21 @@ export default function ViewBook() {
               required
             ></textarea>
           </div>
-          <button type="submit" className="btn btn-primary mt-3">Submit Review</button>
+          <button type="submit" className="btn btn-primary mt-3">
+            Submit Review
+          </button>
         </form>
       )}
 
-      {isLoggedIn && alreadyRated && (
-        isEditing ? (
-          <form onSubmit={(e) => { e.preventDefault(); handleSaveEditedReview(); }}>
+      {isLoggedIn &&
+        alreadyRated &&
+        (isEditing ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveEditedReview();
+            }}
+          >
             <div className="form-group">
               <label>Score:</label>
               <div className="star-rating">
@@ -765,9 +983,15 @@ export default function ViewBook() {
                   <button
                     type="button"
                     key={star}
-                    className={star <= tempReviewData.score ? 'on' : 'off'}
+                    className={star <= tempReviewData.score ? "on" : "off"}
                     onClick={() => handleTempStarClick(star)}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '2rem', color: star <= tempReviewData.score ? 'gold' : 'grey' }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "2rem",
+                      color: star <= tempReviewData.score ? "gold" : "grey",
+                    }}
                   >
                     <span className="star">&#9733;</span>
                   </button>
@@ -785,8 +1009,16 @@ export default function ViewBook() {
                 required
               ></textarea>
             </div>
-            <button type="submit" className="btn btn-primary mt-3">Save</button>
-            <button type="button" className="btn btn-secondary mt-3 ms-2" onClick={handleCancelEdit}>Cancel</button>
+            <button type="submit" className="btn btn-primary mt-3">
+              Save
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary mt-3 ms-2"
+              onClick={handleCancelEdit}
+            >
+              Cancel
+            </button>
           </form>
         ) : (
           <div className="user-review">
@@ -798,7 +1030,11 @@ export default function ViewBook() {
                   <span
                     key={star}
                     className="star"
-                    style={{ fontSize: '2rem', color: star <= currentUserScore ? 'gold' : 'grey' }}>
+                    style={{
+                      fontSize: "2rem",
+                      color: star <= currentUserScore ? "gold" : "grey",
+                    }}
+                  >
                     &#9733;
                   </span>
                 ))}
@@ -808,20 +1044,32 @@ export default function ViewBook() {
               <label>Comment:</label>
               <p className="user-comment">{currentUserComment}</p>
             </div>
-            <button className="btn btn-warning mt-3" onClick={handleEditReview}>Edit Review</button>
-            <button className="btn btn-danger mt-3 ms-2" onClick={handleDeleteReview}>Delete Review</button>
+            <button className="btn btn-warning mt-3" onClick={handleEditReview}>
+              Edit Review
+            </button>
+            <button
+              className="btn btn-danger mt-3 ms-2"
+              onClick={handleDeleteReview}
+            >
+              Delete Review
+            </button>
           </div>
-        )
-      )}
+        ))}
 
       <h2 className="mt-5">Reviews</h2>
       <div className="list-group mb-3">
         {reviews.length > 0 ? (
           reviews.map((review, index) => (
             <div key={index} className="list-group-item">
-              <p><strong>User:</strong> {review.userName}</p>
-              <p><strong>Score:</strong> {review.score}</p>
-              <p><strong>Comment:</strong> {review.comment}</p>
+              <p>
+                <strong>User:</strong> {review.userName}
+              </p>
+              <p>
+                <strong>Score:</strong> {review.score}
+              </p>
+              <p>
+                <strong>Comment:</strong> {review.comment}
+              </p>
               //TODO Decorate better
               <div className="d-flex justify-content-start">
                 <div className="d-flex align-items-center me-3"> 
@@ -865,7 +1113,6 @@ export default function ViewBook() {
       />
 
       <Notification key={notificationKey} message={notificationMessage} />
-
     </div>
   );
 }
