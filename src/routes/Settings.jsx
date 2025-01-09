@@ -7,6 +7,7 @@ import EditAttributeModal from "../components/EditAttributeModal";
 import EditDateModal from "../components/EditDateModal";
 import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";
+import defaultAvatar from "../img/defaultAvatar.svg";
 
 export default function Settings() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -24,7 +25,12 @@ export default function Settings() {
   const [errorMessage, setErrorMessage] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
+  const [showChangeText, setShowChangeText] = useState(false);
+
+  const handleMouseEnter = () => setShowChangeText(true);
+  const handleMouseLeave = () => setShowChangeText(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,10 +41,22 @@ export default function Settings() {
       setBirthDate(decodedToken.birthDate);
       setRole(decodedToken.role);
       setHasPermissions(decodedToken.role === "ADMIN");
+
+      const fetchProfileImage = async () => {
+        const image = await getProfileImage(decodedToken.email);
+        setProfileImage(image);
+      };
+
+      fetchProfileImage(); // Call the async function to fetch image
     } else {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
+
+  const getProfileImage = async (email) => {
+    const image = await fetchData(`/getUserProfileImage/${email}`, "GET");
+    return `data:image/jpeg;base64,${image}`;
+  };
 
   const handleEditUsername = () => {
     setShowUsernameModal(true);
@@ -185,50 +203,144 @@ export default function Settings() {
     setErrorMessage("");
   };
 
+  const handleImageChange = async (event) => {
+    const token = localStorage.getItem("token");
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const response = await fetchData(
+        `/updateProfileImage`,
+        "POST",
+        formData,
+        token
+      );
+
+      if (response.success) {
+        const updatedImage = await getProfileImage(email);
+        setProfileImage(updatedImage);
+      }
+    }
+  };
+
   return (
     <div className="container mt-5">
       <h1 className="text-center mb-4">Settings</h1>
 
       {/* User info */}
       <div className="card shadow-sm mb-4">
-        <div className="card-body text-center">
-          <h5 className="card-title">User Information</h5>
-          <p className="card-text">Username: {username}</p>
-          <p className="card-text">Email: {email}</p>
-          <p className="card-text">
-            BirthDate:{" "}
-            {birthDate ? new Date(birthDate).toLocaleDateString() : "N/A"}
-          </p>
-          <p className="card-text">Role: {role}</p>
+        <div
+          className="card-body d-flex flex-column justify-content-center align-items-center"
+          style={{ minHeight: "400px" }}
+        >
+          <div className="row w-100">
+            {/* Columna 1: Imagen de perfil */}
+            <div className="col-md-4 d-flex justify-content-center mb-4">
+              <div
+                style={{
+                  position: "relative",
+                  width: "250px",
+                  height: "250px",
+                }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <label
+                  style={{
+                    border: "1px solid black",
+                    display: "block",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: "50%",
+                    backgroundImage: profileImage
+                      ? `url(${profileImage})`
+                      : `url(${defaultAvatar})`,
+                    backgroundPosition: "center",
+                    cursor: "pointer",
+                    backgroundSize: "cover",
+                  }}
+                >
+                  <input
+                    type="file"
+                    onChange={handleImageChange}
+                    style={{
+                      display: "none",
+                    }}
+                  />
+                </label>
+
+                {/* Texto "Change Image" visible solo al pasar el ratón */}
+                {showChangeText && (
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: "20px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      color: "white",
+                      backgroundColor: "rgba(0, 0, 0, 0.5)",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    Change Image
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Columna 2: Información del usuario */}
+            <div className="col-md-4 text-center">
+              <h5 className="card-title">User Information</h5>
+              <p className="card-text">Username: {username}</p>
+              <p className="card-text">Email: {email}</p>
+              <p className="card-text">
+                BirthDate:{" "}
+                {birthDate ? new Date(birthDate).toLocaleDateString() : "N/A"}
+              </p>
+              <p className="card-text">Role: {role}</p>
+            </div>
+
+            {/* Columna 3: Botones de edición */}
+            <div className="col-md-4 d-flex flex-column align-items-center">
+              <button
+                className="btn btn-primary mb-3 w-50"
+                onClick={handleEditUsername}
+              >
+                Edit Username
+              </button>
+              <button
+                className="btn btn-primary mb-3 w-50"
+                onClick={handleEditEmail}
+              >
+                Edit Email
+              </button>
+              <button
+                className="btn btn-primary mb-3 w-50"
+                onClick={handleEditBirthDate}
+              >
+                Edit BirthDate
+              </button>
+              <button
+                className="btn btn-secondary mb-3 w-50"
+                onClick={handleChangePassword}
+              >
+                Change Password
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Edit buttons */}
-      <div className="d-flex flex-column align-items-center">
-        <button
-          className="btn btn-primary mb-3 w-50"
-          onClick={handleEditUsername}
-        >
-          Edit Username
-        </button>
-        <button className="btn btn-primary mb-3 w-50" onClick={handleEditEmail}>
-          Edit Email
-        </button>
-        <button
-          className="btn btn-primary mb-3 w-50"
-          onClick={handleEditBirthDate}
-        >
-          Edit BirthDate
-        </button>
-        <button
-          className="btn btn-secondary mb-3 w-50"
-          onClick={handleChangePassword}
-        >
-          Change Password
-        </button>
-      </div>
-
-      {/* Change username */}
+      {/* Modales para editar */}
       <EditAttributeModal
         show={showUsernameModal}
         onClose={handleCancel}
@@ -240,7 +352,6 @@ export default function Settings() {
         errorMessage={errorMessage}
       />
 
-      {/* Change birthDate */}
       <EditDateModal
         show={showBirthDateModal}
         onClose={handleCancel}
@@ -251,7 +362,6 @@ export default function Settings() {
         errorMessage={errorMessage}
       />
 
-      {/* Change Email */}
       <EditAttributeModal
         show={showEmailModal}
         onClose={handleCancel}
@@ -263,7 +373,6 @@ export default function Settings() {
         errorMessage={errorMessage}
       />
 
-      {/* Change password */}
       <Modal show={showPasswordModal} onHide={handleCancel}>
         <Modal.Header closeButton>
           <Modal.Title>Change Password</Modal.Title>
