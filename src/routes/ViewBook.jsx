@@ -702,8 +702,7 @@ export default function ViewBook() {
   const fetchUserVote = async (reviewId, token) => {
     try {
       const response = await fetchData(`/getUserVote?reviewId=${reviewId}`, 'GET', null, token);
-      console.log("🚀 ~ fetchUserVote ~ response:", response)
-      return response; //response = 'liked' || 'disliked' || 'none'
+      return response;
     } catch (error) {
       console.error("Failed to fetch user vote:", error);
       return null;
@@ -732,6 +731,16 @@ export default function ViewBook() {
           reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes 
         } : r
       );
+
+      try {
+        await fetchData(`/deleteVote?reviewId=${reviewId}`, 'DELETE', null, token);
+        setReviews(updatedReviews);
+
+      } catch (error) {
+        alert(error.message);
+        console.error("Failed to delete Vote: ", error);
+      }
+
     } else {
       // Update votes and ensure only one type of vote is active
       updatedReviews = reviews.map(r => 
@@ -743,25 +752,21 @@ export default function ViewBook() {
           reviewDislikes: !value ? (r.userDisliked ? r.reviewDislikes : r.reviewDislikes + 1) : (r.userDisliked ? r.reviewDislikes - 1 : r.reviewDislikes)
         } : r
       );
-    }
 
-    setReviews(updatedReviews);
-
-    try {
-      await fetchData(
-        "/addVote",
-        "PUT",
-        {
+      try {
+        let body = {
           reviewId: reviewId,
-          positive: value,
-        },
-        token
-      );
-    } catch (error) {
-      alert(error.message);
-      console.error("Failed to update Vote: ", error);
+          positive: value
+        };
+        await fetchData(`/addVote`, 'PUT', body, token);
+        setReviews(updatedReviews);
+
+      } catch (error) {
+        alert(error.message);
+        console.error("Failed to update Vote: ", error);
+      }
+    };
     }
-  };
 
   if (!book) {
     return (
