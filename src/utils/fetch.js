@@ -4,7 +4,7 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
     const headers = {};
     
     // Debugging: Log the received parameters
-    console.log("fetchData called with:", { endpoint, method, body, token, contentType });
+    //console.log("fetchData called with:", { endpoint, method, body, token, contentType });
 
     if (body && !(body instanceof FormData) && contentType) {
         headers['Content-Type'] = contentType;
@@ -29,7 +29,7 @@ export const fetchData = async (endpoint, method = 'GET', body = null, token = n
         const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
         // Debugging: Log the raw response
-        console.log("Raw response:", response);
+        //console.log("Raw response:", response);
 
         if (!response.ok) {
             const errorText = await response.text();

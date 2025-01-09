@@ -122,6 +122,22 @@ export default function ViewBook() {
           `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
         );
         setReviews(data);
+
+        const token = localStorage.getItem('token');
+        if (token) {
+          //for each review, fetch user vote
+          const updatedReviews = await Promise.all(data.map(async (review) => {
+            const userVote = await fetchUserVote(review.id, token);
+            console.log("🚀 ~ updatedReviews ~ userVote:", userVote)
+            return {
+              ...review,
+              userLiked: userVote === 'liked',
+              userDisliked: userVote === 'disliked'
+            };
+          }));
+          setReviews(updatedReviews);          
+        }
+
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
@@ -193,7 +209,8 @@ export default function ViewBook() {
         `/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
       );
       setReviews(reviewsData);
-      setReviewData({ score: "", comment: "" });
+      setReviewData({ score: "" , comment: ""  });
+      setAlreadyRated(true);
       await fetchExistingReview();
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -201,9 +218,11 @@ export default function ViewBook() {
   };
 
   const fetchExistingReview = async () => {
+    const token = localStorage.getItem('token');
     if (!token) {
       return;
     }
+
     try {
       const token = localStorage.getItem("token");
       const data = await fetchData(
@@ -214,6 +233,8 @@ export default function ViewBook() {
       );
 
       if (data.existingReview == true) {
+        console.log("fetchExistingReview3");
+
         setAlreadyRated(true);
         setCurrentUserScore(data.currentUserScore);
         setCurrentUserComment(data.currentUserComment);
@@ -678,40 +699,74 @@ export default function ViewBook() {
     }
   };
 
-  const handleVotes = async (reviewId, value) => {
-    console.log("🚀 ~ handleVotes ~ value:", value);
-    console.log("🚀 ~ handleThumbsUp ~ reviewId:", reviewId);
+  const fetchUserVote = async (reviewId, token) => {
+    try {
+      const response = await fetchData(`/getUserVote?reviewId=${reviewId}`, 'GET', null, token);
+      return response;
+    } catch (error) {
+      console.error("Failed to fetch user vote:", error);
+      return null;
+    }
+  };
 
+  const handleVotes = async (reviewId, value) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      //TODO MODAL to suggest LOGIN
+      alert("Please log in to vote.");
       return;
     }
 
-    //TODO if already voted, remove vote
-    setDisliked(!value);
-    setLiked(value);
-    //TODO recharge the value of the vote
+    const review = reviews.find(r => r.id === reviewId);
 
-    let body = {
-      reviewId: reviewId,
-      positive: value,
-    };
-    try {
-      await fetchData(
-        "/addVote",
-        "PUT",
-        {
-          reviewId: reviewId,
-          positive: value,
-        },
-        token
+    let updatedReviews;
+
+    if ((value && review.userLiked) || (!value && review.userDisliked)) {
+      // User has already voted the same way, remove the vote
+      updatedReviews = reviews.map(r => 
+        r.id === reviewId ? {
+          ...r, 
+          userLiked: false, 
+          userDisliked: false, 
+          reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes, 
+          reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes 
+        } : r
       );
-    } catch (error) {
-      alert(error.message);
-      console.error("Failed to update Vote: ", error);
+
+      try {
+        await fetchData(`/deleteVote?reviewId=${reviewId}`, 'DELETE', null, token);
+        setReviews(updatedReviews);
+
+      } catch (error) {
+        alert(error.message);
+        console.error("Failed to delete Vote: ", error);
+      }
+
+    } else {
+      // Update votes and ensure only one type of vote is active
+      updatedReviews = reviews.map(r => 
+        r.id === reviewId ? {
+          ...r, 
+          userLiked: value, 
+          userDisliked: !value, 
+          reviewLikes: value ? (r.userLiked ? r.reviewLikes : r.reviewLikes + 1) : (r.userLiked ? r.reviewLikes - 1 : r.reviewLikes), 
+          reviewDislikes: !value ? (r.userDisliked ? r.reviewDislikes : r.reviewDislikes + 1) : (r.userDisliked ? r.reviewDislikes - 1 : r.reviewDislikes)
+        } : r
+      );
+
+      try {
+        let body = {
+          reviewId: reviewId,
+          positive: value
+        };
+        await fetchData(`/addVote`, 'PUT', body, token);
+        setReviews(updatedReviews);
+
+      } catch (error) {
+        alert(error.message);
+        console.error("Failed to update Vote: ", error);
+      }
+    };
     }
-  };
 
   if (!book) {
     return (
@@ -1022,25 +1077,19 @@ export default function ViewBook() {
               </p>
               //TODO Decorate better
               <div className="d-flex justify-content-start">
-                <div className="d-flex align-items-center me-3">
-                  <button
-                    onClick={() => handleVotes(review.id, false)}
-                    style={{
-                      backgroundColor: disliked ? "#ff3535" : "transparent",
-                    }}
-                  >
-                    <i class="bi bi-hand-thumbs-down"></i>
+                <div className="d-flex align-items-center me-3"> 
+                  <button 
+                    onClick={() => handleVotes(review.id, false)} style={{
+                    backgroundColor: review.userDisliked ? "#ff3535" : "transparent",
+                    }}><i class="bi bi-hand-thumbs-down"></i>
                   </button>
                   <p>{review.reviewDislikes}</p>
                 </div>
-                <div className="d-flex align-items-center">
-                  <button
-                    onClick={() => handleVotes(review.id, true)}
-                    style={{
-                      backgroundColor: liked ? "#35ff35" : "transparent",
-                    }}
-                  >
-                    <i class="bi bi-hand-thumbs-up"></i>
+                <div className="d-flex align-items-center"> 
+                  <button 
+                    onClick={() => handleVotes(review.id, true)} style={{
+                    backgroundColor: review.userLiked ? "#35ff35" : "transparent",
+                    }}><i class="bi bi-hand-thumbs-up"></i>
                   </button>
                   <p>{review.reviewLikes}</p>
                 </div>
