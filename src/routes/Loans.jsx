@@ -274,7 +274,7 @@ const UserLoans = ({ cardSize }) => {
         <div className="row">
           {filteredLoans.length > 0 ? (
             filteredLoans.map((loan, index) => (
-              <div key={index} className={`${getColumnClass(cardSize)}`}>
+              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
                 <div
                   className="card"
                   style={{
