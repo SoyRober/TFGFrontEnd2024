@@ -545,8 +545,17 @@ export default function ViewBook() {
     console.log("🚀 ~ ViewBook ~ book:", book);
 
     if (book.quantity < 1) {
-      setIsAvailable(false);
-      setShowUnavailableModal(true);
+      const response = await fetchData(
+        `/isAvailable?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
+      if (response == false) {
+        setIsAvailable(false);
+        setShowUnavailableModal(true);
+        return;
+      }
       return;
     }
 
