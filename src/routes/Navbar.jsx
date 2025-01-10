@@ -72,6 +72,12 @@ export default function Root() {
             </Link>
           )}
 
+          {hasPermissions && (
+            <Link className="nav-link ms-3" to="/attributes">
+              Attributes
+            </Link>
+          )}
+
           <button
             className="navbar-toggler"
             type="button"

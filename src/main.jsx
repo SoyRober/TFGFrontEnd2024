@@ -11,6 +11,7 @@ import Settings from "./routes/Settings.jsx";
 import UsersList from "./routes/UsersList.jsx";
 import ViewProfile from "./routes/ViewProfile.jsx";
 import UserBooksDetails from "./routes/UserBooksDetails.jsx";
+import Attributes from "./routes/Attributes.jsx";
 
 const router = createBrowserRouter([
   {
@@ -19,7 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <Homepage />
+        element: <Homepage />,
       },
       {
         path: "/login",
@@ -52,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: "/userBookDetails",
         element: <UserBooksDetails />,
+      },
+      {
+        path: "/attributes",
+        element: <Attributes />,
       },
     ],
   },
