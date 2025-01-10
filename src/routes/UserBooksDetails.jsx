@@ -11,12 +11,34 @@ const UserBooksDetails = () => {
   });
   const [cardSize, setCardSize] = useState(() => {
     return localStorage.getItem("cardSize")
-      ? parseInt(localStorage.getItem("cardSize"))
-      : 450;
+      ? localStorage.getItem("cardSize")
+      : "medium";
   });
   const handleButtonClick = (button) => {
     setSelectedButton(button);
     localStorage.setItem("userBookDetails", button);
+  };
+
+  useEffect(() => {
+    setCardSize(cardSize);
+  }, [cardSize]);
+
+  useEffect(() => {
+    localStorage.setItem("cardSize", cardSize);
+  }, [cardSize]);
+
+  const getColumnClass = (cardSize) => {
+    localStorage.setItem("cardSize", cardSize);
+    switch (cardSize) {
+      case "small":
+        return "col-12 col-sm-6 col-md-4 col-lg-3";
+      case "medium":
+        return "col-12 col-sm-6 col-md-6 col-lg-4";
+      case "large":
+        return "col-12 col-md-6";
+      default:
+        return "col-12";
+    }
   };
 
   return (
@@ -47,45 +69,43 @@ const UserBooksDetails = () => {
         </button>
       </div>
 
-      {selectedButton && (
-        <div className="row w-100 justify-content-center mt-4">
-          <div className="col-md-4">
-            <div
-              className="btn-group w-100"
-              role="group"
-              aria-label="Card size selector"
+      <div className="row w-100 justify-content-center mb-4">
+        <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center mt-4">
+          <div
+            className="btn-group w-100"
+            role="group"
+            aria-label="Card size selector"
+          >
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${
+                cardSize === "small" ? "active" : ""
+              }`}
+              onClick={() => setCardSize("small")}
             >
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === 250 ? "active" : ""
-                }`}
-                onClick={() => setCardSize(250)}
-              >
-                <i className="fas fa-square" style={{ fontSize: "8px" }}></i>
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === 350 ? "active" : ""
-                }`}
-                onClick={() => setCardSize(350)}
-              >
-                <i className="fas fa-square" style={{ fontSize: "16px" }}></i>
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === 600 ? "active" : ""
-                }`}
-                onClick={() => setCardSize(600)}
-              >
-                <i className="fas fa-square" style={{ fontSize: "32px" }}></i>
-              </button>
-            </div>
+              Pequeño
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${
+                cardSize === "medium" ? "active" : ""
+              }`}
+              onClick={() => setCardSize("medium")}
+            >
+              Mediano
+            </button>
+            <button
+              type="button"
+              className={`btn btn-outline-primary ${
+                cardSize === "large" ? "active" : ""
+              }`}
+              onClick={() => setCardSize("large")}
+            >
+              Grande
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
       {selectedButton === "Reservations" && (
