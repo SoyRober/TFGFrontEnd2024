@@ -172,9 +172,18 @@ const UserLoans = ({ cardSize }) => {
     setReturnedFilter("all");
   };
 
-  const calculateColumns = () => {
-    const columns = Math.min(4, Math.max(1, Math.floor(12 / (cardSize / 100))));
-    return `col-${Math.floor(12 / columns)}`;
+  const getColumnClass = (cardSize) => {
+    localStorage.setItem("cardSize", cardSize);
+    switch (cardSize) {
+      case "small":
+        return "col-12 col-sm-6 col-md-4 col-lg-3";
+      case "medium":
+        return "col-12 col-sm-6 col-md-6 col-lg-4";
+      case "large":
+        return "col-12 col-md-6";
+      default:
+        return "col-12";
+    }
   };
 
   if (error) {
@@ -261,103 +270,117 @@ const UserLoans = ({ cardSize }) => {
         </button>
       </div>
 
-      <div className="row">
-        {filteredLoans.length > 0 ? (
-          filteredLoans.map((loan, index) => (
-            <div key={index} className={calculateColumns()}>
-              <div
-                className="card mb-4 d-flex flex-column"
-                style={{
-                  height: `${cardSize}px`,
-                  minWidth: `${cardSize}`,
-                  minHeight: `${cardSize}`,
-                }}
-              >
+      <div className="container mt-5">
+        <div className="row">
+          {filteredLoans.length > 0 ? (
+            filteredLoans.map((loan, index) => (
+              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
                 <div
-                  className="card-img-container"
+                  className="card"
                   style={{
-                    flex: "1 0 40%",
-                    overflow: "hidden",
+                    height:
+                      cardSize === "small"
+                        ? "250px"
+                        : cardSize === "medium"
+                        ? "350px"
+                        : "600px",
                     display: "flex",
-                    justifyContent: "center",
+                    flexDirection: "column",
                     alignItems: "center",
-                    padding: "4%",
+                    justifyContent: "center",
+                    cursor: "pointer",
                   }}
                 >
-                  <img
-                    src={`data:image/jpeg;base64,${loan.bookImage}`}
-                    className="img-fluid"
-                    alt={`Cover of ${loan.book}`}
+                  <div
+                    className="card-img-container"
                     style={{
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                      objectFit: "cover",
+                      flex: "1 0 40%",
+                      overflow: "hidden",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      padding: "4%",
                     }}
-                  />
-                </div>
-                <div
-                  className="card-body"
-                  style={{ flex: "1 0 40%", overflowY: "auto" }}
-                >
-                  <h5 className="card-title">
-                    <Link
-                      to={`/viewBook/${loan.book}`}
-                      className="text-decoration-none d-flex align-items-center"
-                    >
-                      {loan.book}
-                      <i
-                        className="fas fa-mouse-pointer ms-2"
-                        title="Click to view details"
-                      ></i>
-                    </Link>
-                  </h5>
-                  <p className="card-text">
-                    <strong>Start Date:</strong>{" "}
-                    {new Date(loan.startDate).toLocaleDateString("es-ES", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </p>
-                  <p className="card-text">
-                    <strong>Return Date:</strong>{" "}
-                    {loan.returnDate
-                      ? new Date(loan.returnDate).toLocaleDateString("es-ES", {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        })
-                      : "N/A"}
-                  </p>
-                  <p className="card-text">
-                    <strong>Authors:</strong>{" "}
-                    {loan.author.map((author, i) => (
-                      <span key={i}>
-                        {author.name} {author.surname}
-                        {i < loan.author.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </p>
-                  <p className="card-text">
-                    <strong>Returned:</strong> {loan.isReturned ? "Yes" : "No"}
-                    {!loan.isReturned && (
-                      <button
-                        className="btn btn-primary ms-2"
-                        onClick={() => handleReturnBook(loan.book)}
+                  >
+                    <img
+                      src={`data:image/jpeg;base64,${loan.bookImage}`}
+                      className="img-fluid"
+                      alt={`Cover of ${loan.book}`}
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                  <div
+                    className="card-body"
+                    style={{ flex: "1 0 40%", overflowY: "auto" }}
+                  >
+                    <h5 className="card-title">
+                      <Link
+                        to={`/viewBook/${loan.book}`}
+                        className="text-decoration-none d-flex align-items-center"
                       >
-                        Return
-                      </button>
-                    )}
-                  </p>
+                        {loan.book}
+                        <i
+                          className="fas fa-mouse-pointer ms-2"
+                          title="Click to view details"
+                        ></i>
+                      </Link>
+                    </h5>
+                    <p className="card-text">
+                      <strong>Start Date:</strong>{" "}
+                      {new Date(loan.startDate).toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <p className="card-text">
+                      <strong>Return Date:</strong>{" "}
+                      {loan.returnDate
+                        ? new Date(loan.returnDate).toLocaleDateString(
+                            "es-ES",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "numeric",
+                            }
+                          )
+                        : "N/A"}
+                    </p>
+                    <p className="card-text">
+                      <strong>Authors:</strong>{" "}
+                      {loan.author.map((author, i) => (
+                        <span key={i}>
+                          {author.name} {author.surname}
+                          {i < loan.author.length - 1 ? ", " : ""}
+                        </span>
+                      ))}
+                    </p>
+                    <p className="card-text">
+                      <strong>Returned:</strong>{" "}
+                      {loan.isReturned ? "Yes" : "No"}
+                      {!loan.isReturned && (
+                        <button
+                          className="btn btn-primary ms-2"
+                          onClick={() => handleReturnBook(loan.book)}
+                        >
+                          Return
+                        </button>
+                      )}
+                    </p>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="alert alert-info" role="alert">
+              No loans found
             </div>
-          ))
-        ) : (
-          <div className="alert alert-info" role="alert">
-            No loans found
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

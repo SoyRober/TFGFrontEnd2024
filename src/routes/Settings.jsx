@@ -55,7 +55,7 @@ export default function Settings() {
 
   const getProfileImage = async (email) => {
     const image = await fetchData(`/getUserProfileImage/${email}`, "GET");
-    return `data:image/jpeg;base64,${image}`;
+    return image ? `data:image/jpeg;base64,${image}` : null;
   };
 
   const handleEditUsername = () => {
@@ -260,9 +260,10 @@ export default function Settings() {
                     width: "100%",
                     height: "100%",
                     borderRadius: "50%",
-                    backgroundImage: profileImage
-                      ? `url(${profileImage})`
-                      : `url(${defaultAvatar})`,
+                    backgroundImage:
+                      profileImage != null
+                        ? `url(${profileImage})`
+                        : `url(${defaultAvatar})`,
                     backgroundPosition: "center",
                     cursor: "pointer",
                     backgroundSize: "cover",

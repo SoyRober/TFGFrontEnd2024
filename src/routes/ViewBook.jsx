@@ -40,7 +40,7 @@ export default function ViewBook() {
   });
   const [usersLoans, setUsersLoans] = useState([]);
   const [page, setPage] = useState(0);
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(true);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
@@ -542,8 +542,9 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
+    console.log("🚀 ~ ViewBook ~ book:", book);
 
-    try {
+    if (book.quantity < 1) {
       const response = await fetchData(
         `/isAvailable?title=${encodeURIComponent(title)}`,
         "POST",
@@ -555,11 +556,10 @@ export default function ViewBook() {
         setShowUnavailableModal(true);
         return;
       }
-      setIsAvailable(true);
-    } catch (error) {
-      console.error("Error en isBookAvailable:", error);
-      return false;
+      return;
     }
+
+    setIsAvailable(true);
 
     try {
       if (!isLoaned && isAvailable) {
