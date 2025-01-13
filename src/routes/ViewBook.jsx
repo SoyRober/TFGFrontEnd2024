@@ -46,6 +46,7 @@ export default function ViewBook() {
   const [notificationKey, setNotificationKey] = useState(0);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -54,6 +55,7 @@ export default function ViewBook() {
 
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
+      setUsername(decodedToken.username);
 
       if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
         setHasPermissions(true);
@@ -73,26 +75,6 @@ export default function ViewBook() {
         setSelectedGenres(data.book.genres || []);
       } catch (error) {
         console.error("Failed to fetch book details:", error);
-      }
-    };
-
-    const fetchUsersLoans = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        //console.error("No token found, user might not be authenticated");
-        return;
-      }
-      try {
-        const data = await fetchData(
-          `/usersLoans?page=${page}&size=10`,
-          "POST",
-          title,
-          token,
-          "text/plain"
-        );
-        setUsersLoans(data.message);
-      } catch (error) {
-        console.error(error);
       }
     };
 
@@ -142,6 +124,8 @@ export default function ViewBook() {
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
+
+      fetchUsersLoans();
     };
 
     const fetchAuthors = async () => {
@@ -185,6 +169,29 @@ export default function ViewBook() {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const fetchUsersLoans = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      //console.error("No token found, user might not be authenticated");
+      console.log("No hay token");
+      return;
+    }
+
+    try {
+      const data = await fetchData(
+        `/usersLoans?page=${page}&size=10`,
+        "POST",
+        title,
+        token,
+        "text/plain"
+      );
+      console.log("🚀 ~ fetchUsersLoans ~ data:", data);
+      setUsersLoans(data.message);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleReviewSubmit = async (e) => {
@@ -542,7 +549,6 @@ export default function ViewBook() {
       console.error("No token found, user might not be authenticated");
       return;
     }
-    console.log("🚀 ~ ViewBook ~ book:", book);
 
     if (book.quantity < 1) {
       const response = await fetchData(
@@ -564,12 +570,16 @@ export default function ViewBook() {
     try {
       if (!isLoaned && isAvailable) {
         await fetchData("/loan", "POST", title, token, "text/plain");
+        fetchUsersLoans();
         setLoanStatus(true);
       }
       if (isLoaned) {
         console.log("return: " + isAvailable);
 
         await fetchData("/return", "PUT", { title: title }, token);
+        setUsersLoans((prevLoans) =>
+          prevLoans.filter((item) => item !== username)
+        );
         setLoanStatus(false);
       }
     } catch (error) {
@@ -693,7 +703,10 @@ export default function ViewBook() {
     }
 
     try {
-      await fetchData("/return", "PUT", title, token, "text/plain");
+      await fetchData("/return", "PUT", { title: title }, token);
+      setUsersLoans((prevLoans) =>
+        prevLoans.filter((item) => item !== username)
+      );
     } catch (error) {
       alert(error.message);
       console.error("Failed to update loan status:", error);
@@ -818,9 +831,13 @@ export default function ViewBook() {
             <>
               <button
                 onClick={handleLoanClick}
-                className={isLoaned ? "btn btn-danger" : "btn btn-primary"}
+                className={
+                  isLoaned && usersLoans.includes(username)
+                    ? "btn btn-danger"
+                    : "btn btn-primary"
+                }
               >
-                {isLoaned ? "Return" : "Loan"}
+                {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
               </button>
               {hasPermissions && (
                 <button
