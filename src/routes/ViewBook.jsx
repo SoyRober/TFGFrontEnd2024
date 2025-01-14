@@ -69,6 +69,7 @@ export default function ViewBook() {
         const data = await fetchData(
           `/getBookByTitle?title=${encodeURIComponent(title)}`
         );
+
         setBook(data.book);
         setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
         setSelectedAuthors(data.book.authors || []);
@@ -322,6 +323,7 @@ export default function ViewBook() {
     }
 
     try {
+      console.log("🚀 ~ handleEditSubmit ~ payload:", payload);
       const updatedBook = await fetchData(
         "/updateBook",
         "POST",
