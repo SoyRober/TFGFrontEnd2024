@@ -111,7 +111,6 @@ export default function ViewBook() {
           const updatedReviews = await Promise.all(
             data.map(async (review) => {
               const userVote = await fetchUserVote(review.id, token);
-              console.log("🚀 ~ updatedReviews ~ userVote:", userVote);
               return {
                 ...review,
                 userLiked: userVote === "liked",
@@ -187,7 +186,7 @@ export default function ViewBook() {
         token,
         "text/plain"
       );
-      console.log("🚀 ~ fetchUsersLoans ~ data:", data);
+      //console.log("🚀 ~ fetchUsersLoans ~ data:", data);
       setUsersLoans(data.message);
     } catch (error) {
       console.error(error);
@@ -241,8 +240,6 @@ export default function ViewBook() {
       );
 
       if (data.existingReview == true) {
-        console.log("fetchExistingReview3");
-
         setAlreadyRated(true);
         setCurrentUserScore(data.currentUserScore);
         setCurrentUserComment(data.currentUserComment);
@@ -322,14 +319,19 @@ export default function ViewBook() {
     }
 
     try {
+      console.log("🚀 ~ try updatedBook");
+
       const updatedBook = await fetchData(
         "/updateBook",
         "POST",
         payload,
         token
       );
+      console.log("🚀 ~ updatedBook:", updatedBook);
+
       setBook(updatedBook);
       setEditingAttribute(null);
+      console.log("🚀 ~ updatedBook2");
 
       if (editingAttribute === "title") {
         navigate(`/viewBook/${editValue}`);
