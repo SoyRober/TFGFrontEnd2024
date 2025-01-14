@@ -314,13 +314,13 @@ const UserLoans = ({ cardSize }) => {
                     />
                   </div>
                   <div
-                    className="card-body"
+                    className="card-body text-center"
                     style={{ flex: "1 0 40%", overflowY: "auto" }}
                   >
                     <h5 className="card-title">
                       <Link
                         to={`/viewBook/${loan.book}`}
-                        className="text-decoration-none d-flex align-items-center"
+                        className="text-decoration-none d-flex align-items-center justify-content-center"
                       >
                         {loan.book}
                         <i
@@ -376,7 +376,7 @@ const UserLoans = ({ cardSize }) => {
               </div>
             ))
           ) : (
-            <div className="alert alert-info" role="alert">
+            <div className="alert alert-info text-center" role="alert">
               No loans found
             </div>
           )}
