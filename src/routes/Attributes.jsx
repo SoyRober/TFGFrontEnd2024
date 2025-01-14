@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Genres from "./Genres.jsx";
 
 export default function Attributes() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -68,10 +69,9 @@ export default function Attributes() {
         >
           Authors
         </button>
-
-        {selectedButton === "Authors" && <p>Authors</p>}
-        {selectedButton === "Genres" && <p>Genres</p>}
       </div>
+      {selectedButton === "Authors" && <p>Authors</p>}
+      {selectedButton === "Genres" && <Genres />}
     </div>
   );
 }
