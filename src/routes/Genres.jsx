@@ -9,6 +9,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameAttributeModal from "../components/RenameAttributeModal";
+import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 
 const GenresComponent = () => {
   const navigate = useNavigate();
@@ -17,7 +18,8 @@ const GenresComponent = () => {
   const [token] = useState(() => {
     return localStorage.getItem("token") ? localStorage.getItem("token") : null;
   });
-  const [showModal, setShowModal] = useState(false);
+  const [showRenameModal, setShowRenameModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedGenre, setSelectedGenre] = useState(null);
 
   useEffect(() => {
@@ -35,13 +37,10 @@ const GenresComponent = () => {
 
   const handleEditGenre = (genre) => {
     setSelectedGenre(genre);
-    setShowModal(true);
+    setShowRenameModal(true);
   };
 
   const handleRenameGenre = async (id, newName) => {
-    console.log("🚀 ~ handleRenameGenre");
-    console.log("🚀 ~ newName: ", newName);
-    console.log("🚀 ~ id: ", id);
     try {
       const response = await fetchData(
         `/editGenre`,
@@ -50,7 +49,30 @@ const GenresComponent = () => {
         token
       );
       setMessage(response.message);
-      setShowModal(false);
+      setShowRenameModal(false);
+      // Refresh genres list
+      const data = await fetchData(`/getGenres`, "GET", null, token);
+      setGenres(data);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
+  const handleDeleteGenre = (genre) => {
+    setSelectedGenre(genre);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      const response = await fetchData(
+        `/deleteGenre?genreId=${selectedGenre.id}`,
+        "DELETE",
+        null,
+        token
+      );
+      setMessage(response.message);
+      setShowDeleteModal(false);
       // Refresh genres list
       const data = await fetchData(`/getGenres`, "GET", null, token);
       setGenres(data);
@@ -77,7 +99,10 @@ const GenresComponent = () => {
                     >
                       <i className="bi bi-pencil"></i>
                     </button>
-                    <button className="btn btn-outline-danger btn-sm">
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => handleDeleteGenre(genre)}
+                    >
                       <i className="bi bi-x"></i>
                     </button>
                   </div>
@@ -91,10 +116,19 @@ const GenresComponent = () => {
       </div>
       {selectedGenre && (
         <RenameAttributeModal
-          show={showModal}
-          handleClose={() => setShowModal(false)}
+          show={showRenameModal}
+          handleClose={() => setShowRenameModal(false)}
           handleRename={handleRenameGenre}
           attribute={selectedGenre}
+        />
+      )}
+
+      {selectedGenre && (
+        <DeleteConfirmationModal
+          show={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onDelete={handleConfirmDelete}
+          message={`Delete ${selectedGenre.name}? This action will also remove it from all books.`}
         />
       )}
     </div>
