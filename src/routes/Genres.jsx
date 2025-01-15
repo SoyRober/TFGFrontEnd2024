@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameAttributeModal from "../components/RenameAttributeModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import AddAttributeModal from "../components/AddAttributeModal"; // Importa el nuevo componente
 
 const GenresComponent = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const GenresComponent = () => {
   });
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false); // Estado para el modal de añadir género
   const [selectedGenre, setSelectedGenre] = useState(null);
 
   useEffect(() => {
@@ -50,6 +52,19 @@ const GenresComponent = () => {
       );
       setMessage(response.message);
       setShowRenameModal(false);
+      // Refresh genres list
+      const data = await fetchData(`/getGenres`, "GET", null, token);
+      setGenres(data);
+    } catch (err) {
+      setMessage(err.message);
+    }
+  };
+
+  const handleAddGenre = async (newName) => {
+    try {
+      const response = await fetchData(`/addGenre`, "POST", newName, token);
+      setMessage(response.message);
+      setShowAddModal(false);
       // Refresh genres list
       const data = await fetchData(`/getGenres`, "GET", null, token);
       setGenres(data);
@@ -114,6 +129,15 @@ const GenresComponent = () => {
           <p>No genres available</p>
         )}
       </div>
+
+      <button
+        className="btn btn-primary"
+        style={{ position: "fixed", bottom: "30px", left: "30px" }}
+        onClick={() => setShowAddModal(true)}
+      >
+        + Add Genre
+      </button>
+
       {selectedGenre && (
         <RenameAttributeModal
           show={showRenameModal}
@@ -131,6 +155,14 @@ const GenresComponent = () => {
           message={`Delete ${selectedGenre.name}? This action will also remove it from all books.`}
         />
       )}
+
+      {
+        <AddAttributeModal
+          show={showAddModal}
+          handleClose={() => setShowAddModal(false)}
+          handleAdd={handleAddGenre}
+        />
+      }
     </div>
   );
 };
