@@ -13,6 +13,7 @@ import ViewProfile from "./routes/ViewProfile.jsx";
 import UserBooksDetails from "./routes/UserBooksDetails.jsx";
 import Attributes from "./routes/Attributes.jsx";
 import Genres from "./routes/Genres.jsx";
+import Authors from "./routes/Authors.jsx";
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       {
         path: "/genres",
         element: <Genres />,
+      },
+      {
+        path: "/authors",
+        element: <Authors />,
       },
     ],
   },

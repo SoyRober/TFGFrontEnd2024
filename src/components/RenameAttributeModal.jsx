@@ -7,6 +7,8 @@ const RenameAttributeModal = ({
   handleRename,
   attribute,
 }) => {
+  console.log("🚀 ~ renameAttribute ~ attribute:", attribute.id);
+
   const [newName, setNewName] = useState("");
 
   useEffect(() => {

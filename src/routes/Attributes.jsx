@@ -5,6 +5,7 @@ import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Genres from "./Genres.jsx";
+import Authors from "./Authors.jsx";
 
 export default function Attributes() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -49,7 +50,7 @@ export default function Attributes() {
           : "Attributes"}
       </h1>
 
-      <div className="btn-group" role="group">
+      <div className="btn-group mb-3" role="group">
         <button
           type="button"
           className={`btn ${
@@ -70,7 +71,7 @@ export default function Attributes() {
           Authors
         </button>
       </div>
-      {selectedButton === "Authors" && <p>Authors</p>}
+      {selectedButton === "Authors" && <Authors />}
       {selectedButton === "Genres" && <Genres />}
     </div>
   );
