@@ -7,7 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameAttributeModal from "../components/RenameAttributeModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import AddAttributeModal from "../components/AddAttributeModal"; // Importa el nuevo componente
+import AddAttributeWithDateModal from "../components/AddAttributeWithDateModal"; // Importa el nuevo componente
 
 const AuthorsComponent = () => {
   const [authors, setAuthors] = useState([]);
@@ -59,9 +59,16 @@ const AuthorsComponent = () => {
     }
   };
 
-  const handleAddAuthor = async (name) => {
+  const handleAddAuthor = async (name, birthDate) => {
+    console.log("🚀 ~ handleAddAuthor ~ birthDate:", birthDate);
+    console.log("🚀 ~ handleAddAuthor ~ name:", name);
     try {
-      const response = await fetchData(`/addAuthor`, "POST", name, token);
+      const response = await fetchData(
+        `/addAuthor`,
+        "POST",
+        { name, birthDate },
+        token
+      );
       setMessage(response.message);
       setShowAddModal(false);
       // Refresh authors list
@@ -157,7 +164,7 @@ const AuthorsComponent = () => {
       )}
 
       {
-        <AddAttributeModal
+        <AddAttributeWithDateModal
           show={showAddModal}
           handleClose={() => setShowAddModal(false)}
           handleAdd={handleAddAuthor}
