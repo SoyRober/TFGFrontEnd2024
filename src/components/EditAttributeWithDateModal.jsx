@@ -1,29 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
+const EditAttributeModal = ({
+  show,
+  handleClose,
+  handleUpdateAttribute,
+  attribute,
+}) => {
   const [newName, setNewName] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (attribute) {
+      setNewName(attribute.name);
+    }
+  }, [attribute]);
+
+  const handleEditSubmit = (e) => {
     e.preventDefault();
-    handleAdd(newName, selectedDate);
+    handleUpdateAttribute(attribute.id, newName, selectedDate);
   };
 
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Add New</Modal.Title>
+        <Modal.Title>Edit this attribute</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
-          <Form.Group controlId="formAttributeDate" className="mb-3">
-            <Form.Label> Name</Form.Label>
+        <Form onSubmit={handleEditSubmit}>
+          <Form.Group controlId="formAttributeName" className="mb-3">
+            <Form.Label>Name</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter name"
+              placeholder="Enter new attribute name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               required
@@ -41,7 +52,7 @@ const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
             </div>
           </Form.Group>
           <Button variant="primary" type="submit">
-            Add
+            Save Changes
           </Button>
         </Form>
       </Modal.Body>
@@ -49,4 +60,4 @@ const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
   );
 };
 
-export default AddAttributeWithDateModal;
+export default EditAttributeModal;

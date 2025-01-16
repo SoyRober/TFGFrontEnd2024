@@ -5,9 +5,9 @@ import { fetchData } from "../utils/fetch";
 import Notification from "../components/Notification";
 import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import RenameAttributeModal from "../components/RenameAttributeModal";
+import AddAttributeWithDateModal from "../components/AddAttributeWithDateModal";
+import EditAttributeWithDateModal from "../components/EditAttributeWithDateModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import AddAttributeWithDateModal from "../components/AddAttributeWithDateModal"; // Importa el nuevo componente
 
 const AuthorsComponent = () => {
   const [authors, setAuthors] = useState([]);
@@ -17,7 +17,7 @@ const AuthorsComponent = () => {
   });
   const [showRenameModal, setShowRenameModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false); // Estado para el modal de añadir género
+  const [showAddModal, setShowAddModal] = useState(false);
   const [selectedAuthor, setSelectedAuthor] = useState(null);
 
   useEffect(() => {
@@ -34,19 +34,16 @@ const AuthorsComponent = () => {
 
   const handleEditAuthor = (author) => {
     setSelectedAuthor(author);
-    console.log("🚀 ~ handleEditAuthor ~ author:", author);
 
     setShowRenameModal(true);
   };
 
-  const handleRenameAuthor = async (id, name) => {
-    console.log("🚀 ~ handleRenameAuthor ~ name:", name);
-    console.log("🚀 ~ handleRenameAuthor ~ id:", id);
+  const handleUpdateAuthor = async (id, name, birthDate) => {
     try {
       const response = await fetchData(
         `/editAuthor`,
         "POST",
-        { authorId: id, name: name, birthDate: null },
+        { authorId: id, name: name, birthDate: birthDate },
         token
       );
       setMessage(response.message);
@@ -60,8 +57,6 @@ const AuthorsComponent = () => {
   };
 
   const handleAddAuthor = async (name, birthDate) => {
-    console.log("🚀 ~ handleAddAuthor ~ birthDate:", birthDate);
-    console.log("🚀 ~ handleAddAuthor ~ name:", name);
     try {
       const response = await fetchData(
         `/addAuthor`,
@@ -113,7 +108,6 @@ const AuthorsComponent = () => {
               <div className="card">
                 <div className="card-body d-flex justify-content-between align-items-center">
                   <h5 className="card-title">{author.name}</h5>
-                  <h5 className="card-title">{author.birthDate}</h5>
                   <div>
                     <button
                       className="btn btn-outline-primary btn-sm me-2"
@@ -146,10 +140,10 @@ const AuthorsComponent = () => {
       </button>
 
       {selectedAuthor && (
-        <RenameAttributeModal
+        <EditAttributeWithDateModal
           show={showRenameModal}
           handleClose={() => setShowRenameModal(false)}
-          handleRename={handleRenameAuthor}
+          handleUpdateAttribute={handleUpdateAuthor}
           attribute={selectedAuthor}
         />
       )}

@@ -7,8 +7,6 @@ const RenameAttributeModal = ({
   handleRename,
   attribute,
 }) => {
-  console.log("🚀 ~ renameAttribute ~ attribute:", attribute.id);
-
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
@@ -30,7 +28,7 @@ const RenameAttributeModal = ({
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formAttributeName">
-            <Form.Label>New Attribute Name</Form.Label>
+            <Form.Label>Name</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter new attribute name"
