@@ -42,7 +42,7 @@ const UserBooksDetails = () => {
   };
 
   return (
-    <div className="container text-center mt-5">
+    <main className="container text-center mt-5">
       <h1 className="mb-4">What do you wanna see?</h1>
 
       <div className="btn-group" role="group">
@@ -111,7 +111,7 @@ const UserBooksDetails = () => {
       {selectedButton === "Reservations" && (
         <Reservations cardSize={cardSize} />
       )}
-    </div>
+    </main>
   );
 };
 

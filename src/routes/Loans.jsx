@@ -199,10 +199,10 @@ const UserLoans = ({ cardSize }) => {
   }
 
   return (
-    <div className="container mt-5">
+    <main className="container mt-5">
       {message && <Notification key={notificationKey} message={message} />}
 
-      <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
+      <section className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">
             Date:
@@ -268,13 +268,13 @@ const UserLoans = ({ cardSize }) => {
         <button className="btn btn-warning btn" onClick={resetAllFilters}>
           Reset Filters
         </button>
-      </div>
+      </section>
 
-      <div className="container mt-5">
+      <section className="container mt-5">
         <div className="row">
           {filteredLoans.length > 0 ? (
             filteredLoans.map((loan, index) => (
-              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
+              <article key={index} className={`${getColumnClass(cardSize)} mb-4`}>
                 <div
                   className="card"
                   style={{
@@ -373,7 +373,7 @@ const UserLoans = ({ cardSize }) => {
                     </p>
                   </div>
                 </div>
-              </div>
+              </article>
             ))
           ) : (
             <div className="alert alert-info text-center" role="alert">
@@ -381,8 +381,8 @@ const UserLoans = ({ cardSize }) => {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

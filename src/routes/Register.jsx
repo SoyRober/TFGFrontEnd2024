@@ -42,7 +42,7 @@ const Register = () => {
   };
 
   return (
-    <div className="container">
+    <main className="container">
       <h2>Sign Up</h2>
       <form onSubmit={handleRegister}>
         <div className="mb-3">
@@ -98,7 +98,7 @@ const Register = () => {
         </button>
       </form>
       {message && <Notification key={notificationKey} message={message} />}
-    </div>
+    </main>
   );
 };
 

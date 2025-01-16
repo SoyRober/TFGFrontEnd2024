@@ -272,7 +272,7 @@ export default function Homepage() {
   }, [cardSize]);
 
   return (
-    <div
+    <main
       className="fade-in d-flex flex-column justify-content-center align-items-center"
       style={{
         paddingBottom: `${extraBottomSpace}px`,
@@ -282,9 +282,9 @@ export default function Homepage() {
       }}
     >
       {notificationMessage && (
-        <div className="mb-4 text-center d-flex justify-content-left">
+        <section className="mb-4 text-center d-flex justify-content-left">
           <Notification key={notificationKey} message={notificationMessage} />
-        </div>
+        </section>
       )}
 
       <CreateBookModal
@@ -322,7 +322,7 @@ export default function Homepage() {
         }}
       />
 
-      <div
+      <header
         className="container text-center d-flex flex-column align-items-center justify-content-center"
         style={{ height: "50vh", padding: "10px" }}
       >
@@ -338,7 +338,7 @@ export default function Homepage() {
           </button>
         )}
 
-        <div className="row w-100 justify-content-center mb-4">
+        <section className="row w-100 justify-content-center mb-4">
           <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <div
               className="btn-group w-100"
@@ -374,9 +374,9 @@ export default function Homepage() {
               </button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="mb-3">
+        <section className="mb-3">
           <div className="d-flex align-items-center">
             <DatePicker
               selected={startDateFilter}
@@ -396,9 +396,9 @@ export default function Homepage() {
               Reset
             </button>
           </div>
-        </div>
+        </section>
 
-        <div className="row w-100 justify-content-center">
+        <section className="row w-100 justify-content-center">
           <div className="col-12 col-md-6 col-lg-4">
             <input
               type="text"
@@ -408,10 +408,10 @@ export default function Homepage() {
               onChange={handleSearchChange}
             />
           </div>
-        </div>
-      </div>
+        </section>
+      </header>
 
-      <div className="container mt-5">
+      <section className="container mt-5">
         <div className="row">
           {!isLoading ? (
             books.map((book) => {
@@ -420,7 +420,7 @@ export default function Homepage() {
                   key={book.title}
                   className={`${getColumnClass(cardSize)} mb-4`}
                 >
-                  <div
+                  <article
                     className="card customized-card"
                     onClick={() => navigateToBookDetails(book.title)}
                     style={{
@@ -469,7 +469,7 @@ export default function Homepage() {
                         {book.title}
                       </h5>
                     </div>
-                  </div>
+                  </article>
                 </div>
               );
             })
@@ -477,7 +477,7 @@ export default function Homepage() {
             <Loading />
           )}
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

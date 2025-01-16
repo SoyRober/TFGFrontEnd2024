@@ -41,16 +41,18 @@ export default function Attributes() {
   }
 
   return (
-    <div className="container text-center mt-5">
-      <h1 className="mb-4">
-        {selectedButton === "Authors"
-          ? "Authors"
-          : selectedButton === "Genres"
-          ? "Genres"
-          : "Attributes"}
-      </h1>
+    <main className="container text-center mt-5">
+      <header className="mb-4">
+        <h1>
+          {selectedButton === "Authors"
+            ? "Authors"
+            : selectedButton === "Genres"
+            ? "Genres"
+            : "Attributes"}
+        </h1>
+      </header>
 
-      <div className="btn-group mb-3" role="group">
+      <section className="btn-group mb-3" role="group">
         <button
           type="button"
           className={`btn ${
@@ -70,9 +72,11 @@ export default function Attributes() {
         >
           Authors
         </button>
-      </div>
-      {selectedButton === "Authors" && <Authors />}
-      {selectedButton === "Genres" && <Genres />}
-    </div>
+      </section>
+      <section>
+        {selectedButton === "Authors" && <Authors />}
+        {selectedButton === "Genres" && <Genres />}
+      </section>
+    </main>
   );
 }

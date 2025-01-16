@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <main className="container">
       <h2>Log In</h2>
       <form onSubmit={handleLogin}>
         <div className="mb-3">
@@ -68,7 +68,7 @@ const Login = () => {
         </button>
       </form>
       {message && <Notification key={notificationKey} message={message} />}
-    </div>
+    </main>
   );
 };
 

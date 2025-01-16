@@ -98,14 +98,14 @@ const AuthorsComponent = () => {
   };
 
   return (
-    <div className="container">
+    <main className="container">
       {message && <Notification message={message} />}
 
-      <div className="row">
+      <section className="row">
         {authors.length > 0 ? (
           authors.map((author) => (
             <div key={author.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
-              <div className="card">
+              <article className="card">
                 <div className="card-body d-flex justify-content-between align-items-center">
                   <h5 className="card-title">{author.name}</h5>
                   <div>
@@ -123,13 +123,13 @@ const AuthorsComponent = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             </div>
           ))
         ) : (
           <p>Loading authors...</p>
         )}
-      </div>
+      </section>
 
       <button
         className="btn btn-primary"
@@ -164,7 +164,7 @@ const AuthorsComponent = () => {
           handleAdd={handleAddAuthor}
         />
       }
-    </div>
+    </main>
   );
 };
 

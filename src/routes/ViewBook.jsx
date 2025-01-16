@@ -818,7 +818,7 @@ export default function ViewBook() {
   }
 
   return (
-    <div className="container mt-5">
+    <main className="container mt-5">
       {hasPermissions && (
         <BookLoansModal
           usersLoans={usersLoans}
@@ -827,7 +827,7 @@ export default function ViewBook() {
       )}
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
-      <div className="row">
+      <section className="row">
         <div>
           {isLoggedIn && (
             <>
@@ -976,7 +976,7 @@ export default function ViewBook() {
             )}
           </div>
         </div>
-      </div>
+      </section>
 
       {isLoggedIn && alreadyRated == false && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
@@ -1078,7 +1078,7 @@ export default function ViewBook() {
             </button>
           </form>
         ) : (
-          <div className="user-review">
+          <section className="user-review">
             <h4>Your Review</h4>
             <div className="form-group">
               <label>Score:</label>
@@ -1110,14 +1110,14 @@ export default function ViewBook() {
             >
               Delete Review
             </button>
-          </div>
+          </section>
         ))}
 
       <h2 className="mt-5">Reviews</h2>
-      <div className="list-group mb-3">
+      <section className="list-group mb-3">
         {reviews.length > 0 ? (
           reviews.map((review, index) => (
-            <div key={index} className="list-group-item">
+            <article key={index} className="list-group-item">
               <p>
                 <strong>User:</strong> {review.userName}
               </p>
@@ -1167,12 +1167,12 @@ export default function ViewBook() {
                   <p className="mb-0 ms-2">{review.reviewLikes}</p>
                 </div>
               </div>
-            </div>
+            </article>
           ))
         ) : (
           <p>No reviews available</p>
         )}
-      </div>
+      </section>
 
       {renderEditModal()}
 
@@ -1191,6 +1191,6 @@ export default function ViewBook() {
       />
 
       <Notification key={notificationKey} message={notificationMessage} />
-    </div>
+    </main>
   );
 }

@@ -232,7 +232,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="container mt-5">
+    <main className="container mt-5">
       <h1 className="text-center mb-4">Settings</h1>
 
       {/* User info */}
@@ -406,6 +406,6 @@ export default function Settings() {
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+    </main>
   );
 }

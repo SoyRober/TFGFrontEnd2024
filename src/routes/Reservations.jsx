@@ -175,7 +175,7 @@ const UserReservations = ({ cardSize }) => {
   }
 
   return (
-    <div className="container mt-5">
+    <main className="container mt-5">
       {message && <Notification key={notificationKey} message={message} />}
 
       <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
@@ -323,7 +323,7 @@ const UserReservations = ({ cardSize }) => {
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
