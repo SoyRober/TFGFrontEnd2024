@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { fetchData } from "../utils/fetch.js";
 import { jwtDecode } from "jwt-decode";
-import { Modal, Button } from "react-bootstrap";
+import EditBookAttributeModal from "../components/EditBookAttributeModal.jsx";
 import BookLoansModal from "../components/BookLoansModal.jsx";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import BookReservationModal from "../components/BookReservationModal.jsx";
@@ -44,8 +44,6 @@ export default function ViewBook() {
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
   const [username, setUsername] = useState("");
 
   useEffect(() => {
@@ -320,18 +318,15 @@ export default function ViewBook() {
     }
 
     try {
-      console.log("🚀 ~ handleEditSubmit ~ payload:", payload);
       const updatedBook = await fetchData(
         "/updateBook",
         "POST",
         payload,
         token
       );
-      console.log("🚀 ~ updatedBook:", updatedBook);
 
       setBook(updatedBook);
       setEditingAttribute(null);
-      console.log("🚀 ~ updatedBook2");
 
       if (editingAttribute === "title") {
         navigate(`/viewBook/${editValue}`);
@@ -385,139 +380,6 @@ export default function ViewBook() {
 
   const handleCloseModal = () => {
     setEditingAttribute(null);
-  };
-
-  const renderEditModal = () => {
-    if (!editingAttribute) return null;
-
-    let inputField;
-
-    switch (editingAttribute) {
-      case "authors":
-        inputField = (
-          <select
-            multiple
-            className="form-control"
-            id="editValue"
-            value={selectedAuthors}
-            onChange={handleAuthorChange}
-            required
-          >
-            {authors.map((author, index) => (
-              <option key={index} value={author}>
-                {author}
-              </option>
-            ))}
-          </select>
-        );
-        break;
-      case "genres":
-        inputField = (
-          <select
-            multiple
-            className="form-control"
-            id="editGenres"
-            value={selectedGenres}
-            onChange={handleGenreChange}
-            required
-          >
-            {genres.map((genre, index) => (
-              <option key={index} value={genre}>
-                {genre}
-              </option>
-            ))}
-          </select>
-        );
-        break;
-      case "quantity":
-        inputField = (
-          <input
-            type="number"
-            className="form-control"
-            id="editValue"
-            value={editValue}
-            onChange={handleEditChange}
-            required
-          />
-        );
-        break;
-      case "isAdult":
-        inputField = (
-          <select
-            className="form-control"
-            id="editValue"
-            value={editValue}
-            onChange={handleEditChange}
-            required
-          >
-            <option value="false">No</option>
-            <option value="true">Yes</option>
-          </select>
-        );
-        break;
-      case "publicationDate":
-        inputField = (
-          <input
-            type="date"
-            className="form-control"
-            id="editValue"
-            value={editValue}
-            onChange={handleEditChange}
-            required
-          />
-        );
-        break;
-      case "image":
-        inputField = (
-          <input
-            type="file"
-            className="form-control"
-            id="editImage"
-            onChange={handleImageChange}
-            required
-          />
-        );
-        break;
-      default:
-        inputField = (
-          <input
-            type="text"
-            className="form-control"
-            id="editValue"
-            value={editValue}
-            onChange={handleEditChange}
-            required
-          />
-        );
-    }
-
-    return (
-      <div className="modal show" style={{ display: "block" }}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Edit {editingAttribute}</h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={handleCloseModal}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <form onSubmit={handleEditSubmit}>
-                <div className="form-group">
-                  <label htmlFor="editValue">New Value</label>
-                  {inputField}
-                </div>
-                <button type="submit" className="btn btn-primary mt-3">
-                  Save changes
-                </button>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
   };
 
   const handleImageChange = (e) => {
@@ -1174,7 +1036,20 @@ export default function ViewBook() {
         )}
       </section>
 
-      {renderEditModal()}
+      <EditBookAttributeModal
+        editingAttribute={editingAttribute}
+        editValue={editValue}
+        authors={authors}
+        selectedAuthors={selectedAuthors}
+        genres={genres}
+        selectedGenres={selectedGenres}
+        handleAuthorChange={handleAuthorChange}
+        handleGenreChange={handleGenreChange}
+        handleEditChange={handleEditChange}
+        handleEditSubmit={handleEditSubmit}
+        handleCloseModal={handleCloseModal}
+        handleImageChange={handleImageChange}
+      />
 
       <DeleteConfirmationModal
         show={showDeleteConfirmation}
