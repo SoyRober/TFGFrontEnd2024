@@ -39,11 +39,12 @@ const EditBookAttributeModal = ({
     });
   };
 
-  const handleAddAuthor = () => {
-    if (newAuthor && !selectedAuthors.includes(newAuthor)) {
+  const handleAddAuthor = (e) => {
+    const selectedAuthor = e.target.value;
+    if (selectedAuthor && !selectedAuthors.includes(selectedAuthor)) {
       handleAuthorChange({
         target: {
-          options: [...selectedAuthors, newAuthor].map((a) => ({
+          options: [...selectedAuthors, selectedAuthor].map((a) => ({
             selected: true,
             value: a,
           })),
@@ -53,11 +54,12 @@ const EditBookAttributeModal = ({
     }
   };
 
-  const handleAddGenre = () => {
-    if (newGenre && !selectedGenres.includes(newGenre)) {
+  const handleAddGenre = (e) => {
+    const selectedGenre = e.target.value;
+    if (selectedGenre && !selectedGenres.includes(selectedGenre)) {
       handleGenreChange({
         target: {
-          options: [...selectedGenres, newGenre].map((g) => ({
+          options: [...selectedGenres, selectedGenre].map((g) => ({
             selected: true,
             value: g,
           })),
@@ -90,7 +92,7 @@ const EditBookAttributeModal = ({
               className="form-control"
               id="newAuthor"
               value={newAuthor}
-              onChange={(e) => setNewAuthor(e.target.value)}
+              onChange={handleAddAuthor}
             >
               <option value="">Select an author</option>
               {authors.map((author, index) => (
@@ -99,13 +101,6 @@ const EditBookAttributeModal = ({
                 </option>
               ))}
             </select>
-            <button
-              type="button"
-              className="btn btn-secondary mt-2"
-              onClick={handleAddAuthor}
-            >
-              Add New
-            </button>
           </div>
         </>
       );
@@ -131,7 +126,7 @@ const EditBookAttributeModal = ({
               className="form-control"
               id="newGenre"
               value={newGenre}
-              onChange={(e) => setNewGenre(e.target.value)}
+              onChange={handleAddGenre}
             >
               <option value="">Select a genre</option>
               {genres.map((genre, index) => (
@@ -140,13 +135,6 @@ const EditBookAttributeModal = ({
                 </option>
               ))}
             </select>
-            <button
-              type="button"
-              className="btn btn-secondary mt-2"
-              onClick={handleAddGenre}
-            >
-              Add New
-            </button>
           </div>
         </>
       );
