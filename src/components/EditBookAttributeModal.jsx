@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 const EditBookAttributeModal = ({
   editingAttribute,
@@ -14,46 +14,141 @@ const EditBookAttributeModal = ({
   handleCloseModal,
   handleImageChange,
 }) => {
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newGenre, setNewGenre] = useState("");
+
   if (!editingAttribute) return null;
 
-  let inputField;
-  console.log("🚀 ~ EditBookAttributeModal");
+  const handleRemoveAuthor = (author) => {
+    handleAuthorChange({
+      target: {
+        options: selectedAuthors
+          .filter((a) => a !== author)
+          .map((a) => ({ selected: true, value: a })),
+      },
+    });
+  };
 
+  const handleRemoveGenre = (genre) => {
+    handleGenreChange({
+      target: {
+        options: selectedGenres
+          .filter((g) => g !== genre)
+          .map((g) => ({ selected: true, value: g })),
+      },
+    });
+  };
+
+  const handleAddAuthor = () => {
+    if (newAuthor && !selectedAuthors.includes(newAuthor)) {
+      handleAuthorChange({
+        target: {
+          options: [...selectedAuthors, newAuthor].map((a) => ({
+            selected: true,
+            value: a,
+          })),
+        },
+      });
+      setNewAuthor("");
+    }
+  };
+
+  const handleAddGenre = () => {
+    if (newGenre && !selectedGenres.includes(newGenre)) {
+      handleGenreChange({
+        target: {
+          options: [...selectedGenres, newGenre].map((g) => ({
+            selected: true,
+            value: g,
+          })),
+        },
+      });
+      setNewGenre("");
+    }
+  };
+
+  let inputField;
   switch (editingAttribute) {
     case "authors":
       inputField = (
-        <select
-          multiple
-          className="form-control"
-          id="editValue"
-          value={selectedAuthors}
-          onChange={handleAuthorChange}
-          required
-        >
-          {authors.map((author, index) => (
-            <option key={index} value={author}>
-              {author}
-            </option>
-          ))}
-        </select>
+        <>
+          <div className="selected-items">
+            {selectedAuthors.map((author, index) => (
+              <span key={index} className="badge bg-primary me-2">
+                {author}{" "}
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => handleRemoveAuthor(author)}
+                ></button>
+              </span>
+            ))}
+          </div>
+          <div className="form-group mt-3">
+            <label htmlFor="newAuthor">Add New Author</label>
+            <select
+              className="form-control"
+              id="newAuthor"
+              value={newAuthor}
+              onChange={(e) => setNewAuthor(e.target.value)}
+            >
+              <option value="">Select an author</option>
+              {authors.map((author, index) => (
+                <option key={index} value={author}>
+                  {author}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-secondary mt-2"
+              onClick={handleAddAuthor}
+            >
+              Add New
+            </button>
+          </div>
+        </>
       );
       break;
     case "genres":
       inputField = (
-        <select
-          multiple
-          className="form-control"
-          id="editGenres"
-          value={selectedGenres}
-          onChange={handleGenreChange}
-          required
-        >
-          {genres.map((genre, index) => (
-            <option key={index} value={genre}>
-              {genre}
-            </option>
-          ))}
-        </select>
+        <>
+          <div className="selected-items">
+            {selectedGenres.map((genre, index) => (
+              <span key={index} className="badge bg-primary me-2">
+                {genre}{" "}
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  onClick={() => handleRemoveGenre(genre)}
+                ></button>
+              </span>
+            ))}
+          </div>
+          <div className="form-group mt-3">
+            <label htmlFor="newGenre">Add New Genre</label>
+            <select
+              className="form-control"
+              id="newGenre"
+              value={newGenre}
+              onChange={(e) => setNewGenre(e.target.value)}
+            >
+              <option value="">Select a genre</option>
+              {genres.map((genre, index) => (
+                <option key={index} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-secondary mt-2"
+              onClick={handleAddGenre}
+            >
+              Add New
+            </button>
+          </div>
+        </>
       );
       break;
     case "quantity":
