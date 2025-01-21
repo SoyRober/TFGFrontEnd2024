@@ -219,7 +219,7 @@ const UserLoans = ({ cardSize }) => {
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={resetStartDateFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
@@ -239,7 +239,7 @@ const UserLoans = ({ cardSize }) => {
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={resetAuthorFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
@@ -261,7 +261,7 @@ const UserLoans = ({ cardSize }) => {
             className="btn btn-outline-secondary btn ms-2"
             onClick={resetReturnedFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
