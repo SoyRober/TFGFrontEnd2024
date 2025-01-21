@@ -308,8 +308,7 @@ export default function ViewBook() {
 
     if (newImage) {
       try {
-        // Redimensionar la imagen antes de enviarla
-        const resizedImageBlob = await resizeImage(newImage, 300, 300); // Tamaño deseado
+        const resizedImageBlob = await resizeImage(newImage, 300, 300);
         payload.append("image", resizedImageBlob);
       } catch (error) {
         console.error("Error resizing image:", error);
