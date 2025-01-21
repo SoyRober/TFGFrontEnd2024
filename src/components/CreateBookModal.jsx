@@ -1,6 +1,6 @@
-import React from 'react';
-import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
-import Notification from '../components/Notification';
+import React from "react";
+import { Modal, Form, Button, Row, Col } from "react-bootstrap";
+import Notification from "../components/Notification";
 
 export default function CreateBookModal({
   showModal,
@@ -32,7 +32,7 @@ export default function CreateBookModal({
   setBookIsAdult,
   setBookImageBase64,
   notificationMessage,
-  notificationKey
+  notificationKey,
 }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -50,7 +50,7 @@ export default function CreateBookModal({
   };
 
   return (
-    <Modal show={showModal} onHide={closeModal} size='xl'>
+    <Modal show={showModal} onHide={closeModal} size="xl">
       <Modal.Header closeButton>
         <Modal.Title>Create New Book</Modal.Title>
       </Modal.Header>
@@ -65,6 +65,7 @@ export default function CreateBookModal({
                   type="text"
                   value={bookTitle}
                   onChange={(e) => setBookTitle(e.target.value)}
+                  placeholder="BookTitle"
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookAuthors">
@@ -119,7 +120,7 @@ export default function CreateBookModal({
               </Form.Group>
             </Col>
             <div>
-              <hr/>
+              <hr />
             </div>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookLocation">
@@ -128,6 +129,7 @@ export default function CreateBookModal({
                   type="text"
                   value={bookLocation}
                   onChange={(e) => setBookLocation(e.target.value)}
+                  placeholder="Corridor A, Shelf 1."
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookSynopsis">
@@ -136,6 +138,7 @@ export default function CreateBookModal({
                   as="textarea"
                   value={bookSynopsis}
                   onChange={(e) => setBookSynopsis(e.target.value)}
+                  placeholder="In this book, you will learn..."
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookPublicationDate">

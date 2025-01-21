@@ -95,11 +95,13 @@ const EditBookAttributeModal = ({
               onChange={handleAddAuthor}
             >
               <option value="">Select an author</option>
-              {authors.map((author, index) => (
-                <option key={index} value={author}>
-                  {author}
-                </option>
-              ))}
+              {authors
+                .filter((author) => !selectedAuthors.includes(author))
+                .map((author, index) => (
+                  <option key={index} value={author}>
+                    {author}
+                  </option>
+                ))}
             </select>
           </div>
         </>
@@ -129,11 +131,13 @@ const EditBookAttributeModal = ({
               onChange={handleAddGenre}
             >
               <option value="">Select a genre</option>
-              {genres.map((genre, index) => (
-                <option key={index} value={genre}>
-                  {genre}
-                </option>
-              ))}
+              {genres
+                .filter((genre) => !selectedGenres.includes(genre))
+                .map((genre, index) => (
+                  <option key={index} value={genre}>
+                    {genre}
+                  </option>
+                ))}
             </select>
           </div>
         </>
