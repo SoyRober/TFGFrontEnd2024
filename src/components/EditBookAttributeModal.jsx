@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import SelectableList from "./SelectableList";
 
 const EditBookAttributeModal = ({
   editingAttribute,
@@ -73,74 +74,28 @@ const EditBookAttributeModal = ({
   switch (editingAttribute) {
     case "authors":
       inputField = (
-        <>
-          <div className="selected-items">
-            {selectedAuthors.map((author, index) => (
-              <span key={index} className="badge bg-primary me-2">
-                {author}{" "}
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  onClick={() => handleRemoveAuthor(author)}
-                ></button>
-              </span>
-            ))}
-          </div>
-          <div className="form-group mt-3">
-            <label htmlFor="newAuthor">Add New Author</label>
-            <select
-              className="form-control"
-              id="newAuthor"
-              value={newAuthor}
-              onChange={handleAddAuthor}
-            >
-              <option value="">Select an author</option>
-              {authors
-                .filter((author) => !selectedAuthors.includes(author))
-                .map((author, index) => (
-                  <option key={index} value={author}>
-                    {author}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </>
+        <SelectableList
+          label="Author"
+          items={authors}
+          selectedItems={selectedAuthors}
+          newItem={newAuthor}
+          setNewItem={setNewAuthor}
+          handleAddItem={handleAddAuthor}
+          handleRemoveItem={handleRemoveAuthor}
+        />
       );
       break;
     case "genres":
       inputField = (
-        <>
-          <div className="selected-items">
-            {selectedGenres.map((genre, index) => (
-              <span key={index} className="badge bg-primary me-2">
-                {genre}{" "}
-                <button
-                  type="button"
-                  className="btn-close btn-close-white"
-                  onClick={() => handleRemoveGenre(genre)}
-                ></button>
-              </span>
-            ))}
-          </div>
-          <div className="form-group mt-3">
-            <label htmlFor="newGenre">Add New Genre</label>
-            <select
-              className="form-control"
-              id="newGenre"
-              value={newGenre}
-              onChange={handleAddGenre}
-            >
-              <option value="">Select a genre</option>
-              {genres
-                .filter((genre) => !selectedGenres.includes(genre))
-                .map((genre, index) => (
-                  <option key={index} value={genre}>
-                    {genre}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </>
+        <SelectableList
+          label="Genre"
+          items={genres}
+          selectedItems={selectedGenres}
+          newItem={newGenre}
+          setNewItem={setNewGenre}
+          handleAddItem={handleAddGenre}
+          handleRemoveItem={handleRemoveGenre}
+        />
       );
       break;
     case "quantity":

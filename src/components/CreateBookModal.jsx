@@ -1,6 +1,7 @@
 import React from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import Notification from "../components/Notification";
+import SelectableList from "./SelectableList";
 
 export default function CreateBookModal({
   showModal,
@@ -12,14 +13,12 @@ export default function CreateBookModal({
   setBookAuthors,
   authors,
   searchStringAuthors,
-  handleAuthorsSearchChange,
-  handleAuthorChange,
+  setSearchStringAuthors,
   bookGenres,
   setBookGenres,
   genres,
   searchStringGenres,
-  handleGenresSearchChange,
-  handleGenreChange,
+  setSearchStringGenres,
   bookQuantity,
   setBookQuantity,
   bookLocation,
@@ -42,6 +41,22 @@ export default function CreateBookModal({
     };
     if (file) {
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddAuthor = (e) => {
+    const selectedAuthor = e.target.value;
+    if (selectedAuthor && !bookAuthors.includes(selectedAuthor)) {
+      setBookAuthors([...bookAuthors, selectedAuthor]);
+      setSearchStringAuthors("");
+    }
+  };
+
+  const handleAddGenre = (e) => {
+    const selectedGenre = e.target.value;
+    if (selectedGenre && !bookGenres.includes(selectedGenre)) {
+      setBookGenres([...bookGenres, selectedGenre]);
+      setSearchStringGenres("");
     }
   };
 
@@ -70,45 +85,31 @@ export default function CreateBookModal({
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookAuthors">
                 <Form.Label>Book Authors:</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Search..."
-                  value={searchStringAuthors}
-                  onChange={handleAuthorsSearchChange}
+                <SelectableList
+                  label="Author"
+                  items={authors}
+                  selectedItems={bookAuthors}
+                  newItem={searchStringAuthors}
+                  setNewItem={setSearchStringAuthors}
+                  handleAddItem={handleAddAuthor}
+                  handleRemoveItem={(author) =>
+                    setBookAuthors(bookAuthors.filter((a) => a !== author))
+                  }
                 />
-                <Form.Control
-                  as="select"
-                  multiple
-                  value={bookAuthors}
-                  onChange={handleAuthorChange}
-                >
-                  {authors.map((author, index) => (
-                    <option key={index} value={author}>
-                      {author}
-                    </option>
-                  ))}
-                </Form.Control>
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookGenres">
                 <Form.Label>Book Genres:</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Search..."
-                  value={searchStringGenres}
-                  onChange={handleGenresSearchChange}
+                <SelectableList
+                  label="Genre"
+                  items={genres}
+                  selectedItems={bookGenres}
+                  newItem={searchStringGenres}
+                  setNewItem={setSearchStringGenres}
+                  handleAddItem={handleAddGenre}
+                  handleRemoveItem={(genre) =>
+                    setBookGenres(bookGenres.filter((g) => g !== genre))
+                  }
                 />
-                <Form.Control
-                  as="select"
-                  multiple
-                  value={bookGenres}
-                  onChange={handleGenreChange}
-                >
-                  {genres.map((genre, index) => (
-                    <option key={index} value={genre}>
-                      {genre}
-                    </option>
-                  ))}
-                </Form.Control>
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookQuantity">
                 <Form.Label>Book Quantity:</Form.Label>
