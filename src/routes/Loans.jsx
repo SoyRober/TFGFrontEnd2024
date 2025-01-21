@@ -212,14 +212,14 @@ const UserLoans = ({ cardSize }) => {
             onChange={(date) => setStartDateFilter(date)}
             className="form-control form-control"
             dateFormat="dd/MM/yyyy"
-            placeholderText="Select a date"
+            placeholderText="Select a start date"
             id="startDateFilter"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={resetStartDateFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
@@ -239,7 +239,7 @@ const UserLoans = ({ cardSize }) => {
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={resetAuthorFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
@@ -261,7 +261,7 @@ const UserLoans = ({ cardSize }) => {
             className="btn btn-outline-secondary btn ms-2"
             onClick={resetReturnedFilter}
           >
-            ⟲
+            <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
@@ -274,7 +274,10 @@ const UserLoans = ({ cardSize }) => {
         <div className="row">
           {filteredLoans.length > 0 ? (
             filteredLoans.map((loan, index) => (
-              <article key={index} className={`${getColumnClass(cardSize)} mb-4`}>
+              <article
+                key={index}
+                className={`${getColumnClass(cardSize)} mb-4`}
+              >
                 <div
                   className="card"
                   style={{
