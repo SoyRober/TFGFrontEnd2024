@@ -62,21 +62,6 @@ export default function ViewBook() {
   }, []);
 
   useEffect(() => {
-    const fetchBookData = async () => {
-      try {
-        const data = await fetchData(
-          `/getBookByTitle?title=${encodeURIComponent(title)}`
-        );
-
-        setBook(data.book);
-        setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
-        setSelectedAuthors(data.book.authors || []);
-        setSelectedGenres(data.book.genres || []);
-      } catch (error) {
-        console.error("Failed to fetch book details:", error);
-      }
-    };
-
     const checkLoanStatus = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -161,6 +146,21 @@ export default function ViewBook() {
     fetchUsersLoans();
   }, [title]);
 
+  const fetchBookData = async () => {
+    try {
+      const data = await fetchData(
+        `/getBookByTitle?title=${encodeURIComponent(title)}`
+      );
+
+      setBook(data.book);
+      setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
+      setSelectedAuthors(data.book.authors || []);
+      setSelectedGenres(data.book.genres || []);
+    } catch (error) {
+      console.error("Failed to fetch book details:", error);
+    }
+  };
+
   const handleReviewChange = (e) => {
     const { name, value } = e.target;
     setReviewData((prevData) => ({
@@ -185,7 +185,6 @@ export default function ViewBook() {
         token,
         "text/plain"
       );
-      //console.log("🚀 ~ fetchUsersLoans ~ data:", data);
       setUsersLoans(data.message);
     } catch (error) {
       console.error(error);
@@ -330,7 +329,7 @@ export default function ViewBook() {
       if (editingAttribute === "title") {
         navigate(`/viewBook/${editValue}`);
       } else {
-        location.reload();
+        fetchBookData();
       }
     } catch (error) {
       console.error("Failed to update book:", error);
@@ -437,8 +436,6 @@ export default function ViewBook() {
         setLoanStatus(true);
       }
       if (isLoaned) {
-        console.log("return: " + isAvailable);
-
         await fetchData("/return", "PUT", { title: title }, token);
         setUsersLoans((prevLoans) =>
           prevLoans.filter((item) => item !== username)
