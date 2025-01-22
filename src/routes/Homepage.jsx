@@ -23,7 +23,7 @@ export default function Homepage() {
   const [bookSynopsis, setBookSynopsis] = useState("");
   const [bookPublicationDate, setBookPublicationDate] = useState("");
   const [bookIsAdult, setBookIsAdult] = useState(false);
-  const [bookImageBase64, setBookImageBase64] = useState("");
+  const [bookImage, setBookImage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState("");
   const [searchStringGenres, setSearchStringGenres] = useState("");
@@ -57,7 +57,6 @@ export default function Homepage() {
 
   useEffect(() => {
     fetchBooksData(page);
-    console.log("🚀 ~ Homepage ~ books:", books);
   }, [page]);
 
   useEffect(() => {
@@ -98,7 +97,6 @@ export default function Homepage() {
         : `/getAllBooks?page=${page}&size=10`;
 
       const data = await fetchData(url);
-      console.log("🚀 ~ fetchBooksData ~ data:", data);
 
       setBooks(data.books);
       setPage(page);
@@ -198,7 +196,7 @@ export default function Homepage() {
     setBookSynopsis("");
     setBookPublicationDate("");
     setBookIsAdult(false);
-    setBookImageBase64("");
+    setBookImage("");
   };
 
   const handleSave = async () => {
@@ -212,7 +210,7 @@ export default function Homepage() {
       synopsis: bookSynopsis,
       publicationDate: bookPublicationDate,
       isAdult: bookIsAdult,
-      imageBase64: bookImageBase64,
+      image: bookImage,
     };
 
     try {
@@ -318,7 +316,7 @@ export default function Homepage() {
           setBookPublicationDate,
           bookIsAdult,
           setBookIsAdult,
-          setBookImageBase64,
+          setBookImage,
           notificationMessage,
           notificationKey,
         }}
