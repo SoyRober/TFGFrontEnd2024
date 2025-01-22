@@ -92,14 +92,23 @@ export default function Homepage() {
   }, [startDateFilter]);
 
   const fetchBooksData = async (page, dateFilter = null) => {
+    console.log("🚀 ~ dateFilter:", dateFilter);
+    console.log("🚀 ~ searchTerm:", searchTerm);
+
+    const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
+    const params = new URLSearchParams();
+
     try {
-      const url = dateFilter
-        ? `/getAllBooks?page=${page}&size=10&date=${dateFilter}`
-        : `/getAllBooks?page=${page}&size=10`;
+      if (searchTerm) {
+        params.append("bookName", searchTerm);
+      }
 
+      if (dateFilter) {
+        params.append("date", dateFilter);
+      }
+      const url = `${baseUrl}&${params.toString()}`;
+      console.log("🚀 ~ fetchBooksData ~ url:", url);
       const data = await fetchData(url);
-      console.log("🚀 ~ fetchBooksData ~ data:", data);
-
       setBooks(data.books);
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
@@ -238,6 +247,14 @@ export default function Homepage() {
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
+
+  useEffect(() => {
+    if (startDateFilter) {
+      fetchBooksData(0, startDateFilter.getFullYear());
+    } else {
+      fetchBooksData(0);
+    }
+  }, [searchTerm]);
 
   const resetStartDateFilter = () => {
     setStartDateFilter("");
