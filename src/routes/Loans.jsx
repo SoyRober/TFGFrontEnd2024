@@ -277,6 +277,12 @@ const UserLoans = ({ cardSize }) => {
               <article
                 key={index}
                 className={`${getColumnClass(cardSize)} mb-4`}
+                tabIndex="0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/viewBook/${loan.book}`);
+                  }
+                }}
               >
                 <div
                   className="card"
@@ -304,6 +310,7 @@ const UserLoans = ({ cardSize }) => {
                       alignItems: "center",
                       padding: "4%",
                     }}
+                    tabIndex="-1"
                   >
                     <img
                       src={`data:image/jpeg;base64,${loan.bookImage}`}
@@ -319,16 +326,19 @@ const UserLoans = ({ cardSize }) => {
                   <div
                     className="card-body text-center"
                     style={{ flex: "1 0 40%", overflowY: "auto" }}
+                    tabIndex="-1"
                   >
-                    <h5 className="card-title">
+                    <h5 className="card-title" tabIndex="-1">
                       <Link
                         to={`/viewBook/${loan.book}`}
                         className="text-decoration-none d-flex align-items-center justify-content-center"
+                        tabIndex="-1"
                       >
                         {loan.book}
                         <i
                           className="fas fa-mouse-pointer ms-2"
                           title="Click to view details"
+                          tabIndex="-1"
                         ></i>
                       </Link>
                     </h5>

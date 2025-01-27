@@ -230,7 +230,16 @@ const UserReservations = ({ cardSize }) => {
         <div className="row">
           {filteredReservations.length > 0 ? (
             filteredReservations.map((reservation, index) => (
-              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
+              <article
+                key={index}
+                className={`${getColumnClass(cardSize)} mb-4`}
+                tabIndex="0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/viewBook/${reservation.bookTitle}`);
+                  }
+                }}
+              >
                 <div
                   className="card"
                   style={{
@@ -273,7 +282,7 @@ const UserReservations = ({ cardSize }) => {
                     className="card-body"
                     style={{ flex: "1 0 40%", overflowY: "auto" }}
                   >
-                    <h5 className="card-title">
+                    <h5 className="card-title" tabIndex="-1">
                       <Link
                         to={`/viewBook/${reservation.bookTitle}`}
                         className="text-decoration-none d-flex align-items-center"
@@ -314,7 +323,7 @@ const UserReservations = ({ cardSize }) => {
                     )}
                   </div>
                 </div>
-              </div>
+              </article>
             ))
           ) : (
             <div className="alert alert-info" role="alert">

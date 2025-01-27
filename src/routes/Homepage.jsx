@@ -442,6 +442,12 @@ export default function Homepage() {
                   <article
                     className="card customized-card"
                     onClick={() => navigateToBookDetails(book.title)}
+                    tabIndex="0"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        navigateToBookDetails(book.title);
+                      }
+                    }}
                     style={{
                       height:
                         cardSize === "small"

@@ -252,6 +252,12 @@ export default function Settings() {
                 }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                tabIndex="0"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    document.querySelector('input[type="file"]').click();
+                  }
+                }}
               >
                 <label
                   style={{
