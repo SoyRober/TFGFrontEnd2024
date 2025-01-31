@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../img/defaultAvatar.svg";
 
 export default function Settings() {
-  const [hasPermissions, setHasPermissions] = useState(false);
   const [role, setRole] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -40,14 +39,13 @@ export default function Settings() {
       setEmail(decodedToken.email);
       setBirthDate(decodedToken.birthDate);
       setRole(decodedToken.role);
-      setHasPermissions(decodedToken.role === "ADMIN");
 
       const fetchProfileImage = async () => {
         const image = await getProfileImage(decodedToken.email);
         setProfileImage(image);
       };
 
-      fetchProfileImage(); // Call the async function to fetch image
+      fetchProfileImage();
     } else {
       navigate("/");
     }

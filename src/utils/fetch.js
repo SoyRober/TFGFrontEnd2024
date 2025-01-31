@@ -79,7 +79,7 @@ export const fetchData = async (
     }
   } catch (error) {
     // Debugging: Log any error that occurred during fetch
-    console.error("Failed to fetch data:", error);
+    //console.error("Failed to fetch data:", error);
     throw error;
   }
 };
