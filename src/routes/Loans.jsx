@@ -8,11 +8,10 @@ import "react-datepicker/dist/react-datepicker.css";
 
 const UserLoans = ({ cardSize }) => {
   const [loans, setLoans] = useState([]);
-  const [filteredLoans, setFilteredLoans] = useState([]);
   const [error, setError] = useState(null);
   const [startDateFilter, setStartDateFilter] = useState("");
-  const [authorFilter, setAuthorFilter] = useState("");
-  const [returnedFilter, setReturnedFilter] = useState("all");
+  const [titleFilter, setTitleFilter] = useState("");
+  const [returnedFilter, setReturnedFilter] = useState("notReturned");
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -31,20 +30,20 @@ const UserLoans = ({ cardSize }) => {
 
     const fetchLoans = async () => {
       try {
+        const formattedStartDate = startDateFilter
+          ? new Date(startDateFilter).toISOString().split("T")[0]
+          : "";
+        console.log("🚀 ~ fetchLoans ~ startDateFilter:", formattedStartDate)
+
         const data = await fetchData(
-          `/getUserLoans?page=${page}&size=10`,
+          `/getUserLoans?page=${page}&size=10&title=${titleFilter}&isReturned=${returnedFilter !== "notReturned"}&startDate=${formattedStartDate}`,
           "GET",
           null,
           token
         );
+        console.log("🚀 ~ fetchLoans ~ data:", data);
         if (data.success) {
-          setLoans((prevLoans) => {
-            const newLoans = data.message.filter(
-              (newLoan) =>
-                !prevLoans.some((prevLoan) => prevLoan.book === newLoan.book)
-            );
-            return [...prevLoans, ...newLoans];
-          });
+          setLoans((prevLoans) => [...prevLoans, ...data.message]);
           if (data.message.length === 0) {
             setMessage("No hay más libros por cargar.");
           }
@@ -59,59 +58,7 @@ const UserLoans = ({ cardSize }) => {
     };
 
     fetchLoans();
-  }, [page, token, navigate]);
-
-  useEffect(() => {
-    localStorage.setItem("cardSize", cardSize);
-  }, [cardSize]);
-
-  useEffect(() => {
-    const applyFilters = () => {
-      let result = [...loans];
-
-      if (startDateFilter) {
-        const formattedStartDate = new Date(
-          startDateFilter
-        ).toLocaleDateString();
-        result = result.filter(
-          (loan) =>
-            new Date(loan.startDate).toLocaleDateString() === formattedStartDate
-        );
-      }
-
-      if (authorFilter) {
-        result = result.filter(
-          (loan) =>
-            loan.author &&
-            loan.author.some(
-              (author) =>
-                (author.name &&
-                  author.name
-                    .toLowerCase()
-                    .includes(authorFilter.toLowerCase())) ||
-                (author.surname &&
-                  author.surname
-                    .toLowerCase()
-                    .includes(authorFilter.toLowerCase()))
-            )
-        );
-      }
-
-      if (returnedFilter !== "all") {
-        const isReturned = returnedFilter === "returned";
-        result = result.filter((loan) => loan.isReturned === isReturned);
-      }
-
-      setFilteredLoans((prev) => {
-        if (JSON.stringify(prev) !== JSON.stringify(result)) {
-          return result;
-        }
-        return prev;
-      });
-    };
-
-    applyFilters();
-  }, [startDateFilter, authorFilter, returnedFilter, loans]);
+  }, [page, token, navigate, titleFilter, startDateFilter, returnedFilter]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -132,6 +79,15 @@ const UserLoans = ({ cardSize }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [atBottom, loading]);
 
+  useEffect(() => {
+    localStorage.setItem("cardSize", cardSize);
+  }, [cardSize]);
+
+  useEffect(() => {
+    setPage(0);
+    setLoans([]);
+  }, [titleFilter, startDateFilter, returnedFilter]);  
+  
   const handleReturnBook = async (bookTitle) => {
     try {
       const response = await fetchData(
@@ -146,7 +102,7 @@ const UserLoans = ({ cardSize }) => {
             loan.book === bookTitle ? { ...loan, isReturned: true } : loan
           )
         );
-        setFilteredLoans((prevLoans) =>
+        setLoans((prevLoans) =>
           prevLoans.map((loan) =>
             loan.book === bookTitle ? { ...loan, isReturned: true } : loan
           )
@@ -163,13 +119,13 @@ const UserLoans = ({ cardSize }) => {
   };
 
   const resetStartDateFilter = () => setStartDateFilter("");
-  const resetAuthorFilter = () => setAuthorFilter("");
+  const resetTitleFilter = () => setTitleFilter("");
   const resetReturnedFilter = () => setReturnedFilter("all");
 
   const resetAllFilters = () => {
     setStartDateFilter("");
-    setAuthorFilter("");
-    setReturnedFilter("all");
+    setTitleFilter("");
+    setReturnedFilter("notReturned");
   };
 
   const getColumnClass = (cardSize) => {
@@ -224,20 +180,20 @@ const UserLoans = ({ cardSize }) => {
         </div>
 
         <div className="d-flex align-items-center">
-          <label htmlFor="authorFilter" className="me-2">
-            Author:
+          <label htmlFor="titleFilter" className="me-2">
+            Title:
           </label>
           <input
             type="text"
-            id="authorFilter"
+            id="titleFilter"
             className="form-control form-control"
             placeholder="Name or surname"
-            value={authorFilter}
-            onChange={(e) => setAuthorFilter(e.target.value)}
+            value={titleFilter}
+            onChange={(e) => setTitleFilter(e.target.value)}
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={resetAuthorFilter}
+            onClick={resetTitleFilter}
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
@@ -253,7 +209,6 @@ const UserLoans = ({ cardSize }) => {
             value={returnedFilter}
             onChange={(e) => setReturnedFilter(e.target.value)}
           >
-            <option value="all">All</option>
             <option value="returned">Returned</option>
             <option value="notReturned">Not Returned</option>
           </select>
@@ -272,8 +227,8 @@ const UserLoans = ({ cardSize }) => {
 
       <section className="container mt-5">
         <div className="row">
-          {filteredLoans.length > 0 ? (
-            filteredLoans.map((loan, index) => (
+          {loans.length > 0 ? (
+            loans.map((loan, index) => (
               <article
                 key={index}
                 className={`${getColumnClass(cardSize)} mb-4`}
@@ -398,5 +353,6 @@ const UserLoans = ({ cardSize }) => {
     </main>
   );
 };
+
 
 export default UserLoans;
