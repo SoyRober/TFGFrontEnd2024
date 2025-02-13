@@ -113,7 +113,7 @@ export default function Homepage() {
       return;
     }
     setIsFetching(true);
-    console.log("🚀 ~ isFetching set true");
+    console.log("🚀 ~ isFetching set true", isFetching);
 
     try {
       const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
@@ -128,9 +128,17 @@ export default function Homepage() {
       const url = `${baseUrl}&${params.toString()}`;
       const data = await fetchData(url);
 
-      setBooks((prevBooks) =>
-        page === 0 ? data.books : [...prevBooks, ...data.books]
-      ); // Reset books array if page is 0
+      setBooks((prevBooks) => {
+        if (page === 0) {
+          return data.books;
+        } else {
+          //Filter duplicates, not sure why it happens
+          const newBooks = data.books.filter(
+            (newBook) => !prevBooks.some((book) => book.title === newBook.title)
+          );
+          return [...prevBooks, ...newBooks];
+        }
+      });
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
       setAtBottom(false); // Move this line here to ensure it's set after fetching
@@ -140,6 +148,7 @@ export default function Homepage() {
       setAtBottom(false); // Ensure atBottom is reset in case of error
     } finally {
       setIsLoading(false);
+      setIsFetching(false);
     }
   };
 
