@@ -93,27 +93,19 @@ export default function Homepage() {
 
   useEffect(() => {
     if (isFetching) {
-      console.log("🚀 ~ isFetching timer...");
       const timer = setTimeout(() => {
-        setIsFetching((prev) => {
-          return false;
-        });
+        setIsFetching(false);
       }, 1000);
 
       return () => clearTimeout(timer);
     }
   }, [isFetching]);
-  useEffect(() => {
-    console.log("🚀 ~ isFetching has changed:", isFetching);
-  }, [isFetching]);
 
   const fetchBooksData = async (page, dateFilter = null) => {
     if (isFetching) {
-      console.log("🚀 ~ isFetching already!", isFetching);
       return;
     }
     setIsFetching(true);
-    console.log("🚀 ~ isFetching set true", isFetching);
 
     try {
       const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
@@ -127,6 +119,11 @@ export default function Homepage() {
       }
       const url = `${baseUrl}&${params.toString()}`;
       const data = await fetchData(url);
+
+      if (data.status === 204) {
+        setIsFetching(false);
+        return;
+      }
 
       setBooks((prevBooks) => {
         if (page === 0) {
