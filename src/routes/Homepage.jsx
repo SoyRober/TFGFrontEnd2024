@@ -118,9 +118,13 @@ export default function Homepage() {
         params.append("date", dateFilter);
       }
       const url = `${baseUrl}&${params.toString()}`;
-      const data = await fetchData(url);
 
-      if (data.status === 204) {
+      let data;
+      try{
+        data = await fetchData(url);
+      } catch (error) {
+        setNotificationMessage("No more books to show.");
+        setNotificationKey((prevKey) => prevKey + 1);
         setIsFetching(false);
         return;
       }
