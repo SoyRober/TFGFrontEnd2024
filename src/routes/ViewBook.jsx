@@ -291,6 +291,11 @@ export default function ViewBook() {
       return;
     }
 
+    if (editingAttribute === "quantity" && editValue < 0) {
+      alert("Quantity cannot be less than 0");
+      return;
+    }
+
     const payload = new FormData();
     payload.append("title", title);
     payload.append("attribute", editingAttribute);
