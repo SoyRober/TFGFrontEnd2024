@@ -40,6 +40,7 @@ export default function Homepage() {
       ? localStorage.getItem("cardSize")
       : "medium";
   });
+  const [isFetching, setIsFetching] = useState(false);
 
   const navigate = useNavigate();
 
@@ -90,14 +91,25 @@ export default function Homepage() {
     }
   }, [startDateFilter]);
 
-  const fetchBooksData = async (page, dateFilter = null) => {
-    console.log("🚀 ~ dateFilter:", dateFilter);
-    console.log("🚀 ~ searchTerm:", searchTerm);
+  useEffect(() => {
+    if (isFetching) {
+      const timer = setTimeout(() => {
+        setIsFetching(false);
+      }, 1000);
 
-    const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
-    const params = new URLSearchParams();
+      return () => clearTimeout(timer);
+    }
+  }, [isFetching]);
+
+  const fetchBooksData = async (page, dateFilter = null) => {
+    if (isFetching) {
+      return;
+    }
+    setIsFetching(true);
 
     try {
+      const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
+      const params = new URLSearchParams();
       if (searchTerm) {
         params.append("bookName", searchTerm);
       }
@@ -106,19 +118,38 @@ export default function Homepage() {
         params.append("date", dateFilter);
       }
       const url = `${baseUrl}&${params.toString()}`;
-      console.log("🚀 ~ fetchBooksData ~ url:", url);
-      const data = await fetchData(url);
 
-      setBooks(data.books);
+      let data;
+      try{
+        data = await fetchData(url);
+      } catch (error) {
+        setNotificationMessage("No more books to show.");
+        setNotificationKey((prevKey) => prevKey + 1);
+        setIsFetching(false);
+        return;
+      }
+
+      setBooks((prevBooks) => {
+        if (page === 0) {
+          return data.books;
+        } else {
+          //Filter duplicates, not sure why it happens
+          const newBooks = data.books.filter(
+            (newBook) => !prevBooks.some((book) => book.title === newBook.title)
+          );
+          return [...prevBooks, ...newBooks];
+        }
+      });
       setPage(page);
       setExtraBottomSpace(extraBottomSpace + cardSize / 7);
+      setAtBottom(false); // Move this line here to ensure it's set after fetching
     } catch (error) {
       setNotificationMessage(error.message);
       setNotificationKey((prevKey) => prevKey + 1);
-      console.error(error.message);
+      setAtBottom(false); // Ensure atBottom is reset in case of error
     } finally {
-      setAtBottom(false);
       setIsLoading(false);
+      setIsFetching(false);
     }
   };
 
