@@ -51,29 +51,26 @@ export default function Root() {
 
   return (
     <>
-      <nav
-        className="navbar navbar-expand-lg navbar-light bg-light sticky-top"
-        key={key}
-      >
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top" key={key}>
         <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
+          <Link className="navbar-brand text-light" to="/">
             Home
           </Link>
 
           {isLoggedIn && (
-            <Link className="nav-link ms-3" to="/userBookDetails">
+            <Link className="nav-link text-light ms-3" to="/userBookDetails">
               My books
             </Link>
           )}
 
           {hasPermissions && (
-            <Link className="nav-link ms-3" to="/usersList">
+            <Link className="nav-link text-light ms-3" to="/usersList">
               Users List
             </Link>
           )}
 
           {hasPermissions && (
-            <Link className="nav-link ms-3" to="/attributes">
+            <Link className="nav-link text-light ms-3" to="/attributes">
               Attributes
             </Link>
           )}
@@ -90,20 +87,17 @@ export default function Root() {
             <span className="navbar-toggler-icon"></span>
           </button>
 
-          <div
-            className="collapse navbar-collapse justify-content-end"
-            id="navbarNav"
-          >
+          <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
             <ul className="navbar-nav">
               {!isLoggedIn ? (
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/login">
+                    <Link className="nav-link text-light" to="/login">
                       Login
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link className="nav-link" to="/register">
+                    <Link className="nav-link text-light" to="/register">
                       Register
                     </Link>
                   </li>
@@ -111,7 +105,7 @@ export default function Root() {
               ) : (
                 <li className="nav-item dropdown">
                   <button
-                    className="nav-link dropdown-toggle"
+                    className="nav-link dropdown-toggle text-light"
                     id="navbarDropdown"
                     data-bs-toggle="dropdown"
                     aria-expanded="false"
@@ -119,10 +113,7 @@ export default function Root() {
                   >
                     Profile
                   </button>
-                  <ul
-                    className="dropdown-menu dropdown-menu-end"
-                    aria-labelledby="navbarDropdown"
-                  >
+                  <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li>
                       <Link className="dropdown-item" to="/user/settings">
                         Settings
