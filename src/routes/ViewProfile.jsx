@@ -46,6 +46,9 @@ const ViewProfile = () => {
 
   const handleReturnBook = async (bookTitle, email) => {
     const token = localStorage.getItem("token");
+    if (!window.confirm(`Returning book: ${bookTitle}. Are you sure?`)) {
+      return;
+    }
     try {
       const response = await fetchData(
         "/return",
