@@ -8,6 +8,7 @@ import EditDateModal from "../components/EditDateModal";
 import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../img/defaultAvatar.svg";
+import { compressImage } from "../utils/compressImage";
 
 export default function Settings() {
   const [role, setRole] = useState("");
@@ -204,24 +205,21 @@ export default function Settings() {
   const handleImageChange = async (event) => {
     const token = localStorage.getItem("token");
     const file = event.target.files[0];
-
+  
     if (file) {
+      const compressedImage = await compressImage(file, 1, 400, 400); // Calidad 0.7 y 300x300px
       const reader = new FileReader();
+      
       reader.onloadend = () => {
         setProfileImage(reader.result);
       };
-      reader.readAsDataURL(file);
-
+      reader.readAsDataURL(compressedImage);
+  
       const formData = new FormData();
-      formData.append("image", file);
-
-      const response = await fetchData(
-        `/updateProfileImage`,
-        "POST",
-        formData,
-        token
-      );
-
+      formData.append("image", compressedImage);
+  
+      const response = await fetchData(`/updateProfileImage`, "POST", formData, token);
+  
       if (response.success) {
         const updatedImage = await getProfileImage(email);
         setProfileImage(updatedImage);
@@ -234,7 +232,7 @@ export default function Settings() {
       <h1 className="text-center mb-4">Settings</h1>
 
       {/* User info */}
-      <div className="card shadow-sm mb-4">
+      <section className="card shadow-sm mb-4">
         <div
           className="card-body d-flex flex-column justify-content-center align-items-center"
           style={{ minHeight: "400px" }}
@@ -250,12 +248,15 @@ export default function Settings() {
                 }}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
+                role="button"
                 tabIndex="0"
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
+                  if (e.key === "Enter" || e.key === " ") {
                     document.querySelector('input[type="file"]').click();
+                    e.preventDefault();
                   }
                 }}
+                aria-label="Change Profile Image"
               >
                 <label
                   style={{
@@ -279,6 +280,7 @@ export default function Settings() {
                     style={{
                       display: "none",
                     }}
+                    aria-hidden="true"
                   />
                 </label>
 
@@ -343,7 +345,7 @@ export default function Settings() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Modales para editar */}
       <EditAttributeModal
