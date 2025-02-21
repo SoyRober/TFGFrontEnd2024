@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import Notification from "../components/Notification";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { Modal, Button, Form } from "react-bootstrap";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
   const [message, setMessage] = useState("");
+  const [userRole, setUserRole] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("USER");
   const navigate = useNavigate();
   const { email } = useParams();
 
@@ -15,9 +20,9 @@ const ViewProfile = () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-
-      if (userRole === "USER") {
+      const role = decodedToken.role;
+      setUserRole(role);
+      if (role === "USER") {
         navigate("/");
       }
     }
@@ -59,6 +64,7 @@ const ViewProfile = () => {
       console.log(response);
       if (response) {
         setMessage(`The book "${bookTitle}" has been returned successfully.`);
+        //Cechk
         setUserData((prevData) => ({
           ...prevData,
           loanList: prevData.loanList.map((loan) =>
@@ -67,6 +73,32 @@ const ViewProfile = () => {
         }));
       } else {
         setMessage(response.message || "Error al devolver el libro.");
+      }
+    } catch (err) {
+      setMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleRoleChange = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetchData(
+        "/changeRole",
+        "POST",
+        { username: userData.username, newRole: selectedRole },
+        token
+      );
+      console.log(response);
+      if (response.success) {
+        setMessage(`Role changed to "${selectedRole}" successfully.`);
+        setShowModal(false);
+        //Cechk
+        setUserData((prevData) => ({
+          ...prevData,
+          role: selectedRole
+        }));
+      } else {
+        setMessage(response.message || "Error changing role.");
       }
     } catch (err) {
       setMessage(`Error: ${err.message}`);
@@ -95,8 +127,43 @@ const ViewProfile = () => {
               ? userData.role.toLowerCase()
               : "N/A"}
           </p>
+          {userRole === "ADMIN" && (
+            <button className="btn btn-warning" onClick={() => setShowModal(true)}>
+              Change Role
+            </button>
+          )}
         </div>
       </section>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Change User Role</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formRoleSelect">
+              <Form.Label>Select Role</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+              >
+                <option value="ADMIN">ADMIN</option>
+                <option value="LIBRARIAN">LIBRARIAN</option>
+                <option value="USER">USER</option>
+              </Form.Control>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleRoleChange}>
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
