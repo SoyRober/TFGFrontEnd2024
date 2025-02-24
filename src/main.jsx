@@ -7,7 +7,7 @@ import Login from "./routes/Login.jsx";
 import Register from "./routes/Register.jsx";
 import ViewBook from "./routes/ViewBook.jsx";
 import Loans from "./routes/Loans.jsx";
-import Settings from "./routes/Settings.jsx";
+import UserSettings from "./routes/UserSettings.jsx";
 import UsersList from "./routes/UsersList.jsx";
 import ViewProfile from "./routes/ViewProfile.jsx";
 import UserBooksDetails from "./routes/UserBooksDetails.jsx";
@@ -33,8 +33,8 @@ const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/user/settings",
-        element: <Settings />,
+        path: "/user/userSettings",
+        element: <UserSettings />,
       },
       {
         path: "/user/loans",

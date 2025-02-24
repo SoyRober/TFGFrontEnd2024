@@ -115,7 +115,7 @@ export default function Root() {
                   </button>
                   <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                     <li>
-                      <Link className="dropdown-item" to="/user/settings">
+                      <Link className="dropdown-item" to="/user/userSettings">
                         Settings
                       </Link>
                     </li>
