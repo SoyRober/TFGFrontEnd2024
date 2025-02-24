@@ -597,7 +597,8 @@ export default function ViewBook() {
   const handleVotes = async (reviewId, value) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("Please log in to vote.");
+      setNotificationMessage("Please log in to vote.");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -628,8 +629,8 @@ export default function ViewBook() {
         );
         setReviews(updatedReviews);
       } catch (error) {
-        alert(error.message);
-        console.error("Failed to delete Vote: ", error);
+        setNotificationMessage("Please log in to vote.");
+        setNotificationKey((prevKey) => prevKey + 1);
       }
     } else {
       // Update votes and ensure only one type of vote is active
@@ -665,8 +666,8 @@ export default function ViewBook() {
         await fetchData(`/addVote`, "PUT", body, token);
         setReviews(updatedReviews);
       } catch (error) {
-        alert(error.message);
-        console.error("Failed to update Vote: ", error);
+        setNotificationMessage("Failed to update vote.");
+        setNotificationKey((prevKey) => prevKey + 1);
       }
     }
   };
