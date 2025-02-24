@@ -10,6 +10,7 @@ import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import BookReservationModal from "../components/BookReservationModal.jsx";
 import Notification from "../components/Notification";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import defaultAvatar from "../img/defaultAvatar.svg";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -609,12 +610,12 @@ export default function ViewBook() {
       updatedReviews = reviews.map((r) =>
         r.id === reviewId
           ? {
-              ...r,
-              userLiked: false,
-              userDisliked: false,
-              reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
-              reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
-            }
+            ...r,
+            userLiked: false,
+            userDisliked: false,
+            reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
+            reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
+          }
           : r
       );
 
@@ -635,24 +636,24 @@ export default function ViewBook() {
       updatedReviews = reviews.map((r) =>
         r.id === reviewId
           ? {
-              ...r,
-              userLiked: value,
-              userDisliked: !value,
-              reviewLikes: value
-                ? r.userLiked
-                  ? r.reviewLikes
-                  : r.reviewLikes + 1
-                : r.userLiked
+            ...r,
+            userLiked: value,
+            userDisliked: !value,
+            reviewLikes: value
+              ? r.userLiked
+                ? r.reviewLikes
+                : r.reviewLikes + 1
+              : r.userLiked
                 ? r.reviewLikes - 1
                 : r.reviewLikes,
-              reviewDislikes: !value
-                ? r.userDisliked
-                  ? r.reviewDislikes
-                  : r.reviewDislikes + 1
-                : r.userDisliked
+            reviewDislikes: !value
+              ? r.userDisliked
+                ? r.reviewDislikes
+                : r.reviewDislikes + 1
+              : r.userDisliked
                 ? r.reviewDislikes - 1
                 : r.reviewDislikes,
-            }
+          }
           : r
       );
 
@@ -982,15 +983,49 @@ export default function ViewBook() {
           reviews
             .filter((review) => review.userName !== username) // Filter out the current user's review
             .map((review, index) => (
-              <article key={index} className="list-group-item">
+              <article key={index} className="card p-3 mb-4">
+                <p style={{
+                  display: "flex",
+                  alignItems: "center", 
+                }}>
+                  <span
+                    style={{
+                      border: "1px solid black",
+                      display: "inline-block", 
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                      backgroundImage: review.profileImage
+                        ? `url(data:image/jpeg;base64,${review.profileImage})`
+                        : `url(${defaultAvatar})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat",
+                      cursor: "pointer",
+                      marginRight: "10px",
+                    }}
+                  ></span>
+                  {review.userName}
+                </p>
+
                 <p>
-                  <strong>User:</strong> {review.userName}
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      type="button"
+                      key={star}
+                      className={star <= review.score ? "on" : "off"}
+                      style={{
+                        fontSize: "2rem",
+                        color: star <= review.score ? "gold" : "grey",
+                      }}
+                      disabled
+                    >
+                      <span className="star">&#9733;</span>
+                    </span>
+                  ))}
                 </p>
                 <p>
-                  <strong>Score:</strong> {review.score}
-                </p>
-                <p>
-                  <strong>Comment:</strong> {review.comment}
+                  {review.comment}
                 </p>
                 <div className="d-flex justify-content-start">
                   <div className="d-flex align-items-center me-3">
@@ -999,11 +1034,10 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${
-                          review.userDisliked
-                            ? "bi-hand-thumbs-down-fill"
-                            : "bi-hand-thumbs-down"
-                        }`}
+                        className={`bi ${review.userDisliked
+                          ? "bi-hand-thumbs-down-fill"
+                          : "bi-hand-thumbs-down"
+                          }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userDisliked ? "#dc3545" : "inherit",
@@ -1018,11 +1052,10 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${
-                          review.userLiked
-                            ? "bi-hand-thumbs-up-fill"
-                            : "bi-hand-thumbs-up"
-                        }`}
+                        className={`bi ${review.userLiked
+                          ? "bi-hand-thumbs-up-fill"
+                          : "bi-hand-thumbs-up"
+                          }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userLiked ? "#28a745" : "inherit",
