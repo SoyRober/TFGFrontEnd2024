@@ -693,157 +693,73 @@ export default function ViewBook() {
 
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <section className="row">
-        <div>
-          {isLoggedIn && (
-            <>
-              <button
-                onClick={handleLoanClick}
-                className={
-                  isLoaned && usersLoans.includes(username)
-                    ? "btn btn-danger"
-                    : "btn btn-primary"
-                }
-              >
-                {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
-              </button>
-              {hasPermissions && (
-                <button
-                  onClick={() => setShowDeleteConfirmation(true)}
-                  className="btn btn-danger ml-2"
-                >
-                  Delete Book
-                </button>
-              )}
-            </>
-          )}
-        </div>
-        <div className="col-md-6 mb-3">
+        <div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
           {imageSrc ? (
-            <img src={imageSrc} alt={book.title} className="img-fluid" />
+            <img
+              src={imageSrc}
+              alt={book.title}
+              className="img-fluid"
+              style={{ width: "auto", height: "auto", maxWidth: "100%", maxHeight: "100%" }}
+            />
           ) : (
             <div>No image available</div>
           )}
           {isLoggedIn && hasPermissions && (
-            <button
-              onClick={() => handleEditClick("image")}
-              className="btn btn-primary"
-            >
-              Edit image
-            </button>
+            <div className="d-flex mt-2">
+              <button
+                onClick={() => handleEditClick("image")}
+                className="btn btn-primary mr-2"
+              >
+                Edit image
+              </button>
+              <button
+                onClick={handleLoanClick}
+                className={`btn ${isLoaned && usersLoans.includes(username) ? "btn-danger" : "btn-primary"}`}
+              >
+                {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
+              </button>
+            </div>
           )}
         </div>
         <div className="col-md-6 mb-3">
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Title:</span> {book.title}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("title")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Authors:</span>{" "}
-              {book.authors ? book.authors.join(", ") : "N/A"}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("authors")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Genres:</span>{" "}
-              {book.genres ? book.genres.join(", ") : "N/A"}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("genres")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Quantity:</span> {book.quantity}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("quantity")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Location:</span> {book.location}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("location")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Synopsis:</span> {book.synopsis}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("synopsis")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Publication Date:</span>{" "}
-              {book.publicationDate}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("publicationDate")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-          <div className="mb-2">
-            <p className="mb-0">
-              <span className="label">Adult:</span> {book.adult ? "Yes" : "No"}
-            </p>
-            {isLoggedIn && hasPermissions && (
-              <button
-                onClick={() => handleEditClick("isAdult")}
-                className="btn btn-primary"
-              >
-                Edit
-              </button>
-            )}
-          </div>
+          {[
+            { label: "Title", value: book.title, attribute: "title" },
+            { label: "Authors", value: book.authors?.join(", ") || "N/A", attribute: "authors" },
+            { label: "Genres", value: book.genres?.join(", ") || "N/A", attribute: "genres" },
+            { label: "Quantity", value: book.quantity, attribute: "quantity" },
+            { label: "Location", value: book.location, attribute: "location" },
+            { label: "Synopsis", value: book.synopsis, attribute: "synopsis" },
+            { label: "Publication Date", value: book.publicationDate, attribute: "publicationDate" },
+            { label: "Adult", value: book.adult ? "Yes" : "No", attribute: "isAdult" },
+          ].map(({ label, value, attribute }) => (
+            <div className="mb-2" key={attribute}>
+              <p className="mb-0">
+                <span className="font-weight-bold">{label}:</span> {value}
+              </p>
+              {isLoggedIn && hasPermissions && (
+                <button
+                  onClick={() => handleEditClick(attribute)}
+                  className="btn btn-primary mt-1"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       </section>
+      {isLoggedIn && hasPermissions && (
+        <div className="col-12 d-flex justify-content-between mb-3">
+          <button
+            onClick={() => setShowDeleteConfirmation(true)}
+            className="btn btn-danger ml-2"
+          >
+            Delete Book
+          </button>
+        </div>
+      )}
 
-      {isLoggedIn && alreadyRated == false && (
+      {isLoggedIn && !alreadyRated && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
             <label>Score:</label>
@@ -863,8 +779,7 @@ export default function ViewBook() {
                     border: "none",
                     cursor: "pointer",
                     fontSize: "2rem",
-                    color:
-                      star <= (hover || reviewData.score) ? "gold" : "grey",
+                    color: star <= (hover || reviewData.score) ? "gold" : "grey",
                   }}
                 >
                   <span className="star">&#9733;</span>
@@ -889,9 +804,8 @@ export default function ViewBook() {
         </form>
       )}
 
-      {isLoggedIn &&
-        alreadyRated &&
-        (isEditing ? (
+      {isLoggedIn && alreadyRated && (
+        isEditing ? (
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -976,23 +890,21 @@ export default function ViewBook() {
               Delete Review
             </button>
           </section>
-        ))}
+        )
+      )}
 
       <h2 className="mt-5">Reviews</h2>
       <section className="list-group mb-3">
         {reviews.length > 0 ? (
           reviews
-            .filter((review) => review.userName !== username) // Filter out the current user's review
+            .filter((review) => review.userName !== username)
             .map((review, index) => (
               <article key={index} className="card p-3 mb-4">
-                <p style={{
-                  display: "flex",
-                  alignItems: "center", 
-                }}>
+                <p className="d-flex align-items-center">
                   <span
                     style={{
                       border: "1px solid black",
-                      display: "inline-block", 
+                      display: "inline-block",
                       width: "50px",
                       height: "50px",
                       borderRadius: "50%",
@@ -1008,26 +920,21 @@ export default function ViewBook() {
                   ></span>
                   {review.userName}
                 </p>
-
                 <p>
                   {[1, 2, 3, 4, 5].map((star) => (
                     <span
-                      type="button"
                       key={star}
-                      className={star <= review.score ? "on" : "off"}
+                      className="star"
                       style={{
                         fontSize: "2rem",
                         color: star <= review.score ? "gold" : "grey",
                       }}
-                      disabled
                     >
-                      <span className="star">&#9733;</span>
+                      &#9733;
                     </span>
                   ))}
                 </p>
-                <p>
-                  {review.comment}
-                </p>
+                <p>{review.comment}</p>
                 <div className="d-flex justify-content-start">
                   <div className="d-flex align-items-center me-3">
                     <button
@@ -1035,10 +942,11 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${review.userDisliked
-                          ? "bi-hand-thumbs-down-fill"
-                          : "bi-hand-thumbs-down"
-                          }`}
+                        className={`bi ${
+                          review.userDisliked
+                            ? "bi-hand-thumbs-down-fill"
+                            : "bi-hand-thumbs-down"
+                        }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userDisliked ? "#dc3545" : "inherit",
@@ -1053,10 +961,11 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${review.userLiked
-                          ? "bi-hand-thumbs-up-fill"
-                          : "bi-hand-thumbs-up"
-                          }`}
+                        className={`bi ${
+                          review.userLiked
+                            ? "bi-hand-thumbs-up-fill"
+                            : "bi-hand-thumbs-up"
+                        }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userLiked ? "#28a745" : "inherit",
