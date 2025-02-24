@@ -857,10 +857,9 @@ export default function ViewBook() {
             </button>
           </form>
         ) : (
-          <section className="user-review">
+          <section className="p-3 card user-review">
             <h4>Your Review</h4>
             <div className="form-group">
-              <label>Score:</label>
               <div className="star-rating">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <span
@@ -877,18 +876,27 @@ export default function ViewBook() {
               </div>
             </div>
             <div className="form-group">
-              <label>Comment:</label>
               <p className="user-comment">{currentUserComment}</p>
             </div>
-            <button className="btn btn-warning mt-3" onClick={handleEditReview}>
-              Edit Review
-            </button>
-            <button
-              className="btn btn-danger mt-3 ms-2"
-              onClick={handleDeleteReview}
-            >
-              Delete Review
-            </button>
+            <div className="d-flex justify-content-between">
+              <button className="btn btn-warning mt-3" style={{
+                width: "130px",
+                height: "40px",
+              }}
+                onClick={handleEditReview}>
+                Edit Review
+              </button>
+              <button
+                className="btn btn-danger mt-3"
+                onClick={handleDeleteReview}
+                style={{
+                  width: "130px",
+                  height: "40px",
+                }}
+              >
+                Delete Review
+              </button>
+            </div>
           </section>
         )
       )}
@@ -942,11 +950,10 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${
-                          review.userDisliked
-                            ? "bi-hand-thumbs-down-fill"
-                            : "bi-hand-thumbs-down"
-                        }`}
+                        className={`bi ${review.userDisliked
+                          ? "bi-hand-thumbs-down-fill"
+                          : "bi-hand-thumbs-down"
+                          }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userDisliked ? "#dc3545" : "inherit",
@@ -961,11 +968,10 @@ export default function ViewBook() {
                       className="btn btn-link p-0"
                     >
                       <i
-                        className={`bi ${
-                          review.userLiked
-                            ? "bi-hand-thumbs-up-fill"
-                            : "bi-hand-thumbs-up"
-                        }`}
+                        className={`bi ${review.userLiked
+                          ? "bi-hand-thumbs-up-fill"
+                          : "bi-hand-thumbs-up"
+                          }`}
                         style={{
                           fontSize: "1.5rem",
                           color: review.userLiked ? "#28a745" : "inherit",
