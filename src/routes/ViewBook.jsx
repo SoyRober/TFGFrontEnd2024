@@ -979,59 +979,61 @@ export default function ViewBook() {
       <h2 className="mt-5">Reviews</h2>
       <section className="list-group mb-3">
         {reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <article key={index} className="list-group-item">
-              <p>
-                <strong>User:</strong> {review.userName}
-              </p>
-              <p>
-                <strong>Score:</strong> {review.score}
-              </p>
-              <p>
-                <strong>Comment:</strong> {review.comment}
-              </p>
-              <div className="d-flex justify-content-start">
-                <div className="d-flex align-items-center me-3">
-                  <button
-                    onClick={() => handleVotes(review.id, false)}
-                    className="btn btn-link p-0"
-                  >
-                    <i
-                      className={`bi ${
-                        review.userDisliked
-                          ? "bi-hand-thumbs-down-fill"
-                          : "bi-hand-thumbs-down"
-                      }`}
-                      style={{
-                        fontSize: "1.5rem",
-                        color: review.userDisliked ? "#dc3545" : "inherit",
-                      }}
-                    ></i>
-                  </button>
-                  <p className="mb-0 ms-2">{review.reviewDislikes}</p>
+          reviews
+            .filter((review) => review.userName !== username) // Filter out the current user's review
+            .map((review, index) => (
+              <article key={index} className="list-group-item">
+                <p>
+                  <strong>User:</strong> {review.userName}
+                </p>
+                <p>
+                  <strong>Score:</strong> {review.score}
+                </p>
+                <p>
+                  <strong>Comment:</strong> {review.comment}
+                </p>
+                <div className="d-flex justify-content-start">
+                  <div className="d-flex align-items-center me-3">
+                    <button
+                      onClick={() => handleVotes(review.id, false)}
+                      className="btn btn-link p-0"
+                    >
+                      <i
+                        className={`bi ${
+                          review.userDisliked
+                            ? "bi-hand-thumbs-down-fill"
+                            : "bi-hand-thumbs-down"
+                        }`}
+                        style={{
+                          fontSize: "1.5rem",
+                          color: review.userDisliked ? "#dc3545" : "inherit",
+                        }}
+                      ></i>
+                    </button>
+                    <p className="mb-0 ms-2">{review.reviewDislikes}</p>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <button
+                      onClick={() => handleVotes(review.id, true)}
+                      className="btn btn-link p-0"
+                    >
+                      <i
+                        className={`bi ${
+                          review.userLiked
+                            ? "bi-hand-thumbs-up-fill"
+                            : "bi-hand-thumbs-up"
+                        }`}
+                        style={{
+                          fontSize: "1.5rem",
+                          color: review.userLiked ? "#28a745" : "inherit",
+                        }}
+                      ></i>
+                    </button>
+                    <p className="mb-0 ms-2">{review.reviewLikes}</p>
+                  </div>
                 </div>
-                <div className="d-flex align-items-center">
-                  <button
-                    onClick={() => handleVotes(review.id, true)}
-                    className="btn btn-link p-0"
-                  >
-                    <i
-                      className={`bi ${
-                        review.userLiked
-                          ? "bi-hand-thumbs-up-fill"
-                          : "bi-hand-thumbs-up"
-                      }`}
-                      style={{
-                        fontSize: "1.5rem",
-                        color: review.userLiked ? "#28a745" : "inherit",
-                      }}
-                    ></i>
-                  </button>
-                  <p className="mb-0 ms-2">{review.reviewLikes}</p>
-                </div>
-              </div>
-            </article>
-          ))
+              </article>
+            ))
         ) : (
           <p>No reviews available</p>
         )}
