@@ -11,6 +11,8 @@ import BookReservationModal from "../components/BookReservationModal.jsx";
 import Notification from "../components/Notification";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
+import LoanToUserModal from "../components/LoanToUserModal.jsx";
+import ReserveForUserModal from "../components/ReserveForUserModal.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -46,6 +48,9 @@ export default function ViewBook() {
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
   const [username, setUsername] = useState("");
+  const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -196,6 +201,8 @@ export default function ViewBook() {
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -219,18 +226,20 @@ export default function ViewBook() {
       setAlreadyRated(true);
       await fetchExistingReview();
     } catch (error) {
-      console.error("Failed to submit review:", error);
+      setNotificationMessage("Failed to submit review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
   const fetchExistingReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
     try {
-      const token = localStorage.getItem("token");
       const data = await fetchData(
         `/getReview?title=${encodeURIComponent(title)}`,
         "GET",
@@ -244,7 +253,8 @@ export default function ViewBook() {
         setCurrentUserComment(data.currentUserComment);
       }
     } catch (error) {
-      console.error("Failed to fetch Existing Review:", error);
+      setNotificationMessage("Failed to fetch Existing Review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -288,12 +298,14 @@ export default function ViewBook() {
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
     if (editingAttribute === "quantity" && editValue < 0) {
-      alert("Quantity cannot be less than 0");
+      setNotificationMessage("Quantity cannot be less than 0");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -316,7 +328,8 @@ export default function ViewBook() {
         const resizedImageBlob = await resizeImage(newImage, 300, 300);
         payload.append("image", resizedImageBlob);
       } catch (error) {
-        console.error("Error resizing image:", error);
+        setNotificationMessage("Error resizing image: " + error.message);
+        setNotificationKey((prevKey) => prevKey + 1);
         return;
       }
     }
@@ -338,7 +351,8 @@ export default function ViewBook() {
         fetchBookData();
       }
     } catch (error) {
-      console.error("Failed to update book:", error);
+      setNotificationMessage("Failed to update book: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -393,7 +407,8 @@ export default function ViewBook() {
   const handleDeleteBook = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -407,14 +422,16 @@ export default function ViewBook() {
       setShowDeleteConfirmation(false);
       navigate("/");
     } catch (error) {
-      console.error("Failed to delete book:", error);
+      setNotificationMessage("Failed to delete book: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
   const handleLoanClick = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -449,15 +466,16 @@ export default function ViewBook() {
         setLoanStatus(false);
       }
     } catch (error) {
-      alert(error.message);
-      console.error("Failed to update loan status:", error);
+      setNotificationMessage("Failed to update loan status: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
   const handleReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -468,14 +486,11 @@ export default function ViewBook() {
         null,
         token
       );
-      console.log(response);
       setNotificationMessage("Book reserved");
       setNotificationKey((prevKey) => prevKey + 1);
     } catch (error) {
-      console.error(error);
-      setNotificationMessage(error.message);
+      setNotificationMessage("Failed to reserve book: " + error.message);
       setNotificationKey((prevKey) => prevKey + 1);
-      return;
     }
   };
 
@@ -502,7 +517,8 @@ export default function ViewBook() {
   const handleSaveEditedReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -523,7 +539,8 @@ export default function ViewBook() {
       setIsEditing(false);
       fetchExistingReview();
     } catch (error) {
-      console.error("Failed to edit review:", error);
+      setNotificationMessage("Failed to edit review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -535,7 +552,8 @@ export default function ViewBook() {
   const handleDeleteReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -557,14 +575,16 @@ export default function ViewBook() {
       );
       setReviews(reviewsData);
     } catch (error) {
-      console.error("Failed to delete review:", error);
+      setNotificationMessage("Failed to delete review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
   const handleReturnModal = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found, user might not be authenticated");
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
       return;
     }
 
@@ -574,8 +594,8 @@ export default function ViewBook() {
         prevLoans.filter((item) => item !== username)
       );
     } catch (error) {
-      alert(error.message);
-      console.error("Failed to update loan status:", error);
+      setNotificationMessage("Failed to update loan status: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -589,7 +609,8 @@ export default function ViewBook() {
       );
       return response;
     } catch (error) {
-      console.error("Failed to fetch user vote:", error);
+      setNotificationMessage("Failed to fetch user vote: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
       return null;
     }
   };
@@ -629,7 +650,7 @@ export default function ViewBook() {
         );
         setReviews(updatedReviews);
       } catch (error) {
-        setNotificationMessage("Please log in to vote.");
+        setNotificationMessage("Failed to delete vote: " + error.message);
         setNotificationKey((prevKey) => prevKey + 1);
       }
     } else {
@@ -666,9 +687,75 @@ export default function ViewBook() {
         await fetchData(`/addVote`, "PUT", body, token);
         setReviews(updatedReviews);
       } catch (error) {
-        setNotificationMessage("Failed to update vote.");
+        setNotificationMessage("Failed to update vote: " + error.message);
         setNotificationKey((prevKey) => prevKey + 1);
       }
+    }
+  };
+
+  const handleLoanToUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
+
+    if (book.quantity < 1) {
+      setShowLoanToUserModal(false);
+      setShowReserveForUserModal(true);
+      return;
+    }
+
+    try {
+      const response = await fetchData(
+        `/loan/${selectedUser}?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
+
+      if (response.ok) {
+        setNotificationMessage("Book loaned to user successfully");
+      } else if (response.message.includes("existences")) {
+        setShowUnavailableModal(true);
+      } else {
+        setNotificationMessage(response.message);
+      }
+      setNotificationKey((prevKey) => prevKey + 1);
+      setShowLoanToUserModal(false);
+    } catch (error) {
+      setNotificationMessage("Failed to loan book to user: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
+
+  const handleReserveForUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
+
+    try {
+      const response = await fetchData(
+        `/reserve/${selectedUser}?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
+
+      if (response.ok) {
+        setNotificationMessage("Book reserved for user successfully");
+      } else {
+        setNotificationMessage(response.message);
+      }
+      setNotificationKey((prevKey) => prevKey + 1);
+      setShowReserveForUserModal(false);
+    } catch (error) {
+      setNotificationMessage("Failed to reserve book for user: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
@@ -691,6 +778,7 @@ export default function ViewBook() {
         />
       )}
 
+      {/* Info, edition and requesting book */}
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <section className="row">
         <div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
@@ -705,20 +793,35 @@ export default function ViewBook() {
             <div>No image available</div>
           )}
           {isLoggedIn && hasPermissions && (
-            <div className="d-flex mt-2">
-              <button
-                onClick={() => handleEditClick("image")}
-                className="btn btn-primary mr-2"
-              >
-                Edit image
-              </button>
-              <button
-                onClick={handleLoanClick}
-                className={`btn ${isLoaned && usersLoans.includes(username) ? "btn-danger" : "btn-primary"}`}
-              >
-                {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
-              </button>
+            <div className="d-flex justify-content-center align-items-center mt-2">
+              <div className="row w-100">
+                <div className="col">
+                  <button
+                    onClick={() => handleEditClick("image")}
+                    className="btn btn-primary w-100"
+                  >
+                    Edit image
+                  </button>
+                </div>
+                <div className="col d-flex justify-content-center align-items-center">
+                  <button
+                    onClick={handleLoanClick}
+                    className={`btn ${isLoaned && usersLoans.includes(username) ? "btn-danger" : "btn-primary"} p-3`}
+                  >
+                    {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
+                  </button>
+                </div>
+                <div className="col">
+                  <button
+                    onClick={() => setShowLoanToUserModal(true)}
+                    className="btn btn-secondary w-100"
+                  >
+                    Loan to User
+                  </button>
+                </div>
+              </div>
             </div>
+
           )}
         </div>
         <div className="col-md-6 mb-3">
@@ -759,6 +862,7 @@ export default function ViewBook() {
         </div>
       )}
 
+      {/* Review sender */}
       {isLoggedIn && !alreadyRated && (
         <form onSubmit={handleReviewSubmit} className="mb-5">
           <div className="form-group">
@@ -804,6 +908,7 @@ export default function ViewBook() {
         </form>
       )}
 
+      {/* Your review */}
       {isLoggedIn && alreadyRated && (
         isEditing ? (
           <form
@@ -901,6 +1006,7 @@ export default function ViewBook() {
         )
       )}
 
+      {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
       <section className="list-group mb-3">
         {reviews.length > 0 ? (
@@ -1015,6 +1121,21 @@ export default function ViewBook() {
         onClose={() => setShowUnavailableModal(false)}
         onConfirm={handleReservation}
         onCancel={() => setShowUnavailableModal(false)}
+      />
+
+      <LoanToUserModal
+        show={showLoanToUserModal}
+        onClose={() => setShowLoanToUserModal(false)}
+        onConfirm={handleLoanToUser}
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
+      />
+
+      <ReserveForUserModal
+        show={showReserveForUserModal}
+        onClose={() => setShowReserveForUserModal(false)}
+        onConfirm={handleReserveForUser}
+        selectedUser={selectedUser}
       />
 
       <Notification key={notificationKey} message={notificationMessage} />
