@@ -8,7 +8,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
-  const [errorMessage, setErrorMessage] = useState("");
+  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +31,10 @@ const ViewProfile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem("token");
-      if (!token) navigate("/");
+      if (!token) {
+        setNotification("No token found, user might not be authenticated");
+        return navigate("/");
+      }
       try {
         const data = await fetchData(
           `/getUserProfile/${email}`,
@@ -39,10 +42,9 @@ const ViewProfile = () => {
           null,
           token
         );
-        console.log(data);
         setUserData(data);
       } catch (error) {
-        setErrorMessage("Error loading user profile");
+        setNotification("Error loading user profile: " + error.message);
       }
     };
 
@@ -61,10 +63,8 @@ const ViewProfile = () => {
         { title: bookTitle, user: email },
         token
       );
-      console.log(response);
       if (response) {
         setMessage(`The book "${bookTitle}" has been returned successfully.`);
-        //Cechk
         setUserData((prevData) => ({
           ...prevData,
           loanList: prevData.loanList.map((loan) =>
@@ -72,10 +72,10 @@ const ViewProfile = () => {
           ),
         }));
       } else {
-        setMessage(response.message || "Error al devolver el libro.");
+        setNotification(response.message || "Error returning the book.");
       }
     } catch (err) {
-      setMessage(`Error: ${err.message}`);
+      setNotification("Error: " + err.message);
     }
   };
 
@@ -88,26 +88,24 @@ const ViewProfile = () => {
         { username: userData.username, newRole: selectedRole },
         token
       );
-      console.log(response);
       if (response.success) {
         setMessage(`Role changed to "${selectedRole}" successfully.`);
         setShowModal(false);
-        //Cechk
         setUserData((prevData) => ({
           ...prevData,
           role: selectedRole
         }));
       } else {
-        setMessage(response.message || "Error changing role.");
+        setNotification(response.message || "Error changing role.");
       }
     } catch (err) {
-      setMessage(`Error: ${err.message}`);
+      setNotification("Error: " + err.message);
     }
   };
 
   return (
     <main className="container my-5">
-      {errorMessage && <Notification message={errorMessage} type="error" />}
+      {notification && <Notification message={notification} type="error" />}
       {message && <Notification message={message} type="success" />}
 
       <section className="card p-4 mb-4 shadow">
