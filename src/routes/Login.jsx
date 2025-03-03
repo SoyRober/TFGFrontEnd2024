@@ -37,6 +37,10 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth/login/google";
+  };
+
   return (
 <main className="container mt-5">
   <div className="row justify-content-center">
@@ -66,6 +70,9 @@ const Login = () => {
               />
             </div>
             <button type="submit" className="btn btn-primary w-100 shadow-sm">Log In</button>
+            <button type="button" className="btn btn-danger w-100 shadow-sm mt-2" onClick={handleGoogleLogin}>
+              Log in with Google
+            </button>
           </form>
           {message && <Notification key={notificationKey} message={message} />}
         </div>
