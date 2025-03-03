@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Notification from "../components/Notification";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,42 @@ const Register = () => {
   const [message, setMessage] = useState("");
   const [notificationKey, setNotificationKey] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => { 
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    
+    if (token) {
+      localStorage.setItem("token", token);
+      navigate("/");
+    }
+  }, []);
+  
+
+  const handleGoogleSignUp = () => {
+    window.location.href = "http://localhost:8080/oauth/login/google";
+  };
+
+
+ /*const handleGoogleCallback = async (code) => {
+    console.log("🚀 ~ handleGoogleCallback ~ handleGoogleCallback")
+    try {
+      const response = await fetchData("/oauth/callback", "POST", { code });
+      console.log("🚀 ~ handleGoogleCallback ~ response:", response)
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        navigate("/");
+      } else {
+        setMessage("Google login failed. Please try again.");
+        setNotificationKey((prevKey) => prevKey + 1);
+      }
+    } catch (error) {
+      console.error("Error during Google login:", error);
+      setMessage("Error connecting to the server.");
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };*/
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -90,6 +126,9 @@ const Register = () => {
               />
             </div>
             <button type="submit" className="btn btn-primary w-100 shadow-sm">Sign Up</button>
+            <button type="button" className="btn btn-danger w-100 shadow-sm mt-2" onClick={handleGoogleSignUp}>
+              Sign up with Google
+            </button>
           </form>
           {message && <Notification key={notificationKey} message={message} />}
         </div>
