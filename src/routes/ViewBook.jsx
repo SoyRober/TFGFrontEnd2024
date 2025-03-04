@@ -792,17 +792,19 @@ export default function ViewBook() {
           ) : (
             <div>No image available</div>
           )}
-          {isLoggedIn && hasPermissions && (
+          {isLoggedIn && (
             <div className="d-flex justify-content-center align-items-center mt-2">
               <div className="row w-100">
-                <div className="col">
-                  <button
-                    onClick={() => handleEditClick("image")}
-                    className="btn btn-primary w-100"
-                  >
-                    Edit image
-                  </button>
-                </div>
+                {hasPermissions && (
+                  <div className="col">
+                    <button
+                      onClick={() => handleEditClick("image")}
+                      className="btn btn-primary w-100"
+                    >
+                      Edit image
+                    </button>
+                  </div>
+                )}
                 <div className="col d-flex justify-content-center align-items-center">
                   <button
                     onClick={handleLoanClick}
@@ -811,17 +813,18 @@ export default function ViewBook() {
                     {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
                   </button>
                 </div>
-                <div className="col">
-                  <button
-                    onClick={() => setShowLoanToUserModal(true)}
-                    className="btn btn-secondary w-100"
-                  >
-                    Loan to User
-                  </button>
-                </div>
+                {hasPermissions && (
+                  <div className="col">
+                    <button
+                      onClick={() => setShowLoanToUserModal(true)}
+                      className="btn btn-secondary w-100"
+                    >
+                      Loan to User
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
-
           )}
         </div>
         <div className="col-md-6 mb-3">

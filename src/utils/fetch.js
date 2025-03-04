@@ -32,54 +32,48 @@ export const fetchData = async (
         : body;
   }
 
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+  const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
-    // Debugging: Log the raw response
-    //console.log("Raw response:", response);
+  // Debugging: Log the raw response
+  //console.log("Raw response:", response);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorMessage = `HTTP error! Status: ${response.status}`;
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorMessage = `HTTP error! Status: ${response.status}`;
 
-      // Debugging: Log the error text received from the server
-      //console.log("Error text from response:", errorText);
+    // Debugging: Log the error text received from the server
+    //console.log("Error text from response:", errorText);
 
-      try {
-        const errorJson = JSON.parse(errorText);
-        if (errorJson.message) {
-          errorMessage = errorJson.message;
-        }
-      } catch (jsonError) {
-        //console.error("Failed to parse error response JSON:", jsonError);
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.message) {
+        errorMessage = errorJson.message;
       }
-
-      throw new Error(errorMessage);
+    } catch (jsonError) {
+      //console.error("Failed to parse error response JSON:", jsonError);
     }
 
-    const responseContentType = response.headers.get("content-type");
+    throw new Error(errorMessage);
+  }
 
-    if (
-      responseContentType &&
-      responseContentType.includes("application/json")
-    ) {
-      const jsonResponse = await response.json();
+  const responseContentType = response.headers.get("content-type");
 
-      // Debugging: Log the parsed JSON response
-      //console.log("JSON response:", jsonResponse);
+  if (
+    responseContentType &&
+    responseContentType.includes("application/json")
+  ) {
+    const jsonResponse = await response.json();
 
-      return jsonResponse;
-    } else {
-      const textResponse = await response.text();
+    // Debugging: Log the parsed JSON response
+    //console.log("JSON response:", jsonResponse);
 
-      // Debugging: Log the plain text response
-      //console.log("Text response:", textResponse);
+    return jsonResponse;
+  } else {
+    const textResponse = await response.text();
 
-      return textResponse;
-    }
-  } catch (error) {
-    // Debugging: Log any error that occurred during fetch
-    //console.error("Failed to fetch data:", error);
-    throw error;
+    // Debugging: Log the plain text response
+    //console.log("Text response:", textResponse);
+
+    return textResponse;
   }
 };
