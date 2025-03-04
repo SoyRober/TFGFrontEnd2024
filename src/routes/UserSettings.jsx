@@ -346,7 +346,9 @@ export default function Settings() {
               <p className="card-text">Email: {email}</p>
               <p className="card-text">
                 BirthDate:{" "}
-                {birthDate ? new Date(birthDate).toLocaleDateString() : "N/A"}
+                {birthDate && !isNaN(new Date(birthDate).getTime())
+                  ? new Date(birthDate).toLocaleDateString()
+                  : "N/A"}
               </p>
               <p className="card-text">Role: {role}</p>
             </div>
