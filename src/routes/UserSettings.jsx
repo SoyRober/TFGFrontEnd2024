@@ -28,6 +28,7 @@ export default function Settings() {
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
   const [showChangeText, setShowChangeText] = useState(false);
+  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
 
   const handleMouseEnter = () => setShowChangeText(true);
   const handleMouseLeave = () => setShowChangeText(false);
@@ -69,8 +70,19 @@ export default function Settings() {
     setShowBirthDateModal(true);
   };
 
-  const handleChangePassword = () => {
-    setShowPasswordModal(true);
+  const handleChangePassword = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const data = await fetchData(`/hasPassword?email=${email}`, "GET", null, token);
+      if (data) {
+        setShowPasswordModal(true);
+      } else {
+        setShowSetPasswordModal(true);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage("An unexpected error occurred.");
+    }
   };
 
   const handleSaveUsername = async () => {
@@ -172,7 +184,6 @@ export default function Settings() {
         `/changePassword`,
         "POST",
         {
-          username: username,
           currentPassword: currentPassword,
           newPassword: newPassword,
         },
@@ -194,11 +205,39 @@ export default function Settings() {
     }
   };
 
+  const handleSaveSetPassword = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const data = await fetchData(
+        `/setPassword`,
+        "POST",
+        {
+          newPassword: newPassword,
+        },
+        token
+      );
+      if (data.success) {
+        setShowSetPasswordModal(false);
+        setErrorMessage("");
+      } else {
+        if (data.message) {
+          setErrorMessage(data.message);
+        } else {
+          setErrorMessage("Error: Password not set");
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setErrorMessage("An unexpected error occurred.");
+    }
+  };
+
   const handleCancel = () => {
     setShowUsernameModal(false);
     setShowEmailModal(false);
     setShowBirthDateModal(false);
     setShowPasswordModal(false);
+    setShowSetPasswordModal(false);
     setErrorMessage("");
   };
 
@@ -231,14 +270,12 @@ export default function Settings() {
     <main className="container mt-5">
       <h1 className="text-center mb-4">Settings</h1>
 
-      {/* User info */}
       <section className="card shadow-sm mb-4">
         <div
           className="card-body d-flex flex-column justify-content-center align-items-center"
           style={{ minHeight: "400px" }}
         >
           <div className="row w-100">
-            {/* Columna 1: Imagen de perfil */}
             <div className="col-md-4 d-flex justify-content-center mb-4">
               <div
                 style={{
@@ -284,7 +321,6 @@ export default function Settings() {
                   />
                 </label>
 
-                {/* Texto "Change Image" visible solo al pasar el ratón */}
                 {showChangeText && (
                   <span
                     style={{
@@ -304,7 +340,6 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Columna 2: Información del usuario */}
             <div className="col-md-4 text-center">
               <h5 className="card-title">User Information</h5>
               <p className="card-text">Username: {username}</p>
@@ -316,7 +351,6 @@ export default function Settings() {
               <p className="card-text">Role: {role}</p>
             </div>
 
-            {/* Columna 3: Botones de edición */}
             <div className="col-md-4 d-flex flex-column align-items-center">
               <button
                 className="btn btn-primary mb-3 w-50"
@@ -347,7 +381,6 @@ export default function Settings() {
         </div>
       </section>
 
-      {/* Modales para editar */}
       <EditAttributeModal
         show={showUsernameModal}
         onClose={handleCancel}
@@ -408,6 +441,32 @@ export default function Settings() {
             Cancel
           </Button>
           <Button variant="primary" onClick={handleSavePassword}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showSetPasswordModal} onHide={handleCancel}>
+        <Modal.Header closeButton>
+          <Modal.Title>Set Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>New Password</Form.Label>
+            <Form.Control
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              placeholder="New Password"
+            />
+          </Form.Group>
+          {errorMessage && <p className="text-danger mt-3">{errorMessage}</p>}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleSaveSetPassword}>
             Save
           </Button>
         </Modal.Footer>
