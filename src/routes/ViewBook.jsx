@@ -118,9 +118,9 @@ export default function ViewBook() {
     };
 
     const fetchAuthors = async () => {
-      const endpoint = "/searchAuthors";
+      const endpoint = "/authors/search";
       try {
-        const data = await fetchData(endpoint, "POST");
+        const data = await fetchData(endpoint, "GET");
         setAuthors(data);
       } catch (error) {
         console.error("Failed to fetch authors:", error);
@@ -792,19 +792,17 @@ export default function ViewBook() {
           ) : (
             <div>No image available</div>
           )}
-          {isLoggedIn && (
+          {isLoggedIn && hasPermissions && (
             <div className="d-flex justify-content-center align-items-center mt-2">
               <div className="row w-100">
-                {hasPermissions && (
-                  <div className="col">
-                    <button
-                      onClick={() => handleEditClick("image")}
-                      className="btn btn-primary w-100"
-                    >
-                      Edit image
-                    </button>
-                  </div>
-                )}
+                <div className="col">
+                  <button
+                    onClick={() => handleEditClick("image")}
+                    className="btn btn-primary w-100"
+                  >
+                    Edit image
+                  </button>
+                </div>
                 <div className="col d-flex justify-content-center align-items-center">
                   <button
                     onClick={handleLoanClick}
@@ -813,18 +811,17 @@ export default function ViewBook() {
                     {isLoaned && usersLoans.includes(username) ? "Return" : "Loan"}
                   </button>
                 </div>
-                {hasPermissions && (
-                  <div className="col">
-                    <button
-                      onClick={() => setShowLoanToUserModal(true)}
-                      className="btn btn-secondary w-100"
-                    >
-                      Loan to User
-                    </button>
-                  </div>
-                )}
+                <div className="col">
+                  <button
+                    onClick={() => setShowLoanToUserModal(true)}
+                    className="btn btn-secondary w-100"
+                  >
+                    Loan to User
+                  </button>
+                </div>
               </div>
             </div>
+
           )}
         </div>
         <div className="col-md-6 mb-3">

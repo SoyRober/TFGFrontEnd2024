@@ -1,7 +1,7 @@
-import React from "react";
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import Notification from "../components/Notification";
 import SelectableList from "./SelectableList";
+import { compressImage } from "../utils/compressImage.js";
 
 export default function CreateBookModal({
   showModal,
@@ -33,62 +33,12 @@ export default function CreateBookModal({
   notificationMessage,
   notificationKey,
 }) {
-  const resizeImage = (file, maxWidth, maxHeight) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = ({ target: { result } }) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const { width, height } = img;
-          const ratio = width / height;
-
-          canvas.width = width > maxWidth ? maxWidth : width;
-          canvas.height = height > maxHeight ? maxHeight : height;
-
-          if (canvas.width / ratio > maxHeight) {
-            canvas.height = maxHeight;
-            canvas.width = Math.round(maxHeight * ratio);
-          } else if (canvas.width < maxWidth) {
-            canvas.height = Math.round(canvas.width / ratio);
-          }
-
-          canvas
-            .getContext("2d")
-            .drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          canvas.toBlob(
-            (blob) => {
-              if (!blob) {
-                reject(new Error("Canvas is empty"));
-                return;
-              }
-
-              // Convert Blob to Base64
-              const blobReader = new FileReader();
-              blobReader.onload = ({ target: { result } }) => {
-                resolve(result.split(",")[1]); // Base64 sin encabezado
-              };
-              blobReader.onerror = reject;
-              blobReader.readAsDataURL(blob);
-            },
-            "image/jpeg",
-            0.75
-          );
-        };
-        img.onerror = reject;
-        img.src = result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const imageResized = await resizeImage(file, 200, 200);
+      const imageResized = await compressImage(file, 200, 200);
       setBookImage(imageResized);
     };
     if (file) {

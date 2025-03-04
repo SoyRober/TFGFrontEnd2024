@@ -23,7 +23,7 @@ const AuthorsComponent = () => {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const data = await fetchData(`/getAuthors`, "GET", null, token);
+        const data = await fetchData(`/authors`, "GET", null, token);
         setAuthors(data);
       } catch (err) {
         setMessage(err.message);
@@ -41,15 +41,15 @@ const AuthorsComponent = () => {
   const handleUpdateAuthor = async (id, name, birthDate) => {
     try {
       const response = await fetchData(
-        `/editAuthor`,
-        "POST",
+        `/authors`,
+        "PUT",
         { authorId: id, name: name, birthDate: birthDate },
         token
       );
       setMessage(response.message);
       setShowRenameModal(false);
       // Refresh authors list
-      const data = await fetchData(`/getAuthors`, "GET", null, token);
+      const data = await fetchData(`/authors`, "GET", null, token);
       setAuthors(data);
     } catch (err) {
       setMessage(err.message);
@@ -59,7 +59,7 @@ const AuthorsComponent = () => {
   const handleAddAuthor = async (name, birthDate) => {
     try {
       const response = await fetchData(
-        `/addAuthor`,
+        `/authors`,
         "POST",
         { name, birthDate },
         token
@@ -67,7 +67,7 @@ const AuthorsComponent = () => {
       setMessage(response.message);
       setShowAddModal(false);
       // Refresh authors list
-      const data = await fetchData(`/getAuthors`, "GET", null, token);
+      const data = await fetchData(`/authors`, "GET", null, token);
       setAuthors(data);
     } catch (err) {
       setMessage(err.message);
@@ -82,7 +82,7 @@ const AuthorsComponent = () => {
   const handleConfirmDelete = async () => {
     try {
       const response = await fetchData(
-        `/deleteAuthor?authorId=${selectedAuthor.id}`,
+        `/authors/${selectedAuthor.id}`,
         "DELETE",
         null,
         token
@@ -90,7 +90,7 @@ const AuthorsComponent = () => {
       setMessage(response.message);
       setShowDeleteModal(false);
       // Refresh authors list
-      const data = await fetchData(`/getAuthors`, "GET", null, token);
+      const data = await fetchData(`/authors`, "GET", null, token);
       setAuthors(data);
     } catch (err) {
       setMessage(err.message);

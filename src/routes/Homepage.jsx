@@ -156,8 +156,8 @@ export default function Homepage() {
   const fetchAuthors = async (token, searchString) => {
     try {
       const data = await fetchData(
-        "/searchAuthors",
-        "POST",
+        `/authors/search?search=${searchString}`,
+        "GET",
         searchString,
         token,
         "text/plain"
