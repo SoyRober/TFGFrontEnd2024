@@ -13,6 +13,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import LoanToUserModal from "../components/LoanToUserModal.jsx";
 import ReserveForUserModal from "../components/ReserveForUserModal.jsx";
+import {compressImage} from "../utils/compressImage.js";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -157,7 +158,7 @@ export default function ViewBook() {
       const data = await fetchData(
         `/getBookByTitle?title=${encodeURIComponent(title)}`
       );
-
+      console.log(data);
       setBook(data.book);
       setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
       setSelectedAuthors(data.book.authors || []);
@@ -322,10 +323,9 @@ export default function ViewBook() {
     } else {
       payload.append("value", editValue);
     }
-
     if (newImage) {
       try {
-        const resizedImageBlob = await resizeImage(newImage, 300, 300);
+        const resizedImageBlob = await compressImage(newImage, 300, 300);
         payload.append("image", resizedImageBlob);
       } catch (error) {
         setNotificationMessage("Error resizing image: " + error.message);
@@ -354,46 +354,6 @@ export default function ViewBook() {
       setNotificationMessage("Failed to update book: " + error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     }
-  };
-
-  // Función para redimensionar imágenes
-  const resizeImage = (file, maxWidth, maxHeight) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = ({ target: { result } }) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const { width, height } = img;
-          const ratio = width / height;
-
-          canvas.width = width > maxWidth ? maxWidth : width;
-          canvas.height = height > maxHeight ? maxHeight : height;
-
-          if (canvas.width / ratio > maxHeight) {
-            canvas.height = maxHeight;
-            canvas.width = Math.round(maxHeight * ratio);
-          } else if (canvas.width < maxWidth) {
-            canvas.height = Math.round(canvas.width / ratio);
-          }
-
-          canvas
-            .getContext("2d")
-            .drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          canvas.toBlob(
-            (blob) =>
-              blob ? resolve(blob) : reject(new Error("Canvas is empty")),
-            "image/jpeg",
-            0.75
-          );
-        };
-        img.onerror = reject;
-        img.src = result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
   };
 
   const handleCloseModal = () => {
