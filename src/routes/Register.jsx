@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Notification from "../components/Notification";
+import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 
@@ -130,7 +130,7 @@ const Register = () => {
               Sign up with Google
             </button>
           </form>
-          {message && <Notification key={notificationKey} message={message} />}
+          {message && <NotificationError key={notificationKey} message={message} />}
         </div>
       </div>
     </div>

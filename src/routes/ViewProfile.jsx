@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Notification from "../components/Notification";
+import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -105,8 +105,8 @@ const ViewProfile = () => {
 
   return (
     <main className="container my-5">
-      {notification && <Notification message={notification} type="error" />}
-      {message && <Notification message={message} type="success" />}
+      {notification && <NotificationError message={notification} type="error" />}
+      {message && <NotificationError message={message} type="success" />}
 
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
