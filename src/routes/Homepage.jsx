@@ -28,6 +28,7 @@ export default function Homepage() {
   const [searchStringAuthors, setSearchStringAuthors] = useState("");
   const [searchStringGenres, setSearchStringGenres] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermAuthor, setSearchTermAuthor] = useState("");
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
@@ -112,6 +113,10 @@ export default function Homepage() {
       const params = new URLSearchParams();
       if (searchTerm) {
         params.append("bookName", searchTerm);
+      }
+
+      if (searchTermAuthor) {
+        params.append("authorName", searchTermAuthor);
       }
 
       if (dateFilter) {
@@ -279,13 +284,17 @@ export default function Homepage() {
     setSearchTerm(e.target.value);
   };
 
+  const handleSearchAuthorChange = (e) => {
+    setSearchTermAuthor(e.target.value);
+  };
+
   useEffect(() => {
     if (startDateFilter) {
       fetchBooksData(0, startDateFilter.getFullYear());
     } else {
       fetchBooksData(0);
     }
-  }, [searchTerm]);
+  }, [searchTerm, searchTermAuthor]);
 
   const resetStartDateFilter = () => {
     setStartDateFilter("");
@@ -449,13 +458,22 @@ export default function Homepage() {
         </section>
 
         <section className="row w-100 justify-content-center">
-          <div className="col-12 col-md-6 col-lg-4">
+          <div className="col-12 col-md-6 col-lg-3">
             <input
               type="text"
               className="form-control"
               placeholder="Search books..."
               value={searchTerm}
               onChange={handleSearchChange}
+            />
+          </div>
+          <div className="col-12 col-md-6 col-lg-3">
+            <input
+              type="text"
+              className="form-control"
+              placeholder="Search By author"
+              value={searchTermAuthor}
+              onChange={handleSearchAuthorChange}
             />
           </div>
         </section>
