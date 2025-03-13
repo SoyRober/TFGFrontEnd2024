@@ -1,5 +1,5 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import Notification from "../components/Notification";
+import NotificationError from "../components/NotificationError";
 import SelectableList from "./SelectableList";
 import { compressImage } from "../utils/compressImage.js";
 
@@ -73,7 +73,7 @@ export default function CreateBookModal({
         <Modal.Title>Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Notification key={notificationKey} message={notificationMessage} />
+        <NotificationError key={notificationKey} message={notificationMessage} />
         <Form>
           <Row>
             <Col md={6}>

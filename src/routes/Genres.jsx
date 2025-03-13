@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { fetchData } from "../utils/fetch";
-import Notification from "../components/Notification";
+import NotificationError from "../components/NotificationError";
 import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameAttributeModal from "../components/RenameAttributeModal";
@@ -93,7 +93,7 @@ const GenresComponent = () => {
 
   return (
     <main className="container">
-      {message && <Notification message={message} />}
+      {message && <NotificationError message={message} />}
 
       <section className="row">
         {genres.length > 0 ? (

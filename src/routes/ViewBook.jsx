@@ -8,7 +8,7 @@ import EditBookAttributeModal from "../components/EditBookAttributeModal.jsx";
 import BookLoansModal from "../components/BookLoansModal.jsx";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import BookReservationModal from "../components/BookReservationModal.jsx";
-import Notification from "../components/Notification";
+import NotificationError from "../components/NotificationError";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import LoanToUserModal from "../components/LoanToUserModal.jsx";
@@ -1098,7 +1098,7 @@ export default function ViewBook() {
         selectedUser={selectedUser}
       />
 
-      <Notification key={notificationKey} message={notificationMessage} />
+      <NotificationError key={notificationKey} message={notificationMessage} />
     </main>
   );
 }

@@ -1,6 +1,6 @@
-import "../styles/notification.css";
+import "../styles/notificationError.css";
 
-const Notification = ({ message }) => {
+const NotificationError = ({ message }) => {
     if (!message) return null;
 
     return (
@@ -15,4 +15,4 @@ const Notification = ({ message }) => {
     );
 };
 
-export default Notification;
+export default NotificationError;
