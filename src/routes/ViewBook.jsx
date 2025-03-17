@@ -96,27 +96,25 @@ export default function ViewBook() {
 				);
 				setReviews(data);
 
-				const token = localStorage.getItem("token");
-				if (token) {
-					//for each review, fetch user vote
-					const updatedReviews = await Promise.all(
-						data.map(async (review) => {
-							const userVote = await fetchUserVote(review.id, token);
-							return {
-								...review,
-								userLiked: userVote === "liked",
-								userDisliked: userVote === "disliked",
-							};
-						})
-					);
-					setReviews(updatedReviews);
-				}
-			} catch (error) {
-				console.error("Failed to fetch reviews:", error);
-			}
-
-			fetchUsersLoans();
-		};
+        const token = localStorage.getItem("token");
+        if (token) {
+          //for each review, fetch user vote
+          const updatedReviews = await Promise.all(
+            data.map(async (review) => {
+              const userVote = await fetchUserVote(review.id, token);
+              return {
+                ...review,
+                userLiked: userVote === "liked",
+                userDisliked: userVote === "disliked",
+              };
+            })
+          );
+          setReviews(updatedReviews);
+        }
+      } catch (error) {
+        console.error("Failed to fetch reviews:", error);
+      }
+    };
 
 		const fetchAuthors = async () => {
 			const endpoint = "/authors/search";
@@ -144,14 +142,13 @@ export default function ViewBook() {
 			fetchExistingReview();
 		};
 
-		fetchBookData();
-		fetchReviews();
-		fetchAuthors();
-		fetchGenres();
-		checkLoanStatus();
-		autoCheckExistingReview();
-		fetchUsersLoans();
-	}, [title]);
+    fetchBookData();
+    fetchReviews();
+    fetchAuthors();
+    fetchGenres();
+    checkLoanStatus();
+    autoCheckExistingReview();
+  }, [title]);
 
 	const fetchBookData = async () => {
 		try {
@@ -168,35 +165,13 @@ export default function ViewBook() {
 		}
 	};
 
-	const handleReviewChange = (e) => {
-		const { name, value } = e.target;
-		setReviewData((prevData) => ({
-			...prevData,
-			[name]: value,
-		}));
-	};
-
-	const fetchUsersLoans = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			//console.error("No token found, user might not be authenticated");
-			console.log("No hay token");
-			return;
-		}
-
-		try {
-			const data = await fetchData(
-				`/usersLoans?page=${page}&size=10`,
-				"POST",
-				title,
-				token,
-				"text/plain"
-			);
-			setUsersLoans(data.message);
-		} catch (error) {
-			console.error(error);
-		}
-	};
+  const handleReviewChange = (e) => {
+    const { name, value } = e.target;
+    setReviewData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
 	const handleReviewSubmit = async (e) => {
 		e.preventDefault();
@@ -275,27 +250,27 @@ export default function ViewBook() {
 		setEditValue(e.target.value);
 	};
 
-	const handleAuthorChange = (e) => {
-		const options = e.target.options;
-		const selectedValues = [];
-		for (let i = 0; i < options.length; i++) {
-			if (options[i].selected) {
-				selectedValues.push(options[i].value);
-			}
-		}
-		setSelectedAuthors(selectedValues);
-	};
+  const handleAuthorChange = (e) => {
+    const options = e.target.options;
+    const selectedValues = [];
+    for (const option of options) {
+      if (option.selected) {
+        selectedValues.push(option.value);
+      }
+    }
+    setSelectedAuthors(selectedValues);
+  };
 
-	const handleGenreChange = (e) => {
-		const options = e.target.options;
-		const selectedValues = [];
-		for (let i = 0; i < options.length; i++) {
-			if (options[i].selected) {
-				selectedValues.push(options[i].value);
-			}
-		}
-		setSelectedGenres(selectedValues);
-	};
+  const handleGenreChange = (e) => {
+    const options = e.target.options;
+    const selectedValues = [];
+    for (const option of options) {
+      if (option.selected) {
+        selectedValues.push(option.value);
+      }
+    }
+    setSelectedGenres(selectedValues);
+  };
 
 	const handleEditSubmit = async (e) => {
 		e.preventDefault();
@@ -414,24 +389,23 @@ export default function ViewBook() {
 
 		setIsAvailable(true);
 
-		try {
-			if (!isLoaned && isAvailable) {
-				await fetchData("/loan", "POST", title, token, "text/plain");
-				fetchUsersLoans();
-				setLoanStatus(true);
-			}
-			if (isLoaned) {
-				await fetchData("/return", "PUT", { title: title }, token);
-				setUsersLoans((prevLoans) =>
-					prevLoans.filter((item) => item !== username)
-				);
-				setLoanStatus(false);
-			}
-		} catch (error) {
-			setNotificationMessage("Failed to update loan status: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+    try {
+      if (!isLoaned && isAvailable) {
+        await fetchData("/loan", "POST", title, token, "text/plain");
+        setLoanStatus(true);
+      }
+      if (isLoaned) {
+        await fetchData("/return", "PUT", { title: title }, token);
+        setUsersLoans((prevLoans) =>
+          prevLoans.filter((item) => item !== username)
+        );
+        setLoanStatus(false);
+      }
+    } catch (error) {
+      setNotificationMessage("Failed to update loan status: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
 	const handleReservation = async () => {
 		const token = localStorage.getItem("token");
