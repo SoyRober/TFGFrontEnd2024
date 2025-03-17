@@ -7,10 +7,12 @@ import { jwtDecode } from "jwt-decode";
 import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
 import Notifications from "../components/Notifications.jsx";
+import LibrarySelector from "../components/LibrarySelector.jsx";
 
 export default function Root() {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const key = useState(Date.now());
   const navigate = useNavigate();
@@ -22,11 +24,9 @@ export default function Root() {
     if (token) {
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
-      if (userRole !== "USER") {
-        setHasPermissions(true);
-      } else {
-        setHasPermissions(false);
-      }
+
+      setHasPermissions(userRole === "ADMIN" || userRole === "LIBRARIAN");
+      setIsAdmin(userRole === "ADMIN");      
     } else {
       setHasPermissions(false);
     }
@@ -105,6 +105,7 @@ export default function Root() {
                       </Link>
                     </li>
                   )}
+                  
                   {hasPermissions && (
                     <li className="nav-item">
                       <Link className="nav-link text-light ms-3" to="/attributes">
@@ -119,6 +120,9 @@ export default function Root() {
 
           {isLoggedIn && (
             <ul className="navbar-nav ms-auto">
+              <li className="nav-item">
+                <LibrarySelector />
+              </li>
               <li className="nav-item">
                 <Notifications />
               </li>
