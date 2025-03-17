@@ -114,8 +114,6 @@ export default function ViewBook() {
       } catch (error) {
         console.error("Failed to fetch reviews:", error);
       }
-
-      fetchUsersLoans();
     };
 
     const fetchAuthors = async () => {
@@ -150,7 +148,6 @@ export default function ViewBook() {
     fetchGenres();
     checkLoanStatus();
     autoCheckExistingReview();
-    fetchUsersLoans();
   }, [title]);
 
   const fetchBookData = async () => {
@@ -174,28 +171,6 @@ export default function ViewBook() {
       ...prevData,
       [name]: value,
     }));
-  };
-
-  const fetchUsersLoans = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      //console.error("No token found, user might not be authenticated");
-      console.log("No hay token");
-      return;
-    }
-
-    try {
-      const data = await fetchData(
-        `/usersLoans?page=${page}&size=10`,
-        "POST",
-        title,
-        token,
-        "text/plain"
-      );
-      setUsersLoans(data.message);
-    } catch (error) {
-      console.error(error);
-    }
   };
 
   const handleReviewSubmit = async (e) => {
@@ -276,9 +251,9 @@ export default function ViewBook() {
   const handleAuthorChange = (e) => {
     const options = e.target.options;
     const selectedValues = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selectedValues.push(options[i].value);
+    for (const option of options) {
+      if (option.selected) {
+        selectedValues.push(option.value);
       }
     }
     setSelectedAuthors(selectedValues);
@@ -287,9 +262,9 @@ export default function ViewBook() {
   const handleGenreChange = (e) => {
     const options = e.target.options;
     const selectedValues = [];
-    for (let i = 0; i < options.length; i++) {
-      if (options[i].selected) {
-        selectedValues.push(options[i].value);
+    for (const option of options) {
+      if (option.selected) {
+        selectedValues.push(option.value);
       }
     }
     setSelectedGenres(selectedValues);
@@ -415,7 +390,6 @@ export default function ViewBook() {
     try {
       if (!isLoaned && isAvailable) {
         await fetchData("/loan", "POST", title, token, "text/plain");
-        fetchUsersLoans();
         setLoanStatus(true);
       }
       if (isLoaned) {
