@@ -141,8 +141,8 @@ export default function Root() {
                     className="dropdown-menu dropdown-menu-end bg-dark"
                     aria-labelledby="navbarDropdown"
                     style={{
-                      position: "absolute", // Asegura que el menú se abra fuera del contenedor
-                      zIndex: 1050, // Asegura que el menú esté por encima de otros elementos
+                      position: "absolute",
+                      zIndex: 1050,
                     }}
                   >
                     <li>

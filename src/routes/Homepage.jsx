@@ -103,60 +103,46 @@ export default function Homepage() {
   }, [isFetching]);
 
   const fetchBooksData = async (page, dateFilter = null) => {
-    if (isFetching) {
-      return;
-    }
+    if (isFetching) return;
     setIsFetching(true);
-
+  
     try {
-      const baseUrl = `/getFilteredBooks?page=${page}&size=10`;
-      const params = new URLSearchParams();
-      if (searchTerm) {
-        params.append("bookName", searchTerm);
-      }
-
-      if (searchTermAuthor) {
-        params.append("authorName", searchTermAuthor);
-      }
-
-      if (dateFilter) {
-        params.append("date", dateFilter);
-      }
-      const url = `${baseUrl}&${params.toString()}`;
-
-      let data;
-      try{
-        data = await fetchData(url);
-      } catch (error) {
-        setNotificationMessage("No more books to show.");
+      const params = new URLSearchParams({ page, size: "10" });
+  
+      if (searchTerm) params.append("bookName", searchTerm);
+      if (searchTermAuthor) params.append("authorName", searchTermAuthor);
+      if (dateFilter) params.append("date", dateFilter);
+  
+      const url = `/books/filter?${params.toString()}`;
+      const data = await fetchData(url);
+  
+      if (!data || data.length === 0) {
+        setNotificationMessage("There are not more books to show.");
         setNotificationKey((prevKey) => prevKey + 1);
-        setIsFetching(false);
         return;
       }
-
+  
       setBooks((prevBooks) => {
-        if (page === 0) {
-          return data.books;
-        } else {
-          //Filter duplicates, not sure why it happens
-          const newBooks = data.books.filter(
-            (newBook) => !prevBooks.some((book) => book.title === newBook.title)
-          );
-          return [...prevBooks, ...newBooks];
-        }
+        if (page === 0) return data;
+  
+        const newBooks = data.filter(
+          (newBook) => !prevBooks.some((book) => book.title === newBook.title)
+        );
+        return [...prevBooks, ...newBooks];
       });
+  
       setPage(page);
-      setExtraBottomSpace(extraBottomSpace + cardSize / 7);
-      setAtBottom(false); // Move this line here to ensure it's set after fetching
+      setExtraBottomSpace((prev) => prev + cardSize / 7);
     } catch (error) {
+      console.error("Error al obtener libros:", error);
       setNotificationMessage(error.message);
       setNotificationKey((prevKey) => prevKey + 1);
-      setAtBottom(false); // Ensure atBottom is reset in case of error
     } finally {
+      setAtBottom(false);
       setIsLoading(false);
       setIsFetching(false);
     }
-  };
+  };  
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -261,7 +247,7 @@ export default function Homepage() {
     };
 
     try {
-      const response = await fetchData("/saveBook", "POST", bookData, token);
+      const response = await fetchData("/book", "POST", bookData, token);
 
       if (!response.success) {
         const errorMessage = response.message || "Failed to save book.";

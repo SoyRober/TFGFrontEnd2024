@@ -313,8 +313,8 @@ export default function ViewBook() {
 
 		try {
 			const updatedBook = await fetchData(
-				"/updateBook",
-				"POST",
+				"/book",
+				"PUT",
 				payload,
 				token
 			);
@@ -351,7 +351,7 @@ export default function ViewBook() {
 
 		try {
 			await fetchData(
-				`/deleteBook?title=${encodeURIComponent(title)}`,
+				`/book/${title}`,
 				"DELETE",
 				null,
 				token
@@ -372,6 +372,7 @@ export default function ViewBook() {
 			return;
 		}
 
+		//Hay que modificar esto para comprobar su disponibilidad
 		if (book.quantity < 1) {
 			const response = await fetchData(
 				`/isAvailable?title=${encodeURIComponent(title)}`,
