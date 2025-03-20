@@ -27,7 +27,7 @@ export default function Homepage() {
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState("");
   const [searchStringGenres, setSearchStringGenres] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTermTitle, setSearchTermTitle] = useState("");
   const [searchTermAuthor, setSearchTermAuthor] = useState("");
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
@@ -43,8 +43,10 @@ export default function Homepage() {
   });
   const [isFetching, setIsFetching] = useState(false);
 
+  // Navegación
   const navigate = useNavigate();
 
+  // Efectos
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -70,16 +72,14 @@ export default function Homepage() {
       const documentHeight = document.documentElement.scrollHeight;
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      if (scrollTop + windowHeight >= documentHeight - 5 && !atBottom) {
-        setAtBottom(true);
-        fetchBooksData(page + 1);
+      if (scrollTop + windowHeight >= documentHeight - 5 && !isFetching) {
+        setPage((prev) => prev + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [atBottom, page]);
+  }, [isFetching]);
 
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
@@ -102,39 +102,56 @@ export default function Homepage() {
     }
   }, [isFetching]);
 
-  const fetchBooksData = async (page, dateFilter = null) => {
+  useEffect(() => {
+    setBooks([]);
+    setPage(0);
+
+    const year = startDateFilter ? startDateFilter.getFullYear() : null;
+    fetchBooksData(0, year);
+  }, [startDateFilter, searchTermTitle, searchTermAuthor]);
+
+  // Funciones
+  const fetchBooksData = async (page, year = null) => {
     if (isFetching) return;
     setIsFetching(true);
-  
+
     try {
       const params = new URLSearchParams({ page, size: "10" });
-  
-      if (searchTerm) params.append("bookName", searchTerm);
-      if (searchTermAuthor) params.append("authorName", searchTermAuthor);
-      if (dateFilter) params.append("date", dateFilter);
-  
+
+      if (searchTermTitle.length > 2) {
+        params.append("bookName", searchTermTitle);
+      }
+
+      if (searchTermAuthor.length > 2) {
+        params.append("authorName", searchTermAuthor);
+      }
+
+      if (year !== null) {
+        // Asegurar que solo se agregue si es válido
+        params.append("date", year);
+      }
+
       const url = `/books/filter?${params.toString()}`;
       const data = await fetchData(url);
-  
+
       if (!data || data.length === 0) {
-        setNotificationMessage("There are not more books to show.");
+        setNotificationMessage("There are no more books to show.");
         setNotificationKey((prevKey) => prevKey + 1);
         return;
       }
-  
+
       setBooks((prevBooks) => {
         if (page === 0) return data;
-  
-        const newBooks = data.filter(
-          (newBook) => !prevBooks.some((book) => book.title === newBook.title)
-        );
-        return [...prevBooks, ...newBooks];
+        return [
+          ...prevBooks,
+          ...data.filter(
+            (newBook) => !prevBooks.some((book) => book.title === newBook.title)
+          ),
+        ];
       });
-  
-      setPage(page);
+
       setExtraBottomSpace((prev) => prev + cardSize / 7);
     } catch (error) {
-      console.error("Error al obtener libros:", error);
       setNotificationMessage(error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     } finally {
@@ -142,7 +159,7 @@ export default function Homepage() {
       setIsLoading(false);
       setIsFetching(false);
     }
-  };  
+  };
 
   const fetchAuthors = async (token, searchString) => {
     try {
@@ -267,34 +284,17 @@ export default function Homepage() {
   };
 
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTermTitle(e.target.value);
   };
 
   const handleSearchAuthorChange = (e) => {
     setSearchTermAuthor(e.target.value);
   };
 
-  useEffect(() => {
-    if (startDateFilter) {
-      fetchBooksData(0, startDateFilter.getFullYear());
-    } else {
-      fetchBooksData(0);
-    }
-  }, [searchTerm, searchTermAuthor]);
-
   const resetStartDateFilter = () => {
     setStartDateFilter("");
     fetchBooksData(0);
   };
-
-  useEffect(() => {
-    if (startDateFilter) {
-      const year = startDateFilter.getFullYear();
-      fetchBooksData(0, year);
-    } else {
-      fetchBooksData(0);
-    }
-  }, [startDateFilter]);
 
   const getColumnClass = (cardSize) => {
     localStorage.setItem("cardSize", cardSize);
@@ -310,10 +310,7 @@ export default function Homepage() {
     }
   };
 
-  useEffect(() => {
-    localStorage.setItem("cardSize", cardSize);
-  }, [cardSize]);
-
+  // Renderizado
   return (
     <main
       className="fade-in d-flex flex-column justify-content-center align-items-center"
@@ -326,7 +323,10 @@ export default function Homepage() {
     >
       {notificationMessage && (
         <section className="mb-4 text-center d-flex justify-content-left">
-          <NotificationError key={notificationKey} message={notificationMessage} />
+          <NotificationError
+            key={notificationKey}
+            message={notificationMessage}
+          />
         </section>
       )}
 
@@ -385,9 +385,8 @@ export default function Homepage() {
 
         <section className="row w-100 justify-content-center mb-4">
           <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
-            <div
+            <fieldset
               className="btn-group w-100"
-              role="group"
               aria-label="Card size selector"
             >
               <button
@@ -417,7 +416,7 @@ export default function Homepage() {
               >
                 Grande
               </button>
-            </div>
+            </fieldset>
           </div>
         </section>
 
@@ -449,7 +448,7 @@ export default function Homepage() {
               type="text"
               className="form-control"
               placeholder="Search books..."
-              value={searchTerm}
+              value={searchTermTitle}
               onChange={handleSearchChange}
             />
           </div>
