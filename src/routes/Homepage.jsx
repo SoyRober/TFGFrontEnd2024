@@ -180,11 +180,9 @@ export default function Homepage() {
   const fetchGenres = async (token, searchString) => {
     try {
       const data = await fetchData(
-        "/searchGenres",
-        "POST",
-        searchString,
-        token,
-        "text/plain"
+        `/genres/search?search=${searchString}`,
+        "GET",
+        null,
       );
       setGenres(data);
     } catch (error) {

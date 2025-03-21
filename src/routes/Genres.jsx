@@ -8,6 +8,7 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import RenameAttributeModal from "../components/RenameAttributeModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import AddAttributeModal from "../components/AddAttributeModal"; // Importa el nuevo componente
+import Loading from "../components/Loading";
 
 const GenresComponent = () => {
   const [genres, setGenres] = useState([]);
@@ -23,7 +24,7 @@ const GenresComponent = () => {
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const data = await fetchData(`/getGenres`, "GET", null, token);
+        const data = await fetchData(`/genres`, "GET");
         setGenres(data);
       } catch (err) {
         setMessage(err.message);
@@ -40,28 +41,28 @@ const GenresComponent = () => {
   const handleRenameGenre = async (id, newName) => {
     try {
       const response = await fetchData(
-        `/editGenre`,
-        "POST",
-        { id, newName },
+        `/genres`,
+        "PUT",
+        { id: id, name: newName },
         token
       );
       setMessage(response.message);
       setShowRenameModal(false);
       // Refresh genres list
-      const data = await fetchData(`/getGenres`, "GET", null, token);
+      const data = await fetchData(`/genres`, "GET");
       setGenres(data);
     } catch (err) {
       setMessage(err.message);
     }
   };
 
-  const handleAddGenre = async (newName) => {
+  const handleAddGenre = async (newName, id) => {
     try {
-      const response = await fetchData(`/addGenre`, "POST", newName, token);
+      const response = await fetchData(`/genres`, "POST", newName, token);
       setMessage(response.message);
       setShowAddModal(false);
       // Refresh genres list
-      const data = await fetchData(`/getGenres`, "GET", null, token);
+      const data = await fetchData(`/genres`, "GET");
       setGenres(data);
     } catch (err) {
       setMessage(err.message);
@@ -76,7 +77,7 @@ const GenresComponent = () => {
   const handleConfirmDelete = async () => {
     try {
       const response = await fetchData(
-        `/deleteGenre?genreId=${selectedGenre.id}`,
+        `/genres/${selectedGenre.id}`,
         "DELETE",
         null,
         token
@@ -84,7 +85,7 @@ const GenresComponent = () => {
       setMessage(response.message);
       setShowDeleteModal(false);
       // Refresh genres list
-      const data = await fetchData(`/getGenres`, "GET", null, token);
+      const data = await fetchData(`/genres`, "GET");
       setGenres(data);
     } catch (err) {
       setMessage(err.message);
@@ -121,7 +122,7 @@ const GenresComponent = () => {
             </div>
           ))
         ) : (
-          <p>Loading genres...</p>
+          <Loading />
         )}
       </section>
 
@@ -151,13 +152,11 @@ const GenresComponent = () => {
         />
       )}
 
-      {
-        <AddAttributeModal
-          show={showAddModal}
-          handleClose={() => setShowAddModal(false)}
-          handleAdd={handleAddGenre}
-        />
-      }
+      <AddAttributeModal
+        show={showAddModal}
+        handleClose={() => setShowAddModal(false)}
+        handleAdd={handleAddGenre}
+      />
     </main>
   );
 };

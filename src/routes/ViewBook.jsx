@@ -128,9 +128,9 @@ export default function ViewBook() {
 		};
 
 		const fetchGenres = async () => {
-			const endpoint = "/searchGenres";
+			const endpoint = "/genres/search";
 			try {
-				const data = await fetchData(endpoint, "POST");
+				const data = await fetchData(endpoint, "GET");
 				setGenres(data);
 			} catch (error) {
 				console.error("Failed to fetch genres:", error);
