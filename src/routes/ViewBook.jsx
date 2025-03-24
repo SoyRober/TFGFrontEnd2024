@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -43,7 +44,6 @@ export default function ViewBook() {
 		comment: "",
 	});
 	const [usersLoans, setUsersLoans] = useState([]);
-	const [page, setPage] = useState(0);
 	const [isAvailable, setIsAvailable] = useState(true);
 	const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 	const [notificationMessage, setNotificationMessage] = useState("");
@@ -128,10 +128,11 @@ export default function ViewBook() {
 		};
 
 		const fetchGenres = async () => {
-			const endpoint = "/genres/search";
+			const endpoint = "/getGenres";
 			try {
 				const data = await fetchData(endpoint, "GET");
 				setGenres(data);
+				console.log("🚀 ~ fetchGenres ~ data:", data)
 			} catch (error) {
 				console.error("Failed to fetch genres:", error);
 				setGenres([]);
@@ -151,9 +152,10 @@ export default function ViewBook() {
   }, [title]);
 
 	const fetchBookData = async () => {
+		console.log("Fetching book data");
 		try {
 			const data = await fetchData(
-				`/getBookByTitle?title=${encodeURIComponent(title)}`
+				`/books/title?title=${encodeURIComponent(title)}`
 			);
 			console.log(data);
 			setBook(data.book);
@@ -795,7 +797,7 @@ export default function ViewBook() {
 						},
 						{
 							label: "Genres",
-							value: book.genres?.join(", ") || "N/A",
+							value: genres?.map(g => g.name).join(", ") || "N/A",
 							attribute: "genres",
 						},
 						{ label: "Quantity", value: book.quantity, attribute: "quantity" },
