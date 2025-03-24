@@ -85,7 +85,7 @@ export default function ViewBook() {
 				);
 				setLoanStatus(response);
 			} catch (error) {
-				console.error("Failed to check loan status:", error);
+				console.log(error.message)
 			}
 		};
 
@@ -112,8 +112,8 @@ export default function ViewBook() {
           setReviews(updatedReviews);
         }
       } catch (error) {
-        console.error("Failed to fetch reviews:", error);
-      }
+		console.log(error.message)
+	}
     };
 
 		const fetchAuthors = async () => {
@@ -122,7 +122,7 @@ export default function ViewBook() {
 				const data = await fetchData(endpoint, "GET");
 				setAuthors(data);
 			} catch (error) {
-				console.error("Failed to fetch authors:", error);
+				console.log(error.message)
 				setAuthors([]);
 			}
 		};
@@ -134,7 +134,7 @@ export default function ViewBook() {
 				setGenres(data);
 				console.log("🚀 ~ fetchGenres ~ data:", data)
 			} catch (error) {
-				console.error("Failed to fetch genres:", error);
+				console.log(error.message)
 				setGenres([]);
 			}
 		};
@@ -163,7 +163,7 @@ export default function ViewBook() {
 			setSelectedAuthors(data.book.authors || []);
 			setSelectedGenres(data.book.genres || []);
 		} catch (error) {
-			console.error("Failed to fetch book details:", error);
+			console.log(error.message)
 		}
 	};
 
@@ -204,6 +204,7 @@ export default function ViewBook() {
 			setAlreadyRated(true);
 			await fetchExistingReview();
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to submit review: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -231,6 +232,7 @@ export default function ViewBook() {
 				setCurrentUserComment(data.currentUserComment);
 			}
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage(
 				"Failed to fetch Existing Review: " + error.message
 			);
@@ -307,6 +309,7 @@ export default function ViewBook() {
 				const resizedImageBlob = await compressImage(newImage, 300, 300);
 				payload.append("image", resizedImageBlob);
 			} catch (error) {
+				console.log(error.message)
 				setNotificationMessage("Error resizing image: " + error.message);
 				setNotificationKey((prevKey) => prevKey + 1);
 				return;
@@ -330,6 +333,7 @@ export default function ViewBook() {
 				fetchBookData();
 			}
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to update book: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -361,6 +365,7 @@ export default function ViewBook() {
 			setShowDeleteConfirmation(false);
 			navigate("/");
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to delete book: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -405,7 +410,8 @@ export default function ViewBook() {
         setLoanStatus(false);
       }
     } catch (error) {
-      setNotificationMessage("Failed to update loan status: " + error.message);
+		console.log(error.message)
+		setNotificationMessage("Failed to update loan status: " + error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     }
   };
@@ -428,6 +434,7 @@ export default function ViewBook() {
 			setNotificationMessage("Book reserved");
 			setNotificationKey((prevKey) => prevKey + 1);
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to reserve book: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -478,6 +485,7 @@ export default function ViewBook() {
 			setIsEditing(false);
 			fetchExistingReview();
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to edit review: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -514,6 +522,7 @@ export default function ViewBook() {
 			);
 			setReviews(reviewsData);
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to delete review: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -533,6 +542,7 @@ export default function ViewBook() {
 				prevLoans.filter((item) => item !== username)
 			);
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to update loan status: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -548,6 +558,7 @@ export default function ViewBook() {
 			);
 			return response;
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to fetch user vote: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 			return null;
@@ -589,6 +600,7 @@ export default function ViewBook() {
 				);
 				setReviews(updatedReviews);
 			} catch (error) {
+				console.log(error.message)
 				setNotificationMessage("Failed to delete vote: " + error.message);
 				setNotificationKey((prevKey) => prevKey + 1);
 			}
@@ -626,6 +638,7 @@ export default function ViewBook() {
 				await fetchData(`/addVote`, "PUT", body, token);
 				setReviews(updatedReviews);
 			} catch (error) {
+				console.log(error.message)
 				setNotificationMessage("Failed to update vote: " + error.message);
 				setNotificationKey((prevKey) => prevKey + 1);
 			}
@@ -664,6 +677,7 @@ export default function ViewBook() {
 			setNotificationKey((prevKey) => prevKey + 1);
 			setShowLoanToUserModal(false);
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage("Failed to loan book to user: " + error.message);
 			setNotificationKey((prevKey) => prevKey + 1);
 		}
@@ -693,6 +707,7 @@ export default function ViewBook() {
 			setNotificationKey((prevKey) => prevKey + 1);
 			setShowReserveForUserModal(false);
 		} catch (error) {
+			console.log(error.message)
 			setNotificationMessage(
 				"Failed to reserve book for user: " + error.message
 			);

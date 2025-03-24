@@ -80,7 +80,7 @@ export default function Settings() {
         setShowSetPasswordModal(true);
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log(error.message)
       setErrorMessage("An unexpected error occurred.");
     }
   };
@@ -111,7 +111,7 @@ export default function Settings() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log(error.message)
       setErrorMessage("An unexpected error occurred.");
     }
   };
@@ -142,7 +142,7 @@ export default function Settings() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log(error.message)
       setErrorMessage("An unexpected error occurred.");
     }
   };
@@ -172,7 +172,7 @@ export default function Settings() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log(error.message)
       setErrorMessage("An unexpected error occurred.");
     }
   };
@@ -200,7 +200,8 @@ export default function Settings() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error:", error);      console.log(error.message)
+
       setErrorMessage("An unexpected error occurred.");
     }
   };
@@ -227,7 +228,7 @@ export default function Settings() {
         }
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.log(error.message)
       setErrorMessage("An unexpected error occurred.");
     }
   };

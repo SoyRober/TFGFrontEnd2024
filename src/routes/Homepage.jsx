@@ -152,6 +152,7 @@ export default function Homepage() {
 
       setExtraBottomSpace((prev) => prev + cardSize / 7);
     } catch (error) {
+      console.log(error.message)
       setNotificationMessage(error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     } finally {
@@ -186,7 +187,7 @@ export default function Homepage() {
       );
       setGenres(data);
     } catch (error) {
-      console.error("Failed to fetch genres:", error);
+      console.log(error.message)
       setGenres([]);
     }
   };
@@ -275,7 +276,7 @@ export default function Homepage() {
       setNotificationKey(notificationKey + 1);
       fetchBooksData(page);
     } catch (error) {
-      console.error("Failed to save book:", error);
+      console.log(error.message)
       setNotificationMessage(error.message || "An unknown error occurred.");
       setNotificationKey(notificationKey + 1);
     }

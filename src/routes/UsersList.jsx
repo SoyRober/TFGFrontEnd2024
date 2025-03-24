@@ -38,6 +38,7 @@ const UsersList = () => {
       );
       setUsers(data.message);
     } catch (error) {
+      console.log(error.message)
       setErrorMessage("Error loading the users list");
     }
   };
@@ -63,6 +64,7 @@ const UsersList = () => {
       setUsers(users.filter((user) => user.email !== selectedUserEmail));
       setShowDeleteConfirmation(false);
     } catch (error) {
+      console.log(error.message)
       setErrorMessage("Error deleting user");
     }
   };

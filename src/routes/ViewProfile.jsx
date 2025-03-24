@@ -44,6 +44,7 @@ const ViewProfile = () => {
         );
         setUserData(data);
       } catch (error) {
+        console.log(error.message)
         setNotification("Error loading user profile: " + error.message);
       }
     };

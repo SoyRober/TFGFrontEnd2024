@@ -30,7 +30,7 @@ const Login = () => {
 
 
     } catch (error) {
-      console.error("Error during login:", error);
+      console.log(error.message)
       setMessage("Error connecting to the server.");
 
       setNotificationKey(prevKey => prevKey + 1);

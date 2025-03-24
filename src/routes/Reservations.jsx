@@ -110,6 +110,7 @@ const UserReservations = ({ cardSize }) => {
       }
     } catch (error) {
       setMessage(error.message);
+      console.log(error.message)
     } finally {
       setAtBottom(false);
     }
