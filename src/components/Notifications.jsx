@@ -36,8 +36,12 @@ const Notifications = () => {
   }, [notificationsRef]);
 
   const getUserMessages = async (token) => {
-    const data = await fetchData(`/notification`, "GET", null, token);
-    setMessages(data);
+    try {
+      const data = await fetchData(`/notification`, "GET", null, token);
+      setMessages(data);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
   const toggleNotifications = () => {
@@ -114,49 +118,65 @@ const Notifications = () => {
             backgroundColor: "white",
           }}
         >
-          <ul style={{ color: "white" }}>
-            {messages
-              .filter((message) => !message.isHidden)
-              .map((message) => (
-                <li
-                  key={message.id}
-                  className={`notification-item ${
-                    message.isRead ? "read" : "unread"
-                  }`}
-                >
-                  <div className="notification-content">
-                    <p>{message.message}</p>
-                    <p className="notification-date">
-                      {new Date(message.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="notification-icons">
-                    <button
-                      className="fa-solid fa-check"
-                      style={{
-                        cursor: "pointer",
-                        color: "white",
-                        background: "none",
-                        border: "none",
-                      }}
-                      aria-label="Mark as read"
-                      onClick={() => handleReadNotification(message)}
-                    ></button>
-                    <button
-                      className="fa-solid fa-xmark"
-                      style={{
-                        cursor: "pointer",
-                        color: "white",
-                        background: "none",
-                        border: "none",
-                      }}
-                      aria-label="Hide notification"
-                      onClick={() => handleHideNotification(message)}
-                    ></button>
-                  </div>
-                </li>
-              ))}
-          </ul>
+          {messages.length === 0 ? (
+            <div
+              style={{
+                color: "white",
+                textAlign: "center",
+                padding: "10px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "250px"
+              }}
+            >
+              Empty, for now
+            </div>
+          ) : (
+            <ul style={{ color: "white" }}>
+              {messages
+                .filter((message) => !message.isHidden)
+                .map((message) => (
+                  <li
+                    key={message.id}
+                    className={`notification-item ${
+                      message.isRead ? "read" : "unread"
+                    }`}
+                  >
+                    <div className="notification-content">
+                      <p>{message.message}</p>
+                      <p className="notification-date">
+                        {new Date(message.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="notification-icons">
+                      <button
+                        className="fa-solid fa-check"
+                        style={{
+                          cursor: "pointer",
+                          color: "white",
+                          background: "none",
+                          border: "none",
+                        }}
+                        aria-label="Mark as read"
+                        onClick={() => handleReadNotification(message)}
+                      ></button>
+                      <button
+                        className="fa-solid fa-xmark"
+                        style={{
+                          cursor: "pointer",
+                          color: "white",
+                          background: "none",
+                          border: "none",
+                        }}
+                        aria-label="Hide notification"
+                        onClick={() => handleHideNotification(message)}
+                      ></button>
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          )}
         </div>
       )}
     </div>
