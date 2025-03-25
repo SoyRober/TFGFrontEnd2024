@@ -132,12 +132,10 @@ const UserReservations = ({ cardSize }) => {
       const updatedReservations = reservations.map((reservation) => {
         if (
           reservation.bookTitle === title &&
-          reservation.isAvailable &&
           !reservation.isLoaned
         ) {
           return {
             ...reservation,
-            isAvailable: false,
             isLoaned: true,
           };
         }
@@ -149,6 +147,22 @@ const UserReservations = ({ cardSize }) => {
       console.error(error.message);
     }
   };
+
+  const cancelReservation = async (title) => {
+    if (!localStorage.getItem("token")) return;
+
+    try {
+      await fetchData(`/cancelReservation?title=${encodeURIComponent(title)}`, "POST", null, token);
+      const updatedReservations = reservations.filter(
+        (reservation) => reservation.bookTitle !== title
+      );
+
+      setReservations(updatedReservations);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
 
   const getColumnClass = (cardSize) => {
     switch (cardSize) {
@@ -310,18 +324,12 @@ const UserReservations = ({ cardSize }) => {
                       <strong>Status:</strong>{" "}
                       {reservation.isLoaned ? "Loaned" : "Not loaned"}
                     </p>
-                    <p className="card-text">
-                      <strong>Available:</strong>{" "}
-                      {reservation.isAvailable ? "Yes" : "No"}
-                    </p>
-                    {reservation.isAvailable && (
                       <button
                         className="btn btn-primary ms-2"
-                        onClick={() => handleLoanBook(reservation.bookTitle)}
+                        onClick={() => cancelReservation(reservation.bookTitle)}
                       >
-                        Loan
+                        Cancel Reservation
                       </button>
-                    )}
                   </div>
                 </div>
               </article>

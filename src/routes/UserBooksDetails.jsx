@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loans from "./Loans.jsx";
 import Reservations from "./Reservations.jsx";
@@ -27,6 +27,7 @@ const UserBooksDetails = () => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
+  //TODO unused function
   const getColumnClass = (cardSize) => {
     localStorage.setItem("cardSize", cardSize);
     switch (cardSize) {
