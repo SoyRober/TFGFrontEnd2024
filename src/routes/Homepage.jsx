@@ -263,7 +263,7 @@ export default function Homepage() {
     };
 
     try {
-      const response = await fetchData("/book", "POST", bookData, token);
+      const response = await fetchData("/books", "POST", bookData, token);
 
       if (!response.success) {
         const errorMessage = response.message || "Failed to save book.";
