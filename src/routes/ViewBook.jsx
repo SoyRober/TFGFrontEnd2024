@@ -17,84 +17,85 @@ import ReserveForUserModal from "../components/ReserveForUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 
 export default function ViewBook() {
-	const { title } = useParams();
-	const navigate = useNavigate();
-	const [book, setBook] = useState(null);
-	const [reviews, setReviews] = useState([]);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
-	const [hasPermissions, setHasPermissions] = useState(false);
-	const [editingAttribute, setEditingAttribute] = useState(null);
-	const [editValue, setEditValue] = useState("");
-	const [imageSrc, setImageSrc] = useState("");
-	const [reviewData, setReviewData] = useState({ score: "", comment: "" });
-	const [hover, setHover] = useState(0);
-	const [newImage, setNewImage] = useState(null);
-	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-	const [isLoaned, setLoanStatus] = useState();
-	const [authors, setAuthors] = useState([]);
-	const [selectedAuthors, setSelectedAuthors] = useState([]);
-	const [genres, setGenres] = useState([]);
-	const [selectedGenres, setSelectedGenres] = useState([]);
-	const [alreadyRated, setAlreadyRated] = useState(false);
-	const [currentUserScore, setCurrentUserScore] = useState("");
-	const [currentUserComment, setCurrentUserComment] = useState("");
-	const [isEditing, setIsEditing] = useState(false);
-	const [tempReviewData, setTempReviewData] = useState({
-		score: "",
-		comment: "",
-	});
-	const [usersLoans, setUsersLoans] = useState([]);
-	const [isAvailable, setIsAvailable] = useState(true);
-	const [showUnavailableModal, setShowUnavailableModal] = useState(false);
-	const [notificationMessage, setNotificationMessage] = useState("");
-	const [notificationKey, setNotificationKey] = useState(0);
-	const [username, setUsername] = useState("");
-	const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
-	const [selectedUser, setSelectedUser] = useState("");
-	const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
+  const { title } = useParams();
+  const navigate = useNavigate();
+  const [book, setBook] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const [editingAttribute, setEditingAttribute] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [imageSrc, setImageSrc] = useState("");
+  const [reviewData, setReviewData] = useState({ score: "", comment: "" });
+  const [hover, setHover] = useState(0);
+  const [newImage, setNewImage] = useState(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isLoaned, setLoanStatus] = useState();
+  const [authors, setAuthors] = useState([]);
+  const [selectedAuthors, setSelectedAuthors] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedGenres, setSelectedGenres] = useState([]);
+  const [alreadyRated, setAlreadyRated] = useState(false);
+  const [currentUserScore, setCurrentUserScore] = useState("");
+  const [currentUserComment, setCurrentUserComment] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempReviewData, setTempReviewData] = useState({
+    score: "",
+    comment: "",
+  });
+  const [usersLoans, setUsersLoans] = useState([]);
+  const [isAvailable, setIsAvailable] = useState(true);
+  const [showUnavailableModal, setShowUnavailableModal] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationKey, setNotificationKey] = useState(0);
+  const [username, setUsername] = useState("");
+  const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
 
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (token) {
-			setIsLoggedIn(true);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
 
-			const decodedToken = jwtDecode(token);
-			const userRole = decodedToken.role;
-			setUsername(decodedToken.username);
+      const decodedToken = jwtDecode(token);
+      const userRole = decodedToken.role;
+      setUsername(decodedToken.username);
 
-			if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
-				setHasPermissions(true);
-			}
-		}
-	}, []);
+      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+        setHasPermissions(true);
+      }
+    }
+  }, []);
 
-	useEffect(() => {
-		const checkLoanStatus = async () => {
-			const token = localStorage.getItem("token");
-			if (!token) {
-				//console.error("No token found, user might not be authenticated");
-				return;
-			}
+  useEffect(() => {
+    const checkLoanStatus = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        //console.error("No token found, user might not be authenticated");
+        return;
+      }
 
-			try {
-				const response = await fetchData(
-					"/isLoaned",
-					"POST",
-					{ title: title },
-					token
-				);
-				setLoanStatus(response);
-			} catch (error) {
-				console.log(error.message)
-			}
-		};
+      try {
+        const response = await fetchData(
+          "/isLoaned",
+          "POST",
+          { title: title },
+          token
+        );
+        setLoanStatus(response);
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
 
-		const fetchReviews = async () => {
-			try {
-				const data = await fetchData(
-					`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
-				);
-				setReviews(data);
+    const fetchReviews = async () => {
+      try {
+        const data = await fetchData(
+          `/reviews/${title}`
+        );
+        setReviews(data);
+        console.log("🚀 ~ fetchReviews ~ data:", data)
 
         const token = localStorage.getItem("token");
         if (token) {
@@ -112,36 +113,35 @@ export default function ViewBook() {
           setReviews(updatedReviews);
         }
       } catch (error) {
-		console.log(error.message)
-	}
+        console.log(error.message);
+      }
     };
 
-		const fetchAuthors = async () => {
-			const endpoint = "/authors/search";
-			try {
-				const data = await fetchData(endpoint, "GET");
-				setAuthors(data);
-			} catch (error) {
-				console.log(error.message)
-				setAuthors([]);
-			}
-		};
+    const fetchAuthors = async () => {
+      const endpoint = "/authors/search";
+      try {
+        const data = await fetchData(endpoint, "GET");
+        setAuthors(data);
+      } catch (error) {
+        console.log(error.message);
+        setAuthors([]);
+      }
+    };
 
-		const fetchGenres = async () => {
-			const endpoint = "/getGenres";
-			try {
-				const data = await fetchData(endpoint, "GET");
-				setGenres(data);
-				console.log("🚀 ~ fetchGenres ~ data:", data)
-			} catch (error) {
-				console.log(error.message)
-				setGenres([]);
-			}
-		};
+    const fetchGenres = async () => {
+      const endpoint = "/genres/search";
+      try {
+        const data = await fetchData(endpoint, "GET");
+        setGenres(data);
+      } catch (error) {
+        console.log(error.message);
+        setGenres([]);
+      }
+    };
 
-		const autoCheckExistingReview = async () => {
-			fetchExistingReview();
-		};
+    const autoCheckExistingReview = async () => {
+      fetchExistingReview();
+    };
 
     fetchBookData();
     fetchReviews();
@@ -151,21 +151,21 @@ export default function ViewBook() {
     autoCheckExistingReview();
   }, [title]);
 
-	const fetchBookData = async () => {
-		console.log("Fetching book data");
-		try {
-			const data = await fetchData(
-				`/books/title?title=${encodeURIComponent(title)}`
-			);
-			console.log(data);
-			setBook(data.book);
-			setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
-			setSelectedAuthors(data.book.authors || []);
-			setSelectedGenres(data.book.genres || []);
-		} catch (error) {
-			console.log(error.message)
-		}
-	};
+  const fetchBookData = async () => {
+    console.log("Fetching book data");
+    try {
+      const data = await fetchData(
+        `/books/title?title=${encodeURIComponent(title)}`
+      );
+      console.log(data);
+      setBook(data.book);
+      setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
+      setSelectedAuthors(data.book.authors || []);
+      setSelectedGenres(data.book.genres || []);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const handleReviewChange = (e) => {
     const { name, value } = e.target;
@@ -175,84 +175,84 @@ export default function ViewBook() {
     }));
   };
 
-	const handleReviewSubmit = async (e) => {
-		e.preventDefault();
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData(
-				"/addReview",
-				"POST",
-				{
-					title,
-					score: reviewData.score,
-					comment: reviewData.comment,
-				},
-				token
-			);
+    try {
+      await fetchData(
+        "/reviews",
+        "POST",
+        {
+          title,
+          score: reviewData.score,
+          comment: reviewData.comment,
+        },
+        token
+      );
 
-			const reviewsData = await fetchData(
-				`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
-			);
-			setReviews(reviewsData);
-			setReviewData({ score: "", comment: "" });
-			setAlreadyRated(true);
-			await fetchExistingReview();
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to submit review: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      const reviewsData = await fetchData(
+        `/reviews/${title}`
+      );
+      setReviews(reviewsData);
+      setReviewData({ score: "", comment: "" });
+      setAlreadyRated(true);
+      await fetchExistingReview();
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to submit review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const fetchExistingReview = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const fetchExistingReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			const data = await fetchData(
-				`/getReview?title=${encodeURIComponent(title)}`,
-				"GET",
-				null,
-				token
-			);
+    try {
+      const data = await fetchData(
+        `/reviews/user/${title}`,
+        "GET",
+        null,
+        token
+      );
 
-			if (data.existingReview == true) {
-				setAlreadyRated(true);
-				setCurrentUserScore(data.currentUserScore);
-				setCurrentUserComment(data.currentUserComment);
-			}
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage(
-				"Failed to fetch Existing Review: " + error.message
-			);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      if (data.existingReview) {
+        setAlreadyRated(true);
+        setCurrentUserScore(data.currentUserScore);
+        setCurrentUserComment(data.currentUserComment);
+      }
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage(
+        "Failed to fetch Existing Review: " + error.message
+      );
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleEditClick = (attribute) => {
-		setEditingAttribute(attribute);
-		setEditValue(book[attribute]);
-		if (attribute === "authors") {
-			setSelectedAuthors(book.authors || []);
-		} else if (attribute === "genres") {
-			setSelectedGenres(book.genres || []);
-		}
-	};
+  const handleEditClick = (attribute) => {
+    setEditingAttribute(attribute);
+    setEditValue(book[attribute]);
+    if (attribute === "authors") {
+      setSelectedAuthors(book.authors || []);
+    } else if (attribute === "genres") {
+      setSelectedGenres(book.genres || []);
+    }
+  };
 
-	const handleEditChange = (e) => {
-		setEditValue(e.target.value);
-	};
+  const handleEditChange = (e) => {
+    setEditValue(e.target.value);
+  };
 
   const handleAuthorChange = (e) => {
     const options = e.target.options;
@@ -276,126 +276,116 @@ export default function ViewBook() {
     setSelectedGenres(selectedValues);
   };
 
-	const handleEditSubmit = async (e) => {
-		e.preventDefault();
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		if (editingAttribute === "quantity" && editValue < 0) {
-			setNotificationMessage("Quantity cannot be less than 0");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+    if (editingAttribute === "quantity" && editValue < 0) {
+      setNotificationMessage("Quantity cannot be less than 0");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		const payload = new FormData();
-		payload.append("title", title);
-		payload.append("attribute", editingAttribute);
-		if (editingAttribute === "authors") {
-			payload.append("value", JSON.stringify(selectedAuthors));
-		} else if (editingAttribute === "genres") {
-			payload.append("value", JSON.stringify(selectedGenres));
-		} else if (editingAttribute === "isAdult") {
-			const booleanValue = editValue === "true";
-			payload.append("value", booleanValue);
-		} else {
-			payload.append("value", editValue);
-		}
-		if (newImage) {
-			try {
-				const resizedImageBlob = await compressImage(newImage, 300, 300);
-				payload.append("image", resizedImageBlob);
-			} catch (error) {
-				console.log(error.message)
-				setNotificationMessage("Error resizing image: " + error.message);
-				setNotificationKey((prevKey) => prevKey + 1);
-				return;
-			}
-		}
+    const payload = new FormData();
+    payload.append("title", title);
+    payload.append("attribute", editingAttribute);
+    if (editingAttribute === "authors") {
+      payload.append("value", JSON.stringify(selectedAuthors));
+    } else if (editingAttribute === "genres") {
+      payload.append("value", JSON.stringify(selectedGenres));
+    } else if (editingAttribute === "isAdult") {
+      const booleanValue = editValue === "true";
+      payload.append("value", booleanValue);
+    } else {
+      payload.append("value", editValue);
+    }
+    if (newImage) {
+      try {
+        const resizedImageBlob = await compressImage(newImage, 300, 300);
+        payload.append("image", resizedImageBlob);
+      } catch (error) {
+        console.log(error.message);
+        setNotificationMessage("Error resizing image: " + error.message);
+        setNotificationKey((prevKey) => prevKey + 1);
+        return;
+      }
+    }
 
-		try {
-			const updatedBook = await fetchData(
-				"/book",
-				"PUT",
-				payload,
-				token
-			);
+    try {
+      const updatedBook = await fetchData("/books", "PUT", payload, token);
 
-			setBook(updatedBook);
-			setEditingAttribute(null);
+      setBook(updatedBook);
+      setEditingAttribute(null);
 
-			if (editingAttribute === "title") {
-				navigate(`/viewBook/${editValue}`);
-			} else {
-				fetchBookData();
-			}
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to update book: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      if (editingAttribute === "title") {
+        navigate(`/viewBook/${editValue}`);
+      } else {
+        fetchBookData();
+      }
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to update book: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleCloseModal = () => {
-		setEditingAttribute(null);
-	};
+  const handleCloseModal = () => {
+    setEditingAttribute(null);
+  };
 
-	const handleImageChange = (e) => {
-		setNewImage(e.target.files[0]);
-	};
+  const handleImageChange = (e) => {
+    setNewImage(e.target.files[0]);
+  };
 
-	const handleDeleteBook = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleDeleteBook = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData(
-				`/book/${title}`,
-				"DELETE",
-				null,
-				token
-			);
-			setShowDeleteConfirmation(false);
-			navigate("/");
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to delete book: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+    try {
+      await fetchData(`/books/${title}`, "DELETE", null, token);
+      setShowDeleteConfirmation(false);
+      navigate("/");
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to delete book: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleLoanClick = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleLoanClick = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		//Hay que modificar esto para comprobar su disponibilidad
-		if (book.quantity < 1) {
-			const response = await fetchData(
-				`/isAvailable?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
-			if (response == false) {
-				setIsAvailable(false);
-				setShowUnavailableModal(true);
-				return;
-			}
-			return;
-		}
+    //Hay que modificar esto para comprobar su disponibilidad
+    if (book.quantity < 1) {
+      const response = await fetchData(
+        `/isAvailable?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
+      if (response == false) {
+        setIsAvailable(false);
+        setShowUnavailableModal(true);
+        return;
+      }
+      return;
+    }
 
-		setIsAvailable(true);
+    setIsAvailable(true);
 
     try {
       if (!isLoaned && isAvailable) {
@@ -410,735 +400,735 @@ export default function ViewBook() {
         setLoanStatus(false);
       }
     } catch (error) {
-		console.log(error.message)
-		setNotificationMessage("Failed to update loan status: " + error.message);
+      console.log(error.message);
+      setNotificationMessage("Failed to update loan status: " + error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     }
   };
 
-	const handleReservation = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleReservation = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData(
-				`/reserveByTitle?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
-			setNotificationMessage("Book reserved");
-			setNotificationKey((prevKey) => prevKey + 1);
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to reserve book: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+    try {
+      await fetchData(
+        `/reserveByTitle?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
+      setNotificationMessage("Book reserved");
+      setNotificationKey((prevKey) => prevKey + 1);
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to reserve book: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleEditReview = () => {
-		setIsEditing(true);
-		setTempReviewData({ score: currentUserScore, comment: currentUserComment });
-	};
+  const handleEditReview = () => {
+    setIsEditing(true);
+    setTempReviewData({ score: currentUserScore, comment: currentUserComment });
+  };
 
-	const handleTempReviewChange = (e) => {
-		const { name, value } = e.target;
-		setTempReviewData((prevData) => ({
-			...prevData,
-			[name]: value,
-		}));
-	};
+  const handleTempReviewChange = (e) => {
+    const { name, value } = e.target;
+    setTempReviewData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
-	const handleTempStarClick = (star) => {
-		setTempReviewData((prevData) => ({
-			...prevData,
-			score: star,
-		}));
-	};
+  const handleTempStarClick = (star) => {
+    setTempReviewData((prevData) => ({
+      ...prevData,
+      score: star,
+    }));
+  };
 
-	const handleSaveEditedReview = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleSaveEditedReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData(
-				"/editReview",
-				"POST",
-				{
-					title,
-					score: tempReviewData.score,
-					comment: tempReviewData.comment,
-				},
-				token
-			);
+    try {
+      await fetchData(
+        "/reviews",
+        "PUT",
+        {
+          title,
+          score: tempReviewData.score,
+          comment: tempReviewData.comment,
+        },
+        token
+      );
 
-			setCurrentUserScore(tempReviewData.score);
-			setCurrentUserComment(tempReviewData.comment);
-			setIsEditing(false);
-			fetchExistingReview();
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to edit review: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      setCurrentUserScore(tempReviewData.score);
+      setCurrentUserComment(tempReviewData.comment);
+      setIsEditing(false);
+      fetchExistingReview();
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to edit review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleCancelEdit = () => {
-		setIsEditing(false);
-		setTempReviewData({ score: "", comment: "" });
-	};
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setTempReviewData({ score: "", comment: "" });
+  };
 
-	const handleDeleteReview = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleDeleteReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData(
-				`/deleteReview?title=${encodeURIComponent(title)}`,
-				"DELETE",
-				null,
-				token
-			);
+    try {
+      await fetchData(
+        `/reviews/${title}`,
+        "DELETE",
+        null,
+        token
+      );
 
-			setAlreadyRated(false);
-			setReviewData({ score: "", comment: "" });
-			setCurrentUserScore("");
-			setCurrentUserComment("");
+      setAlreadyRated(false);
+      setReviewData({ score: "", comment: "" });
+      setCurrentUserScore("");
+      setCurrentUserComment("");
 
-			const reviewsData = await fetchData(
-				`/getReviewsByBookTitle?title=${encodeURIComponent(title)}`
-			);
-			setReviews(reviewsData);
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to delete review: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      const reviewsData = await fetchData(
+        `/reviews/${title}`
+      );
+      setReviews(reviewsData);
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to delete review: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleReturnModal = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleReturnModal = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			await fetchData("/return", "PUT", { title: title }, token);
-			setUsersLoans((prevLoans) =>
-				prevLoans.filter((item) => item !== username)
-			);
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to update loan status: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+    try {
+      await fetchData("/return", "PUT", { title: title }, token);
+      setUsersLoans((prevLoans) =>
+        prevLoans.filter((item) => item !== username)
+      );
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to update loan status: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const fetchUserVote = async (reviewId, token) => {
-		try {
-			const response = await fetchData(
-				`/getUserVote?reviewId=${reviewId}`,
-				"GET",
-				null,
-				token
-			);
-			return response;
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to fetch user vote: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-			return null;
-		}
-	};
+  const fetchUserVote = async (reviewId, token) => {
+    try {
+      const response = await fetchData(
+        `/getUserVote?reviewId=${reviewId}`,
+        "GET",
+        null,
+        token
+      );
+      return response;
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to fetch user vote: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+      return null;
+    }
+  };
 
-	const handleVotes = async (reviewId, value) => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("Please log in to vote.");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleVotes = async (reviewId, value) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("Please log in to vote.");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		const review = reviews.find((r) => r.id === reviewId);
+    const review = reviews.find((r) => r.id === reviewId);
 
-		let updatedReviews;
+    let updatedReviews;
 
-		if ((value && review.userLiked) || (!value && review.userDisliked)) {
-			// User has already voted the same way, remove the vote
-			updatedReviews = reviews.map((r) =>
-				r.id === reviewId
-					? {
-							...r,
-							userLiked: false,
-							userDisliked: false,
-							reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
-							reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
-					  }
-					: r
-			);
+    if ((value && review.userLiked) || (!value && review.userDisliked)) {
+      // User has already voted the same way, remove the vote
+      updatedReviews = reviews.map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              userLiked: false,
+              userDisliked: false,
+              reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
+              reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
+            }
+          : r
+      );
 
-			try {
-				await fetchData(
-					`/deleteVote?reviewId=${reviewId}`,
-					"DELETE",
-					null,
-					token
-				);
-				setReviews(updatedReviews);
-			} catch (error) {
-				console.log(error.message)
-				setNotificationMessage("Failed to delete vote: " + error.message);
-				setNotificationKey((prevKey) => prevKey + 1);
-			}
-		} else {
-			// Update votes and ensure only one type of vote is active
-			updatedReviews = reviews.map((r) =>
-				r.id === reviewId
-					? {
-							...r,
-							userLiked: value,
-							userDisliked: !value,
-							reviewLikes: value
-								? r.userLiked
-									? r.reviewLikes
-									: r.reviewLikes + 1
-								: r.userLiked
-								? r.reviewLikes - 1
-								: r.reviewLikes,
-							reviewDislikes: !value
-								? r.userDisliked
-									? r.reviewDislikes
-									: r.reviewDislikes + 1
-								: r.userDisliked
-								? r.reviewDislikes - 1
-								: r.reviewDislikes,
-					}
-					: r
-			);
+      try {
+        await fetchData(
+          `/deleteVote?reviewId=${reviewId}`,
+          "DELETE",
+          null,
+          token
+        );
+        setReviews(updatedReviews);
+      } catch (error) {
+        console.log(error.message);
+        setNotificationMessage("Failed to delete vote: " + error.message);
+        setNotificationKey((prevKey) => prevKey + 1);
+      }
+    } else {
+      // Update votes and ensure only one type of vote is active
+      updatedReviews = reviews.map((r) =>
+        r.id === reviewId
+          ? {
+              ...r,
+              userLiked: value,
+              userDisliked: !value,
+              reviewLikes: value
+                ? r.userLiked
+                  ? r.reviewLikes
+                  : r.reviewLikes + 1
+                : r.userLiked
+                ? r.reviewLikes - 1
+                : r.reviewLikes,
+              reviewDislikes: !value
+                ? r.userDisliked
+                  ? r.reviewDislikes
+                  : r.reviewDislikes + 1
+                : r.userDisliked
+                ? r.reviewDislikes - 1
+                : r.reviewDislikes,
+            }
+          : r
+      );
 
-			try {
-				let body = {
-					reviewId: reviewId,
-					positive: value,
-				};
-				await fetchData(`/addVote`, "PUT", body, token);
-				setReviews(updatedReviews);
-			} catch (error) {
-				console.log(error.message)
-				setNotificationMessage("Failed to update vote: " + error.message);
-				setNotificationKey((prevKey) => prevKey + 1);
-			}
-		}
-	};
+      try {
+        let body = {
+          reviewId: reviewId,
+          positive: value,
+        };
+        await fetchData(`/addVote`, "PUT", body, token);
+        setReviews(updatedReviews);
+      } catch (error) {
+        console.log(error.message);
+        setNotificationMessage("Failed to update vote: " + error.message);
+        setNotificationKey((prevKey) => prevKey + 1);
+      }
+    }
+  };
 
-	const handleLoanToUser = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleLoanToUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		if (book.quantity < 1) {
-			setShowLoanToUserModal(false);
-			setShowReserveForUserModal(true);
-			return;
-		}
+    if (book.quantity < 1) {
+      setShowLoanToUserModal(false);
+      setShowReserveForUserModal(true);
+      return;
+    }
 
-		try {
-			const response = await fetchData(
-				`/loan/${selectedUser}?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
+    try {
+      const response = await fetchData(
+        `/loan/${selectedUser}?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
 
-			if (response.ok) {
-				setNotificationMessage("Book loaned to user successfully");
-			} else if (response.message.includes("existences")) {
-				setShowUnavailableModal(true);
-			} else {
-				setNotificationMessage(response.message);
-			}
-			setNotificationKey((prevKey) => prevKey + 1);
-			setShowLoanToUserModal(false);
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage("Failed to loan book to user: " + error.message);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      if (response.ok) {
+        setNotificationMessage("Book loaned to user successfully");
+      } else if (response.message.includes("existences")) {
+        setShowUnavailableModal(true);
+      } else {
+        setNotificationMessage(response.message);
+      }
+      setNotificationKey((prevKey) => prevKey + 1);
+      setShowLoanToUserModal(false);
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage("Failed to loan book to user: " + error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	const handleReserveForUser = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			setNotificationMessage("No token found, user might not be authenticated");
-			setNotificationKey((prevKey) => prevKey + 1);
-			return;
-		}
+  const handleReserveForUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setNotificationMessage("No token found, user might not be authenticated");
+      setNotificationKey((prevKey) => prevKey + 1);
+      return;
+    }
 
-		try {
-			const response = await fetchData(
-				`/reserve/${selectedUser}?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
+    try {
+      const response = await fetchData(
+        `/reserve/${selectedUser}?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
+      );
 
-			if (response.ok) {
-				setNotificationMessage("Book reserved for user successfully");
-			} else {
-				setNotificationMessage(response.message);
-			}
-			setNotificationKey((prevKey) => prevKey + 1);
-			setShowReserveForUserModal(false);
-		} catch (error) {
-			console.log(error.message)
-			setNotificationMessage(
-				"Failed to reserve book for user: " + error.message
-			);
-			setNotificationKey((prevKey) => prevKey + 1);
-		}
-	};
+      if (response.ok) {
+        setNotificationMessage("Book reserved for user successfully");
+      } else {
+        setNotificationMessage(response.message);
+      }
+      setNotificationKey((prevKey) => prevKey + 1);
+      setShowReserveForUserModal(false);
+    } catch (error) {
+      console.log(error.message);
+      setNotificationMessage(
+        "Failed to reserve book for user: " + error.message
+      );
+      setNotificationKey((prevKey) => prevKey + 1);
+    }
+  };
 
-	if (!book) {
-		return (
-			<div className="modal-book">
-				<span className="page left"></span>
-				<span className="middle"></span>
-				<span className="page right"></span>
-			</div>
-		);
-	}
+  if (!book) {
+    return (
+      <div className="modal-book">
+        <span className="page left"></span>
+        <span className="middle"></span>
+        <span className="page right"></span>
+      </div>
+    );
+  }
 
-	return (
-		<main className="container mt-5">
-			{hasPermissions && (
-				<BookLoansModal
-					usersLoans={usersLoans}
-					onReturnLoan={handleReturnModal}
-				/>
-			)}
+  return (
+    <main className="container mt-5">
+      {hasPermissions && (
+        <BookLoansModal
+          usersLoans={usersLoans}
+          onReturnLoan={handleReturnModal}
+        />
+      )}
 
-			{/* Info, edition and requesting book */}
-			<h1 className="display-4 text-center mb-4">{book.title}</h1>
-			<section className="row">
-				<div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
-					{imageSrc ? (
-						<img
-							src={imageSrc}
-							alt={book.title}
-							className="img-fluid"
-							style={{
-								width: "auto",
-								height: "auto",
-								maxWidth: "100%",
-								maxHeight: "100%",
-							}}
-						/>
-					) : (
-						<div>No image available</div>
-					)}
+      {/* Info, edition and requesting book */}
+      <h1 className="display-4 text-center mb-4">{book.title}</h1>
+      <section className="row">
+        <div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={book.title}
+              className="img-fluid"
+              style={{
+                width: "auto",
+                height: "auto",
+                maxWidth: "100%",
+                maxHeight: "100%",
+              }}
+            />
+          ) : (
+            <div>No image available</div>
+          )}
 
-					{isLoggedIn && hasPermissions && (
-						<div className="d-flex justify-content-center align-items-center mt-2">
-							<div className="row w-100">
-								<div className="col">
-									<button
-										onClick={() => handleEditClick("image")}
-										className="btn btn-primary w-100"
-									>
-										Edit image
-									</button>
-								</div>
-								<div className="col d-flex justify-content-center align-items-center">
-									<button
-										onClick={handleLoanClick}
-										className={`btn ${
-											isLoaned && usersLoans.includes(username)
-												? "btn-danger"
-												: "btn-primary"
-										} p-3`}
-									>
-										{isLoaned && usersLoans.includes(username)
-											? "Return"
-											: "Loan"}
-									</button>
-								</div>
-								<div className="col">
-									<button
-										onClick={() => setShowLoanToUserModal(true)}
-										className="btn btn-secondary w-100"
-									>
-										Loan to User
-									</button>
-								</div>
-							</div>
-						</div>
-					)}
+          {isLoggedIn && hasPermissions && (
+            <div className="d-flex justify-content-center align-items-center mt-2">
+              <div className="row w-100">
+                <div className="col">
+                  <button
+                    onClick={() => handleEditClick("image")}
+                    className="btn btn-primary w-100"
+                  >
+                    Edit image
+                  </button>
+                </div>
+                <div className="col d-flex justify-content-center align-items-center">
+                  <button
+                    onClick={handleLoanClick}
+                    className={`btn ${
+                      isLoaned && usersLoans.includes(username)
+                        ? "btn-danger"
+                        : "btn-primary"
+                    } p-3`}
+                  >
+                    {isLoaned && usersLoans.includes(username)
+                      ? "Return"
+                      : "Loan"}
+                  </button>
+                </div>
+                <div className="col">
+                  <button
+                    onClick={() => setShowLoanToUserModal(true)}
+                    className="btn btn-secondary w-100"
+                  >
+                    Loan to User
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
-					{isLoggedIn && !hasPermissions && (
-						<div className="d-flex justify-content-center align-items-center mt-2">
-							<button
-								onClick={handleReservation}
-								className="btn btn-primary w-100"
-							>
-								Make a Reservation
-							</button>
-						</div>
-					)}
-				</div>
-				<div className="col-md-6 mb-3">
-					{[
-						{ label: "Title", value: book.title, attribute: "title" },
-						{
-							label: "Authors",
-							value: book.authors?.join(", ") || "N/A",
-							attribute: "authors",
-						},
-						{
-							label: "Genres",
-							value: genres?.map(g => g.name).join(", ") || "N/A",
-							attribute: "genres",
-						},
-						{ label: "Quantity", value: book.quantity, attribute: "quantity" },
-						{ label: "Location", value: book.location, attribute: "location" },
-						{ label: "Synopsis", value: book.synopsis, attribute: "synopsis" },
-						{
-							label: "Publication Date",
-							value: book.publicationDate,
-							attribute: "publicationDate",
-						},
-						{
-							label: "Adult",
-							value: book.adult ? "Yes" : "No",
-							attribute: "isAdult",
-						},
-					].map(({ label, value, attribute }) => (
-						<div className="mb-2" key={attribute}>
-							<p className="mb-0">
-								<span className="font-weight-bold">{label}:</span> {value}
-							</p>
-							{isLoggedIn && hasPermissions && (
-								<button
-									onClick={() => handleEditClick(attribute)}
-									className="btn btn-primary mt-1"
-								>
-									Edit
-								</button>
-							)}
-						</div>
-					))}
-				</div>
-			</section>
-			{isLoggedIn && hasPermissions && (
-				<div className="col-12 d-flex justify-content-between mb-3">
-					<button
-						onClick={() => setShowDeleteConfirmation(true)}
-						className="btn btn-danger ml-2"
-					>
-						Delete Book
-					</button>
-				</div>
-			)}
+          {isLoggedIn && !hasPermissions && (
+            <div className="d-flex justify-content-center align-items-center mt-2">
+              <button
+                onClick={handleReservation}
+                className="btn btn-primary w-100"
+              >
+                Make a Reservation
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="col-md-6 mb-3">
+          {[
+            { label: "Title", value: book.title, key: "title" },
+            {
+              label: "Authors",
+              value: book.authors?.join(", ") || "N/A",
+              key: "authors",
+            },
+            {
+              label: "Genres",
+              value: book.genres?.join(", ") || "N/A",
+              key: "genres",
+            },
+            { label: "Quantity", value: book.quantity, key: "quantity" },
+            { label: "Location", value: book.location, key: "location" },
+            { label: "Synopsis", value: book.synopsis, key: "synopsis" },
+            {
+              label: "Publication Date",
+              value: book.publicationDate,
+              key: "publicationDate",
+            },
+            {
+              label: "Adult",
+              value: book.adult ? "Yes" : "No",
+              key: "isAdult",
+            },
+          ].map(({ label, value, key }) => (
+            <div className="mb-2" key={key}>
+              <p className="mb-0">
+                <strong>{label}:</strong> {value}
+              </p>
+              {isLoggedIn && hasPermissions && (
+                <button
+                  onClick={() => handleEditClick(key)}
+                  className="btn btn-primary mt-1"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+      {isLoggedIn && hasPermissions && (
+        <div className="col-12 d-flex justify-content-between mb-3">
+          <button
+            onClick={() => setShowDeleteConfirmation(true)}
+            className="btn btn-danger ml-2"
+          >
+            Delete Book
+          </button>
+        </div>
+      )}
 
-			{/* Review sender */}
-			{isLoggedIn && !alreadyRated && (
-				<form onSubmit={handleReviewSubmit} className="mb-5">
-					<div className="form-group">
-						<label>Score:</label>
-						<div className="star-rating">
-							{[1, 2, 3, 4, 5].map((star) => (
-								<button
-									type="button"
-									key={star}
-									className={star <= (hover || reviewData.score) ? "on" : "off"}
-									onClick={() =>
-										setReviewData((prevData) => ({ ...prevData, score: star }))
-									}
-									onMouseEnter={() => setHover(star)}
-									onMouseLeave={() => setHover(reviewData.score)}
-									style={{
-										background: "none",
-										border: "none",
-										cursor: "pointer",
-										fontSize: "2rem",
-										color:
-											star <= (hover || reviewData.score) ? "gold" : "grey",
-									}}
-								>
-									<span className="star">&#9733;</span>
-								</button>
-							))}
-						</div>
-					</div>
-					<div className="form-group">
-						<label htmlFor="comment">Comment:</label>
-						<textarea
-							className="form-control"
-							id="comment"
-							name="comment"
-							value={reviewData.comment}
-							onChange={handleReviewChange}
-							required
-						></textarea>
-					</div>
-					<button type="submit" className="btn btn-primary mt-3">
-						Submit Review
-					</button>
-				</form>
-			)}
+      {/* Review sender */}
+      {isLoggedIn && !alreadyRated && (
+        <form onSubmit={handleReviewSubmit} className="mb-5">
+          <div className="form-group">
+            <label>Score:</label>
+            <div className="star-rating">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  type="button"
+                  key={star}
+                  className={star <= (hover || reviewData.score) ? "on" : "off"}
+                  onClick={() =>
+                    setReviewData((prevData) => ({ ...prevData, score: star }))
+                  }
+                  onMouseEnter={() => setHover(star)}
+                  onMouseLeave={() => setHover(reviewData.score)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "2rem",
+                    color:
+                      star <= (hover || reviewData.score) ? "gold" : "grey",
+                  }}
+                >
+                  <span className="star">&#9733;</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="comment">Comment:</label>
+            <textarea
+              className="form-control"
+              id="comment"
+              name="comment"
+              value={reviewData.comment}
+              onChange={handleReviewChange}
+              required
+            ></textarea>
+          </div>
+          <button type="submit" className="btn btn-primary mt-3">
+            Submit Review
+          </button>
+        </form>
+      )}
 
-			{/* Your review */}
-			{isLoggedIn &&
-				alreadyRated &&
-				(isEditing ? (
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-							handleSaveEditedReview();
-						}}
-					>
-						<div className="form-group">
-							<label>Score:</label>
-							<div className="star-rating">
-								{[1, 2, 3, 4, 5].map((star) => (
-									<button
-										type="button"
-										key={star}
-										className={star <= tempReviewData.score ? "on" : "off"}
-										onClick={() => handleTempStarClick(star)}
-										style={{
-											background: "none",
-											border: "none",
-											cursor: "pointer",
-											fontSize: "2rem",
-											color: star <= tempReviewData.score ? "gold" : "grey",
-										}}
-									>
-										<span className="star">&#9733;</span>
-									</button>
-								))}
-							</div>
-						</div>
-						<div className="form-group">
-							<label htmlFor="comment">Comment:</label>
-							<textarea
-								className="form-control"
-								id="comment"
-								name="comment"
-								value={tempReviewData.comment}
-								onChange={handleTempReviewChange}
-								required
-							></textarea>
-						</div>
-						<button type="submit" className="btn btn-primary mt-3">
-							Save
-						</button>
-						<button
-							type="button"
-							className="btn btn-secondary mt-3 ms-2"
-							onClick={handleCancelEdit}
-						>
-							Cancel
-						</button>
-					</form>
-				) : (
-					<section className="p-3 card user-review">
-						<h4>Your Review</h4>
-						<div className="form-group">
-							<div className="star-rating">
-								{[1, 2, 3, 4, 5].map((star) => (
-									<span
-										key={star}
-										className="star"
-										style={{
-											fontSize: "2rem",
-											color: star <= currentUserScore ? "gold" : "grey",
-										}}
-									>
-										&#9733;
-									</span>
-								))}
-							</div>
-						</div>
-						<div className="form-group">
-							<p className="user-comment">{currentUserComment}</p>
-						</div>
-						<div className="d-flex justify-content-between">
-							<button
-								className="btn btn-warning mt-3"
-								style={{
-									width: "130px",
-									height: "40px",
-								}}
-								onClick={handleEditReview}
-							>
-								Edit Review
-							</button>
-							<button
-								className="btn btn-danger mt-3"
-								onClick={handleDeleteReview}
-								style={{
-									width: "130px",
-									height: "40px",
-								}}
-							>
-								Delete Review
-							</button>
-						</div>
-					</section>
-				))}
+      {/* Your review */}
+      {isLoggedIn &&
+        alreadyRated &&
+        (isEditing ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveEditedReview();
+            }}
+          >
+            <div className="form-group">
+              <label>Score:</label>
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    type="button"
+                    key={star}
+                    className={star <= tempReviewData.score ? "on" : "off"}
+                    onClick={() => handleTempStarClick(star)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "2rem",
+                      color: star <= tempReviewData.score ? "gold" : "grey",
+                    }}
+                  >
+                    <span className="star">&#9733;</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="comment">Comment:</label>
+              <textarea
+                className="form-control"
+                id="comment"
+                name="comment"
+                value={tempReviewData.comment}
+                onChange={handleTempReviewChange}
+                required
+              ></textarea>
+            </div>
+            <button type="submit" className="btn btn-primary mt-3">
+              Save
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary mt-3 ms-2"
+              onClick={handleCancelEdit}
+            >
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <section className="p-3 card user-review">
+            <h4>Your Review</h4>
+            <div className="form-group">
+              <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className="star"
+                    style={{
+                      fontSize: "2rem",
+                      color: star <= currentUserScore ? "gold" : "grey",
+                    }}
+                  >
+                    &#9733;
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <p className="user-comment">{currentUserComment}</p>
+            </div>
+            <div className="d-flex justify-content-between">
+              <button
+                className="btn btn-warning mt-3"
+                style={{
+                  width: "130px",
+                  height: "40px",
+                }}
+                onClick={handleEditReview}
+              >
+                Edit Review
+              </button>
+              <button
+                className="btn btn-danger mt-3"
+                onClick={handleDeleteReview}
+                style={{
+                  width: "130px",
+                  height: "40px",
+                }}
+              >
+                Delete Review
+              </button>
+            </div>
+          </section>
+        ))}
 
-			{/* All reviews */}
-			<h2 className="mt-5">Reviews</h2>
-			<section className="list-group mb-3">
-				{reviews.length > 0 ? (
-					reviews
-						.filter((review) => review.userName !== username)
-						.map((review, index) => (
-							<article key={index} className="card p-3 mb-4">
-								<p className="d-flex align-items-center">
-									<span
-										style={{
-											border: "1px solid black",
-											display: "inline-block",
-											width: "50px",
-											height: "50px",
-											borderRadius: "50%",
-											backgroundImage: review.profileImage
-												? `url(data:image/jpeg;base64,${review.profileImage})`
-												: `url(${defaultAvatar})`,
-											backgroundPosition: "center",
-											backgroundSize: "cover",
-											backgroundRepeat: "no-repeat",
-											cursor: "pointer",
-											marginRight: "10px",
-										}}
-									></span>
-									{review.userName}
-								</p>
-								<p>
-									{[1, 2, 3, 4, 5].map((star) => (
-										<span
-											key={star}
-											className="star"
-											style={{
-												fontSize: "2rem",
-												color: star <= review.score ? "gold" : "grey",
-											}}
-										>
-											&#9733;
-										</span>
-									))}
-								</p>
-								<p>{review.comment}</p>
-								<div className="d-flex justify-content-start">
-									<div className="d-flex align-items-center me-3">
-										<button
-											onClick={() => handleVotes(review.id, false)}
-											className="btn btn-link p-0"
-										>
-											<i
-												className={`bi ${
-													review.userDisliked
-														? "bi-hand-thumbs-down-fill"
-														: "bi-hand-thumbs-down"
-												}`}
-												style={{
-													fontSize: "1.5rem",
-													color: review.userDisliked ? "#dc3545" : "inherit",
-												}}
-											></i>
-										</button>
-										<p className="mb-0 ms-2">{review.reviewDislikes}</p>
-									</div>
-									<div className="d-flex align-items-center">
-										<button
-											onClick={() => handleVotes(review.id, true)}
-											className="btn btn-link p-0"
-										>
-											<i
-												className={`bi ${
-													review.userLiked
-														? "bi-hand-thumbs-up-fill"
-														: "bi-hand-thumbs-up"
-												}`}
-												style={{
-													fontSize: "1.5rem",
-													color: review.userLiked ? "#28a745" : "inherit",
-												}}
-											></i>
-										</button>
-										<p className="mb-0 ms-2">{review.reviewLikes}</p>
-									</div>
-								</div>
-							</article>
-						))
-				) : (
-					<p>No reviews available</p>
-				)}
-			</section>
+      {/* All reviews */}
+      <h2 className="mt-5">Reviews</h2>
+      <section className="list-group mb-3">
+        {reviews.length > 0 && reviews.filter((review) => review.userName !== username).length > 0 ? (
+          reviews
+            .filter((review) => review.userName !== username)
+            .map((review) => (
+              <article key={review.id} className="card p-3 mb-4">
+                <p className="d-flex align-items-center">
+                  <span
+                    style={{
+                      border: "1px solid black",
+                      display: "inline-block",
+                      width: "50px",
+                      height: "50px",
+                      borderRadius: "50%",
+                      backgroundImage: review.profileImage
+                        ? `url(data:image/jpeg;base64,${review.profileImage})`
+                        : `url(${defaultAvatar})`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                      backgroundRepeat: "no-repeat",
+                      cursor: "pointer",
+                      marginRight: "10px",
+                    }}
+                  ></span>
+                  {review.userName}
+                </p>
+                <p>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className="star"
+                      style={{
+                        fontSize: "2rem",
+                        color: star <= review.score ? "gold" : "grey",
+                      }}
+                    >
+                      &#9733;
+                    </span>
+                  ))}
+                </p>
+                <p>{review.comment}</p>
+                <div className="d-flex justify-content-start">
+                  <div className="d-flex align-items-center me-3">
+                    <button
+                      onClick={() => handleVotes(review.id, false)}
+                      className="btn btn-link p-0"
+                    >
+                      <i
+                        className={`bi ${
+                          review.userDisliked
+                            ? "bi-hand-thumbs-down-fill"
+                            : "bi-hand-thumbs-down"
+                        }`}
+                        style={{
+                          fontSize: "1.5rem",
+                          color: review.userDisliked ? "#dc3545" : "inherit",
+                        }}
+                      ></i>
+                    </button>
+                    <p className="mb-0 ms-2">{review.reviewDislikes}</p>
+                  </div>
+                  <div className="d-flex align-items-center">
+                    <button
+                      onClick={() => handleVotes(review.id, true)}
+                      className="btn btn-link p-0"
+                    >
+                      <i
+                        className={`bi ${
+                          review.userLiked
+                            ? "bi-hand-thumbs-up-fill"
+                            : "bi-hand-thumbs-up"
+                        }`}
+                        style={{
+                          fontSize: "1.5rem",
+                          color: review.userLiked ? "#28a745" : "inherit",
+                        }}
+                      ></i>
+                    </button>
+                    <p className="mb-0 ms-2">{review.reviewLikes}</p>
+                  </div>
+                </div>
+              </article>
+            ))
+        ) : (
+          <p>No reviews available</p>
+        )}
+      </section>
 
-			<EditBookAttributeModal
-				editingAttribute={editingAttribute}
-				editValue={editValue}
-				authors={authors}
-				selectedAuthors={selectedAuthors}
-				genres={genres}
-				selectedGenres={selectedGenres}
-				handleAuthorChange={handleAuthorChange}
-				handleGenreChange={handleGenreChange}
-				handleEditChange={handleEditChange}
-				handleEditSubmit={handleEditSubmit}
-				handleCloseModal={handleCloseModal}
-				handleImageChange={handleImageChange}
-			/>
+      <EditBookAttributeModal
+        editingAttribute={editingAttribute}
+        editValue={editValue}
+        authors={authors}
+        selectedAuthors={selectedAuthors}
+        genres={genres}
+        selectedGenres={selectedGenres}
+        handleAuthorChange={handleAuthorChange}
+        handleGenreChange={handleGenreChange}
+        handleEditChange={handleEditChange}
+        handleEditSubmit={handleEditSubmit}
+        handleCloseModal={handleCloseModal}
+        handleImageChange={handleImageChange}
+      />
 
-			<DeleteConfirmationModal
-				show={showDeleteConfirmation}
-				onClose={() => setShowDeleteConfirmation(false)}
-				onDelete={handleDeleteBook}
-				message={`This book "${book.title}" will be deleted. Are you sure?`}
-			/>
+      <DeleteConfirmationModal
+        show={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onDelete={handleDeleteBook}
+        message={`This book "${book.title}" will be deleted. Are you sure?`}
+      />
 
-			<BookReservationModal
-				show={showUnavailableModal}
-				onClose={() => setShowUnavailableModal(false)}
-				onConfirm={handleReservation}
-				onCancel={() => setShowUnavailableModal(false)}
-			/>
+      <BookReservationModal
+        show={showUnavailableModal}
+        onClose={() => setShowUnavailableModal(false)}
+        onConfirm={handleReservation}
+        onCancel={() => setShowUnavailableModal(false)}
+      />
 
-			<LoanToUserModal
-				show={showLoanToUserModal}
-				onClose={() => setShowLoanToUserModal(false)}
-				onConfirm={handleLoanToUser}
-				selectedUser={selectedUser}
-				setSelectedUser={setSelectedUser}
-			/>
+      <LoanToUserModal
+        show={showLoanToUserModal}
+        onClose={() => setShowLoanToUserModal(false)}
+        onConfirm={handleLoanToUser}
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
+      />
 
-			<ReserveForUserModal
-				show={showReserveForUserModal}
-				onClose={() => setShowReserveForUserModal(false)}
-				onConfirm={handleReserveForUser}
-				selectedUser={selectedUser}
-			/>
+      <ReserveForUserModal
+        show={showReserveForUserModal}
+        onClose={() => setShowReserveForUserModal(false)}
+        onConfirm={handleReserveForUser}
+        selectedUser={selectedUser}
+      />
 
-			<NotificationError key={notificationKey} message={notificationMessage} />
-		</main>
-	);
+      <NotificationError key={notificationKey} message={notificationMessage} />
+    </main>
+  );
 }
