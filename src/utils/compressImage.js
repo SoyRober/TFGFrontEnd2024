@@ -1,4 +1,4 @@
-export const compressImage = (file, quality = 0.7, maxWidth = 300, maxHeight = 300) => {
+export const compressImage = (file, quality = 0.7, maxWidth = 300, maxHeight = 300, maxSizeKB = 100) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -12,7 +12,6 @@ export const compressImage = (file, quality = 0.7, maxWidth = 300, maxHeight = 3
                 let width = img.width;
                 let height = img.height;
 
-                // Redimensionar manteniendo la relación de aspecto
                 if (width > maxWidth || height > maxHeight) {
                     if (width > height) {
                         height = Math.round((height * maxWidth) / width);
@@ -28,13 +27,21 @@ export const compressImage = (file, quality = 0.7, maxWidth = 300, maxHeight = 3
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0, width, height);
 
-                canvas.toBlob(
-                    (blob) => {
-                        resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }));
-                    },
-                    "image/jpeg",
-                    quality
-                );
+                const compress = (currentQuality) => {
+                    canvas.toBlob(
+                        (blob) => {
+                            if (blob.size / 1024 > maxSizeKB && currentQuality > 0.1) {
+                                compress(currentQuality - 0.1); // Reducir calidad iterativamente
+                            } else {
+                                resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }));
+                            }
+                        },
+                        "image/jpeg",
+                        currentQuality
+                    );
+                };
+
+                compress(quality);
             };
 
             img.onerror = (error) => reject(error);
