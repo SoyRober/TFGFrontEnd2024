@@ -41,7 +41,7 @@ export default function Settings() {
       setRole(data.message.role);
       setUsername(data.message.username);
       setEmail(data.message.email);
-      setBirthDate(data.message.birthDate);
+      setBirthDate(data.message.birthday);
       setProfileImage(
         data.message.profileImage
           ? `data:image/jpeg;base64,${data.message.profileImage}`
@@ -64,56 +64,35 @@ export default function Settings() {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
 
-      if (modalAttribute === "image") {
-        const file = modalValue;
+      let url = `/users/update/${decodedToken.email}`;
+      const formData = new FormData();
 
+      if (modalAttribute === "image") {
+        url = `/users/update/profileImage/${decodedToken.email}`;
+        const file = modalValue;
         if (!file) {
           setErrorMessage("Please select an image.");
           return;
         }
-
-        // Comprimir la imagen
         const compressedImage = await compressImage(file, 1, 400, 400);
-
-        // Crear un objeto FormData
-        const formData = new FormData();
-        formData.append("image", compressedImage); // Archivo de imagen
-        formData.append("attribute", "image"); // Indicar que se está actualizando la imagen
-
-        // Enviar la imagen al servidor usando fetchData
-        const data = await fetchData(
-          `/users/update/${decodedToken.email}`,
-          "PUT",
-          formData,
-          token
+        formData.append("newImage", compressedImage);
+        console.log(
+          "🚀 ~ handleSaveAttribute ~ compressedImage:",
+          compressedImage
         );
-
-        if (data.success) {
-          // Actualizar la imagen en el estado
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setProfileImage(reader.result);
-          };
-          reader.readAsDataURL(compressedImage);
-
-          setShowModal(false);
-          setErrorMessage("");
-        } else {
-          setErrorMessage(data.message || "Error: Image not changed");
-        }
       } else {
-        // Manejo genérico para otros atributos
-        const data = await fetchData(
-          `/users/update/${decodedToken.email}`,
-          "PUT",
-          {
-            newAttribute: modalValue,
-            attribute: modalAttribute,
-          },
-          token
-        );
+        formData.append("attribute", modalAttribute || "");
+        formData.append("newAttribute", modalValue || "");
+      }
 
-        if (data.success) {
+      const data = await fetchData(url, "PUT", formData, token);
+
+      if (data.success) {
+        if (modalAttribute === "image") {
+          const reader = new FileReader();
+          reader.onloadend = () => setProfileImage(reader.result);
+          reader.readAsDataURL(modalValue);
+        } else {
           switch (modalAttribute) {
             case "username":
               setUsername(modalValue);
@@ -124,19 +103,16 @@ export default function Settings() {
             case "birthdate":
               setBirthDate(modalValue);
               break;
-            case "password":
-              break; // No visual update needed for password
-            default:
-              break;
           }
-          setShowModal(false);
-          setErrorMessage("");
-          if (modalAttribute !== "password") {
-            localStorage.setItem("token", data.message);
-          }
-        } else {
-          setErrorMessage(data.message || `Error: ${modalAttribute} not changed`);
         }
+
+        setShowModal(false);
+        setErrorMessage("");
+        if (modalAttribute !== "password") {
+          localStorage.setItem("token", data.message);
+        }
+      } else {
+        setErrorMessage(data.message || `Error: ${modalAttribute} not changed`);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -161,32 +137,19 @@ export default function Settings() {
           <div className="row w-100">
             <div className="col-md-4 d-flex justify-content-center mb-4">
               <div
+                className="profile-image-container"
                 style={{
-                  position: "relative",
-                  width: "250px",
-                  height: "250px",
+                  backgroundImage:
+                    profileImage != null
+                      ? `url(${profileImage})`
+                      : `url(${defaultAvatar})`,
                 }}
                 role="button"
                 tabIndex="0"
                 onClick={() => handleEditAttribute("image", null)}
                 aria-label="Change Profile Image"
               >
-                <label
-                  style={{
-                    border: "1px solid black",
-                    display: "block",
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: "50%",
-                    backgroundImage:
-                      profileImage != null
-                        ? `url(${profileImage})`
-                        : `url(${defaultAvatar})`,
-                    backgroundPosition: "center",
-                    cursor: "pointer",
-                    backgroundSize: "cover",
-                  }}
-                ></label>
+                <div className="hover-overlay">Change Profile Image</div>
               </div>
             </div>
 
@@ -240,7 +203,10 @@ export default function Settings() {
               ? "Change Password"
               : modalAttribute === "image"
               ? "Change Profile Image"
-              : `Edit ${modalAttribute.charAt(0).toUpperCase() + modalAttribute.slice(1)}`}
+              : `Edit ${
+                  modalAttribute.charAt(0).toUpperCase() +
+                  modalAttribute.slice(1)
+                }`}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -257,7 +223,10 @@ export default function Settings() {
               <Form.Label>
                 {modalAttribute === "password"
                   ? "New Password"
-                  : `New ${modalAttribute.charAt(0).toUpperCase() + modalAttribute.slice(1)}`}
+                  : `New ${
+                      modalAttribute.charAt(0).toUpperCase() +
+                      modalAttribute.slice(1)
+                    }`}
               </Form.Label>
               <Form.Control
                 type={modalAttribute === "password" ? "password" : "text"}

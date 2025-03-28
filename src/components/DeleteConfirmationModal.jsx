@@ -14,7 +14,7 @@ export default function DeleteConfirmationModal({ show, onClose, onDelete, messa
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="danger" onClick={onDelete} className='mt-3'>
+        <Button variant="danger" onClick={onDelete}>
           Delete
         </Button>
       </Modal.Footer>

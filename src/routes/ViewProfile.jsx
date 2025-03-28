@@ -37,14 +37,15 @@ const ViewProfile = () => {
       }
       try {
         const data = await fetchData(
-          `/getUserProfile/${email}`,
+          `/users/info/${email}`,
           "GET",
           null,
           token
         );
-        setUserData(data);
+        console.log("🚀 ~ fetchUserProfile ~ data:", data.message);
+        setUserData(data.message);
       } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         setNotification("Error loading user profile: " + error.message);
       }
     };
@@ -84,17 +85,18 @@ const ViewProfile = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetchData(
-        "/changeRole",
-        "POST",
-        { username: userData.username, newRole: selectedRole },
+        `/users/update/${userData.email}`,
+        "PUT",
+        { attribute: "role", newAttribute: selectedRole },
         token
       );
+
       if (response.success) {
         setMessage(`Role changed to "${selectedRole}" successfully.`);
         setShowModal(false);
         setUserData((prevData) => ({
           ...prevData,
-          role: selectedRole
+          role: selectedRole,
         }));
       } else {
         setNotification(response.message || "Error changing role.");
@@ -106,7 +108,9 @@ const ViewProfile = () => {
 
   return (
     <main className="container my-5">
-      {notification && <NotificationError message={notification} type="error" />}
+      {notification && (
+        <NotificationError message={notification} type="error" />
+      )}
       {message && <NotificationError message={message} type="success" />}
 
       <section className="card p-4 mb-4 shadow">
@@ -118,7 +122,7 @@ const ViewProfile = () => {
             <strong>Email:</strong> {userData?.email || "N/A"}
           </p>
           <p>
-            <strong>Birth Date:</strong> {userData?.birthDate || "N/A"}
+            <strong>Birth Date:</strong> {userData?.birthday || "N/A"}
           </p>
           <p>
             <strong>Role:</strong>{" "}
@@ -127,7 +131,10 @@ const ViewProfile = () => {
               : "N/A"}
           </p>
           {userRole === "ADMIN" && (
-            <button className="btn btn-warning" onClick={() => setShowModal(true)}>
+            <button
+              className="btn btn-warning"
+              onClick={() => setShowModal(true)}
+            >
               Change Role
             </button>
           )}

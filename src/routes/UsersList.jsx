@@ -11,7 +11,7 @@ const UsersList = () => {
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [selectedUserEmail, setSelectedUserEmail] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,7 +31,7 @@ const UsersList = () => {
 
     try {
       const data = await fetchData(
-        `/getUsers?page=${page}`,
+        `/users/list?page=${page}`,
         "GET",
         null,
         token
@@ -53,15 +53,15 @@ const UsersList = () => {
 
     try {
       const data = await fetchData(
-        `/deleteUser/${selectedUserEmail}`,
+        `/users/${selectedUserId}`,
         "DELETE",
         null,
         token
       );
-      if (data) {
-        setErrorMessage(`User ${selectedUserEmail} deleted`);
+      if (data.success) {
+        setErrorMessage(data.message);
       }
-      setUsers(users.filter((user) => user.email !== selectedUserEmail));
+      setUsers(users.filter((user) => user.id !== selectedUserId));
       setShowDeleteConfirmation(false);
     } catch (error) {
       console.log(error.message)
@@ -69,13 +69,13 @@ const UsersList = () => {
     }
   };
 
-  const handleDeleteClick = (email) => {
-    setSelectedUserEmail(email);
+  const handleDeleteClick = (id) => {
+    setSelectedUserId(id);
     setShowDeleteConfirmation(true);
   };
 
-  const handleViewProfile = (email) => {
-    navigate(`/profile/${encodeURIComponent(email)}`);
+  const handleViewProfile = (id) => {
+    navigate(`/profile/${encodeURIComponent(id)}`);
   };
 
   return (
@@ -93,12 +93,12 @@ const UsersList = () => {
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={`${user.username}-${user.email}`}>
+            <tr key={user.id}>
               <td>{user.username}</td>
               <td>{user.email}</td>
               <td>
                 <button
-                  onClick={() => handleDeleteClick(user.email)}
+                  onClick={() => handleDeleteClick(user.id)}
                   className="btn btn-danger ml-2"
                 >
                   Delete
@@ -121,7 +121,7 @@ const UsersList = () => {
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={deleteUser}
-        message={`This user with email "${selectedUserEmail}" will be deleted. Are you sure?`}
+        message={`This user will be deleted. Are you sure?`}
       />
     </main>
   );
