@@ -1,5 +1,4 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import NotificationError from "../components/NotificationError";
 import SelectableList from "./SelectableList";
 import { compressImage } from "../utils/compressImage.js";
 
@@ -30,8 +29,6 @@ export default function CreateBookModal({
   bookIsAdult,
   setBookIsAdult,
   setBookImage,
-  notificationMessage,
-  notificationKey,
 }) {
 
   const handleImageChange = (e) => {
@@ -73,7 +70,6 @@ export default function CreateBookModal({
         <Modal.Title>Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <NotificationError key={notificationKey} message={notificationMessage} />
         <Form>
           <Row>
             <Col md={6}>

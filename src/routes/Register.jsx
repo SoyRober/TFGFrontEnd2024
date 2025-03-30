@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -34,21 +36,25 @@ const Register = () => {
       password: password,
       email: email,
       birthDate: birthDate,
+      role: "USER",
+      image: null,
     };
 
     try {
       const response = await fetchData("/users/register", "POST", userData);
 
       if (response.success) {
-        navigate("/");
+        toast.success("Registered successfully. Now go to the login page", { position: "top-right" });
         setMessage("Registration successful");
       } else {
+        toast.error(response.message || "Registration error. Please try again.", { position: "top-right" });
         setMessage(response.message || "Registration error. Please try again.");
       }
 
       setNotificationKey((prevKey) => prevKey + 1);
     } catch (error) {
       console.log(error.message);
+      toast.error(error.message, { position: "top-right" });
       setMessage(error.message);
       setNotificationKey((prevKey) => prevKey + 1);
     }
@@ -56,6 +62,7 @@ const Register = () => {
 
   return (
     <main className="container mt-5">
+      <ToastContainer />
       <div className="row justify-content-center">
         <div className="col-md-6 col-lg-4">
           <div className="card shadow-lg">
@@ -63,9 +70,7 @@ const Register = () => {
               <h2 className="card-title text-center mb-4">Sign Up</h2>
               <form onSubmit={handleRegister}>
                 <div className="mb-3">
-                  <label htmlFor="username" className="form-label">
-                    Username:
-                  </label>
+                  <label htmlFor="username" className="form-label">Username:</label>
                   <input
                     type="text"
                     className="form-control shadow-sm"
@@ -75,9 +80,7 @@ const Register = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password:
-                  </label>
+                  <label htmlFor="password" className="form-label">Password:</label>
                   <input
                     type="password"
                     className="form-control shadow-sm"
@@ -87,9 +90,7 @@ const Register = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="email" className="form-label">
-                    Email:
-                  </label>
+                  <label htmlFor="email" className="form-label">Email:</label>
                   <input
                     type="email"
                     className="form-control shadow-sm"
@@ -99,9 +100,7 @@ const Register = () => {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="birthDate" className="form-label">
-                    Birth Date:
-                  </label>
+                  <label htmlFor="birthDate" className="form-label">Birth Date:</label>
                   <input
                     type="date"
                     className="form-control shadow-sm"
@@ -110,23 +109,9 @@ const Register = () => {
                     onChange={(e) => setBirthDate(e.target.value)}
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="btn btn-primary w-100 shadow-sm"
-                >
-                  Sign Up
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger w-100 shadow-sm mt-2"
-                  onClick={handleGoogleSignUp}
-                >
-                  Sign up with Google
-                </button>
+                <button type="submit" className="btn btn-primary w-100 shadow-sm">Sign Up</button>
+                <button type="button" className="btn btn-danger w-100 shadow-sm mt-2" onClick={handleGoogleSignUp}>Sign up with Google</button>
               </form>
-              {message && (
-                <NotificationError key={notificationKey} message={message} />
-              )}
             </div>
           </div>
         </div>

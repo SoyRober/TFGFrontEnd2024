@@ -1,5 +1,4 @@
 import { useState } from "react";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 
@@ -85,9 +84,6 @@ const Login = () => {
                   Log in with Google
                 </button>
               </form>
-              {message && (
-                <NotificationError key={notificationKey} message={message} />
-              )}
             </div>
           </div>
         </div>

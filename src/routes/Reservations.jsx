@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -191,8 +190,6 @@ const UserReservations = ({ cardSize }) => {
 
   return (
     <main className="container mt-5">
-      {message && <NotificationError key={notificationKey} message={message} />}
-
       <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">

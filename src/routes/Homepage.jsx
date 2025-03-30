@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import CreateBookModal from "../components/CreateBookModal";
-import NotificationError from "../components/NotificationError";
 import { jwtDecode } from "jwt-decode";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
@@ -320,14 +319,6 @@ export default function Homepage() {
         margin: "auto",
       }}
     >
-      {notificationMessage && (
-        <section className="mb-4 text-center d-flex justify-content-left">
-          <NotificationError
-            key={notificationKey}
-            message={notificationMessage}
-          />
-        </section>
-      )}
 
       <CreateBookModal
         {...{

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -8,7 +7,6 @@ import { Modal, Button, Form } from "react-bootstrap";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
-  const [notification, setNotification] = useState("");
   const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -108,11 +106,6 @@ const ViewProfile = () => {
 
   return (
     <main className="container my-5">
-      {notification && (
-        <NotificationError message={notification} type="error" />
-      )}
-      {message && <NotificationError message={message} type="success" />}
-
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
           <p>

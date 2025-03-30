@@ -9,7 +9,6 @@ import EditBookAttributeModal from "../components/EditBookAttributeModal.jsx";
 import BookLoansModal from "../components/BookLoansModal.jsx";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import BookReservationModal from "../components/BookReservationModal.jsx";
-import NotificationError from "../components/NotificationError";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import LoanToUserModal from "../components/LoanToUserModal.jsx";
@@ -1127,8 +1126,6 @@ export default function ViewBook() {
         onConfirm={handleReserveForUser}
         selectedUser={selectedUser}
       />
-
-      <NotificationError key={notificationKey} message={notificationMessage} />
     </main>
   );
 }

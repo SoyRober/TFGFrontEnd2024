@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -81,8 +80,6 @@ const UsersList = () => {
   return (
     <main className="container">
       <h2>User List</h2>
-      {errorMessage && <NotificationError message={errorMessage} />}
-
       <table className="table table-striped">
         <thead>
           <tr>

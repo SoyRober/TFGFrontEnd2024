@@ -8,6 +8,8 @@ import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
 import Notifications from "../components/Notifications.jsx";
 import LibrarySelector from "../components/LibrarySelector.jsx";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Root() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -169,6 +171,7 @@ export default function Root() {
         </div>
       </nav>
       <Outlet />
+      <ToastContainer />
     </>
   );
 }

@@ -1,101 +1,58 @@
 import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
-import { fetchData } from "../utils/fetch";
-import NotificationError from "../components/NotificationError";
 import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { fetchData } from "../utils/fetch";
+import { toast } from "react-toastify";
 import RenameAttributeModal from "../components/RenameAttributeModal";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import AddAttributeModal from "../components/AddAttributeModal"; // Importa el nuevo componente
+import AddAttributeModal from "../components/AddAttributeModal";
 import Loading from "../components/Loading";
 
 const GenresComponent = () => {
   const [genres, setGenres] = useState([]);
-  const [message, setMessage] = useState("");
-  const [token] = useState(() => {
-    return localStorage.getItem("token") ? localStorage.getItem("token") : null;
-  });
-  const [showRenameModal, setShowRenameModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false); // Estado para el modal de añadir género
+  const [token] = useState(localStorage.getItem("token"));
+  const [modals, setModals] = useState({ add: false, edit: false, delete: false });
   const [selectedGenre, setSelectedGenre] = useState(null);
 
   useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const data = await fetchData(`/genres`, "GET");
-        setGenres(data);
-      } catch (err) {
-        setMessage(err.message);
-      }
-    };
     fetchGenres();
   }, [token]);
 
-  const handleEditGenre = (genre) => {
-    setSelectedGenre(genre);
-    setShowRenameModal(true);
-  };
-
-  const handleRenameGenre = async (id, newName) => {
+  const fetchGenres = async () => {
     try {
-      const response = await fetchData(
-        `/genres`,
-        "PUT",
-        { id: id, name: newName },
-        token
-      );
-      setMessage(response.message);
-      setShowRenameModal(false);
-      // Refresh genres list
-      const data = await fetchData(`/genres`, "GET");
+      const data = await fetchData("/genres", "GET", null, token);
       setGenres(data);
     } catch (err) {
-      setMessage(err.message);
+      toast.error(err.message || "Failed to load genres.");
     }
   };
 
-  const handleAddGenre = async (newName, id) => {
+  const handleSaveGenre = async (method, body) => {
     try {
-      const response = await fetchData(`/genres`, "POST", newName, token);
-      setMessage(response.message);
-      setShowAddModal(false);
-      // Refresh genres list
-      const data = await fetchData(`/genres`, "GET");
-      setGenres(data);
+      await fetchData("/genres", method, body, token);
+      toast.success(`Genre ${method === "POST" ? "added" : "updated"} successfully!`);
+      setModals({ ...modals, add: false, edit: false });
+      fetchGenres();
     } catch (err) {
-      setMessage(err.message);
+      toast.error(err.message || "Failed to save genre.");
     }
   };
 
-  const handleDeleteGenre = (genre) => {
-    setSelectedGenre(genre);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
+  const handleDeleteGenre = async () => {
     try {
-      const response = await fetchData(
-        `/genres/${selectedGenre.id}`,
-        "DELETE",
-        null,
-        token
-      );
-      setMessage(response.message);
-      setShowDeleteModal(false);
-      // Refresh genres list
-      const data = await fetchData(`/genres`, "GET");
-      setGenres(data);
+      await fetchData(`/genres/${selectedGenre.id}`, "DELETE", null, token);
+      toast.success("Genre deleted successfully!");
+      setModals({ ...modals, delete: false });
+      fetchGenres();
     } catch (err) {
-      setMessage(err.message);
+      toast.error(err.message || "Failed to delete genre.");
     }
   };
 
   return (
     <main className="container">
-      {message && <NotificationError message={message} />}
-
       <section className="row">
         {genres.length > 0 ? (
           genres.map((genre) => (
@@ -106,13 +63,19 @@ const GenresComponent = () => {
                   <div>
                     <button
                       className="btn btn-outline-primary btn-sm me-2"
-                      onClick={() => handleEditGenre(genre)}
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, edit: true });
+                      }}
                     >
                       <i className="bi bi-pencil"></i>
                     </button>
                     <button
                       className="btn btn-outline-danger btn-sm"
-                      onClick={() => handleDeleteGenre(genre)}
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, delete: true });
+                      }}
                     >
                       <i className="bi bi-x"></i>
                     </button>
@@ -126,36 +89,28 @@ const GenresComponent = () => {
         )}
       </section>
 
-      <button
-        className="btn btn-primary"
-        style={{ position: "fixed", bottom: "30px", left: "30px" }}
-        onClick={() => setShowAddModal(true)}
-      >
+      <button className="btn btn-primary fixed-bottom m-3 w-25" onClick={() => setModals({ ...modals, add: true })}>
         + Add Genre
       </button>
 
-      {selectedGenre && (
-        <RenameAttributeModal
-          show={showRenameModal}
-          handleClose={() => setShowRenameModal(false)}
-          handleRename={handleRenameGenre}
-          attribute={selectedGenre}
-        />
-      )}
+      <RenameAttributeModal
+        show={modals.edit}
+        handleClose={() => setModals({ ...modals, edit: false })}
+        handleRename={(id, name) => handleSaveGenre("PUT", { id, name })}
+        attribute={selectedGenre}
+      />
 
-      {selectedGenre && (
-        <DeleteConfirmationModal
-          show={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onDelete={handleConfirmDelete}
-          message={`Delete ${selectedGenre.name}? This action will also remove it from all books.`}
-        />
-      )}
+      <DeleteConfirmationModal
+        show={modals.delete}
+        onClose={() => setModals({ ...modals, delete: false })}
+        onDelete={handleDeleteGenre}
+        message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
+      />
 
       <AddAttributeModal
-        show={showAddModal}
-        handleClose={() => setShowAddModal(false)}
-        handleAdd={handleAddGenre}
+        show={modals.add}
+        handleClose={() => setModals({ ...modals, add: false })}
+        handleAdd={(name) => handleSaveGenre("POST", name)}
       />
     </main>
   );
