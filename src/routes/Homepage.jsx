@@ -8,21 +8,13 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [bookTitle, setBookTitle] = useState("");
-  const [bookAuthors, setBookAuthors] = useState([]);
-  const [bookGenres, setBookGenres] = useState([]);
-  const [bookQuantity, setBookQuantity] = useState("");
-  const [bookLocation, setBookLocation] = useState("");
-  const [bookSynopsis, setBookSynopsis] = useState("");
-  const [bookPublicationDate, setBookPublicationDate] = useState("");
-  const [bookIsAdult, setBookIsAdult] = useState(false);
-  const [bookImage, setBookImage] = useState("");
+  const [genres, setGenres] = useState([]); 
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState("");
   const [searchStringGenres, setSearchStringGenres] = useState("");
@@ -31,8 +23,6 @@ export default function Homepage() {
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationKey, setNotificationKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [startDateFilter, setStartDateFilter] = useState("");
   const [cardSize, setCardSize] = useState(() => {
@@ -40,6 +30,18 @@ export default function Homepage() {
       ? localStorage.getItem("cardSize")
       : "medium";
   });
+  const [bookData, setBookData] = useState({
+    title: "",
+    authors: [],
+    genres: [],
+    quantity: "",
+    location: "",
+    synopsis: "",
+    publicationDate: "",
+    isAdult: false,
+    image: ""
+  }); 
+  
   const [isFetching, setIsFetching] = useState(false);
 
   // Navegación
@@ -48,14 +50,7 @@ export default function Homepage() {
   // Efectos
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-
-      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
-        setHasPermissions(true);
-      }
-    }
+      if (token && jwtDecode(token).role.toLowerCase() !== "user") setHasPermissions(true);
   }, []);
 
   useEffect(() => {
@@ -134,8 +129,7 @@ export default function Homepage() {
       const data = await fetchData(url);
 
       if (!data || data.length === 0) {
-        setNotificationMessage("There are no more books to show.");
-        setNotificationKey((prevKey) => prevKey + 1);
+        toast.info(data.message || "No more books found.");
         return;
       }
 
@@ -151,9 +145,7 @@ export default function Homepage() {
 
       setExtraBottomSpace((prev) => prev + cardSize / 7);
     } catch (error) {
-      console.log(error.message)
-      setNotificationMessage(error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "An unknown error occurred.");
     } finally {
       setAtBottom(false);
       setIsLoading(false);
@@ -172,7 +164,7 @@ export default function Homepage() {
       );
       setAuthors(data);
     } catch (error) {
-      console.error("Failed to fetch authors:", error);
+      toast.error(error.message || "Failed to load authors.");
       setAuthors([]);
     }
   };
@@ -182,11 +174,11 @@ export default function Homepage() {
       const data = await fetchData(
         `/genres/search?search=${searchString}`,
         "GET",
-        null,
+        null
       );
       setGenres(data);
     } catch (error) {
-      console.log(error.message)
+      toast.error(error.message || "Failed to load genres.");
       setGenres([]);
     }
   };
@@ -253,31 +245,28 @@ export default function Homepage() {
       title: bookTitle,
       authors: bookAuthors,
       genres: bookGenres,
-      quantity: bookQuantity,
       location: bookLocation,
       synopsis: bookSynopsis,
       publicationDate: bookPublicationDate,
       isAdult: bookIsAdult,
       image: bookImage,
+      //TODO : Cambiar a la id de la biblioteca
+      libraryId: 1,
+      //CAMBIARLO
     };
 
     try {
       const response = await fetchData("/books", "POST", bookData, token);
 
       if (!response.success) {
-        const errorMessage = response.message || "Failed to save book.";
-        setNotificationMessage(errorMessage);
-        setNotificationKey(notificationKey + 1);
+        toast.error(response.message || "Failed to save book.")
         return;
       }
 
-      setNotificationMessage(response.message || "Book saved successfully.");
-      setNotificationKey(notificationKey + 1);
+      toast.success(response.message || "Book saved successfully.");
       fetchBooksData(page);
     } catch (error) {
-      console.log(error.message)
-      setNotificationMessage(error.message || "An unknown error occurred.");
-      setNotificationKey(notificationKey + 1);
+      toast.error(error.message || "An unknown error occurred.")
     }
   };
 
@@ -319,7 +308,6 @@ export default function Homepage() {
         margin: "auto",
       }}
     >
-
       <CreateBookModal
         {...{
           showModal,
@@ -352,8 +340,6 @@ export default function Homepage() {
           bookIsAdult,
           setBookIsAdult,
           setBookImage,
-          notificationMessage,
-          notificationKey,
         }}
       />
 

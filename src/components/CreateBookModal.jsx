@@ -40,6 +40,8 @@ export default function CreateBookModal({
     };
     if (file) {
       reader.readAsDataURL(file);
+    } else {
+      setBookImage(null);
     }
   };
 
