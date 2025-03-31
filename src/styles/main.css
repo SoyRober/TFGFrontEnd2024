@@ -29,6 +29,11 @@
 .customized-card {
   cursor: 'pointer';
   min-height: '300px';
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
 }
 
 /* Estilos para el contenedor de la imagen de perfil */
@@ -64,3 +69,4 @@
 .profile-image-container:hover .hover-overlay {
   opacity: 1;
 }
+
