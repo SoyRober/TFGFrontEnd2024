@@ -14,7 +14,16 @@ export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
-  const [genres, setGenres] = useState([]); 
+  const [genres, setGenres] = useState([]);
+  const [bookTitle, setBookTitle] = useState("");
+  const [bookAuthors, setBookAuthors] = useState([]);
+  const [bookGenres, setBookGenres] = useState([]);
+  const [bookQuantity, setBookQuantity] = useState("");
+  const [bookLocation, setBookLocation] = useState("");
+  const [bookSynopsis, setBookSynopsis] = useState("");
+  const [bookPublicationDate, setBookPublicationDate] = useState("");
+  const [bookIsAdult, setBookIsAdult] = useState(false);
+  const [bookImage, setBookImage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [searchStringAuthors, setSearchStringAuthors] = useState("");
   const [searchStringGenres, setSearchStringGenres] = useState("");
@@ -23,6 +32,8 @@ export default function Homepage() {
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [extraBottomSpace, setExtraBottomSpace] = useState(0);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationKey, setNotificationKey] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [startDateFilter, setStartDateFilter] = useState("");
   const [cardSize, setCardSize] = useState(() => {
@@ -30,27 +41,16 @@ export default function Homepage() {
       ? localStorage.getItem("cardSize")
       : "medium";
   });
-  const [bookData, setBookData] = useState({
-    title: "",
-    authors: [],
-    genres: [],
-    quantity: "",
-    location: "",
-    synopsis: "",
-    publicationDate: "",
-    isAdult: false,
-    image: ""
-  }); 
-  
   const [isFetching, setIsFetching] = useState(false);
-
+  const defaultError = "An unknown error occurred."; 
   // Navegación
   const navigate = useNavigate();
 
   // Efectos
   useEffect(() => {
     const token = localStorage.getItem("token");
-      if (token && jwtDecode(token).role.toLowerCase() !== "user") setHasPermissions(true);
+    if (token && jwtDecode(token).role.toLowerCase() !== "user")
+      setHasPermissions(true);
   }, []);
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export default function Homepage() {
       const data = await fetchData(url);
 
       if (!data || data.length === 0) {
-        toast.info(data.message || "No more books found.");
+        toast.error(data.message || "No more books to load.");
         return;
       }
 
@@ -145,7 +145,9 @@ export default function Homepage() {
 
       setExtraBottomSpace((prev) => prev + cardSize / 7);
     } catch (error) {
-      toast.error(error.message || "An unknown error occurred.");
+      toast.error(error.message || defaultError);
+      setNotificationMessage(error.message);
+      setNotificationKey((prevKey) => prevKey + 1);
     } finally {
       setAtBottom(false);
       setIsLoading(false);
@@ -164,7 +166,7 @@ export default function Homepage() {
       );
       setAuthors(data);
     } catch (error) {
-      toast.error(error.message || "Failed to load authors.");
+      toast.error(error.message || defaultError);
       setAuthors([]);
     }
   };
@@ -178,7 +180,7 @@ export default function Homepage() {
       );
       setGenres(data);
     } catch (error) {
-      toast.error(error.message || "Failed to load genres.");
+      toast.error(error.message || defaultError);
       setGenres([]);
     }
   };
@@ -245,28 +247,29 @@ export default function Homepage() {
       title: bookTitle,
       authors: bookAuthors,
       genres: bookGenres,
+      quantity: bookQuantity,
       location: bookLocation,
       synopsis: bookSynopsis,
       publicationDate: bookPublicationDate,
       isAdult: bookIsAdult,
       image: bookImage,
-      //TODO : Cambiar a la id de la biblioteca
-      libraryId: 1,
-      //CAMBIARLO
     };
 
     try {
       const response = await fetchData("/books", "POST", bookData, token);
 
       if (!response.success) {
-        toast.error(response.message || "Failed to save book.")
+        toast.error(response.message || defaultError);
         return;
       }
 
-      toast.success(response.message || "Book saved successfully.");
+      toast.success(response.message || "Book created successfully.");
+      closeModal();
       fetchBooksData(page);
     } catch (error) {
-      toast.error(error.message || "An unknown error occurred.")
+      console.log(error.message);
+      setNotificationMessage(error.message || "An unknown error occurred.");
+      setNotificationKey(notificationKey + 1);
     }
   };
 
@@ -340,6 +343,8 @@ export default function Homepage() {
           bookIsAdult,
           setBookIsAdult,
           setBookImage,
+          notificationMessage,
+          notificationKey,
         }}
       />
 
