@@ -34,7 +34,7 @@ const Loans = ({ cardSize = "medium" }) => {
         : "";
 
       const data = await fetchData(
-        `/loans?page=${page}&size=10&title=${filters.title}&isReturned=${
+        `/getUserLoans?page=${page}&size=10&title=${filters.title}&isReturned=${
           filters.returned !== "notReturned"
         }&startDate=${formattedStartDate}`,
         "GET",
