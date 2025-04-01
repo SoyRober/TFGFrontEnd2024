@@ -95,7 +95,7 @@ export default function Homepage() {
         const data = await fetchData(url);
 
         if (!data || data.length === 0) {
-          toast.error("No more books to load.");
+          toast.info("No more books to load.");
           return;
         }
 
