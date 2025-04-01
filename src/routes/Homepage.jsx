@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
-import CreateBookModal from "../components/CreateBookModal";
+import CreateBookModal from "../components/modals/CreateBookModal.jsx";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import DatePicker from "react-datepicker";

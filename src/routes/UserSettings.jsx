@@ -18,6 +18,7 @@ export default function Settings() {
   const [showModal, setShowModal] = useState(false);
   const [modalAttribute, setModalAttribute] = useState("");
   const [modalValue, setModalValue] = useState("");
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,6 +119,33 @@ export default function Settings() {
     setShowModal(false);
   };
 
+  const handleDeleteUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+
+      const data = await fetchData(`/users/${decodedToken.email}`, "DELETE", null, token);
+
+      if (data.success) {
+        toast.success("User deleted successfully.");
+        localStorage.removeItem("token");
+        navigate("/");
+      } else {
+        toast.error(data.message || "Failed to delete user.");
+      }
+    } catch (error) {
+      toast.error(error.message || "An unexpected error occurred.");
+    }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setShowDeleteConfirmationModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteConfirmationModal(false);
+  };
+
   return (
     <main className="container mt-5">
       <h1 className="text-center mb-4">Settings</h1>
@@ -147,19 +175,18 @@ export default function Settings() {
             </div>
 
             <div className="col-md-4 text-center">
-              <h5 className="card-title">User Information</h5>
-              <p className="card-text">Username: {username}</p>
-              <p className="card-text">Email: {email}</p>
+              <h5 className="card-title mb-4">User Information</h5>
+              <p className="card-text mb-4">Username: {username}</p>
+              <p className="card-text mb-4">Email: {email}</p>
               <p className="card-text">
                 BirthDate:{" "}
                 {birthDate && !isNaN(new Date(birthDate).getTime())
                   ? new Date(birthDate).toLocaleDateString()
                   : "N/A"}
               </p>
-              <p className="card-text">Role: {role}</p>
             </div>
 
-            <div className="col-md-4 d-flex flex-column align-items-center">
+            <div className="col-md-4 d-flex flex-column align-items-center mt-4">
               <button
                 className="btn btn-primary mb-3 w-50"
                 onClick={() => handleEditAttribute("username", username)}
@@ -185,6 +212,14 @@ export default function Settings() {
                 Change Password
               </button>
             </div>
+          </div>
+          <div>
+            <button
+              className="btn btn-danger"
+              onClick={handleOpenDeleteModal}
+            >
+              Deactivate user
+            </button>
           </div>
         </div>
       </section>
@@ -235,6 +270,24 @@ export default function Settings() {
           </Button>
           <Button variant="primary" onClick={handleSaveAttribute}>
             Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+        You wont be able to activate this account again when a month passes.
+        Are you sure you want to deactivate your account? 
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseDeleteModal}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleDeleteUser}>
+            Deactivate
           </Button>
         </Modal.Footer>
       </Modal>

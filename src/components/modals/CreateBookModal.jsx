@@ -1,6 +1,6 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import SelectableList from "./SelectableList";
-import { compressImage } from "../utils/compressImage.js";
+import SelectableList from "../SelectableList.jsx";
+import { compressImage } from "../../utils/compressImage.js";
 
 export default function CreateBookModal({
   showModal,

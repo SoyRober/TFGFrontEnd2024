@@ -6,9 +6,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
-import AddAttributeWithDateModal from "../components/AddAttributeWithDateModal";
-import EditAttributeWithDateModal from "../components/EditAttributeWithDateModal";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import AddAttributeWithDateModal from "../components/modals/AddAttributeWithDateModal";
+import EditAttributeWithDateModal from "../components/modals/EditAttributeWithDateModal";
+import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import Loading from "../components/Loading";
 
 const AuthorsComponent = () => {

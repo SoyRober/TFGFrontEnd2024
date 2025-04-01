@@ -169,7 +169,7 @@ export default function Root() {
         </div>
       </nav>
       <Outlet />
-      <ToastContainer />
+      <ToastContainer position={"bottom-right"} closeOnClick={true} draggable={true} theme={"dark"}/>
     </>
   );
 }

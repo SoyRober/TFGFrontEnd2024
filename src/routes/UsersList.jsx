@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal.jsx";
+import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal.jsx";
 import { toast } from "react-toastify";
 
 const UsersList = () => {

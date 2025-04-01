@@ -5,9 +5,9 @@ import "react-datepicker/dist/react-datepicker.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
-import RenameAttributeModal from "../components/RenameAttributeModal";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import AddAttributeModal from "../components/AddAttributeModal";
+import RenameAttributeModal from "../components/modals/RenameAttributeModal";
+import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
+import AddAttributeModal from "../components/modals/AddAttributeModal";
 import Loading from "../components/Loading";
 
 const GenresComponent = () => {

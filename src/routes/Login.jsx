@@ -2,19 +2,22 @@ import { useState } from "react";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import ReactivationInfoModal from "../components/modals/ReactivationInfoModal.jsx";
 
 const Login = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
 
+  const [showModal, setShowModal] = useState(false);
+
+  const handleShowModal = () => setShowModal(true);
+  const handleHideModal = () => setShowModal(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const userData = {
-      username: username,
-      password: password,
-    };
+    const userData = { username, password };
 
     try {
       const response = await fetchData("/users/login", "POST", userData);
@@ -26,8 +29,7 @@ const Login = () => {
         toast.error(response.message || "Login error. Please try again.");
       }
     } catch (error) {
-      console.log(error.message);
-      toast.error("Error connecting to the server.");
+      toast.error(error.message || "Login error. Please try again.");
     }
   };
 
@@ -67,10 +69,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="btn btn-primary w-100 shadow-sm"
-                >
+                <button type="submit" className="btn btn-primary w-100 shadow-sm">
                   Log In
                 </button>
                 <button
@@ -80,11 +79,17 @@ const Login = () => {
                 >
                   Log in with Google
                 </button>
+                <p className="mt-3 text-center">
+                  <a href="#" onClick={handleShowModal} style={{ cursor: "pointer" }}>
+                    Reactivation Info
+                  </a>
+                </p>
               </form>
             </div>
           </div>
         </div>
       </div>
+      <ReactivationInfoModal show={showModal} handleClose={handleHideModal} />
     </main>
   );
 };
