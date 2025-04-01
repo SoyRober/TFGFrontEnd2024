@@ -3,10 +3,10 @@ import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal.jsx";
+import { toast } from "react-toastify";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
-  const [errorMessage, setErrorMessage] = useState("");
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -15,10 +15,7 @@ const UsersList = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-
-      if (userRole === "USER") {
+      if (jwtDecode(token).role === "USER") {
         navigate("/");
       }
     }
@@ -37,8 +34,7 @@ const UsersList = () => {
       );
       setUsers(data.message);
     } catch (error) {
-      console.log(error.message)
-      setErrorMessage("Error loading the users list");
+      toast.error(error.message || "Error loading the users list");
     }
   };
 
@@ -58,13 +54,12 @@ const UsersList = () => {
         token
       );
       if (data.success) {
-        setErrorMessage(data.message);
+        toast.success(data.message);
       }
       setUsers(users.filter((user) => user.id !== selectedUserId));
       setShowDeleteConfirmation(false);
     } catch (error) {
-      console.log(error.message)
-      setErrorMessage("Error deleting user");
+      toast.error(error.message  || "Something went wrong");
     }
   };
 

@@ -4,10 +4,10 @@ import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { Modal, Button, Form } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
-  const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("USER");
@@ -17,8 +17,7 @@ const ViewProfile = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      const role = decodedToken.role;
+      const role = jwtDecode(token).role;
       setUserRole(role);
       if (role === "USER") {
         navigate("/");
@@ -30,7 +29,7 @@ const ViewProfile = () => {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        setNotification("No token found, user might not be authenticated");
+        toast.error("No token found, user might not be authenticated");
         return navigate("/");
       }
       try {
@@ -40,11 +39,9 @@ const ViewProfile = () => {
           null,
           token
         );
-        console.log("🚀 ~ fetchUserProfile ~ data:", data.message);
         setUserData(data.message);
       } catch (error) {
-        console.log(error.message);
-        setNotification("Error loading user profile: " + error.message);
+        toast.error("Error loading user profile: " + error.message);
       }
     };
 
@@ -63,8 +60,8 @@ const ViewProfile = () => {
         { title: bookTitle, user: email },
         token
       );
-      if (response) {
-        setMessage(`The book "${bookTitle}" has been returned successfully.`);
+      if (response.success) {
+        toast.success(`The book "${bookTitle}" has been returned successfully.`);
         setUserData((prevData) => ({
           ...prevData,
           loanList: prevData.loanList.map((loan) =>
@@ -72,10 +69,10 @@ const ViewProfile = () => {
           ),
         }));
       } else {
-        setNotification(response.message || "Error returning the book.");
+        toast.error(response.message || "Error returning the book.");
       }
     } catch (err) {
-      setNotification("Error: " + err.message);
+      toast.error(err.message);
     }
   };
 
@@ -90,17 +87,17 @@ const ViewProfile = () => {
       );
 
       if (response.success) {
-        setMessage(`Role changed to "${selectedRole}" successfully.`);
+        toast.success(`Role changed to "${selectedRole}" successfully.`);
         setShowModal(false);
         setUserData((prevData) => ({
           ...prevData,
           role: selectedRole,
         }));
       } else {
-        setNotification(response.message || "Error changing role.");
+        toast.error(response.message || "Error changing role.");
       }
     } catch (err) {
-      setNotification("Error: " + err.message);
+      toast.error(err.message);
     }
   };
 

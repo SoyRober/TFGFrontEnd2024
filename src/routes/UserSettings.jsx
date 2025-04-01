@@ -7,6 +7,7 @@ import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
+import { toast } from "react-toastify";
 
 export default function Settings() {
   const [role, setRole] = useState("");
@@ -17,7 +18,6 @@ export default function Settings() {
   const [showModal, setShowModal] = useState(false);
   const [modalAttribute, setModalAttribute] = useState("");
   const [modalValue, setModalValue] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Settings() {
       null,
       token
     );
-    if (data) {
+    if (data.success) {
       setRole(data.message.role);
       setUsername(data.message.username);
       setEmail(data.message.email);
@@ -48,7 +48,7 @@ export default function Settings() {
           : null
       );
     } else {
-      setErrorMessage("An unexpected error occurred.");
+      toast.error("An unexpected error occurred.");
       navigate("/");
     }
   };
@@ -71,15 +71,11 @@ export default function Settings() {
         url = `/users/update/profileImage/${decodedToken.email}`;
         const file = modalValue;
         if (!file) {
-          setErrorMessage("Please select an image.");
+          toast.error("Please select an image.");
           return;
         }
         const compressedImage = await compressImage(file, 1, 400, 400);
         formData.append("newImage", compressedImage);
-        console.log(
-          "🚀 ~ handleSaveAttribute ~ compressedImage:",
-          compressedImage
-        );
       } else {
         formData.append("attribute", modalAttribute || "");
         formData.append("newAttribute", modalValue || "");
@@ -107,22 +103,19 @@ export default function Settings() {
         }
 
         setShowModal(false);
-        setErrorMessage("");
         if (modalAttribute !== "password") {
           localStorage.setItem("token", data.message);
         }
       } else {
-        setErrorMessage(data.message || `Error: ${modalAttribute} not changed`);
+        toast.error(data.message || `Error: ${modalAttribute} not changed`);
       }
     } catch (error) {
-      console.error("Error:", error);
-      setErrorMessage("An unexpected error occurred.");
+      toast.error(error.message || "An unexpected error occurred.");
     }
   };
 
   const handleCancel = () => {
     setShowModal(false);
-    setErrorMessage("");
   };
 
   return (
@@ -235,7 +228,6 @@ export default function Settings() {
               />
             </Form.Group>
           )}
-          {errorMessage && <p className="text-danger mt-3">{errorMessage}</p>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCancel}>

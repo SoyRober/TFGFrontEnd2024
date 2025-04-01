@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const [message, setMessage] = useState("");
-  const [notificationKey, setNotificationKey] = useState(0);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -21,16 +20,14 @@ const Login = () => {
       const response = await fetchData("/users/login", "POST", userData);
       if (response.success) {
         localStorage.setItem("token", response.message);
+        toast.success("Logged in successfully");
         navigate("/");
       } else {
-        setMessage(response.message || "Login error. Please try again.");
-        setNotificationKey((prevKey) => prevKey + 1);
+        toast.error(response.message || "Login error. Please try again.");
       }
     } catch (error) {
       console.log(error.message);
-      setMessage("Error connecting to the server.");
-
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("Error connecting to the server.");
     }
   };
 
