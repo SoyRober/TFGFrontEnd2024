@@ -298,7 +298,7 @@ export default function Homepage() {
 
       <section className="container mt-5">
         <div className="row">
-          {!isLoading ? (
+          {books.length > 0 ? (
             books.map((book) => (
               <div
                 key={book.title}

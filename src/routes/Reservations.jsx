@@ -10,12 +10,10 @@ import { toast } from "react-toastify";
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
-  const [error, setError] = useState(null);
   const [dateFilter, setDateFilter] = useState("");
   const [loanedFilter, setReturnedFilter] = useState("all");
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -66,7 +64,7 @@ const UserReservations = ({ cardSize }) => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
       if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom && !loading) {
+        if (!atBottom) {
           setAtBottom(true);
           setPage((prevPage) => prevPage + 1);
           fetchReservations();
@@ -77,7 +75,7 @@ const UserReservations = ({ cardSize }) => {
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [atBottom, loading]);
+  }, [atBottom]);
 
   const fetchReservations = async () => {
     try {
@@ -169,10 +167,6 @@ const UserReservations = ({ cardSize }) => {
         return "col-12";
     }
   };
-
-  if (loading) {
-    return <Loading />;
-  }
 
   return (
     <main className="container mt-5">
@@ -318,9 +312,7 @@ const UserReservations = ({ cardSize }) => {
               </article>
             ))
           ) : (
-            <div className="alert alert-info" role="alert">
-              No reservations found
-            </div>
+           <Loading />
           )}
         </div>
       </div>

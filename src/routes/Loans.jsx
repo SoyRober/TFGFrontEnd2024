@@ -15,7 +15,6 @@ const Loans = ({ cardSize = "medium" }) => {
     returned: "notReturned",
   });
   const [page, setPage] = useState(0);
-  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
@@ -27,7 +26,6 @@ const Loans = ({ cardSize = "medium" }) => {
       return;
     }
 
-    setLoading(true);
     try {
       const formattedStartDate = filters.startDate
         ? new Date(filters.startDate).toISOString().split("T")[0]
@@ -56,8 +54,6 @@ const Loans = ({ cardSize = "medium" }) => {
       }
     } catch (err) {
       toast.error(err.message || "An error occurred while fetching loans");
-    } finally {
-      setLoading(false);
     }
   }, [filters, page, token, navigate]);
 
@@ -68,14 +64,14 @@ const Loans = ({ cardSize = "medium" }) => {
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      if (scrollTop + windowHeight >= documentHeight - 5 && !loading) {
+      if (scrollTop + windowHeight >= documentHeight - 5) {
         setPage((prevPage) => prevPage + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [loading]);
+  }, []);
 
   // Fetch loans on filters or page change
   useEffect(() => {
@@ -127,10 +123,6 @@ const Loans = ({ cardSize = "medium" }) => {
         return "col-12";
     }
   };
-
-  if (loading && page === 0) {
-    return <Loading />;
-  }
 
   return (
     <main className="container mt-5">
@@ -267,9 +259,7 @@ const Loans = ({ cardSize = "medium" }) => {
               </article>
             ))
           ) : (
-            <div className="alert alert-info text-center" role="alert">
-              No loans found
-            </div>
+            <Loading />
           )}
         </div>
       </section>

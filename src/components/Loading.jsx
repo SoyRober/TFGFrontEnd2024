@@ -1,16 +1,16 @@
-import "../styles/loading.css";
-import {Circle} from "react-awesome-spinners";
+import { Grid } from "react-awesome-spinners";
 
-const Loading = ({ }) => {
+const Loading = () => {
     return (
-        <div>
-            <Circle
-                size={100}
-                color={"#00BFFF"}
-                className="loading"
-            />
+        <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "50vh"
+        }}>
+            <Grid size={"90px"} color={"#000"} speed={500}/>
         </div>
-    )
-}
+    );
+};
 
 export default Loading;
