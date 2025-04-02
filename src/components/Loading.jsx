@@ -1,11 +1,14 @@
 import "../styles/loading.css";
+import {Circle} from "react-awesome-spinners";
 
 const Loading = ({ }) => {
     return (
-        <div className="modal-loading">
-            <span className="page left"></span>
-            <span className="middle"></span>
-            <span className="page right"></span>
+        <div>
+            <Circle
+                size={100}
+                color={"#00BFFF"}
+                className="loading"
+            />
         </div>
     )
 }
