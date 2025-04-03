@@ -8,6 +8,8 @@ import Loading from "../components/Loading.jsx";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
+import CustomCarousel from "../components/Carousel.jsx";
+import defaultBook from "../img/defaultBook.svg";
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -33,7 +35,6 @@ export default function Homepage() {
   const [cardSize, setCardSize] = useState(
     () => localStorage.getItem("cardSize") || "medium"
   );
-  const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [page, setPage] = useState(0);
 
@@ -112,7 +113,6 @@ export default function Homepage() {
       } catch (error) {
         toast.info(error.message || "An unknown error occurred.");
       } finally {
-        setIsLoading(false);
         setIsFetching(false);
       }
     },
@@ -203,7 +203,10 @@ export default function Homepage() {
 
   // Renderizado
   return (
+    
     <main className="fade-in d-flex flex-column justify-content-center align-items-center">
+      <CustomCarousel />
+
       <CreateBookModal
         showModal={showModal}
         closeModal={closeModal}
@@ -213,6 +216,7 @@ export default function Homepage() {
         authors={authors}
         genres={genres}
       />
+
 
       <header className="container text-center">
         <h1 className="mb-4">Book List</h1>
@@ -305,7 +309,7 @@ export default function Homepage() {
                 className={`${getColumnClass(cardSize)} mb-4`}
               >
                 <article
-                  className="card customized-card p-1"
+                  className="card customized-card pt-1"
                   onClick={() => navigateToBookDetails(book.title)}
                   onKeyDown={(e) =>
                     e.key === "Enter" && navigateToBookDetails(book.title)
@@ -331,18 +335,18 @@ export default function Homepage() {
                       src={
                         book.image
                           ? `data:image/jpeg;base64,${book.image}`
-                          : "placeholder-image-url"
+                          : defaultBook
                       }
                       alt={book.title}
-                      className="img-fluid"
+                      className="img-fluid w-50"
                     />
                   </div>
                   <div className="d-flex justify-content-center">
-                      <hr
-                        className="my-1"
-                        style={{ borderTop: "1px solid black", width: "80%" }}
-                      />
-                    </div>
+                    <hr
+                      className="my-1"
+                      style={{ borderTop: "1px solid black", width: "80%" }}
+                    />
+                  </div>
                   <div className="card-body">
                     <h5 className="card-title text-center">{book.title}</h5>
                   </div>

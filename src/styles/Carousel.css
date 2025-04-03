@@ -1,0 +1,91 @@
+.carousel-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.carousel-wrapper * {
+  box-sizing: border-box;
+}
+
+.carousel {
+  position: relative;
+  width: 22rem;
+  height: 23rem;
+  perspective: 500px;
+  transform-style: preserve-3d;
+}
+
+.cardC-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: 
+    rotateY(calc(var(--offset) * 50deg)) 
+    scaleY(calc(1 + var(--abs-offset) * -0.4))
+    translateZ(calc(var(--abs-offset) * -30rem))
+    translateX(calc(var(--direction) * -5rem));
+  filter: blur(calc(var(--abs-offset) * 1rem));
+  transition: all 0.3s ease-out;
+}
+
+.cardC {
+  width: 100%;
+  height: 100%;
+  padding: 2rem;
+  background-color: hsl(280deg, 40%, calc(100% - var(--abs-offset) * 50%));
+  border-radius: 1rem;
+  color: #9CA3AF;
+  text-align: justify;
+  transition: all 0.3s ease-out;
+  border: 1px solid black;
+}
+
+.cardC h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 0 0.7em;
+  color: #1F2937;
+}
+
+.cardC h2 {
+  transition: all 0.3s ease-out;
+  opacity: var(--active);
+}
+
+.cardC img {
+  width: 100%; /* La imagen ocupará el ancho completo de la tarjeta */
+  height: 50%; /* Mantendrá la proporción de la imagen */
+  max-height: 100%; /* Evita que la imagen exceda la altura de la tarjeta */
+  border-radius: 0.5rem; /* Mantiene las esquinas redondeadas */
+  object-fit: cover; /* Asegura que la imagen se ajuste correctamente dentro de la tarjeta */
+}
+
+.nav {
+  color: white;
+  font-size: 5rem;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  z-index: 2;
+  cursor: pointer;
+  user-select: none;
+  background: unset;
+  border: unset;
+}
+
+.nav.left {
+  transform: translateX(-100%) translateY(-50%);
+}
+
+.nav.right {
+  right: 0;
+  transform: translateX(100%) translateY(-50%);
+}

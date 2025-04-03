@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,6 +10,7 @@ import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModa
 import BookReservationModal from "../components/modals/BookReservationModal.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
+import defaultBook from "../img/defaultBook.svg";
 import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import ReserveForUserModal from "../components/modals/ReserveForUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
@@ -661,9 +661,8 @@ export default function ViewBook() {
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <section className="row">
         <div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
-          {imageSrc ? (
             <img
-              src={imageSrc}
+              src={imageSrc ? imageSrc : defaultBook}
               alt={book.title}
               className="img-fluid"
               style={{
@@ -673,9 +672,6 @@ export default function ViewBook() {
                 maxHeight: "100%",
               }}
             />
-          ) : (
-            <div>No image available</div>
-          )}
 
           {isLoggedIn && hasPermissions && (
             <div className="d-flex justify-content-center align-items-center mt-2">
