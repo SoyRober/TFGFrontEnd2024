@@ -113,6 +113,14 @@ export default function Root() {
                       </Link>
                     </li>
                   )}
+
+                  {hasPermissions && (
+                    <li className="nav-item">
+                      <Link className="nav-link text-light ms-3" to="/pendingBooks">
+                      PendingBooks
+                      </Link>
+                    </li>
+                  )}            
                 </>
               )}
             </ul>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { fetchData } from "../utils/fetch";
@@ -56,7 +56,7 @@ const GenresComponent = () => {
     }
   };
 
-  const handleAddGenre = async (newName, id) => {
+  const handleAddGenre = async (newName) => {
     try {
       const response = await fetchData(`/genres`, "POST", newName, token);
       setMessage(response.message);
