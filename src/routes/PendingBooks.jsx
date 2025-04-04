@@ -45,14 +45,12 @@ export default function Attributes() {
 	};
 
 	const fetchLoans = async () => {
-		/*
 		try {
 			const data = await fetchData(`/getAllLoans`, "GET", null, token);
 			setLoans(data);
 		} catch (err) {
 			setMessage(err.message);
 		}
-	*/
 	};
 
 	const handleLoan = async (reserve) => {
@@ -61,13 +59,34 @@ export default function Attributes() {
 				Username: reserve.userName,
 				BookTitle: reserve.bookTitle,
 			};
-			const response = await fetchData(`/loanReserved`, "POST", loanRequest, token);
+			const response = await fetchData(
+				`/loanReserved`,
+				"POST",
+				loanRequest,
+				token
+			);
 			if (response.success) {
-				setMessage("Loan successful");
-				// Optionally refresh reserves after successful loan
+				setMessage("Loan successful"); //TODO: Cambiar a una notificación
 				fetchReserves();
 			} else {
 				setMessage(response.message || "Loan failed");
+			}
+		} catch (err) {
+			setMessage(err.message);
+		}
+	};
+
+	const handleReturn = async (loan) => {
+		try {
+			const returnRequest = {
+				loanId: loan.loanId, // Assuming loan object contains an 'id' field
+			};
+			const response = await fetchData(`/return`, "PUT", returnRequest, token);
+			if (response.success) {
+				setMessage("Return successful"); // TODO: Cambiar a una notificación
+				fetchLoans();
+			} else {
+				setMessage(response.message || "Return failed");
 			}
 		} catch (err) {
 			setMessage(err.message);
@@ -116,7 +135,6 @@ export default function Attributes() {
 								? `data:image/jpeg;base64,${reserve.image}`
 								: null;
 
-							// Calcular la diferencia de días
 							const reservationDate = new Date(reserve.reservationDate);
 							const today = new Date();
 							const diffTime = Math.abs(today - reservationDate);
@@ -128,7 +146,6 @@ export default function Attributes() {
 									className="list-group-item d-flex align-items-center p-3 text-start"
 									style={{ width: "400px", minHeight: "100px" }}
 								>
-									{/* Contenedor de imagen/icono con tamaño fijo */}
 									<div
 										className="me-3 d-flex align-items-center justify-content-center rounded"
 										style={{
@@ -156,7 +173,6 @@ export default function Attributes() {
 										)}
 									</div>
 
-									{/* Información de la reserva */}
 									<div className="flex-grow-1">
 										<p className="mb-1">
 											<strong>Reserved by:</strong> {reserve.userName}
@@ -166,12 +182,16 @@ export default function Attributes() {
 										</p>
 										<p className="mb-2">
 											<strong>Date:</strong>
-											<span className="mx-1">{reserve.reservationDate}</span>
+											<span className="mx-1">
+												{new Date(reserve.reservationDate).toLocaleDateString(
+													"es-ES"
+												)}
+											</span>
 											<small className="text-muted">
 												({diffDays} days ago)
 											</small>
 										</p>
-										
+
 										<button
 											className="btn btn-sm btn-success"
 											onClick={() => handleLoan(reserve)}
@@ -185,13 +205,88 @@ export default function Attributes() {
 					</ul>
 				)}
 
-				{/*TODO selectedButton === "Loans" && (
-					<ul>
-						{loans.map((loan) => (
-							<li key={loan.id}>{loan.name}</li> // Ajusta según tu estructura de datos
-						))}
+				{selectedButton === "Loans" && (
+					<ul className="list-group">
+						{loans.map((loan) => {
+							const imageSrc = loan.bookImage
+								? `data:image/jpeg;base64,${loan.bookImage}`
+								: null;
+
+							const today = new Date();
+							const returnDate = new Date(loan.returnDate);
+							const remainingDays = Math.floor(
+								(returnDate - today) / (1000 * 60 * 60 * 24)
+							);
+
+							return (
+								<li
+									key={loan.startDate}
+									className="list-group-item d-flex align-items-center p-3 text-start"
+									style={{ width: "400px", minHeight: "100px" }}
+								>
+									<div
+										className="me-3 d-flex align-items-center justify-content-center rounded"
+										style={{
+											width: "80px",
+											height: "100px",
+											backgroundColor: "#f8f9fa",
+										}}
+									>
+										{imageSrc ? (
+											<img
+												src={imageSrc}
+												alt={loan.book}
+												className="rounded"
+												style={{
+													width: "100%",
+													height: "100%",
+													objectFit: "cover",
+												}}
+											/>
+										) : (
+											<i
+												className="bi bi-book text-secondary"
+												style={{ fontSize: "2.5rem" }}
+											></i>
+										)}
+									</div>
+
+									<div className="flex-grow-1">
+										<p className="mb-1">
+											<strong>Loaned by:</strong> {loan.userName}
+										</p>
+										<p className="mb-1">
+											<strong>Title:</strong> {loan.book}
+										</p>
+										<p className="mb-2">
+											<strong>Return Date:</strong>
+											<span className="mx-1">
+												{new Date(loan.returnDate).toLocaleDateString("es-ES")}
+											</span>
+											<small
+												className={`text-muted ${
+													remainingDays <= 0 ? "text-danger" : ""
+												}`}
+											>
+												(
+												{remainingDays > 0
+													? `${remainingDays} days left`
+													: "Overdue!"}
+												)
+											</small>
+										</p>
+										<button
+											className="btn btn-sm btn-danger"
+											onClick={() => handleReturn(loan)}
+										>
+											Return
+										</button>
+									</div>
+								</li>
+							);
+						})}
 					</ul>
-				)*/}
+				)}
 			</section>
 
 			{message && <p className="text-danger">{message}</p>}
