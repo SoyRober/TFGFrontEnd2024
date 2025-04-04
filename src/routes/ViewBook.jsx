@@ -710,6 +710,7 @@ export default function ViewBook() {
             </div>
           )}
 
+          {/* TODO Check if already reserved or loaned */}
           {isLoggedIn && !hasPermissions && (
             <div className="d-flex justify-content-center align-items-center mt-2">
               <button
@@ -720,6 +721,7 @@ export default function ViewBook() {
               </button>
             </div>
           )}
+
         </div>
         <div className="col-md-6 mb-3">
           {[

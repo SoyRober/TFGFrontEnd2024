@@ -1,4 +1,3 @@
-import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import Homepage from "./routes/Homepage.jsx";
@@ -14,6 +13,9 @@ import UserBooksDetails from "./routes/UserBooksDetails.jsx";
 import Attributes from "./routes/Attributes.jsx";
 import Genres from "./routes/Genres.jsx";
 import Authors from "./routes/Authors.jsx";
+import PendingBooks from "./routes/PendingBooks.jsx";
+
+
 
 const router = createBrowserRouter([
   {
@@ -67,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: "/authors",
         element: <Authors />,
+      },
+      {
+        path: "/pendingBooks",
+        element: <PendingBooks />,
       },
     ],
   },
