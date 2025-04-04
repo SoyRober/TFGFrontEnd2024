@@ -203,8 +203,13 @@ export default function Homepage() {
 
   // Renderizado
   return (
-    
     <main className="fade-in d-flex flex-column justify-content-center align-items-center">
+      {hasPermissions && (
+        <div className="d-flex justify-content-start w-100 ms-3">
+          <button className="btn btn-primary my-2">Create New Book</button>
+        </div>
+      )}
+
       <CustomCarousel />
 
       <CreateBookModal
@@ -217,15 +222,7 @@ export default function Homepage() {
         genres={genres}
       />
 
-
       <header className="container text-center">
-        
-        {hasPermissions && (
-          <button className="btn btn-primary mb-3" onClick={openModal}>
-            Create New Book
-          </button>
-        )}
-
         <section className="row w-100 justify-content-center mb-4">
           <div className="col-12 col-md-6 col-lg-4">
             <fieldset className="btn-group w-100">
