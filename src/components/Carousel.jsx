@@ -25,11 +25,6 @@ const Card = ({ title, image }) => (
     <img
       src={image || 'https://via.placeholder.com/150'} // Imagen por defecto si no hay imagen
       alt={title}
-      style={{
-        width: '100%',
-        height: '100%',
-        borderRadius: '0.5rem',
-      }}
     />
   </div>
 );
@@ -42,7 +37,7 @@ const Carousel = ({ children }) => {
     <div className="carousel">
       {active > 0 && (
         <button className="nav left" onClick={() => setActive((i) => i - 1)}>
-          <i className="fa-solid fa-arrow-left h-100 py-5"></i>
+          <i className="fa-solid fa-arrow-left py-5"></i>
         </button>
       )}
       {React.Children.map(children, (child, i) => (
@@ -63,7 +58,7 @@ const Carousel = ({ children }) => {
       ))}
       {active < count - 1 && (
         <button className="nav right" onClick={() => setActive((i) => i + 1)}>
-          <i className="fa-solid fa-arrow-right"></i>
+          <i className="fa-solid fa-arrow-right py-5"></i>
         </button>
       )}
     </div>

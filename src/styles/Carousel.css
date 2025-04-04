@@ -15,7 +15,7 @@
 .carousel {
   position: relative;
   width: 22rem;
-  height: 23rem;
+  height: 30rem;
   perspective: 500px;
   transform-style: preserve-3d;
 }
@@ -35,8 +35,8 @@
 
 .cardC {
   width: 100%;
-  height: 100%;
-  padding: 2rem;
+  height: 90%;
+  padding: 1rem;
   background-color: hsl(280deg, 40%, calc(100% - var(--abs-offset) * 50%));
   border-radius: 1rem;
   color: #9CA3AF;
@@ -49,21 +49,14 @@
   text-align: center;
   font-size: 2rem;
   font-weight: bold;
-  margin: 0 0 0.7em;
   color: #1F2937;
-}
-
-.cardC h2 {
   transition: all 0.3s ease-out;
   opacity: var(--active);
 }
 
 .cardC img {
   width: 100%; /* La imagen ocupará el ancho completo de la tarjeta */
-  height: 50%; /* Mantendrá la proporción de la imagen */
-  max-height: 100%; /* Evita que la imagen exceda la altura de la tarjeta */
-  border-radius: 0.5rem; /* Mantiene las esquinas redondeadas */
-  object-fit: cover; /* Asegura que la imagen se ajuste correctamente dentro de la tarjeta */
+  height: 80%; /* Mantendrá la proporción de la imagen */
 }
 
 .nav {
@@ -88,4 +81,14 @@
 .nav.right {
   right: 0;
   transform: translateX(100%) translateY(-50%);
+}
+
+.fa-arrow-left {
+  color: white; /* Color de la flecha */
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -2px 2px 0 black, 1px 1px 0 black; /* Contorno negro */
+}
+
+.fa-arrow-right {
+  color: white; /* Color de la flecha */
+  text-shadow: -1px -1px 0 black, 1px -1px 0 black, -1px 1px 0 black, 2px 2px 0 black; /* Contorno negro */
 }
