@@ -8,6 +8,8 @@ import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
 import Notifications from "../components/Notifications.jsx";
 import LibrarySelector from "../components/LibrarySelector.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Root() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -22,8 +24,7 @@ export default function Root() {
   const updatePermissions = () => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
+      const userRole = jwtDecode(token).role;
 
       setHasPermissions(userRole === "ADMIN" || userRole === "LIBRARIAN");
       setIsAdmin(userRole === "ADMIN");      
@@ -33,8 +34,7 @@ export default function Root() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    if (localStorage.getItem("token")) {
       setIsLoggedIn(true);
       updatePermissions();
     } else {
@@ -177,6 +177,7 @@ export default function Root() {
         </div>
       </nav>
       <Outlet />
+      <ToastContainer position={"bottom-right"} closeOnClick={true} draggable={true} theme={"dark"}/>
     </>
   );
 }

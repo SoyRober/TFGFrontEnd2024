@@ -1,4 +1,3 @@
-
 import React from "react";
 
 const SelectableList = ({
@@ -29,7 +28,7 @@ const SelectableList = ({
           className="form-control"
           id={`new${label}`}
           value={newItem}
-          onChange={handleAddItem}
+          onChange={(e) => handleAddItem(e.target.value)}
         >
           <option value="">Select a {label.toLowerCase()}</option>
           {items

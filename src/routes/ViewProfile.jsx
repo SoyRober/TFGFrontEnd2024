@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { Modal, Button, Form } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
-  const [notification, setNotification] = useState("");
-  const [message, setMessage] = useState("");
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("USER");
@@ -19,8 +17,7 @@ const ViewProfile = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      const role = decodedToken.role;
+      const role = jwtDecode(token).role;
       setUserRole(role);
       if (role === "USER") {
         navigate("/");
@@ -32,20 +29,19 @@ const ViewProfile = () => {
     const fetchUserProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
-        setNotification("No token found, user might not be authenticated");
+        toast.error("No token found, user might not be authenticated");
         return navigate("/");
       }
       try {
         const data = await fetchData(
-          `/getUserProfile/${email}`,
+          `/users/info/${email}`,
           "GET",
           null,
           token
         );
-        setUserData(data);
+        setUserData(data.message);
       } catch (error) {
-        console.log(error.message)
-        setNotification("Error loading user profile: " + error.message);
+        toast.error("Error loading user profile: " + error.message);
       }
     };
 
@@ -64,8 +60,8 @@ const ViewProfile = () => {
         { title: bookTitle, user: email },
         token
       );
-      if (response) {
-        setMessage(`The book "${bookTitle}" has been returned successfully.`);
+      if (response.success) {
+        toast.success(`The book "${bookTitle}" has been returned successfully.`);
         setUserData((prevData) => ({
           ...prevData,
           loanList: prevData.loanList.map((loan) =>
@@ -73,10 +69,10 @@ const ViewProfile = () => {
           ),
         }));
       } else {
-        setNotification(response.message || "Error returning the book.");
+        toast.error(response.message || "Error returning the book.");
       }
     } catch (err) {
-      setNotification("Error: " + err.message);
+      toast.error(err.message);
     }
   };
 
@@ -84,31 +80,29 @@ const ViewProfile = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await fetchData(
-        "/changeRole",
-        "POST",
-        { username: userData.username, newRole: selectedRole },
+        `/users/update/${userData.email}`,
+        "PUT",
+        { attribute: "role", newAttribute: selectedRole },
         token
       );
+
       if (response.success) {
-        setMessage(`Role changed to "${selectedRole}" successfully.`);
+        toast.success(`Role changed to "${selectedRole}" successfully.`);
         setShowModal(false);
         setUserData((prevData) => ({
           ...prevData,
-          role: selectedRole
+          role: selectedRole,
         }));
       } else {
-        setNotification(response.message || "Error changing role.");
+        toast.error(response.message || "Error changing role.");
       }
     } catch (err) {
-      setNotification("Error: " + err.message);
+      toast.error(err.message);
     }
   };
 
   return (
     <main className="container my-5">
-      {notification && <NotificationError message={notification} type="error" />}
-      {message && <NotificationError message={message} type="success" />}
-
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
           <p>
@@ -118,7 +112,7 @@ const ViewProfile = () => {
             <strong>Email:</strong> {userData?.email || "N/A"}
           </p>
           <p>
-            <strong>Birth Date:</strong> {userData?.birthDate || "N/A"}
+            <strong>Birth Date:</strong> {userData?.birthday || "N/A"}
           </p>
           <p>
             <strong>Role:</strong>{" "}
@@ -127,7 +121,10 @@ const ViewProfile = () => {
               : "N/A"}
           </p>
           {userRole === "ADMIN" && (
-            <button className="btn btn-warning" onClick={() => setShowModal(true)}>
+            <button
+              className="btn btn-warning"
+              onClick={() => setShowModal(true)}
+            >
               Change Role
             </button>
           )}

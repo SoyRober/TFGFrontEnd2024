@@ -3,268 +3,147 @@ import { Modal, Button, Form } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
-import EditAttributeModal from "../components/EditAttributeModal";
-import EditDateModal from "../components/EditDateModal";
 import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
+import { toast } from "react-toastify";
 
 export default function Settings() {
   const [role, setRole] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
-  const [showUsernameModal, setShowUsernameModal] = useState(false);
-  const [showBirthDateModal, setShowBirthDateModal] = useState(false);
-  const [showEmailModal, setShowEmailModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [newUsername, setNewUsername] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newBirthDate, setNewBirthDate] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [profileImage, setProfileImage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalAttribute, setModalAttribute] = useState("");
+  const [modalValue, setModalValue] = useState("");
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
   const navigate = useNavigate();
-  const [showChangeText, setShowChangeText] = useState(false);
-  const [showSetPasswordModal, setShowSetPasswordModal] = useState(false);
-
-  const handleMouseEnter = () => setShowChangeText(true);
-  const handleMouseLeave = () => setShowChangeText(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      const decodedToken = jwtDecode(token);
-      setUsername(decodedToken.username);
-      setEmail(decodedToken.email);
-      setBirthDate(decodedToken.birthDate);
-      setRole(decodedToken.role);
-
-      const fetchProfileImage = async () => {
-        const image = await getProfileImage(decodedToken.email);
-        setProfileImage(image);
-      };
-
-      fetchProfileImage();
+      getUserInfo(token);
     } else {
       navigate("/");
     }
   }, [navigate]);
 
-  const getProfileImage = async (email) => {
-    const image = await fetchData(`/getUserProfileImage/${email}`, "GET");
-    return image ? `data:image/jpeg;base64,${image}` : null;
-  };
-
-  const handleEditUsername = () => {
-    setShowUsernameModal(true);
-  };
-
-  const handleEditEmail = () => {
-    setShowEmailModal(true);
-  };
-
-  const handleEditBirthDate = () => {
-    setShowBirthDateModal(true);
-  };
-
-  const handleChangePassword = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const data = await fetchData(`/hasPassword?email=${email}`, "GET", null, token);
-      if (data) {
-        setShowPasswordModal(true);
-      } else {
-        setShowSetPasswordModal(true);
-      }
-    } catch (error) {
-      console.log(error.message)
-      setErrorMessage("An unexpected error occurred.");
+  const getUserInfo = async (token) => {
+    const decodedToken = jwtDecode(token);
+    const data = await fetchData(
+      `/users/info/${decodedToken.email}`,
+      "GET",
+      null,
+      token
+    );
+    if (data.success) {
+      setRole(data.message.role);
+      setUsername(data.message.username);
+      setEmail(data.message.email);
+      setBirthDate(data.message.birthday);
+      setProfileImage(
+        data.message.profileImage
+          ? `data:image/jpeg;base64,${data.message.profileImage}`
+          : null
+      );
+    } else {
+      toast.error("An unexpected error occurred.");
+      navigate("/");
     }
   };
 
-  const handleSaveUsername = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const data = await fetchData(
-        `/changeUsername`,
-        "POST",
-        {
-          oldUsername: username,
-          newUsername: newUsername,
-        },
-        token
-      );
-
-      if (data.success) {
-        setUsername(newUsername);
-        setShowUsernameModal(false);
-        setErrorMessage("");
-        localStorage.setItem("token", data.token);
-      } else {
-        if (data.message) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage("Error: Username not changed");
-        }
-      }
-    } catch (error) {
-      console.log(error.message)
-      setErrorMessage("An unexpected error occurred.");
-    }
+  const handleEditAttribute = (attribute, currentValue) => {
+    setModalAttribute(attribute);
+    setModalValue(currentValue);
+    setShowModal(true);
   };
 
-  const handleSaveEmail = async () => {
+  const handleSaveAttribute = async () => {
     try {
       const token = localStorage.getItem("token");
-      const data = await fetchData(
-        `/changeEmail`,
-        "POST",
-        {
-          oldEmail: email,
-          newEmail: newEmail,
-        },
-        token
-      );
+      const decodedToken = jwtDecode(token);
+
+      let url = `/users/update/${decodedToken.email}`;
+      const formData = new FormData();
+
+      if (modalAttribute === "image") {
+        url = `/users/update/profileImage/${decodedToken.email}`;
+        const file = modalValue;
+        if (!file) {
+          toast.error("Please select an image.");
+          return;
+        }
+        const compressedImage = await compressImage(file, 1, 400, 400);
+        formData.append("newImage", compressedImage);
+      } else {
+        formData.append("attribute", modalAttribute || "");
+        formData.append("newAttribute", modalValue || "");
+      }
+
+      const data = await fetchData(url, "PUT", formData, token);
 
       if (data.success) {
-        setEmail(newEmail);
-        setShowEmailModal(false);
-        setErrorMessage("");
-        localStorage.setItem("token", data.token);
-      } else {
-        if (data.message) {
-          setErrorMessage(data.message);
+        if (modalAttribute === "image") {
+          const reader = new FileReader();
+          reader.onloadend = () => setProfileImage(reader.result);
+          reader.readAsDataURL(modalValue);
         } else {
-          setErrorMessage("Error: Email not changed");
+          switch (modalAttribute) {
+            case "username":
+              setUsername(modalValue);
+              break;
+            case "email":
+              setEmail(modalValue);
+              break;
+            case "birthdate":
+              setBirthDate(modalValue);
+              break;
+          }
         }
+
+        setShowModal(false);
+        if (modalAttribute !== "password") {
+          localStorage.setItem("token", data.message);
+        }
+      } else {
+        toast.error(data.message || `Error: ${modalAttribute} not changed`);
       }
     } catch (error) {
-      console.log(error.message)
-      setErrorMessage("An unexpected error occurred.");
-    }
-  };
-
-  const handleSaveBirthDate = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const data = await fetchData(
-        `/changeBirthDate`,
-        "POST",
-        {
-          username: username,
-          newBirthDate: newBirthDate,
-        },
-        token
-      );
-      if (data.success) {
-        setBirthDate(newBirthDate);
-        setShowBirthDateModal(false);
-        setErrorMessage("");
-        localStorage.setItem("token", data.token);
-      } else {
-        if (data.message) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage("Error: BirthDate not changed");
-        }
-      }
-    } catch (error) {
-      console.log(error.message)
-      setErrorMessage("An unexpected error occurred.");
-    }
-  };
-
-  const handleSavePassword = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const data = await fetchData(
-        `/changePassword`,
-        "POST",
-        {
-          currentPassword: currentPassword,
-          newPassword: newPassword,
-        },
-        token
-      );
-      if (data.success) {
-        setShowPasswordModal(false);
-        setErrorMessage("");
-      } else {
-        if (data.message) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage("Error: Password not changed");
-        }
-      }
-    } catch (error) {
-      console.error("Error:", error);      console.log(error.message)
-
-      setErrorMessage("An unexpected error occurred.");
-    }
-  };
-
-  const handleSaveSetPassword = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const data = await fetchData(
-        `/setPassword`,
-        "POST",
-        {
-          newPassword: newPassword,
-        },
-        token
-      );
-      if (data.success) {
-        setShowSetPasswordModal(false);
-        setErrorMessage("");
-      } else {
-        if (data.message) {
-          setErrorMessage(data.message);
-        } else {
-          setErrorMessage("Error: Password not set");
-        }
-      }
-    } catch (error) {
-      console.log(error.message)
-      setErrorMessage("An unexpected error occurred.");
+      toast.error(error.message || "An unexpected error occurred.");
     }
   };
 
   const handleCancel = () => {
-    setShowUsernameModal(false);
-    setShowEmailModal(false);
-    setShowBirthDateModal(false);
-    setShowPasswordModal(false);
-    setShowSetPasswordModal(false);
-    setErrorMessage("");
+    setShowModal(false);
   };
 
-  const handleImageChange = async (event) => {
-    const token = localStorage.getItem("token");
-    const file = event.target.files[0];
-  
-    if (file) {
-      const compressedImage = await compressImage(file, 1, 400, 400); // Calidad 0.7 y 300x300px
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        setProfileImage(reader.result);
-      };
-      reader.readAsDataURL(compressedImage);
-  
-      const formData = new FormData();
-      formData.append("image", compressedImage);
-  
-      const response = await fetchData(`/updateProfileImage`, "POST", formData, token);
-  
-      if (response.success) {
-        const updatedImage = await getProfileImage(email);
-        setProfileImage(updatedImage);
+  const handleDeleteUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const decodedToken = jwtDecode(token);
+
+      const data = await fetchData(`/users/${decodedToken.email}`, "DELETE", null, token);
+
+      if (data.success) {
+        toast.success("User deleted successfully.");
+        localStorage.removeItem("token");
+        navigate("/");
+      } else {
+        toast.error(data.message || "Failed to delete user.");
       }
+    } catch (error) {
+      toast.error(error.message || "An unexpected error occurred.");
     }
+  };
+
+  const handleOpenDeleteModal = () => {
+    setShowDeleteConfirmationModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteConfirmationModal(false);
   };
 
   return (
@@ -279,198 +158,136 @@ export default function Settings() {
           <div className="row w-100">
             <div className="col-md-4 d-flex justify-content-center mb-4">
               <div
+                className="profile-image-container"
                 style={{
-                  position: "relative",
-                  width: "250px",
-                  height: "250px",
+                  backgroundImage:
+                    profileImage != null
+                      ? `url(${profileImage})`
+                      : `url(${defaultAvatar})`,
                 }}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
                 role="button"
                 tabIndex="0"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    document.querySelector('input[type="file"]').click();
-                    e.preventDefault();
-                  }
-                }}
+                onClick={() => handleEditAttribute("image", null)}
                 aria-label="Change Profile Image"
               >
-                <label
-                  style={{
-                    border: "1px solid black",
-                    display: "block",
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: "50%",
-                    backgroundImage:
-                      profileImage != null
-                        ? `url(${profileImage})`
-                        : `url(${defaultAvatar})`,
-                    backgroundPosition: "center",
-                    cursor: "pointer",
-                    backgroundSize: "cover",
-                  }}
-                >
-                  <input
-                    type="file"
-                    onChange={handleImageChange}
-                    style={{
-                      display: "none",
-                    }}
-                    aria-hidden="true"
-                  />
-                </label>
-
-                {showChangeText && (
-                  <span
-                    style={{
-                      position: "absolute",
-                      bottom: "20px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      color: "white",
-                      backgroundColor: "rgba(0, 0, 0, 0.5)",
-                      padding: "5px 10px",
-                      borderRadius: "5px",
-                    }}
-                  >
-                    Change Image
-                  </span>
-                )}
+                <div className="hover-overlay">Change Profile Image</div>
               </div>
             </div>
 
             <div className="col-md-4 text-center">
-              <h5 className="card-title">User Information</h5>
-              <p className="card-text">Username: {username}</p>
-              <p className="card-text">Email: {email}</p>
+              <h5 className="card-title mb-4">User Information</h5>
+              <p className="card-text mb-4">Username: {username}</p>
+              <p className="card-text mb-4">Email: {email}</p>
               <p className="card-text">
                 BirthDate:{" "}
                 {birthDate && !isNaN(new Date(birthDate).getTime())
                   ? new Date(birthDate).toLocaleDateString()
                   : "N/A"}
               </p>
-              <p className="card-text">Role: {role}</p>
             </div>
 
-            <div className="col-md-4 d-flex flex-column align-items-center">
+            <div className="col-md-4 d-flex flex-column align-items-center mt-4">
               <button
                 className="btn btn-primary mb-3 w-50"
-                onClick={handleEditUsername}
+                onClick={() => handleEditAttribute("username", username)}
               >
                 Edit Username
               </button>
               <button
                 className="btn btn-primary mb-3 w-50"
-                onClick={handleEditEmail}
+                onClick={() => handleEditAttribute("email", email)}
               >
                 Edit Email
               </button>
               <button
                 className="btn btn-primary mb-3 w-50"
-                onClick={handleEditBirthDate}
+                onClick={() => handleEditAttribute("birthdate", birthDate)}
               >
                 Edit BirthDate
               </button>
               <button
                 className="btn btn-secondary mb-3 w-50"
-                onClick={handleChangePassword}
+                onClick={() => handleEditAttribute("password", "")}
               >
                 Change Password
               </button>
             </div>
           </div>
+          <div>
+            <button
+              className="btn btn-danger"
+              onClick={handleOpenDeleteModal}
+            >
+              Deactivate user
+            </button>
+          </div>
         </div>
       </section>
 
-      <EditAttributeModal
-        show={showUsernameModal}
-        onClose={handleCancel}
-        attribute="Username"
-        value={newUsername}
-        onChange={(e) => setNewUsername(e.target.value)}
-        placeholder="Enter new username"
-        onSave={handleSaveUsername}
-        errorMessage={errorMessage}
-      />
-
-      <EditDateModal
-        show={showBirthDateModal}
-        onClose={handleCancel}
-        attribute="Birth Date"
-        value={newBirthDate}
-        onChange={(e) => setNewBirthDate(e.target.value)}
-        onSave={handleSaveBirthDate}
-        errorMessage={errorMessage}
-      />
-
-      <EditAttributeModal
-        show={showEmailModal}
-        onClose={handleCancel}
-        attribute="Email"
-        value={newEmail}
-        onChange={(e) => setNewEmail(e.target.value)}
-        placeholder="newEmail@gmail.com"
-        onSave={handleSaveEmail}
-        errorMessage={errorMessage}
-      />
-
-      <Modal show={showPasswordModal} onHide={handleCancel}>
+      <Modal show={showModal} onHide={handleCancel}>
         <Modal.Header closeButton>
-          <Modal.Title>Change Password</Modal.Title>
+          <Modal.Title>
+            {modalAttribute === "password"
+              ? "Change Password"
+              : modalAttribute === "image"
+              ? "Change Profile Image"
+              : `Edit ${
+                  modalAttribute.charAt(0).toUpperCase() +
+                  modalAttribute.slice(1)
+                }`}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group>
-            <Form.Label>Current Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group className="mt-3">
-            <Form.Label>New Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </Form.Group>
-          {errorMessage && <p className="text-danger mt-3">{errorMessage}</p>}
+          {modalAttribute === "image" ? (
+            <Form.Group className="mt-3">
+              <Form.Label>Upload New Profile Image</Form.Label>
+              <Form.Control
+                type="file"
+                onChange={(e) => setModalValue(e.target.files[0])}
+              />
+            </Form.Group>
+          ) : (
+            <Form.Group className="mt-3">
+              <Form.Label>
+                {modalAttribute === "password"
+                  ? "New Password"
+                  : `New ${
+                      modalAttribute.charAt(0).toUpperCase() +
+                      modalAttribute.slice(1)
+                    }`}
+              </Form.Label>
+              <Form.Control
+                type={modalAttribute === "password" ? "password" : "text"}
+                value={modalValue}
+                onChange={(e) => setModalValue(e.target.value)}
+              />
+            </Form.Group>
+          )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSavePassword}>
+          <Button variant="primary" onClick={handleSaveAttribute}>
             Save
           </Button>
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showSetPasswordModal} onHide={handleCancel}>
+      <Modal show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Set Password</Modal.Title>
+          <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group>
-            <Form.Label>New Password</Form.Label>
-            <Form.Control
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="New Password"
-            />
-          </Form.Group>
-          {errorMessage && <p className="text-danger mt-3">{errorMessage}</p>}
+        You wont be able to activate this account again when a month passes.
+        Are you sure you want to deactivate your account? 
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCancel}>
+          <Button variant="secondary" onClick={handleCloseDeleteModal}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleSaveSetPassword}>
-            Save
+          <Button variant="danger" onClick={handleDeleteUser}>
+            Deactivate
           </Button>
         </Modal.Footer>
       </Modal>

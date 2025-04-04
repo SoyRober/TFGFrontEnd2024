@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Loading from "../components/Loading.jsx";
+import { toast } from "react-toastify";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
@@ -15,15 +16,12 @@ const UserReservations = ({ cardSize }) => {
   const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [notificationKey, setNotificationKey] = useState(0);
-  const [message, setMessage] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) {
-      setMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       navigate("/login");
       return;
     }
@@ -55,8 +53,6 @@ const UserReservations = ({ cardSize }) => {
         );
       }
 
-      console.log("🚀 ~ applyFilters ~ result:", result);
-
       setFilteredReservations(result);
     };
 
@@ -77,8 +73,6 @@ const UserReservations = ({ cardSize }) => {
         }
       }
     };
-
-    console.log("He pasado por aquí");
 
     window.addEventListener("scroll", handleScroll);
 
@@ -106,11 +100,10 @@ const UserReservations = ({ cardSize }) => {
       });
 
       if (data.length === 0) {
-        setMessage("No hay más libros por cargar.");
+        toast.info("No hay más libros por cargar.");
       }
     } catch (error) {
-      setMessage(error.message);
-      console.log(error.message)
+      toast.error(error.message);
     } finally {
       setAtBottom(false);
     }
@@ -144,7 +137,7 @@ const UserReservations = ({ cardSize }) => {
 
       setReservations(updatedReservations);
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -159,7 +152,7 @@ const UserReservations = ({ cardSize }) => {
 
       setReservations(updatedReservations);
     } catch (error) {
-      console.error(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -177,22 +170,12 @@ const UserReservations = ({ cardSize }) => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        Error: {error}
-      </div>
-    );
-  }
-
   if (loading) {
     return <Loading />;
   }
 
   return (
     <main className="container mt-5">
-      {message && <NotificationError key={notificationKey} message={message} />}
-
       <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">

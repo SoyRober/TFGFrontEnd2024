@@ -27,21 +27,6 @@ const UserBooksDetails = () => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
-  //TODO unused function
-  const getColumnClass = (cardSize) => {
-    localStorage.setItem("cardSize", cardSize);
-    switch (cardSize) {
-      case "small":
-        return "col-12 col-sm-6 col-md-4 col-lg-3";
-      case "medium":
-        return "col-12 col-sm-6 col-md-6 col-lg-4";
-      case "large":
-        return "col-12 col-md-6";
-      default:
-        return "col-12";
-    }
-  };
-
   return (
     <main className="container text-center mt-5">
       <h1 className="mb-4">What do you wanna see?</h1>

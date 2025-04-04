@@ -1,65 +1,49 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import NotificationError from "../components/NotificationError";
-import SelectableList from "./SelectableList";
-import { compressImage } from "../utils/compressImage.js";
+import SelectableList from "../SelectableList.jsx";
+import { compressImage } from "../../utils/compressImage.js";
 
 export default function CreateBookModal({
   showModal,
   closeModal,
   handleSave,
-  bookTitle,
-  setBookTitle,
-  bookAuthors,
-  setBookAuthors,
+  bookData,
+  setBookData,
   authors,
-  searchStringAuthors,
-  setSearchStringAuthors,
-  bookGenres,
-  setBookGenres,
   genres,
-  searchStringGenres,
-  setSearchStringGenres,
-  bookQuantity,
-  setBookQuantity,
-  bookLocation,
-  setBookLocation,
-  bookSynopsis,
-  setBookSynopsis,
-  bookPublicationDate,
-  setBookPublicationDate,
-  bookIsAdult,
-  setBookIsAdult,
-  setBookImage,
-  notificationMessage,
-  notificationKey,
 }) {
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setBookData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const imageResized = await compressImage(file, 200, 200);
-      setBookImage(imageResized);
-    };
     if (file) {
-      reader.readAsDataURL(file);
+      const imageResized = await compressImage(file, 200, 200);
+      setBookData((prev) => ({ ...prev, image: imageResized }));
+    } else {
+      setBookData((prev) => ({ ...prev, image: null }));
     }
   };
 
-  const handleAddAuthor = (e) => {
-    const selectedAuthor = e.target.value;
-    if (selectedAuthor && !bookAuthors.includes(selectedAuthor)) {
-      setBookAuthors([...bookAuthors, selectedAuthor]);
-      setSearchStringAuthors("");
+  const handleAddItem = (key, item) => {
+    console.log("Adding item:", item); // Verifica el valor aquí
+    if (item && !bookData[key].includes(item)) {
+      setBookData((prev) => ({
+        ...prev,
+        [key]: [...prev[key], item],
+      }));
     }
   };
 
-  const handleAddGenre = (e) => {
-    const selectedGenre = e.target.value;
-    if (selectedGenre && !bookGenres.includes(selectedGenre)) {
-      setBookGenres([...bookGenres, selectedGenre]);
-      setSearchStringGenres("");
-    }
+  const handleRemoveItem = (key, item) => {
+    setBookData((prev) => ({
+      ...prev,
+      [key]: prev[key].filter((i) => i !== item),
+    }));
   };
 
   const onSave = () => {
@@ -73,7 +57,6 @@ export default function CreateBookModal({
         <Modal.Title>Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <NotificationError key={notificationKey} message={notificationMessage} />
         <Form>
           <Row>
             <Col md={6}>
@@ -81,9 +64,10 @@ export default function CreateBookModal({
                 <Form.Label>Book Title:</Form.Label>
                 <Form.Control
                   type="text"
-                  value={bookTitle}
-                  onChange={(e) => setBookTitle(e.target.value)}
-                  placeholder="BookTitle"
+                  name="title"
+                  value={bookData.title}
+                  onChange={handleInputChange}
+                  placeholder="Book Title"
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookAuthors">
@@ -91,13 +75,9 @@ export default function CreateBookModal({
                 <SelectableList
                   label="Author"
                   items={authors}
-                  selectedItems={bookAuthors}
-                  newItem={searchStringAuthors}
-                  setNewItem={setSearchStringAuthors}
-                  handleAddItem={handleAddAuthor}
-                  handleRemoveItem={(author) =>
-                    setBookAuthors(bookAuthors.filter((a) => a !== author))
-                  }
+                  selectedItems={bookData.authors}
+                  handleAddItem={(item) => handleAddItem("authors", item)}
+                  handleRemoveItem={(item) => handleRemoveItem("authors", item)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookGenres">
@@ -105,34 +85,29 @@ export default function CreateBookModal({
                 <SelectableList
                   label="Genre"
                   items={genres}
-                  selectedItems={bookGenres}
-                  newItem={searchStringGenres}
-                  setNewItem={setSearchStringGenres}
-                  handleAddItem={handleAddGenre}
-                  handleRemoveItem={(genre) =>
-                    setBookGenres(bookGenres.filter((g) => g !== genre))
-                  }
+                  selectedItems={bookData.genres}
+                  handleAddItem={(item) => handleAddItem("genres", item)}
+                  handleRemoveItem={(item) => handleRemoveItem("genres", item)}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookQuantity">
                 <Form.Label>Book Quantity:</Form.Label>
                 <Form.Control
                   type="number"
-                  value={bookQuantity}
-                  onChange={(e) => setBookQuantity(e.target.value)}
+                  name="quantity"
+                  value={bookData.quantity}
+                  onChange={handleInputChange}
                 />
               </Form.Group>
             </Col>
-            <div>
-              <hr />
-            </div>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookLocation">
                 <Form.Label>Book Location:</Form.Label>
                 <Form.Control
                   type="text"
-                  value={bookLocation}
-                  onChange={(e) => setBookLocation(e.target.value)}
+                  name="location"
+                  value={bookData.location}
+                  onChange={handleInputChange}
                   placeholder="Corridor A, Shelf 1."
                 />
               </Form.Group>
@@ -140,8 +115,9 @@ export default function CreateBookModal({
                 <Form.Label>Book Synopsis:</Form.Label>
                 <Form.Control
                   as="textarea"
-                  value={bookSynopsis}
-                  onChange={(e) => setBookSynopsis(e.target.value)}
+                  name="synopsis"
+                  value={bookData.synopsis}
+                  onChange={handleInputChange}
                   placeholder="In this book, you will learn..."
                 />
               </Form.Group>
@@ -149,16 +125,18 @@ export default function CreateBookModal({
                 <Form.Label>Book Publication Date:</Form.Label>
                 <Form.Control
                   type="date"
-                  value={bookPublicationDate}
-                  onChange={(e) => setBookPublicationDate(e.target.value)}
+                  name="publicationDate"
+                  value={bookData.publicationDate}
+                  onChange={handleInputChange}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookIsAdult">
                 <Form.Label>Is Adult:</Form.Label>
                 <Form.Check
                   type="checkbox"
-                  checked={bookIsAdult}
-                  onChange={(e) => setBookIsAdult(e.target.checked)}
+                  name="isAdult"
+                  checked={bookData.isAdult}
+                  onChange={handleInputChange}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="bookImage">

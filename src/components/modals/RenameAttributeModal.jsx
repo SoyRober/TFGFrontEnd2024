@@ -1,33 +1,44 @@
-import React, { useState } from "react";
+import  { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 
-const AddAttributeModal = ({ show, handleClose, handleAdd }) => {
+const RenameAttributeModal = ({
+  show,
+  handleClose,
+  handleRename,
+  attribute,
+}) => {
   const [newName, setNewName] = useState("");
+
+  useEffect(() => {
+    if (attribute) {
+      setNewName(attribute.name);
+    }
+  }, [attribute]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleAdd(newName);
+    handleRename(attribute.id, newName);
   };
 
   return (
     <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>Add New</Modal.Title>
+        <Modal.Title>Rename this attribute</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
           <Form.Group controlId="formAttributeName">
-            <Form.Label> Name</Form.Label>
+            <Form.Label>Name</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter name"
+              placeholder="Enter new attribute name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               required
             />
           </Form.Group>
           <Button variant="primary" type="submit" className="mt-3">
-            Add
+            Save Changes
           </Button>
         </Form>
       </Modal.Body>
@@ -35,4 +46,4 @@ const AddAttributeModal = ({ show, handleClose, handleAdd }) => {
   );
 };
 
-export default AddAttributeModal;
+export default RenameAttributeModal;

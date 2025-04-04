@@ -5,16 +5,16 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { fetchData } from "../utils/fetch.js";
 import { jwtDecode } from "jwt-decode";
-import EditBookAttributeModal from "../components/EditBookAttributeModal.jsx";
-import BookLoansModal from "../components/BookLoansModal.jsx";
-import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
-import BookReservationModal from "../components/BookReservationModal.jsx";
-import NotificationError from "../components/NotificationError";
+import EditBookAttributeModal from "../components/modals/EditBookAttributeModal.jsx";
+import BookLoansModal from "../components/modals/BookLoansModal.jsx";
+import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
+import BookReservationModal from "../components/modals/BookReservationModal.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
-import LoanToUserModal from "../components/LoanToUserModal.jsx";
-import ReserveForUserModal from "../components/ReserveForUserModal.jsx";
+import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
+import ReserveForUserModal from "../components/modals/ReserveForUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
+import { toast } from "react-toastify";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -46,8 +46,6 @@ export default function ViewBook() {
   const [usersLoans, setUsersLoans] = useState([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
-  const [notificationMessage, setNotificationMessage] = useState("");
-  const [notificationKey, setNotificationKey] = useState(0);
   const [username, setUsername] = useState("");
   const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
@@ -71,10 +69,7 @@ export default function ViewBook() {
   useEffect(() => {
     const checkLoanStatus = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
-        //console.error("No token found, user might not be authenticated");
-        return;
-      }
+      if (!token) return;
 
       try {
         const response = await fetchData(
@@ -85,17 +80,14 @@ export default function ViewBook() {
         );
         setLoanStatus(response);
       } catch (error) {
-        console.log(error.message);
+        toast.error(error.message || "Something went wrong");
       }
     };
 
     const fetchReviews = async () => {
       try {
-        const data = await fetchData(
-          `/reviews/${title}`
-        );
+        const data = await fetchData(`/reviews/${title}`);
         setReviews(data);
-        console.log("🚀 ~ fetchReviews ~ data:", data)
 
         const token = localStorage.getItem("token");
         if (token) {
@@ -113,7 +105,7 @@ export default function ViewBook() {
           setReviews(updatedReviews);
         }
       } catch (error) {
-        console.log(error.message);
+        toast.error(error.message || "Something went wrong");
       }
     };
 
@@ -123,7 +115,7 @@ export default function ViewBook() {
         const data = await fetchData(endpoint, "GET");
         setAuthors(data);
       } catch (error) {
-        console.log(error.message);
+        toast.error(error.message || "Something went wrong");
         setAuthors([]);
       }
     };
@@ -134,7 +126,7 @@ export default function ViewBook() {
         const data = await fetchData(endpoint, "GET");
         setGenres(data);
       } catch (error) {
-        console.log(error.message);
+        toast.error(error.message || "Something went wrong");
         setGenres([]);
       }
     };
@@ -163,7 +155,7 @@ export default function ViewBook() {
       setSelectedAuthors(data.book.authors || []);
       setSelectedGenres(data.book.genres || []);
     } catch (error) {
-      console.log(error.message);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -179,8 +171,7 @@ export default function ViewBook() {
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -196,25 +187,20 @@ export default function ViewBook() {
         token
       );
 
-      const reviewsData = await fetchData(
-        `/reviews/${title}`
-      );
+      const reviewsData = await fetchData(`/reviews/${title}`);
       setReviews(reviewsData);
       setReviewData({ score: "", comment: "" });
       setAlreadyRated(true);
       await fetchExistingReview();
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to submit review: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
   const fetchExistingReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -232,11 +218,7 @@ export default function ViewBook() {
         setCurrentUserComment(data.currentUserComment);
       }
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage(
-        "Failed to fetch Existing Review: " + error.message
-      );
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -280,14 +262,12 @@ export default function ViewBook() {
     e.preventDefault();
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
     if (editingAttribute === "quantity" && editValue < 0) {
-      setNotificationMessage("Quantity cannot be less than 0");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.info("Quantity cannot be less than 0");
       return;
     }
 
@@ -310,8 +290,7 @@ export default function ViewBook() {
         payload.append("image", resizedImageBlob);
       } catch (error) {
         console.log(error.message);
-        setNotificationMessage("Error resizing image: " + error.message);
-        setNotificationKey((prevKey) => prevKey + 1);
+        toast.error("Error resizing image: " + error.message);
         return;
       }
     }
@@ -328,9 +307,7 @@ export default function ViewBook() {
         fetchBookData();
       }
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to update book: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -345,8 +322,7 @@ export default function ViewBook() {
   const handleDeleteBook = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -355,17 +331,14 @@ export default function ViewBook() {
       setShowDeleteConfirmation(false);
       navigate("/");
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to delete book: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message);
     }
   };
 
   const handleLoanClick = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -400,17 +373,14 @@ export default function ViewBook() {
         setLoanStatus(false);
       }
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to update loan status: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
   const handleReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -421,12 +391,9 @@ export default function ViewBook() {
         null,
         token
       );
-      setNotificationMessage("Book reserved");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.success("Book reserved");
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to reserve book: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -453,8 +420,7 @@ export default function ViewBook() {
   const handleSaveEditedReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -475,9 +441,7 @@ export default function ViewBook() {
       setIsEditing(false);
       fetchExistingReview();
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to edit review: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -489,40 +453,29 @@ export default function ViewBook() {
   const handleDeleteReview = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
     try {
-      await fetchData(
-        `/reviews/${title}`,
-        "DELETE",
-        null,
-        token
-      );
+      await fetchData(`/reviews/${title}`, "DELETE", null, token);
 
       setAlreadyRated(false);
       setReviewData({ score: "", comment: "" });
       setCurrentUserScore("");
       setCurrentUserComment("");
 
-      const reviewsData = await fetchData(
-        `/reviews/${title}`
-      );
+      const reviewsData = await fetchData(`/reviews/${title}`);
       setReviews(reviewsData);
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to delete review: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
   const handleReturnModal = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -532,9 +485,7 @@ export default function ViewBook() {
         prevLoans.filter((item) => item !== username)
       );
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to update loan status: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -548,18 +499,14 @@ export default function ViewBook() {
       );
       return response;
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to fetch user vote: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
-      return null;
+      toast.error(error.message || "Something went wrong");
     }
   };
 
   const handleVotes = async (reviewId, value) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("Please log in to vote.");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -590,9 +537,7 @@ export default function ViewBook() {
         );
         setReviews(updatedReviews);
       } catch (error) {
-        console.log(error.message);
-        setNotificationMessage("Failed to delete vote: " + error.message);
-        setNotificationKey((prevKey) => prevKey + 1);
+        toast.error(error.message || "Something went wrong");
       }
     } else {
       // Update votes and ensure only one type of vote is active
@@ -628,9 +573,7 @@ export default function ViewBook() {
         await fetchData(`/addVote`, "PUT", body, token);
         setReviews(updatedReviews);
       } catch (error) {
-        console.log(error.message);
-        setNotificationMessage("Failed to update vote: " + error.message);
-        setNotificationKey((prevKey) => prevKey + 1);
+        toast.error(error.message || "Something went wrong");
       }
     }
   };
@@ -638,8 +581,7 @@ export default function ViewBook() {
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -658,26 +600,22 @@ export default function ViewBook() {
       );
 
       if (response.ok) {
-        setNotificationMessage("Book loaned to user successfully");
+        toast.success("Book loaned to user successfully");
       } else if (response.message.includes("existences")) {
         setShowUnavailableModal(true);
       } else {
-        setNotificationMessage(response.message);
+        toast.error(response.message || "Something went wrong");
       }
-      setNotificationKey((prevKey) => prevKey + 1);
       setShowLoanToUserModal(false);
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage("Failed to loan book to user: " + error.message);
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
   const handleReserveForUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
-      setNotificationMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("No token found, user might not be authenticated");
       return;
     }
 
@@ -690,18 +628,13 @@ export default function ViewBook() {
       );
 
       if (response.ok) {
-        setNotificationMessage("Book reserved for user successfully");
+        toast.success("Book reserved for user successfully");
       } else {
-        setNotificationMessage(response.message);
+        toast.error(response.message);
       }
-      setNotificationKey((prevKey) => prevKey + 1);
       setShowReserveForUserModal(false);
     } catch (error) {
-      console.log(error.message);
-      setNotificationMessage(
-        "Failed to reserve book for user: " + error.message
-      );
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(error.message || "Something went wrong");
     }
   };
 
@@ -999,7 +932,8 @@ export default function ViewBook() {
       {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
       <section className="list-group mb-3">
-        {reviews.length > 0 && reviews.filter((review) => review.userName !== username).length > 0 ? (
+        {reviews.length > 0 &&
+        reviews.filter((review) => review.userName !== username).length > 0 ? (
           reviews
             .filter((review) => review.userName !== username)
             .map((review) => (
@@ -1129,8 +1063,6 @@ export default function ViewBook() {
         onConfirm={handleReserveForUser}
         selectedUser={selectedUser}
       />
-
-      <NotificationError key={notificationKey} message={notificationMessage} />
     </main>
   );
 }

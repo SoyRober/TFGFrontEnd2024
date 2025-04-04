@@ -1,93 +1,94 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NotificationError from "../components/NotificationError";
 import { fetchData } from "../utils/fetch.js";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { toast } from "react-toastify";
+import Loading from "../components/Loading.jsx";
 
-const UserLoans = ({ cardSize }) => {
+const Loans = ({ cardSize = "medium" }) => {
   const [loans, setLoans] = useState([]);
-  const [error, setError] = useState(null);
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [titleFilter, setTitleFilter] = useState("");
-  const [returnedFilter, setReturnedFilter] = useState("notReturned");
-  const [atBottom, setAtBottom] = useState(false);
+  const [filters, setFilters] = useState({
+    startDate: "",
+    title: "",
+    returned: "notReturned",
+  });
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [notificationKey, setNotificationKey] = useState(0);
-  const [message, setMessage] = useState("");
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  useEffect(() => {
+  // Fetch loans data
+  const fetchLoans = useCallback(async () => {
     if (!token) {
-      setMessage("No token found, user might not be authenticated");
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error("Please log in to access this page");
       navigate("/login");
       return;
     }
 
-    const fetchLoans = async () => {
-      try {
-        const formattedStartDate = startDateFilter
-          ? new Date(startDateFilter).toISOString().split("T")[0]
-          : "";
-        console.log("🚀 ~ fetchLoans ~ startDateFilter:", formattedStartDate)
+    setLoading(true);
+    try {
+      const formattedStartDate = filters.startDate
+        ? new Date(filters.startDate).toISOString().split("T")[0]
+        : "";
 
-        const data = await fetchData(
-          `/getUserLoans?page=${page}&size=10&title=${titleFilter}&isReturned=${returnedFilter !== "notReturned"}&startDate=${formattedStartDate}`,
-          "GET",
-          null,
-          token
+      const data = await fetchData(
+        `/getUserLoans?page=${page}&size=10&title=${filters.title}&isReturned=${
+          filters.returned !== "notReturned"
+        }&startDate=${formattedStartDate}`,
+        "GET",
+        null,
+        token
+      );
+
+      console.log(data)
+
+      if (data.success) {
+        setLoans((prevLoans) =>
+          page === 0 ? data.message : [...prevLoans, ...data.message]
         );
-        console.log("🚀 ~ fetchLoans ~ data:", data);
-        if (data.success) {
-          setLoans((prevLoans) => [...prevLoans, ...data.message]);
-          if (data.message.length === 0) {
-            setMessage("No hay más libros por cargar.");
-          }
-        } else {
-          setMessage(data.message);
+        if (data.message.length === 0 && page === 0) {
+          toast.info("No loans found.");
         }
-      } catch (err) {
-        setMessage(err.message);
-      } finally {
-        setAtBottom(false);
+      } else {
+        toast.error(data.message || "An error occurred while fetching loans");
       }
-    };
+    } catch (err) {
+      toast.error(err.message || "An error occurred while fetching loans");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, page, token, navigate]);
 
-    fetchLoans();
-  }, [page, token, navigate, titleFilter, startDateFilter, returnedFilter]);
-
+  // Handle infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       const documentHeight = document.documentElement.scrollHeight;
       const windowHeight = window.innerHeight;
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-      if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom && !loading) {
-          setAtBottom(true);
-          setPage((prevPage) => prevPage + 1);
-        }
+      if (scrollTop + windowHeight >= documentHeight - 5 && !loading) {
+        setPage((prevPage) => prevPage + 1);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [atBottom, loading]);
+  }, [loading]);
 
+  // Fetch loans on filters or page change
   useEffect(() => {
-    localStorage.setItem("cardSize", cardSize);
-  }, [cardSize]);
+    fetchLoans();
+  }, [fetchLoans]);
 
-  useEffect(() => {
+  // Reset filters
+  const resetFilters = () => {
+    setFilters({ startDate: "", title: "", returned: "notReturned" });
     setPage(0);
-    setLoans([]);
-  }, [titleFilter, startDateFilter, returnedFilter]);  
-  
+  };
+
+  // Handle book return
   const handleReturnBook = async (bookTitle) => {
     try {
       const response = await fetchData(
@@ -96,41 +97,26 @@ const UserLoans = ({ cardSize }) => {
         { title: bookTitle },
         token
       );
-      if (response) {
+      if (response.ok) {
         setLoans((prevLoans) =>
           prevLoans.map((loan) =>
             loan.book === bookTitle ? { ...loan, isReturned: true } : loan
           )
         );
-        setLoans((prevLoans) =>
-          prevLoans.map((loan) =>
-            loan.book === bookTitle ? { ...loan, isReturned: true } : loan
-          )
-        );
-        setMessage(`El libro "${bookTitle}" ha sido devuelto con éxito.`);
+        toast.success(`The book "${bookTitle}" has been returned`);
       } else {
-        setMessage(response.message);
+        toast.error(
+          response.message || "An error occurred while returning the book"
+        );
       }
     } catch (err) {
-      setMessage(err.message);
-    } finally {
-      setNotificationKey((prevKey) => prevKey + 1);
+      toast.error(err.message || "An error occurred while returning the book");
     }
   };
 
-  const resetStartDateFilter = () => setStartDateFilter("");
-  const resetTitleFilter = () => setTitleFilter("");
-  const resetReturnedFilter = () => setReturnedFilter("all");
-
-  const resetAllFilters = () => {
-    setStartDateFilter("");
-    setTitleFilter("");
-    setReturnedFilter("notReturned");
-  };
-
-  const getColumnClass = (cardSize) => {
-    localStorage.setItem("cardSize", cardSize);
-    switch (cardSize) {
+  // Get column class based on card size
+  const getColumnClass = (size) => {
+    switch (size) {
       case "small":
         return "col-12 col-sm-6 col-md-4 col-lg-3";
       case "medium":
@@ -142,30 +128,23 @@ const UserLoans = ({ cardSize }) => {
     }
   };
 
-  if (error) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        Error: {error}
-      </div>
-    );
-  }
-
-  if (loading) {
+  if (loading && page === 0) {
     return <Loading />;
   }
 
   return (
     <main className="container mt-5">
-      {message && <NotificationError key={notificationKey} message={message} />}
-
+      {/* Filters Section */}
       <section className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">
             Date:
           </label>
           <DatePicker
-            selected={startDateFilter}
-            onChange={(date) => setStartDateFilter(date)}
+            selected={filters.startDate}
+            onChange={(date) =>
+              setFilters((prev) => ({ ...prev, startDate: date }))
+            }
             className="form-control form-control"
             dateFormat="dd/MM/yyyy"
             placeholderText="Select a start date"
@@ -173,7 +152,7 @@ const UserLoans = ({ cardSize }) => {
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={resetStartDateFilter}
+            onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
@@ -188,12 +167,14 @@ const UserLoans = ({ cardSize }) => {
             id="titleFilter"
             className="form-control form-control"
             placeholder="Name or surname"
-            value={titleFilter}
-            onChange={(e) => setTitleFilter(e.target.value)}
+            value={filters.title}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, title: e.target.value }))
+            }
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={resetTitleFilter}
+            onClick={() => setFilters((prev) => ({ ...prev, title: "" }))}
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
@@ -206,25 +187,30 @@ const UserLoans = ({ cardSize }) => {
           <select
             id="returnedFilter"
             className="form-select form-select"
-            value={returnedFilter}
-            onChange={(e) => setReturnedFilter(e.target.value)}
+            value={filters.returned}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, returned: e.target.value }))
+            }
           >
             <option value="returned">Returned</option>
             <option value="notReturned">Not Returned</option>
           </select>
           <button
             className="btn btn-outline-secondary btn ms-2"
-            onClick={resetReturnedFilter}
+            onClick={() =>
+              setFilters((prev) => ({ ...prev, returned: "notReturned" }))
+            }
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
-        <button className="btn btn-warning btn" onClick={resetAllFilters}>
+        <button className="btn btn-warning btn" onClick={resetFilters}>
           Reset Filters
         </button>
       </section>
 
+      {/* Loans Section */}
       <section className="container mt-5">
         <div className="row">
           {loans.length > 0 ? (
@@ -232,102 +218,39 @@ const UserLoans = ({ cardSize }) => {
               <article
                 key={index}
                 className={`${getColumnClass(cardSize)} mb-4`}
-                tabIndex="0"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    navigate(`/viewBook/${loan.book}`);
-                  }
-                }}
               >
-                <div
-                  className="card"
-                  style={{
-                    height:
-                      cardSize === "small"
-                        ? "250px"
-                        : cardSize === "medium"
-                        ? "350px"
-                        : "600px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div
-                    className="card-img-container"
-                    style={{
-                      flex: "1 0 40%",
-                      overflow: "hidden",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      padding: "4%",
-                    }}
-                    tabIndex="-1"
-                  >
-                    <img
-                      src={`data:image/jpeg;base64,${loan.bookImage}`}
-                      className="img-fluid"
-                      alt={`Cover of ${loan.book}`}
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "cover",
-                      }}
+                <div className="card h-100 p-1">
+                  <img
+                    src={`data:image/jpeg;base64,${loan.bookImage}`}
+                    className="card-img-top"
+                    alt={`Cover of ${loan.book}`}
+                  />
+                  <div className="d-flex justify-content-center">
+                    <hr
+                      className="my-1"
+                      style={{ borderTop: "1px solid black", width: "80%" }}
                     />
                   </div>
-                  <div
-                    className="card-body text-center"
-                    style={{ flex: "1 0 40%", overflowY: "auto" }}
-                    tabIndex="-1"
-                  >
-                    <h5 className="card-title" tabIndex="-1">
+                  <div className="card-body text-center">
+                    <h5 className="card-title">
                       <Link
                         to={`/viewBook/${loan.book}`}
-                        className="text-decoration-none d-flex align-items-center justify-content-center"
-                        tabIndex="-1"
+                        className="text-decoration-none"
                       >
                         {loan.book}
-                        <i
-                          className="fas fa-mouse-pointer ms-2"
-                          title="Click to view details"
-                          tabIndex="-1"
-                        ></i>
                       </Link>
                     </h5>
-                    <p className="card-text">
+                    <p>
                       <strong>Start Date:</strong>{" "}
-                      {new Date(loan.startDate).toLocaleDateString("es-ES", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                      {new Date(loan.startDate).toLocaleDateString("es-ES")}
                     </p>
-                    <p className="card-text">
+                    <p>
                       <strong>Return Date:</strong>{" "}
                       {loan.returnDate
-                        ? new Date(loan.returnDate).toLocaleDateString(
-                            "es-ES",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "numeric",
-                            }
-                          )
+                        ? new Date(loan.returnDate).toLocaleDateString("es-ES")
                         : "N/A"}
                     </p>
-                    <p className="card-text">
-                      <strong>Authors:</strong>{" "}
-                      {loan.author.map((author, i) => (
-                        <span key={i}>
-                          {author.name} {author.surname}
-                          {i < loan.author.length - 1 ? ", " : ""}
-                        </span>
-                      ))}
-                    </p>
-                    <p className="card-text">
+                    <p>
                       <strong>Returned:</strong>{" "}
                       {loan.isReturned ? "Yes" : "No"}
                       {!loan.isReturned && (
@@ -354,5 +277,4 @@ const UserLoans = ({ cardSize }) => {
   );
 };
 
-
-export default UserLoans;
+export default Loans;

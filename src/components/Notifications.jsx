@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchData } from "../utils/fetch";
 import "../styles/notifications.css";
+import { toast } from "react-toastify";
 
 const Notifications = () => {
   const [showNotifications, setShowNotifications] = useState(false);
@@ -40,7 +41,7 @@ const Notifications = () => {
       const data = await fetchData(`/notification`, "GET", null, token);
       setMessages(data);
     } catch (error) {
-      console.log(error.message);
+      toast.error(error.message);
     }
   };
 
