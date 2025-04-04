@@ -21,9 +21,9 @@ const fetchBooks = async (setBooks) => {
 
 const Card = ({ title, image }) => (
   <div className="cardC" style={{ textAlign: 'center' }}>
-    <h2>{title}</h2>
+    <h2 >{title}</h2>
     <img
-      src={image || 'https://via.placeholder.com/150'} // Imagen por defecto si no hay imagen
+      src={image || defaultBook} // Imagen por defecto si no hay imagen
       alt={title}
     />
   </div>

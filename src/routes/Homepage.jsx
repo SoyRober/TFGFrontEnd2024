@@ -219,8 +219,7 @@ export default function Homepage() {
 
 
       <header className="container text-center">
-        <h1 className="mb-4">Book List</h1>
-
+        
         {hasPermissions && (
           <button className="btn btn-primary mb-3" onClick={openModal}>
             Create New Book

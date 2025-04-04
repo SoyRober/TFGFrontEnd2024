@@ -26,10 +26,10 @@
   height: 100%;
   transform: 
     rotateY(calc(var(--offset) * 50deg)) 
-    scaleY(calc(1 + var(--abs-offset) * -0.4))
-    translateZ(calc(var(--abs-offset) * -30rem))
-    translateX(calc(var(--direction) * -5rem));
-  filter: blur(calc(var(--abs-offset) * 1rem));
+    scaleY(calc(1 + var(--abs-offset) * 0.2))
+    translateZ(calc(var(--abs-offset) * -35rem))
+    translateX(calc(var(--direction) * -15rem));
+  filter: blur(calc(var(--abs-offset) * 0.5rem));
   transition: all 0.3s ease-out;
 }
 
