@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
@@ -66,6 +66,47 @@ export default function ViewBook() {
     }
   }, []);
 
+  const fetchBookData = useCallback(async () => {
+    console.log("Fetching book data");
+    try {
+      const data = await fetchData(
+        `/books/title?title=${encodeURIComponent(title)}`
+      );
+      console.log(data);
+      setBook(data.book);
+      setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
+      setSelectedAuthors(data.book.authors || []);
+      setSelectedGenres(data.book.genres || []);
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  }, [title]);
+
+  const fetchExistingReview = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      const data = await fetchData(
+        `/reviews/user/${title}`,
+        "GET",
+        null,
+        token
+      );
+
+      if (data.existingReview) {
+        setAlreadyRated(true);
+        setCurrentUserScore(data.currentUserScore);
+        setCurrentUserComment(data.currentUserComment);
+      }
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  }, [title]);
+
   useEffect(() => {
     const checkLoanStatus = async () => {
       const token = localStorage.getItem("token");
@@ -131,33 +172,13 @@ export default function ViewBook() {
       }
     };
 
-    const autoCheckExistingReview = async () => {
-      fetchExistingReview();
-    };
-
     fetchBookData();
     fetchReviews();
     fetchAuthors();
     fetchGenres();
     checkLoanStatus();
-    autoCheckExistingReview();
-  }, [title]);
-
-  const fetchBookData = async () => {
-    console.log("Fetching book data");
-    try {
-      const data = await fetchData(
-        `/books/title?title=${encodeURIComponent(title)}`
-      );
-      console.log(data);
-      setBook(data.book);
-      setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
-      setSelectedAuthors(data.book.authors || []);
-      setSelectedGenres(data.book.genres || []);
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
+    fetchExistingReview();
+  }, [title, fetchBookData, fetchExistingReview]);
 
   const handleReviewChange = (e) => {
     const { name, value } = e.target;
@@ -192,31 +213,6 @@ export default function ViewBook() {
       setReviewData({ score: "", comment: "" });
       setAlreadyRated(true);
       await fetchExistingReview();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
-  const fetchExistingReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      const data = await fetchData(
-        `/reviews/user/${title}`,
-        "GET",
-        null,
-        token
-      );
-
-      if (data.existingReview) {
-        setAlreadyRated(true);
-        setCurrentUserScore(data.currentUserScore);
-        setCurrentUserComment(data.currentUserComment);
-      }
     } catch (error) {
       toast.error(error.message || "Something went wrong");
     }
