@@ -19,6 +19,8 @@ export default function Attributes() {
 	const [showModal, setShowModal] = useState(false);
 	const [currentReserve, setCurrentReserve] = useState(null);
 	const [daysLoaned, setDaysLoaned] = useState(0);
+	const [showReturnModal, setShowReturnModal] = useState(false);
+	const [currentLoan, setCurrentLoan] = useState(null);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -96,20 +98,34 @@ export default function Attributes() {
 		}
 	};
 
-	const handleReturn = async (loan) => {
+	const openReturnModal = (loan) => {
+		setCurrentLoan(loan);
+		setShowReturnModal(true);
+	};
+
+	const closeReturnModal = () => {
+		setShowReturnModal(false);
+		setCurrentLoan(null);
+	};
+
+	const confirmReturn = async () => {
+		if (!currentLoan) return;
+
 		try {
 			const returnRequest = {
-				loanId: loan.loanId, // Assuming loan object contains an 'id' field
+				loanId: currentLoan.loanId,
 			};
 			const response = await fetchData(`/return`, "PUT", returnRequest, token);
 			if (response.success) {
-				setMessage("Return successful"); // TODO: Cambiar a una notificación
+				setMessage("Return successful");
 				fetchLoans();
 			} else {
 				setMessage(response.message || "Return failed");
 			}
 		} catch (err) {
 			setMessage(err.message);
+		} finally {
+			closeReturnModal();
 		}
 	};
 
@@ -297,7 +313,7 @@ export default function Attributes() {
 										</p>
 										<button
 											className="btn btn-sm btn-danger"
-											onClick={() => handleReturn(loan)}
+											onClick={() => openReturnModal(loan)}
 										>
 											Return
 										</button>
@@ -318,14 +334,6 @@ export default function Attributes() {
 								<h5 className="modal-title">
 									Loan {currentReserve.bookTitle} to {currentReserve.userName}
 								</h5>
-								<button
-									type="button"
-									className="close"
-									onClick={closeLoanModal}
-									aria-label="Close"
-								>
-									<span aria-hidden="true">&times;</span>
-								</button>
 							</div>
 							<div className="modal-body">
 								<div className="form-group">
@@ -352,6 +360,38 @@ export default function Attributes() {
 									type="button"
 									className="btn btn-secondary"
 									onClick={closeLoanModal}
+								>
+									Cancel
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Modal for return confirmation */}
+			{showReturnModal && currentLoan && (
+				<div className="modal d-block" tabIndex="-1" role="dialog">
+					<div className="modal-dialog" role="document">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">
+									Confirm {currentLoan.userName} has returned {currentLoan.book}
+									?
+								</h5>
+							</div>
+							<div className="modal-footer">
+								<button
+									type="button"
+									className="btn btn-primary"
+									onClick={confirmReturn}
+								>
+									Confirm
+								</button>
+								<button
+									type="button"
+									className="btn btn-secondary"
+									onClick={closeReturnModal}
 								>
 									Cancel
 								</button>
