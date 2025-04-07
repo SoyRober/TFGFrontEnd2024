@@ -16,6 +16,9 @@ export default function Attributes() {
 	const [token] = useState(() => {
 		return localStorage.getItem("token") ? localStorage.getItem("token") : null;
 	});
+	const [showModal, setShowModal] = useState(false);
+	const [currentReserve, setCurrentReserve] = useState(null);
+	const [daysLoaned, setDaysLoaned] = useState(0);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -53,11 +56,25 @@ export default function Attributes() {
 		}
 	};
 
-	const handleLoan = async (reserve) => {
+	const openLoanModal = (reserve) => {
+		setCurrentReserve(reserve);
+		setShowModal(true);
+	};
+
+	const closeLoanModal = () => {
+		setShowModal(false);
+		setCurrentReserve(null);
+		setDaysLoaned(0);
+	};
+
+	const confirmLoan = async () => {
+		if (!currentReserve) return;
+
 		try {
 			const loanRequest = {
-				Username: reserve.userName,
-				BookTitle: reserve.bookTitle,
+				Username: currentReserve.userName,
+				BookTitle: currentReserve.bookTitle,
+				daysLoaned,
 			};
 			const response = await fetchData(
 				`/loanReserved`,
@@ -66,13 +83,16 @@ export default function Attributes() {
 				token
 			);
 			if (response.success) {
-				setMessage("Loan successful"); //TODO: Cambiar a una notificación
+				setMessage("Loan successful"); // TODO: Cambiar a una notificación
 				fetchReserves();
+				fetchLoans();
 			} else {
 				setMessage(response.message || "Loan failed");
 			}
 		} catch (err) {
 			setMessage(err.message);
+		} finally {
+			closeLoanModal();
 		}
 	};
 
@@ -194,7 +214,7 @@ export default function Attributes() {
 
 										<button
 											className="btn btn-sm btn-success"
-											onClick={() => handleLoan(reserve)}
+											onClick={() => openLoanModal(reserve)}
 										>
 											Loan
 										</button>
@@ -288,6 +308,58 @@ export default function Attributes() {
 					</ul>
 				)}
 			</section>
+
+			{/* Modal for loan confirmation */}
+			{showModal && currentReserve && (
+				<div className="modal d-block" tabIndex="-1" role="dialog">
+					<div className="modal-dialog" role="document">
+						<div className="modal-content">
+							<div className="modal-header">
+								<h5 className="modal-title">
+									Loan {currentReserve.bookTitle} to {currentReserve.userName}
+								</h5>
+								<button
+									type="button"
+									className="close"
+									onClick={closeLoanModal}
+									aria-label="Close"
+								>
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div className="modal-body">
+								<div className="form-group">
+									<label htmlFor="daysLoanedInput">Days loaned:</label>
+									<input
+										type="number"
+										className="form-control"
+										id="daysLoanedInput"
+										value={daysLoaned}
+										onChange={(e) => setDaysLoaned(e.target.value)}
+										min="1"
+									/>
+								</div>
+							</div>
+							<div className="modal-footer">
+								<button
+									type="button"
+									className="btn btn-primary"
+									onClick={confirmLoan}
+								>
+									Confirm
+								</button>
+								<button
+									type="button"
+									className="btn btn-secondary"
+									onClick={closeLoanModal}
+								>
+									Cancel
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{message && <p className="text-danger">{message}</p>}
 		</main>
