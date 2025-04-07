@@ -290,7 +290,7 @@ export default function Homepage() {
           hasMore={!isFetching && books.length % 10 === 0}
           loader={<Loading />}
           endMessage={
-            <p className="text-center mt-3 text-muted">No hay más libros.</p>
+            <p className="text-center mt-3 text-muted">There aren't more books</p>
           }
         >
           <div className="row gy-4">
