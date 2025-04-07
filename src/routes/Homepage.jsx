@@ -10,6 +10,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import CustomCarousel from "../components/Carousel.jsx";
 import defaultBook from "../img/defaultBook.svg";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
@@ -56,20 +57,6 @@ export default function Homepage() {
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const documentHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      if (scrollTop + windowHeight >= documentHeight - 5 && !isFetching) {
-        setPage((prev) => prev + 1);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isFetching]);
 
   useEffect(() => {
     setBooks([]);
@@ -297,15 +284,23 @@ export default function Homepage() {
       </header>
 
       <section className="container mt-5">
-        <div className="row">
-          {books.length > 0 ? (
-            books.map((book) => (
+        <InfiniteScroll
+          dataLength={books.length}
+          next={() => setPage((prev) => prev + 1)}
+          hasMore={!isFetching && books.length % 10 === 0}
+          loader={<Loading />}
+          endMessage={
+            <p className="text-center mt-3 text-muted">No hay más libros.</p>
+          }
+        >
+          <div className="row gy-4">
+            {books.map((book) => (
               <div
                 key={book.title}
-                className={`${getColumnClass(cardSize)} mb-4`}
+                className={`${getColumnClass(cardSize)}`}
               >
                 <article
-                  className="card customized-card pt-1"
+                  className="customized-card pt-1"
                   onClick={() => navigateToBookDetails(book.title)}
                   onKeyDown={(e) =>
                     e.key === "Enter" && navigateToBookDetails(book.title)
@@ -320,7 +315,7 @@ export default function Homepage() {
                   }}
                 >
                   <div
-                    className="d-flex justify-content-center align-items-center"
+                    className="d-flex justify-content-center align-items-center pb-2"
                     style={{
                       height: "60%",
                       width: "100%",
@@ -344,15 +339,32 @@ export default function Homepage() {
                     />
                   </div>
                   <div className="card-body">
-                    <h5 className="card-title text-center">{book.title}</h5>
+                    <p
+                      className={`text-center ${
+                        cardSize === "small"
+                          ? "mt-3"
+                          : cardSize === "medium"
+                          ? "mt-4"
+                          : "mt-5"
+                      }`}
+                      style={{
+                        fontWeight: "500",
+                        fontSize:
+                          cardSize === "small"
+                            ? "1.5em"
+                            : cardSize === "medium"
+                            ? "2em"
+                            : "2.5em",
+                      }}
+                    >
+                      {book.title}
+                    </p>
                   </div>
                 </article>
               </div>
-            ))
-          ) : (
-            <Loading />
-          )}
-        </div>
+            ))}
+          </div>
+        </InfiniteScroll>
       </section>
     </main>
   );
