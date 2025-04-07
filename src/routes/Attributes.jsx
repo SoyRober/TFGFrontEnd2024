@@ -29,7 +29,7 @@ export default function Attributes() {
   return (
     <main className="container text-center mt-5">
       <header className="mb-4">
-        <h1>{selectedButton || "Attributes"}</h1>
+        <h1>Select an attribute</h1>
       </header>
 
       <section className="btn-group mb-3" role="group">
