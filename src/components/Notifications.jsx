@@ -86,28 +86,12 @@ const Notifications = () => {
         onClick={() => {
           toggleNotifications();
         }}
-        className={`fa-${!showNotifications ? "solid" : "regular"} fa-bell mx-4 my-2`}
-        style={{
-          backgroundColor: "transparent",
-          fontSize: "25px",
-          border: "none",
-          background: "none",
-          color: "white",
-          position: "relative",
-        }}
+        className={`fa-${!showNotifications ? "solid" : "regular"} fa-bell mx-4 my-2 bell-button`}
         aria-label="Toggle Notifications"
       >
         {hasUnreadMessages && (
           <span
-            style={{
-              position: "absolute",
-              top: "0",
-              right: "0",
-              width: "10px",
-              height: "10px",
-              backgroundColor: "red",
-              borderRadius: "50%",
-            }}
+            className="notification-unread"
           ></span>
         )}
       </button>
@@ -115,21 +99,12 @@ const Notifications = () => {
         <div
           className="notifications-popup my-3 bg-dark"
           style={{
-            borderRadius: "12px",
-            backgroundColor: "white",
+
           }}
         >
           {messages.length === 0 ? (
             <div
-              style={{
-                color: "white",
-                textAlign: "center",
-                padding: "10px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "250px"
-              }}
+              className="empty-message-container"
             >
               Empty, for now
             </div>
@@ -152,24 +127,12 @@ const Notifications = () => {
                     </div>
                     <div className="notification-icons">
                       <button
-                        className="fa-solid fa-check"
-                        style={{
-                          cursor: "pointer",
-                          color: "white",
-                          background: "none",
-                          border: "none",
-                        }}
+                        className="fa-solid fa-check message-button"
                         aria-label="Mark as read"
                         onClick={() => handleReadNotification(message)}
                       ></button>
                       <button
-                        className="fa-solid fa-xmark"
-                        style={{
-                          cursor: "pointer",
-                          color: "white",
-                          background: "none",
-                          border: "none",
-                        }}
+                        className="fa-solid fa-xmark message-button"
                         aria-label="Hide notification"
                         onClick={() => handleHideNotification(message)}
                       ></button>
