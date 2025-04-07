@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import "react-datepicker/dist/react-datepicker.css";
@@ -9,120 +9,136 @@ import RenameAttributeModal from "../components/modals/RenameAttributeModal";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import AddAttributeModal from "../components/modals/AddAttributeModal";
 import Loading from "../components/Loading";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const GenresComponent = () => {
-	const [genres, setGenres] = useState([]);
-	const [token] = useState(localStorage.getItem("token"));
-	const [modals, setModals] = useState({
-		add: false,
-		edit: false,
-		delete: false,
-	});
-	const [selectedGenre, setSelectedGenre] = useState(null);
+  const [genres, setGenres] = useState([]);
+  const [token] = useState(localStorage.getItem("token"));
+  const [modals, setModals] = useState({ add: false, edit: false, delete: false });
+  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [page, setPage] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
 
-	useEffect(() => {
-		fetchGenres();
-	}, [token]);
+  useEffect(() => {
+    if (page === 0) setGenres([]);
+    fetchGenres(page);
+  }, [page]);
 
-	const fetchGenres = async () => {
-		try {
-			const data = await fetchData("/genres", "GET", null, token);
-			setGenres(data);
-		} catch (err) {
-			toast.error(err.message || "Failed to load genres.");
-		}
-	};
+  const fetchGenres = useCallback(
+    async (currentPage) => {
+      if (isFetching) return;
+      setIsFetching(true);
+      try {
+        const params = new URLSearchParams({ page: currentPage, size: "30" });
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const data = await fetchData(`/genres?${params.toString()}`, "GET", null, token);
+        const newGenres = data.message || [];
+        setGenres((prev) =>
+          currentPage === 0 ? newGenres : [...prev, ...newGenres]
+        );
+      } catch (err) {
+        toast.error(err.message || "Failed to load genres.");
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [token, isFetching]
+  );
 
-	const handleAddGenre = async (newName, id) => {
-		try {
-			await fetchData("/genres", method, body, token);
-			toast.success(
-				`Genre ${method === "POST" ? "added" : "updated"} successfully!`
-			);
-			setModals({ ...modals, add: false, edit: false });
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to save genre.");
-		}
-	};
+  const handleSaveGenre = async (method, payload) => {
+    try {
+      await fetchData("/genres", method, payload, token);
+      toast.success(`Genre ${method === "POST" ? "added" : "updated"} successfully!`);
+      setModals({ ...modals, add: false, edit: false });
+      setPage(0);
+    } catch (err) {
+      toast.error(err.message || "Failed to save genre.");
+    }
+  };
 
-	const handleDeleteGenre = async () => {
-		try {
-			await fetchData(`/genres/${selectedGenre.id}`, "DELETE", null, token);
-			toast.success("Genre deleted successfully!");
-			setModals({ ...modals, delete: false });
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to delete genre.");
-		}
-	};
+  const handleDeleteGenre = async () => {
+    try {
+      await fetchData(`/genres/${selectedGenre.id}`, "DELETE", null, token);
+      toast.success("Genre deleted successfully!");
+      setModals({ ...modals, delete: false });
+      setPage(0);
+    } catch (err) {
+      toast.error(err.message || "Failed to delete genre.");
+    }
+  };
 
-	return (
-		<main className="container">
-			<section className="row">
-				{genres.length > 0 ? (
-					genres.map((genre) => (
-						<div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
-							<article className="card">
-								<div className="card-body d-flex justify-content-between align-items-center">
-									<h5 className="card-title">{genre.name}</h5>
-									<div>
-										<button
-											className="btn btn-outline-primary btn-sm me-2"
-											onClick={() => {
-												setSelectedGenre(genre);
-												setModals({ ...modals, edit: true });
-											}}
-										>
-											<i className="bi bi-pencil"></i>
-										</button>
-										<button
-											className="btn btn-outline-danger btn-sm"
-											onClick={() => {
-												setSelectedGenre(genre);
-												setModals({ ...modals, delete: true });
-											}}
-										>
-											<i className="bi bi-x"></i>
-										</button>
-									</div>
-								</div>
-							</article>
-						</div>
-					))
-				) : (
-					<Loading />
-				)}
-			</section>
+  return (
+    <main className="container" style={{ overflowX: "hidden" }}>
+      <InfiniteScroll
+        dataLength={genres.length}
+        next={() => setPage((prev) => prev + 1)}
+        hasMore={!isFetching && genres.length % 30 === 0}
+        loader={<Loading />}
+        endMessage={
+          <p className="text-center mt-3 text-muted">No more genres to load.</p>
+        }
+      >
+        <section className="row w-100">
+          {genres.map((genre) => (
+            <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
+              <article className="card">
+                <div className="card-body d-flex justify-content-between align-items-center">
+                  <h5 className="card-title text-truncate">{genre.name}</h5>
+                  <div>
+                    <button
+                      className="btn btn-outline-primary btn-sm me-2"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, edit: true });
+                      }}
+                    >
+                      <i className="bi bi-pencil"></i>
+                    </button>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, delete: true });
+                      }}
+                    >
+                      <i className="bi bi-x"></i>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          ))}
+        </section>
+      </InfiniteScroll>
 
-			<button
-				className="btn btn-primary fixed-bottom m-3 w-25"
-				onClick={() => setModals({ ...modals, add: true })}
-			>
-				+ Add Genre
-			</button>
+      <button
+        className="btn btn-primary fixed-bottom m-3 w-25"
+        onClick={() => setModals({ ...modals, add: true })}
+      >
+        + Add Genre
+      </button>
 
-			<RenameAttributeModal
-				show={modals.edit}
-				handleClose={() => setModals({ ...modals, edit: false })}
-				handleRename={(id, name) => handleSaveGenre("PUT", { id, name })}
-				attribute={selectedGenre}
-			/>
+      <RenameAttributeModal
+        show={modals.edit}
+        handleClose={() => setModals({ ...modals, edit: false })}
+        handleRename={(id, name) => handleSaveGenre("PUT", { id, name })}
+        attribute={selectedGenre}
+      />
 
-			<DeleteConfirmationModal
-				show={modals.delete}
-				onClose={() => setModals({ ...modals, delete: false })}
-				onDelete={handleDeleteGenre}
-				message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
-			/>
+      <DeleteConfirmationModal
+        show={modals.delete}
+        onClose={() => setModals({ ...modals, delete: false })}
+        onDelete={handleDeleteGenre}
+        message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
+      />
 
-			<AddAttributeModal
-				show={modals.add}
-				handleClose={() => setModals({ ...modals, add: false })}
-				handleAdd={(name) => handleSaveGenre("POST", name)}
-			/>
-		</main>
-	);
+      <AddAttributeModal
+        show={modals.add}
+        handleClose={() => setModals({ ...modals, add: false })}
+        handleAdd={(name) => handleSaveGenre("POST", { name })}
+      />
+    </main>
+  );
 };
 
 export default GenresComponent;
