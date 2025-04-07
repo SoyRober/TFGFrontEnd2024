@@ -33,12 +33,24 @@ const GenresComponent = () => {
 		}
 	};
 
-	const handleAddGenre = async (newName, id) => {
+	const handleAddGenre = async (newName) => {
+		const body = { newName };
 		try {
-			await fetchData("/genres", method, body, token);
-			toast.success(
-				`Genre ${method === "POST" ? "added" : "updated"} successfully!`
-			);
+			await fetchData("/genres", "POST", newName, token);
+			toast.success(`Genre added successfully!`);
+			setModals({ ...modals, add: false, edit: false });
+			fetchGenres();
+		} catch (err) {
+			toast.error(err.message || "Failed to save genre.");
+		}
+		console.log("🚀 ~ handleAddGenre ~ body:", body);
+	};
+
+	const handleEditGenre = async (id, name) => {
+		const body = { id, name };
+		try {
+			await fetchData("/genres", "PUT", body, token);
+			toast.success(`Genre updated successfully!`);
 			setModals({ ...modals, add: false, edit: false });
 			fetchGenres();
 		} catch (err) {
@@ -105,7 +117,7 @@ const GenresComponent = () => {
 			<RenameAttributeModal
 				show={modals.edit}
 				handleClose={() => setModals({ ...modals, edit: false })}
-				handleRename={(id, name) => handleSaveGenre("PUT", { id, name })}
+				handleRename={(id, name) => handleEditGenre(id, name)}
 				attribute={selectedGenre}
 			/>
 
@@ -119,7 +131,7 @@ const GenresComponent = () => {
 			<AddAttributeModal
 				show={modals.add}
 				handleClose={() => setModals({ ...modals, add: false })}
-				handleAdd={(name) => handleSaveGenre("POST", name)}
+				handleAdd={(name) => handleAddGenre(name)}
 			/>
 		</main>
 	);
