@@ -51,6 +51,7 @@ export default function ViewBook() {
 	const [selectedUser, setSelectedUser] = useState("");
 	const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
 	const [isReserved, setIsReserved] = useState(false);
+	const [quantity, setQuantity] = useState(0);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -107,6 +108,18 @@ export default function ViewBook() {
 			toast.error(error.message || "Something went wrong");
 		}
 	}, [title]);
+
+	const fetchQuantity = async () => {
+		try {
+			const data = await fetchData(
+				`/books/getQuantity?title=${encodeURIComponent(title)}`,
+				"GET"
+			);
+			setQuantity(data);
+		} catch (error) {
+			toast.error(error.message || "Something went wrong");
+		}
+	};
 
 	useEffect(() => {
 		const checkLoanStatus = async () => {
@@ -197,6 +210,7 @@ export default function ViewBook() {
 		checkLoanStatus();
 		checkReservationStatus();
 		fetchExistingReview();
+		fetchQuantity();
 	}, [title, fetchBookData, fetchExistingReview]);
 
 	const handleReviewChange = (e) => {
@@ -357,8 +371,7 @@ export default function ViewBook() {
 			return;
 		}
 
-		//Hay que modificar esto para comprobar su disponibilidad
-		if (book.quantity < 1) {
+		if (quantity < 1) {
 			const response = await fetchData(
 				`/isAvailable?title=${encodeURIComponent(title)}`,
 				"POST",
@@ -408,6 +421,7 @@ export default function ViewBook() {
 			);
 			toast.success("Book reserved");
 			setIsReserved(true);
+			await fetchQuantity();
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -429,6 +443,7 @@ export default function ViewBook() {
 			);
 			toast.success("Reservation canceled");
 			setIsReserved(false);
+			await fetchQuantity();
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -622,7 +637,7 @@ export default function ViewBook() {
 			return;
 		}
 
-		if (book.quantity < 1) {
+		if (quantity < 1) {
 			setShowLoanToUserModal(false);
 			setShowReserveForUserModal(true);
 			return;
@@ -785,7 +800,7 @@ export default function ViewBook() {
 							value: book.genres?.join(", ") || "N/A",
 							key: "genres",
 						},
-						{ label: "Quantity", value: book.quantity, key: "quantity" },
+						{ label: "Quantity", value: quantity, key: "quantity" },
 						{ label: "Location", value: book.location, key: "location" },
 						{ label: "Synopsis", value: book.synopsis, key: "synopsis" },
 						{
