@@ -6,6 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading.jsx";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Loans = ({ cardSize = "medium" }) => {
   const [loans, setLoans] = useState([]);
@@ -15,10 +16,10 @@ const Loans = ({ cardSize = "medium" }) => {
     returned: "notReturned",
   });
   const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  // Fetch loans data
   const fetchLoans = useCallback(async () => {
     if (!token) {
       toast.error("Please log in to access this page");
@@ -40,14 +41,17 @@ const Loans = ({ cardSize = "medium" }) => {
         token
       );
 
-      console.log(data)
-
       if (data.success) {
+        if (page === 0 && data.message.length === 0) {
+          toast.info("No loans found.");
+        }
+
         setLoans((prevLoans) =>
           page === 0 ? data.message : [...prevLoans, ...data.message]
         );
-        if (data.message.length === 0 && page === 0) {
-          toast.info("No loans found.");
+
+        if (data.message.length < 10) {
+          setHasMore(false);
         }
       } else {
         toast.error(data.message || "An error occurred while fetching loans");
@@ -57,34 +61,16 @@ const Loans = ({ cardSize = "medium" }) => {
     }
   }, [filters, page, token, navigate]);
 
-  // Handle infinite scroll
-  useEffect(() => {
-    const handleScroll = () => {
-      const documentHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-      if (scrollTop + windowHeight >= documentHeight - 5) {
-        setPage((prevPage) => prevPage + 1);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Fetch loans on filters or page change
   useEffect(() => {
     fetchLoans();
   }, [fetchLoans]);
 
-  // Reset filters
   const resetFilters = () => {
     setFilters({ startDate: "", title: "", returned: "notReturned" });
     setPage(0);
+    setHasMore(true);
   };
 
-  // Handle book return
   const handleReturnBook = async (bookTitle) => {
     try {
       const response = await fetchData(
@@ -110,7 +96,6 @@ const Loans = ({ cardSize = "medium" }) => {
     }
   };
 
-  // Get column class based on card size
   const getColumnClass = (size) => {
     switch (size) {
       case "small":
@@ -126,38 +111,35 @@ const Loans = ({ cardSize = "medium" }) => {
 
   return (
     <main className="container mt-5">
-      {/* Filters Section */}
       <section className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
         <div className="d-flex align-items-center">
-          <label htmlFor="startDateFilter" className="me-2">
-            Date:
-          </label>
+          <label htmlFor="startDateFilter" className="me-2">Date:</label>
           <DatePicker
             selected={filters.startDate}
             onChange={(date) =>
               setFilters((prev) => ({ ...prev, startDate: date }))
             }
-            className="form-control form-control"
+            className="form-control"
             dateFormat="dd/MM/yyyy"
             placeholderText="Select a start date"
             id="startDateFilter"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
+            onClick={() =>
+              setFilters((prev) => ({ ...prev, startDate: "" }))
+            }
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
         <div className="d-flex align-items-center">
-          <label htmlFor="titleFilter" className="me-2">
-            Title:
-          </label>
+          <label htmlFor="titleFilter" className="me-2">Title:</label>
           <input
             type="text"
             id="titleFilter"
-            className="form-control form-control"
+            className="form-control"
             placeholder="Name or surname"
             value={filters.title}
             onChange={(e) =>
@@ -166,19 +148,19 @@ const Loans = ({ cardSize = "medium" }) => {
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={() => setFilters((prev) => ({ ...prev, title: "" }))}
+            onClick={() =>
+              setFilters((prev) => ({ ...prev, title: "" }))
+            }
           >
             <i className="fa-solid fa-rotate-right"></i>
           </button>
         </div>
 
         <div className="d-flex align-items-center">
-          <label htmlFor="returnedFilter" className="me-2">
-            Status:
-          </label>
+          <label htmlFor="returnedFilter" className="me-2">Status:</label>
           <select
             id="returnedFilter"
-            className="form-select form-select"
+            className="form-select"
             value={filters.returned}
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, returned: e.target.value }))
@@ -188,7 +170,7 @@ const Loans = ({ cardSize = "medium" }) => {
             <option value="notReturned">Not Returned</option>
           </select>
           <button
-            className="btn btn-outline-secondary btn ms-2"
+            className="btn btn-outline-secondary ms-2"
             onClick={() =>
               setFilters((prev) => ({ ...prev, returned: "notReturned" }))
             }
@@ -197,20 +179,26 @@ const Loans = ({ cardSize = "medium" }) => {
           </button>
         </div>
 
-        <button className="btn btn-warning btn" onClick={resetFilters}>
+        <button className="btn btn-warning" onClick={resetFilters}>
           Reset Filters
         </button>
       </section>
 
-      {/* Loans Section */}
       <section className="container mt-5">
-        <div className="row">
-          {loans.length > 0 ? (
-            loans.map((loan, index) => (
-              <article
-                key={index}
-                className={`${getColumnClass(cardSize)} mb-4`}
-              >
+        <InfiniteScroll
+          dataLength={loans.length}
+          next={() => setPage((prev) => prev + 1)}
+          hasMore={hasMore}
+          loader={<Loading />}
+          endMessage={
+            loans.length > 0 ? (
+              <p className="text-center mt-4">No more loans</p>
+            ) : null
+          }
+        >
+          <div className="row">
+            {loans.map((loan, index) => (
+              <article key={index} className={`${getColumnClass(cardSize)} mb-4`}>
                 <div className="card h-100 p-1">
                   <img
                     src={`data:image/jpeg;base64,${loan.bookImage}`}
@@ -218,33 +206,18 @@ const Loans = ({ cardSize = "medium" }) => {
                     alt={`Cover of ${loan.book}`}
                   />
                   <div className="d-flex justify-content-center">
-                    <hr
-                      className="my-1"
-                      style={{ borderTop: "1px solid black", width: "80%" }}
-                    />
+                    <hr className="my-1" style={{ borderTop: "1px solid black", width: "80%" }} />
                   </div>
                   <div className="card-body text-center">
                     <h5 className="card-title">
-                      <Link
-                        to={`/viewBook/${loan.book}`}
-                        className="text-decoration-none"
-                      >
+                      <Link to={`/viewBook/${loan.book}`} className="text-decoration-none">
                         {loan.book}
                       </Link>
                     </h5>
+                    <p><strong>Start Date:</strong> {new Date(loan.startDate).toLocaleDateString("es-ES")}</p>
+                    <p><strong>Return Date:</strong> {loan.returnDate ? new Date(loan.returnDate).toLocaleDateString("es-ES") : "N/A"}</p>
                     <p>
-                      <strong>Start Date:</strong>{" "}
-                      {new Date(loan.startDate).toLocaleDateString("es-ES")}
-                    </p>
-                    <p>
-                      <strong>Return Date:</strong>{" "}
-                      {loan.returnDate
-                        ? new Date(loan.returnDate).toLocaleDateString("es-ES")
-                        : "N/A"}
-                    </p>
-                    <p>
-                      <strong>Returned:</strong>{" "}
-                      {loan.isReturned ? "Yes" : "No"}
+                      <strong>Returned:</strong> {loan.isReturned ? "Yes" : "No"}
                       {!loan.isReturned && (
                         <button
                           className="btn btn-primary ms-2"
@@ -257,11 +230,9 @@ const Loans = ({ cardSize = "medium" }) => {
                   </div>
                 </div>
               </article>
-            ))
-          ) : (
-            <Loading />
-          )}
-        </div>
+            ))}
+          </div>
+        </InfiniteScroll>
       </section>
     </main>
   );
