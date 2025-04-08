@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import { fetchData } from '../utils/fetch';
 import '../styles/Carousel.css';
 import defaultBook from '../img/defaultBook.svg'; // Importa la imagen por defecto
+import { useNavigate } from 'react-router-dom';
 
 const MAX_VISIBILITY = 3;
 
@@ -19,15 +20,27 @@ const fetchBooks = async (setBooks) => {
   }
 };
 
-const Card = ({ title, image }) => (
-  <div className="cardC" style={{ textAlign: 'center' }}>
-    <h2 >{title}</h2>
-    <img
-      src={image || defaultBook} // Imagen por defecto si no hay imagen
-      alt={title}
-    />
-  </div>
-);
+const Card = ({ title, image }) => {
+  const navigate = useNavigate();
+
+  const navigateToBookDetails = (title) => {
+    navigate(`/viewBook/${encodeURIComponent(title)}`);
+  };
+
+  return (
+    <div
+      className="cardC"
+      style={{ textAlign: 'center', cursor: 'pointer' }}
+      onClick={() => navigateToBookDetails(title)}
+    >
+      <h2>{title}</h2>
+      <img
+        src={image || defaultBook} // Imagen por defecto si no hay imagen
+        alt={title}
+      />
+    </div>
+  );
+};
 
 const Carousel = ({ children }) => {
   const [active, setActive] = useState(2);
