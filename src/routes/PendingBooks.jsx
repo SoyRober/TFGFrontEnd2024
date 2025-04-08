@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchData } from "../utils/fetch";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Attributes() {
 	const [selectedButton, setSelectedButton] = useState("Reserves");
@@ -12,7 +14,6 @@ export default function Attributes() {
 	const navigate = useNavigate();
 	const [reserves, setReserves] = useState([]);
 	const [loans, setLoans] = useState([]);
-	const [message, setMessage] = useState("");
 	const [token] = useState(() => {
 		return localStorage.getItem("token") ? localStorage.getItem("token") : null;
 	});
@@ -40,7 +41,7 @@ export default function Attributes() {
 			const data = await fetchData(`/getAllReservations`, "GET", null, token);
 			setReserves(data);
 		} catch (err) {
-			setMessage(err.message);
+			toast.error("Error loading reservations: " + err.message);
 		}
 	};
 
@@ -49,7 +50,7 @@ export default function Attributes() {
 			const data = await fetchData(`/getAllLoans`, "GET", null, token);
 			setLoans(data);
 		} catch (err) {
-			setMessage(err.message);
+			toast.error("Error loading loans: " + err.message);
 		}
 	};
 
@@ -59,46 +60,40 @@ export default function Attributes() {
 				Username: reserve.userName,
 				BookTitle: reserve.bookTitle,
 			};
-			const response = await fetchData(
-				`/loanReserved`,
-				"POST",
-				loanRequest,
-				token
-			);
+			const response = await fetchData(`/loanReserved`, "POST", loanRequest, token);
 			if (response.success) {
-				setMessage("Loan successful"); //TODO: Cambiar a una notificación
+				toast.success("Loan successful");
 				fetchReserves();
 			} else {
-				setMessage(response.message || "Loan failed");
+				toast.error(response.message || "Loan failed");
 			}
 		} catch (err) {
-			setMessage(err.message);
+			toast.error("Loan error: " + err.message);
 		}
 	};
 
 	const handleReturn = async (loan) => {
 		try {
 			const returnRequest = {
-				loanId: loan.loanId, // Assuming loan object contains an 'id' field
+				loanId: loan.loanId,
 			};
 			const response = await fetchData(`/return`, "PUT", returnRequest, token);
 			if (response.success) {
-				setMessage("Return successful"); // TODO: Cambiar a una notificación
+				toast.success("Return successful");
 				fetchLoans();
 			} else {
-				setMessage(response.message || "Return failed");
+				toast.error(response.message || "Return failed");
 			}
 		} catch (err) {
-			setMessage(err.message);
+			toast.error("Return error: " + err.message);
 		}
 	};
 
-	if (!hasPermissions) {
-		return <h1>UnAuthorized</h1>;
-	}
+	if (!hasPermissions) return <h1>UnAuthorized</h1>;
 
 	return (
 		<main className="container text-center mt-5">
+			<ToastContainer position="top-right" autoClose={3000} />
 			<header className="mb-4">
 				<h1>Reservations and Loans</h1>
 			</header>
@@ -183,9 +178,7 @@ export default function Attributes() {
 										<p className="mb-2">
 											<strong>Date:</strong>
 											<span className="mx-1">
-												{new Date(reserve.reservationDate).toLocaleDateString(
-													"es-ES"
-												)}
+												{new Date(reserve.reservationDate).toLocaleDateString("es-ES")}
 											</span>
 											<small className="text-muted">
 												({diffDays} days ago)
@@ -288,8 +281,6 @@ export default function Attributes() {
 					</ul>
 				)}
 			</section>
-
-			{message && <p className="text-danger">{message}</p>}
 		</main>
 	);
 }
