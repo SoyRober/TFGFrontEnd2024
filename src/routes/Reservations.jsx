@@ -6,78 +6,56 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [dateFilter, setDateFilter] = useState("");
   const [loanedFilter, setReturnedFilter] = useState("all");
-  const [atBottom, setAtBottom] = useState(false);
   const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
     if (!token) {
-      toast.error("No token found, user might not be authenticated");
+      toast.error("No token found");
       navigate("/login");
       return;
     }
 
     fetchReservations();
-  }, [page, token, navigate]);
+  }, [page]);
 
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
   useEffect(() => {
-    const applyFilters = () => {
-      let result = [...reservations];
+    let result = [...reservations];
 
-      if (dateFilter) {
-        const formattedDate = new Date(dateFilter).toLocaleDateString();
-        result = result.filter(
-          (reservation) =>
-            new Date(reservation.reservationDate).toLocaleDateString() ===
-            formattedDate
-        );
-      }
+    if (dateFilter) {
+      const formattedDate = new Date(dateFilter).toLocaleDateString();
+      result = result.filter(
+        (r) =>
+          new Date(r.reservationDate).toLocaleDateString() === formattedDate
+      );
+    }
 
-      if (loanedFilter !== "all") {
-        const isLoaned = loanedFilter === "returned";
-        result = result.filter(
-          (reservation) => reservation.isLoaned === isLoaned
-        );
-      }
+    if (loanedFilter !== "all") {
+      const isLoaned = loanedFilter === "returned";
+      result = result.filter((r) => r.isLoaned === isLoaned);
+    }
 
-      setFilteredReservations(result);
-    };
-
-    applyFilters();
+    setFilteredReservations(result);
   }, [dateFilter, loanedFilter, reservations]);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const documentHeight = document.documentElement.scrollHeight;
-      const windowHeight = window.innerHeight;
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-      if (scrollTop + windowHeight >= documentHeight - 5) {
-        if (!atBottom) {
-          setAtBottom(true);
-          setPage((prevPage) => prevPage + 1);
-          fetchReservations();
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [atBottom]);
-
   const fetchReservations = async () => {
+    if (isFetching) return;
+  
+    setIsFetching(true);
     try {
       const data = await fetchData(
         `/getUserReservations?page=${page}&size=10`,
@@ -85,75 +63,38 @@ const UserReservations = ({ cardSize }) => {
         null,
         token
       );
-      setReservations((prevReservations) => {
-        const newReservations = data.filter(
-          (newReservation) =>
-            !prevReservations.some(
-              (reservation) =>
-                reservation.reservationId === newReservation.reservationId
-            )
-        );
-
-        return [...prevReservations, ...newReservations];
-      });
-
+  
       if (data.length === 0) {
-        toast.info("No hay más libros por cargar.");
+        setHasMore(false);
+      } else {
+        setReservations((prev) => [
+          ...prev,
+          ...data.filter(
+            (newR) => !prev.some((r) => r.reservationId === newR.reservationId)
+          ),
+        ]);
       }
     } catch (error) {
       toast.error(error.message);
     } finally {
-      setAtBottom(false);
+      setIsFetching(false);
     }
   };
-
-  const resetDateFilter = () => setDateFilter("");
-  const resetReturnedFilter = () => setReturnedFilter("all");
-
-  const resetAllFilters = () => {
-    setDateFilter("");
-    setReturnedFilter("all");
-  };
-
-  const handleLoanBook = async (title) => {
-    if (!localStorage.getItem("token")) return;
-
-    try {
-      await fetchData("/loan", "POST", title, token, "text/plain");
-      const updatedReservations = reservations.map((reservation) => {
-        if (
-          reservation.bookTitle === title &&
-          !reservation.isLoaned
-        ) {
-          return {
-            ...reservation,
-            isLoaned: true,
-          };
-        }
-        return reservation;
-      });
-
-      setReservations(updatedReservations);
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+  
 
   const cancelReservation = async (title) => {
-    if (!localStorage.getItem("token")) return;
-
     try {
-      await fetchData(`/cancelReservation?title=${encodeURIComponent(title)}`, "POST", null, token);
-      const updatedReservations = reservations.filter(
-        (reservation) => reservation.bookTitle !== title
+      await fetchData(
+        `/cancelReservation?title=${encodeURIComponent(title)}`,
+        "POST",
+        null,
+        token
       );
-
-      setReservations(updatedReservations);
+      setReservations((prev) => prev.filter((r) => r.bookTitle !== title));
     } catch (error) {
       toast.error(error.message);
     }
   };
-
 
   const getColumnClass = (cardSize) => {
     switch (cardSize) {
@@ -178,26 +119,26 @@ const UserReservations = ({ cardSize }) => {
           <DatePicker
             selected={dateFilter}
             onChange={(date) => setDateFilter(date)}
-            className="form-control form-control"
+            className="form-control"
             dateFormat="dd/MM/yyyy"
             placeholderText="Select a date"
             id="startDateFilter"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={resetDateFilter}
+            onClick={() => setDateFilter("")}
           >
             ⟲
           </button>
         </div>
 
         <div className="d-flex align-items-center">
-          <label htmlFor="returnedFilter" className="me-2">
+          <label htmlFor="loanedFilter" className="me-2">
             Status:
           </label>
           <select
             id="loanedFilter"
-            className="form-select form-select"
+            className="form-select"
             value={loanedFilter}
             onChange={(e) => setReturnedFilter(e.target.value)}
           >
@@ -206,32 +147,39 @@ const UserReservations = ({ cardSize }) => {
             <option value="notReturned">Not loaned</option>
           </select>
           <button
-            className="btn btn-outline-secondary btn ms-2"
-            onClick={resetReturnedFilter}
+            className="btn btn-outline-secondary ms-2"
+            onClick={() => setReturnedFilter("all")}
           >
             ⟲
           </button>
         </div>
 
-        <button className="btn btn-warning btn" onClick={resetAllFilters}>
+        <button
+          className="btn btn-warning"
+          onClick={() => {
+            setDateFilter("");
+            setReturnedFilter("all");
+          }}
+        >
           Reset Filters
         </button>
       </div>
 
       <div className="container mt-5">
-        <div className="row">
-          {filteredReservations.length > 0 ? (
-            filteredReservations.map((reservation, index) => (
-              <article
-                key={index}
-                className={`${getColumnClass(cardSize)} mb-4`}
-                tabIndex="0"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    navigate(`/viewBook/${reservation.bookTitle}`);
-                  }
-                }}
-              >
+        <InfiniteScroll
+          dataLength={filteredReservations.length}
+          next={() => setPage((prev) => prev + 1)}
+          hasMore={!isFetching && filteredReservations.length % 30 === 0}
+          loader={<Loading />}
+          endMessage={
+            reservations.length > 0 ? (
+              <p className="text-center mt-4">No more reserves</p>
+            ) : null
+          }
+        >
+          <div className="row">
+            {filteredReservations.map((reservation, index) => (
+              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
                 <div
                   className="card"
                   style={{
@@ -280,10 +228,7 @@ const UserReservations = ({ cardSize }) => {
                         className="text-decoration-none d-flex align-items-center"
                       >
                         {reservation.bookTitle}
-                        <i
-                          className="fas fa-mouse-pointer ms-2"
-                          title="Click to view details"
-                        ></i>
+                        <i className="fas fa-mouse-pointer ms-2"></i>
                       </Link>
                     </h5>
                     <p className="card-text">
@@ -301,20 +246,18 @@ const UserReservations = ({ cardSize }) => {
                       <strong>Status:</strong>{" "}
                       {reservation.isLoaned ? "Loaned" : "Not loaned"}
                     </p>
-                      <button
-                        className="btn btn-primary ms-2"
-                        onClick={() => cancelReservation(reservation.bookTitle)}
-                      >
-                        Cancel Reservation
-                      </button>
+                    <button
+                      className="btn btn-primary ms-2"
+                      onClick={() => cancelReservation(reservation.bookTitle)}
+                    >
+                      Cancel Reservation
+                    </button>
                   </div>
                 </div>
-              </article>
-            ))
-          ) : (
-           <Loading />
-          )}
-        </div>
+              </div>
+            ))}
+          </div>
+        </InfiniteScroll>
       </div>
     </main>
   );
