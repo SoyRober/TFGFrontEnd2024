@@ -25,7 +25,8 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^6.24.1",
     "react-toastify": "^11.0.5",
-    "react-transition-group": "^4.4.5"
+    "react-transition-group": "^4.4.5",
+    "styled-components": "^6.1.17"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
