@@ -25,16 +25,16 @@ const GenresComponent = () => {
   }, [page]);
 
   const fetchGenres = useCallback(
-    async (currentPage) => {
+    async (page) => {
       if (isFetching) return;
       setIsFetching(true);
       try {
-        const params = new URLSearchParams({ page: currentPage, size: "30" });
+        const params = new URLSearchParams({ page: page, size: "30" });
         await new Promise((resolve) => setTimeout(resolve, 500));
         const data = await fetchData(`/genres?${params.toString()}`, "GET", null, token);
         const newGenres = data.message || [];
         setGenres((prev) =>
-          currentPage === 0 ? newGenres : [...prev, ...newGenres]
+          page === 0 ? newGenres : [...prev, ...newGenres]
         );
       } catch (err) {
         toast.error(err.message || "Failed to load genres.");
@@ -58,28 +58,6 @@ const GenresComponent = () => {
 	useEffect(() => {
 		fetchGenres();
 	}, [token]);
-
-	const fetchGenres = async () => {
-		try {
-			const data = await fetchData("/genres", "GET", null, token);
-			setGenres(data);
-		} catch (err) {
-			toast.error(err.message || "Failed to load genres.");
-		}
-	};
-
-	const handleAddGenre = async (newName) => {
-		const body = { newName };
-		try {
-			await fetchData("/genres", "POST", newName, token);
-			toast.success(`Genre added successfully!`);
-			setModals({ ...modals, add: false, edit: false });
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to save genre.");
-		}
-		console.log("🚀 ~ handleAddGenre ~ body:", body);
-	};
 
 	const handleEditGenre = async (id, name) => {
 		const body = { id, name };
@@ -182,13 +160,6 @@ const GenresComponent = () => {
       />
     </main>
   );
-			<AddAttributeModal
-				show={modals.add}
-				handleClose={() => setModals({ ...modals, add: false })}
-				handleAdd={(name) => handleAddGenre(name)}
-			/>
-		</main>
-	);
 };
 
 export default GenresComponent;
