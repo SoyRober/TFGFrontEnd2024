@@ -50,6 +50,7 @@ export default function ViewBook() {
 	const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
 	const [selectedUser, setSelectedUser] = useState("");
 	const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
+	const [isReserved, setIsReserved] = useState(false);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -125,6 +126,23 @@ export default function ViewBook() {
 			}
 		};
 
+		const checkReservationStatus = async () => {
+			const token = localStorage.getItem("token");
+			if (!token) return;
+
+			try {
+				const response = await fetchData(
+					`/isReserved?title=${encodeURIComponent(title)}`,
+					"GET",
+					null,
+					token
+				);
+				setIsReserved(response);
+			} catch (error) {
+				toast.error(error.message || "Something went wrong");
+			}
+		};
+
 		const fetchReviews = async () => {
 			try {
 				const data = await fetchData(`/reviews/${title}`);
@@ -177,6 +195,7 @@ export default function ViewBook() {
 		fetchAuthors();
 		fetchGenres();
 		checkLoanStatus();
+		checkReservationStatus();
 		fetchExistingReview();
 	}, [title, fetchBookData, fetchExistingReview]);
 
@@ -388,6 +407,28 @@ export default function ViewBook() {
 				token
 			);
 			toast.success("Book reserved");
+			setIsReserved(true);
+		} catch (error) {
+			toast.error(error.message || "Something went wrong");
+		}
+	};
+
+	const handleCancelReservation = async () => {
+		const token = localStorage.getItem("token");
+		if (!token) {
+			toast.error("No token found, user might not be authenticated");
+			return;
+		}
+
+		try {
+			await fetchData(
+				`/cancelReservation?title=${encodeURIComponent(title)}`,
+				"POST",
+				null,
+				token
+			);
+			toast.success("Reservation canceled");
+			setIsReserved(false);
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -712,6 +753,13 @@ export default function ViewBook() {
 							{isLoaned ? (
 								<button className="btn btn-secondary w-100" disabled>
 									Currently Loaned
+								</button>
+							) : isReserved ? (
+								<button
+									onClick={handleCancelReservation}
+									className="btn btn-warning w-100"
+								>
+									Cancel Reservation
 								</button>
 							) : (
 								<button
