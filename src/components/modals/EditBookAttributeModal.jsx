@@ -100,6 +100,7 @@ const EditBookAttributeModal = ({
 				/>
 			);
 			break;
+		//TODO Fix bookCopies
 		case "quantity":
 			inputField = (
 				<input
