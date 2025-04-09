@@ -24,12 +24,11 @@ const UsersList = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page, filters]); // Depend on both page and filters
+  }, [page, filters]);
 
-  // When filters change, reset the users array and page to 0
   useEffect(() => {
-    setUsers([]);  // Empty the users list when filters change
-    setPage(0);    // Reset the page to 0 when filters change
+    setUsers([]);  
+    setPage(0);    
   }, [filters]);
 
   const fetchUsers = async () => {
