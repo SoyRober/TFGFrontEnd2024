@@ -10,15 +10,12 @@ import Loading from "../components/Loading.jsx";
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
-  const navigate = useNavigate();
+  const [filters, setFilters] = useState({ username: "", email: "" });
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
-  const [filters, setFilters] = useState({
-    username: "",
-    email: "",
-  });
+  const [reset, setReset] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,28 +24,44 @@ const UsersList = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page]);
+  }, [page, filters]); // Depend on both page and filters
+
+  // When filters change, reset the users array and page to 0
+  useEffect(() => {
+    setUsers([]);  // Empty the users list when filters change
+    setPage(0);    // Reset the page to 0 when filters change
+  }, [filters]);
 
   const fetchUsers = async () => {
     if (isFetching) return;
+
     const token = localStorage.getItem("token");
-    if (!token) navigate("/");
+    if (!token) {
+      navigate("/");
+      return;
+    }
+
     setIsFetching(true);
+
     try {
-      const data = await fetchData(
-        `/users/list?page=${page}`,
-        "GET",
-        {
-          username: filters.username || null,
-          email: filters.email || null,
-        },
-        token
-      );
-      if (data.message.length === 0) {
-        setHasMore(false);
-      } else {
-        setUsers((prev) => [...prev, ...data.message]);
+      const params = new URLSearchParams();
+      params.append("page", page);
+      if (filters.username) params.append("username", filters.username);
+      if (filters.email) params.append("email", filters.email);
+
+      const url = `/users/list?${params.toString()}`;
+      const data = await fetchData(url, "GET", null, token);
+
+      if (!Array.isArray(data.message)) {
+        toast.error("Invalid response from server");
+        return;
       }
+
+      if (data.message.length !== 0) {
+        setUsers((prev) => (reset ? data.message : [...prev, ...data.message]));
+        setReset(false); // Reset flag after fetching
+      }
+    
     } catch (error) {
       toast.error(error.message || "Error loading the users list");
     } finally {
@@ -57,7 +70,7 @@ const UsersList = () => {
   };
 
   const fetchMoreUsers = () => {
-    if (hasMore && !isFetching) {
+    if (!isFetching) {
       setPage((prev) => prev + 1);
     }
   };
@@ -65,6 +78,7 @@ const UsersList = () => {
   const deleteUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/");
+
     try {
       const data = await fetchData(
         `/users/${selectedUserId}`,
@@ -73,7 +87,7 @@ const UsersList = () => {
         token
       );
       if (data.success) toast.success(data.message);
-      setUsers(users.filter((user) => user.id !== selectedUserId));
+      setUsers((prev) => prev.filter((user) => user.id !== selectedUserId));
       setShowDeleteConfirmation(false);
     } catch (error) {
       toast.error(error.message || "Something went wrong");
@@ -91,8 +105,8 @@ const UsersList = () => {
 
   const resetFilters = () => {
     setFilters({ username: "", email: "" });
-    setPage(0);
-    setHasMore(true);
+    setPage(0); // Reset page to 0 when resetting filters
+    setReset(true); // Trigger the reset flag to fetch new data
   };
 
   return (
@@ -104,7 +118,7 @@ const UsersList = () => {
           placeholder="Filter by username"
           className="form-control me-2"
           onChange={(e) => {
-            setFilters((prev) => ({ ...prev, username: e.target.value }));
+            setFilters((prev) => ({ ...prev, username: e.target.value.trim() }));
           }}
           style={{ width: "20%" }}
         />
@@ -113,7 +127,7 @@ const UsersList = () => {
           placeholder="Filter by email"
           className="form-control me-2"
           onChange={(e) => {
-            setFilters((prev) => ({ ...prev, email: e.target.value }));
+            setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
           }}
           style={{ width: "20%" }}
         />
@@ -121,6 +135,7 @@ const UsersList = () => {
           Reset Filters
         </button>
       </div>
+
       <InfiniteScroll
         dataLength={users.length}
         next={fetchMoreUsers}
@@ -144,12 +159,10 @@ const UsersList = () => {
                 <td>
                   <button
                     onClick={() => handleDeleteClick(user.id)}
-                    className="btn btn-danger ml-2"
+                    className="btn btn-danger me-2"
                   >
                     Delete
                   </button>
-                </td>
-                <td>
                   <button
                     onClick={() => handleViewProfile(user.email)}
                     className="btn btn-primary"
