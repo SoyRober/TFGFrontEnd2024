@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { fetchData } from '../utils/fetch';
 import '../styles/Carousel.css';
-import defaultBook from '../img/defaultBook.svg'; // Importa la imagen por defecto
+import defaultBook from '../img/defaultBook.svg';
 import { useNavigate } from 'react-router-dom';
 
 const MAX_VISIBILITY = 3;
@@ -11,7 +11,7 @@ const fetchBooks = async (setBooks) => {
   try {
     const data = await fetchData('/books/random', 'GET', null);
     if (data.success) {
-      setBooks(data.message); // Guarda los libros en el estado
+      setBooks(data.message);
     } else {
       toast.error(data.message || 'An error occurred while fetching books');
     }
@@ -35,7 +35,7 @@ const Card = ({ title, image }) => {
     >
       <h2>{title}</h2>
       <img
-        src={image || defaultBook} // Imagen por defecto si no hay imagen
+        src={image || defaultBook}
         alt={title}
       />
     </div>
@@ -43,16 +43,33 @@ const Card = ({ title, image }) => {
 };
 
 const Carousel = ({ children }) => {
-  const [active, setActive] = useState(2);
+  const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(1);
   const count = React.Children.count(children);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActive((prev) => {
+        if (prev === count - 1) {
+          setDirection(-1);
+          return prev - 1;
+        } else if (prev === 0) {
+          setDirection(1);
+          return prev + 1;
+        } else {
+          return prev + direction;
+        }
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [count, direction]);
 
   return (
     <div className="carousel">
-      {active > 0 && (
-        <button className="nav left" onClick={() => setActive((i) => i - 1)}>
-          <i className="fa-solid fa-arrow-left py-5"></i>
-        </button>
-      )}
+      <button className="nav left" onClick={() => setActive((i) => (i - 1 + count) % count)}>
+        <i className="fa-solid fa-arrow-left py-5"></i>
+      </button>
+
       {React.Children.map(children, (child, i) => (
         <div
           className="cardC-container"
@@ -69,11 +86,10 @@ const Carousel = ({ children }) => {
           {child}
         </div>
       ))}
-      {active < count - 1 && (
-        <button className="nav right" onClick={() => setActive((i) => i + 1)}>
-          <i className="fa-solid fa-arrow-right py-5"></i>
-        </button>
-      )}
+
+      <button className="nav right" onClick={() => setActive((i) => (i + 1) % count)}>
+        <i className="fa-solid fa-arrow-right py-5"></i>
+      </button>
     </div>
   );
 };
@@ -82,7 +98,7 @@ const CustomCarousel = () => {
   const [books, setBooks] = useState([]);
 
   useEffect(() => {
-    fetchBooks(setBooks); // Llama a fetchBooks al montar el componente
+    fetchBooks(setBooks);
   }, []);
 
   return (
@@ -91,8 +107,8 @@ const CustomCarousel = () => {
         {books.map((book, i) => (
           <Card
             key={i}
-            title={book.title} // Título del libro
-            image={book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook} // Imagen del libro
+            title={book.title}
+            image={book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook}
           />
         ))}
       </Carousel>
