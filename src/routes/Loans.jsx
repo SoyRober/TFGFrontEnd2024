@@ -172,6 +172,7 @@ const Loans = ({ cardSize = "medium" }) => {
 							<p className="text-center mt-4">No more loans</p>
 						) : null
 					}
+					style={{ overflow: "hidden" }}
 				>
 					<div className="row">
 						{loans.map((loan, index) => (
