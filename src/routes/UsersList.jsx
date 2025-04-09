@@ -15,6 +15,10 @@ const UsersList = () => {
   const navigate = useNavigate();
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [filters, setFilters] = useState({
+    username: "",
+    email: "",
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -34,7 +38,10 @@ const UsersList = () => {
       const data = await fetchData(
         `/users/list?page=${page}`,
         "GET",
-        null,
+        {
+          username: filters.username || null,
+          email: filters.email || null,
+        },
         token
       );
       if (data.message.length === 0) {
@@ -82,17 +89,44 @@ const UsersList = () => {
     navigate(`/profile/${encodeURIComponent(id)}`);
   };
 
+  const resetFilters = () => {
+    setFilters({ username: "", email: "" });
+    setPage(0);
+    setHasMore(true);
+  };
+
   return (
     <main className="container">
       <h2>User List</h2>
+      <div className="filters mb-4 d-flex align-items-center justify-content-center">
+        <input
+          type="text"
+          placeholder="Filter by username"
+          className="form-control me-2"
+          onChange={(e) => {
+            setFilters((prev) => ({ ...prev, username: e.target.value }));
+          }}
+          style={{ width: "20%" }}
+        />
+        <input
+          type="text"
+          placeholder="Filter by email"
+          className="form-control me-2"
+          onChange={(e) => {
+            setFilters((prev) => ({ ...prev, email: e.target.value }));
+          }}
+          style={{ width: "20%" }}
+        />
+        <button className="btn btn-warning" onClick={resetFilters}>
+          Reset Filters
+        </button>
+      </div>
       <InfiniteScroll
         dataLength={users.length}
         next={fetchMoreUsers}
         hasMore={users.length % 10 === 0}
         loader={<Loading />}
-        endMessage={
-          <p className="text-center mt-4">No more users to show</p>
-        }
+        endMessage={<p className="text-center mt-4">No more users to show</p>}
       >
         <table className="table table-striped">
           <thead>
