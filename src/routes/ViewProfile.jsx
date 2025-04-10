@@ -3,8 +3,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import { Modal, Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
+import ChangeRoleModal from "../components/modals/changeRoleModal";
 
 const ViewProfile = () => {
   const [userData, setUserData] = useState({});
@@ -79,10 +79,11 @@ const ViewProfile = () => {
   const handleRoleChange = async () => {
     const token = localStorage.getItem("token");
     try {
+      console.log("🚀 ~ handleRoleChange ~ selectedRole:", selectedRole)
       const response = await fetchData(
         `/users/update/${userData.email}`,
         "PUT",
-        { attribute: "role", newAttribute: selectedRole },
+        { attribute: "role", newAttribute: selectedRole, image: null },
         token
       );
 
@@ -131,35 +132,13 @@ const ViewProfile = () => {
         </div>
       </section>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Change User Role</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formRoleSelect">
-              <Form.Label>Select Role</Form.Label>
-              <Form.Control
-                as="select"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option value="ADMIN">ADMIN</option>
-                <option value="LIBRARIAN">LIBRARIAN</option>
-                <option value="USER">USER</option>
-              </Form.Control>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleRoleChange}>
-            Submit
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ChangeRoleModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        handleRoleChange={handleRoleChange}
+        selectedRole={selectedRole}
+        setSelectedRole={setSelectedRole}
+      />
 
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
