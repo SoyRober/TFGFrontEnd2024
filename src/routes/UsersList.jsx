@@ -45,8 +45,8 @@ const UsersList = () => {
     try {
       const params = new URLSearchParams();
       params.append("page", page);
-      if (filters.username) params.append("username", filters.username);  // Solo si tiene valor
-      if (filters.email) params.append("email", filters.email);  // Solo si tiene valor
+      if (filters.username) params.append("username", filters.username); 
+      if (filters.email) params.append("email", filters.email);
   
       console.log("🚀 ~ fetchUsers ~ params:", params)
       const url = `/users/list?${params.toString()}`;
@@ -59,7 +59,7 @@ const UsersList = () => {
   
       if (data.message.length !== 0) {
         setUsers((prev) => (reset ? data.message : [...prev, ...data.message]));
-        setReset(false); // Reset flag after fetching
+        setReset(false); 
       }
   
     } catch (error) {
