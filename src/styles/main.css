@@ -72,3 +72,7 @@
   opacity: 1;
 }
 
+.hover-navbar:hover {
+  color: black !important;
+  background-color: white;
+}
