@@ -155,7 +155,7 @@ export default function Root() {
                   >
                     <li>
                       <Link
-                        className="dropdown-item text-light"
+                        className="dropdown-item text-light hover-navbar"
                         to="/user/userSettings"
                       >
                         Settings
@@ -163,7 +163,7 @@ export default function Root() {
                     </li>
                     <li>
                       <button
-                        className="dropdown-item text-light"
+                        className="dropdown-item text-light hover-navbar"
                         onClick={handleLogout}
                       >
                         Log out

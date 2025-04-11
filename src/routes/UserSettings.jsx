@@ -18,7 +18,8 @@ export default function Settings() {
   const [showModal, setShowModal] = useState(false);
   const [modalAttribute, setModalAttribute] = useState("");
   const [modalValue, setModalValue] = useState("");
-  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState(false);
+  const [showDeactivationConfirmationModal, setShowDeleteConfirmationModal] =
+    useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,48 +66,15 @@ export default function Settings() {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
 
-      let url = `/users/update/${decodedToken.email}`;
-      const formData = new FormData();
-
-      if (modalAttribute === "image") {
-        url = `/users/update/profileImage/${decodedToken.email}`;
-        const file = modalValue;
-        if (!file) {
-          toast.error("Please select an image.");
-          return;
-        }
-        const compressedImage = await compressImage(file, 1, 400, 400);
-        formData.append("newImage", compressedImage);
-      } else {
-        formData.append("attribute", modalAttribute || "");
-        formData.append("newAttribute", modalValue || "");
-      }
+      const url = getUpdateUrl(decodedToken.email, modalAttribute);
+      const formData = await prepareFormData(modalAttribute, modalValue);
 
       const data = await fetchData(url, "PUT", formData, token);
 
       if (data.success) {
-        if (modalAttribute === "image") {
-          const reader = new FileReader();
-          reader.onloadend = () => setProfileImage(reader.result);
-          reader.readAsDataURL(modalValue);
-        } else {
-          switch (modalAttribute) {
-            case "username":
-              setUsername(modalValue);
-              break;
-            case "email":
-              setEmail(modalValue);
-              break;
-            case "birthdate":
-              setBirthDate(modalValue);
-              break;
-          }
-        }
-
+        updateStateAfterSave(modalAttribute, modalValue, data.message);
         setShowModal(false);
-        if (modalAttribute !== "password") {
-          localStorage.setItem("token", data.message);
-        }
+        toast.success(`Successfully updated ${modalAttribute}`);
       } else {
         toast.error(data.message || `Error: ${modalAttribute} not changed`);
       }
@@ -115,16 +83,69 @@ export default function Settings() {
     }
   };
 
+  const getUpdateUrl = (email, attribute) => {
+    if (attribute === "image") {
+      return `/users/update/profileImage/${email}`;
+    }
+    return `/users/update/${email}`;
+  };
+
+  const prepareFormData = async (attribute, value) => {
+    const formData = new FormData();
+
+    if (attribute === "image") {
+      if (!value) {
+        throw new Error("Please select an image.");
+      }
+      const compressedImage = await compressImage(value, 1, 400, 400);
+      formData.append("newImage", compressedImage);
+    } else {
+      formData.append("attribute", attribute || "");
+      formData.append("newAttribute", value || "");
+    }
+
+    return formData;
+  };
+
+  const updateStateAfterSave = (attribute, value, token) => {
+    if (attribute === "image") {
+      const reader = new FileReader();
+      reader.onloadend = () => setProfileImage(reader.result);
+      reader.readAsDataURL(value);
+    } else {
+      switch (attribute) {
+        case "username":
+          setUsername(value);
+          break;
+        case "email":
+          setEmail(value);
+          break;
+        case "birthdate":
+          setBirthDate(value);
+          break;
+      }
+    }
+
+    if (attribute !== "password") {
+      localStorage.setItem("token", token);
+    }
+  };
+
   const handleCancel = () => {
     setShowModal(false);
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeactivationUser = async () => {
     try {
       const token = localStorage.getItem("token");
       const decodedToken = jwtDecode(token);
 
-      const data = await fetchData(`/users/${decodedToken.email}`, "DELETE", null, token);
+      const data = await fetchData(
+        `/users/${decodedToken.email}`,
+        "DELETE",
+        null,
+        token
+      );
 
       if (data.success) {
         toast.success("User deleted successfully.");
@@ -142,7 +163,7 @@ export default function Settings() {
     setShowDeleteConfirmationModal(true);
   };
 
-  const handleCloseDeleteModal = () => {
+  const handleCloseDeactivationModal = () => {
     setShowDeleteConfirmationModal(false);
   };
 
@@ -214,10 +235,7 @@ export default function Settings() {
             </div>
           </div>
           <div>
-            <button
-              className="btn btn-danger"
-              onClick={handleOpenDeleteModal}
-            >
+            <button className="btn btn-danger" onClick={handleOpenDeleteModal}>
               Deactivate user
             </button>
           </div>
@@ -274,19 +292,19 @@ export default function Settings() {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showDeleteConfirmationModal} onHide={handleCloseDeleteModal}>
+      <Modal show={showDeactivationConfirmationModal} onHide={handleCloseDeactivationModal}>
         <Modal.Header closeButton>
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        You wont be able to activate this account again when a month passes.
-        Are you sure you want to deactivate your account? 
+          You wont be able to activate this account again when a month passes.
+          Are you sure you want to deactivate your account?
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseDeleteModal}>
+          <Button variant="secondary" onClick={handleCloseDeactivationModal}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleDeleteUser}>
+          <Button variant="danger" onClick={handleDeactivationUser}>
             Deactivate
           </Button>
         </Modal.Footer>

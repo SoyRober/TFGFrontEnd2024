@@ -10,11 +10,12 @@ import Loading from "../components/Loading.jsx";
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
-  const navigate = useNavigate();
+  const [filters, setFilters] = useState({ username: "", email: "" });
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState("");
+  const [reset, setReset] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -23,34 +24,53 @@ const UsersList = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page]);
+  }, [page, filters]);
+
+  useEffect(() => {
+    setUsers([]);  
+    setPage(0);    
+  }, [filters]);
 
   const fetchUsers = async () => {
     if (isFetching) return;
+  
     const token = localStorage.getItem("token");
-    if (!token) navigate("/");
+    if (!token) {
+      navigate("/");
+      return;
+    }
+  
     setIsFetching(true);
+  
     try {
-      const data = await fetchData(
-        `/users/list?page=${page}`,
-        "GET",
-        null,
-        token
-      );
-      if (data.message.length === 0) {
-        setHasMore(false);
-      } else {
-        setUsers((prev) => [...prev, ...data.message]);
+      const params = new URLSearchParams();
+      params.append("page", page);
+      if (filters.username) params.append("username", filters.username); 
+      if (filters.email) params.append("email", filters.email);
+  
+      console.log("🚀 ~ fetchUsers ~ params:", params)
+      const url = `/users/list?${params.toString()}`;
+      const data = await fetchData(url, "GET", null, token);
+      
+      if (!Array.isArray(data.message)) {
+        toast.error("Something went wrong");
+        return;
       }
+  
+      if (data.message.length !== 0) {
+        setUsers((prev) => (reset ? data.message : [...prev, ...data.message]));
+        setReset(false); 
+      }
+  
     } catch (error) {
       toast.error(error.message || "Error loading the users list");
     } finally {
       setIsFetching(false);
     }
-  };
+  };  
 
   const fetchMoreUsers = () => {
-    if (hasMore && !isFetching) {
+    if (!isFetching) {
       setPage((prev) => prev + 1);
     }
   };
@@ -58,6 +78,7 @@ const UsersList = () => {
   const deleteUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/");
+
     try {
       const data = await fetchData(
         `/users/${selectedUserId}`,
@@ -66,7 +87,7 @@ const UsersList = () => {
         token
       );
       if (data.success) toast.success(data.message);
-      setUsers(users.filter((user) => user.id !== selectedUserId));
+      setUsers((prev) => prev.filter((user) => user.id !== selectedUserId));
       setShowDeleteConfirmation(false);
     } catch (error) {
       toast.error(error.message || "Something went wrong");
@@ -82,17 +103,45 @@ const UsersList = () => {
     navigate(`/profile/${encodeURIComponent(id)}`);
   };
 
+  const resetFilters = () => {
+    setFilters({ username: "", email: "" });
+    setPage(0); // Reset page to 0 when resetting filters
+    setReset(true); // Trigger the reset flag to fetch new data
+  };
+
   return (
     <main className="container">
       <h2>User List</h2>
+      <div className="filters mb-4 d-flex align-items-center justify-content-center">
+        <input
+          type="text"
+          placeholder="Filter by username"
+          className="form-control me-2"
+          onChange={(e) => {
+            setFilters((prev) => ({ ...prev, username: e.target.value.trim() }));
+          }}
+          style={{ width: "20%" }}
+        />
+        <input
+          type="text"
+          placeholder="Filter by email"
+          className="form-control me-2"
+          onChange={(e) => {
+            setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
+          }}
+          style={{ width: "20%" }}
+        />
+        <button className="btn btn-warning" onClick={resetFilters}>
+          Reset Filters
+        </button>
+      </div>
+
       <InfiniteScroll
         dataLength={users.length}
         next={fetchMoreUsers}
         hasMore={users.length % 10 === 0}
         loader={<Loading />}
-        endMessage={
-          <p className="text-center mt-4">No more users to show</p>
-        }
+        endMessage={<p className="text-center mt-4">No more users to show</p>}
       >
         <table className="table table-striped">
           <thead>
@@ -110,12 +159,10 @@ const UsersList = () => {
                 <td>
                   <button
                     onClick={() => handleDeleteClick(user.id)}
-                    className="btn btn-danger ml-2"
+                    className="btn btn-danger me-2"
                   >
                     Delete
                   </button>
-                </td>
-                <td>
                   <button
                     onClick={() => handleViewProfile(user.email)}
                     className="btn btn-primary"
