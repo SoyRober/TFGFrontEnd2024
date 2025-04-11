@@ -14,25 +14,25 @@ export default function BookCopies() {
 	const [newCopy, setNewCopy] = useState({ barcode: "", libraryId: "" });
 
 	useEffect(() => {
-		const fetchBookCopies = async () => {
-			setLoading(true);
-			setError(null);
-			try {
-				const data = await fetchData(
-					`/books/getCopies?title=${encodeURIComponent(title)}`,
-					"GET"
-				);
-				setCopies(data);
-			} catch (err) {
-				setError(err.message || "Failed to fetch book copies");
-				toast.error(err.message || "Failed to fetch book copies");
-			} finally {
-				setLoading(false);
-			}
-		};
-
 		fetchBookCopies();
 	}, [title]);
+
+	const fetchBookCopies = async () => {
+		setLoading(true);
+		setError(null);
+		try {
+			const data = await fetchData(
+				`/bookCopy/getCopies?title=${encodeURIComponent(title)}`,
+				"GET"
+			);
+			setCopies(data);
+		} catch (err) {
+			setError(err.message || "Failed to fetch book copies");
+			toast.error(err.message || "Failed to fetch book copies");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	const fetchLibraries = async () => {
 		try {
@@ -51,7 +51,7 @@ export default function BookCopies() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				"/books/addCopy",
+				"/bookCopy/addCopy",
 				"POST",
 				{
 					bookTitle: title,
@@ -63,8 +63,28 @@ export default function BookCopies() {
 			toast.success("Copy added successfully");
 			setShowModal(false);
 			setNewCopy({ barcode: "", libraryId: "" });
+			await fetchBookCopies();
 		} catch (err) {
 			toast.error(err.message || "Failed to add copy");
+		}
+	};
+
+	const handleDeleteCopy = async (copyId) => {
+		if (!window.confirm("Are you sure you want to delete this copy?")) {
+			return;
+		}
+		try {
+			const token = localStorage.getItem("token");
+			await fetchData(
+				`/bookCopy/deleteCopy?copyId=${copyId}`,
+				"DELETE",
+				null,
+				token
+			);
+			toast.success("Copy deleted successfully");
+			await fetchBookCopies();
+		} catch (err) {
+			toast.error(err.message || "Failed to delete copy");
 		}
 	};
 
@@ -106,7 +126,7 @@ export default function BookCopies() {
 							<div className="col-md-3">
 								<strong>Library:</strong> {copy.libraryName}
 							</div>
-							<div className="col-md-4">
+							<div className="col-md-3">
 								{copy.reserveUser !== "none" ? (
 									<span className="text-warning">
 										Reserved by: {copy.reserveUser}
@@ -116,6 +136,15 @@ export default function BookCopies() {
 								) : (
 									<span>No current reservation or loan</span>
 								)}
+							</div>
+							<div className="col-md-1 text-end">
+								<Button
+									variant="danger"
+									size="sm"
+									onClick={() => handleDeleteCopy(copy.id)}
+								>
+									Delete
+								</Button>
 							</div>
 						</li>
 					))}
