@@ -22,7 +22,6 @@ export default function Homepage() {
 		title: "",
 		authors: [],
 		genres: [],
-		quantity: "",
 		location: "",
 		synopsis: "",
 		publicationDate: "",
@@ -139,7 +138,6 @@ export default function Homepage() {
 			title: "",
 			authors: [],
 			genres: [],
-			quantity: "",
 			location: "",
 			synopsis: "",
 			publicationDate: "",
@@ -197,7 +195,9 @@ export default function Homepage() {
 		>
 			{hasPermissions && (
 				<div className="d-flex justify-content-start w-100 ms-3">
-					<button className="btn btn-primary my-2">Create New Book</button>
+					<button className="btn btn-primary my-2" onClick={openModal}>
+						Create New Book
+					</button>
 				</div>
 			)}
 

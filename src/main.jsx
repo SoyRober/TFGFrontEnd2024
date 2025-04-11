@@ -14,70 +14,73 @@ import Attributes from "./routes/Attributes.jsx";
 import Genres from "./routes/Genres.jsx";
 import Authors from "./routes/Authors.jsx";
 import PendingBooks from "./routes/PendingBooks.jsx";
-
-
+import BookCopies from "./routes/BookCopies.jsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Navbar />,
-    children: [
-      {
-        path: "/",
-        element: <Homepage />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
-      },
-      {
-        path: "/register",
-        element: <Register />,
-      },
-      {
-        path: "/user/userSettings",
-        element: <UserSettings />,
-      },
-      {
-        path: "/user/loans",
-        element: <Loans />,
-      },
-      {
-        path: "/viewBook/:title",
-        element: <ViewBook />,
-      },
-      {
-        path: "/usersList",
-        element: <UsersList />,
-      },
-      {
-        path: "/profile/:email",
-        element: <ViewProfile />,
-      },
-      {
-        path: "/userBookDetails",
-        element: <UserBooksDetails />,
-      },
-      {
-        path: "/attributes",
-        element: <Attributes />,
-      },
-      {
-        path: "/genres",
-        element: <Genres />,
-      },
-      {
-        path: "/authors",
-        element: <Authors />,
-      },
-      {
-        path: "/pendingBooks",
-        element: <PendingBooks />,
-      },
-    ],
-  },
+	{
+		path: "/",
+		element: <Navbar />,
+		children: [
+			{
+				path: "/",
+				element: <Homepage />,
+			},
+			{
+				path: "/login",
+				element: <Login />,
+			},
+			{
+				path: "/register",
+				element: <Register />,
+			},
+			{
+				path: "/user/userSettings",
+				element: <UserSettings />,
+			},
+			{
+				path: "/user/loans",
+				element: <Loans />,
+			},
+			{
+				path: "/viewBook/:title",
+				element: <ViewBook />,
+			},
+			{
+				path: "/usersList",
+				element: <UsersList />,
+			},
+			{
+				path: "/profile/:email",
+				element: <ViewProfile />,
+			},
+			{
+				path: "/userBookDetails",
+				element: <UserBooksDetails />,
+			},
+			{
+				path: "/attributes",
+				element: <Attributes />,
+			},
+			{
+				path: "/genres",
+				element: <Genres />,
+			},
+			{
+				path: "/authors",
+				element: <Authors />,
+			},
+			{
+				path: "/pendingBooks",
+				element: <PendingBooks />,
+			},
+			{
+				path: "/bookCopies/:title",
+				element: <BookCopies />,
+			},
+		],
+	},
 ]);
 
 createRoot(document.getElementById("root")).render(
-    <RouterProvider router={router}></RouterProvider>
+	<RouterProvider router={router}></RouterProvider>
 );

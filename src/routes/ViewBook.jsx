@@ -252,6 +252,10 @@ export default function ViewBook() {
 	};
 
 	const handleEditClick = (attribute) => {
+		if (attribute === "quantity") {
+			navigate(`/bookCopies/${title}`);
+			return;
+		}
 		setEditingAttribute(attribute);
 		setEditValue(book[attribute]);
 		if (attribute === "authors") {
@@ -800,7 +804,7 @@ export default function ViewBook() {
 							value: book.genres?.join(", ") || "N/A",
 							key: "genres",
 						},
-						{ label: "Quantity", value: quantity, key: "quantity" },
+						{ label: "Available Copies", value: quantity, key: "quantity" },
 						{ label: "Location", value: book.location, key: "location" },
 						{ label: "Synopsis", value: book.synopsis, key: "synopsis" },
 						{
