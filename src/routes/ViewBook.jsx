@@ -784,8 +784,9 @@ export default function ViewBook() {
 								<button
 									onClick={handleReservation}
 									className="btn btn-primary w-100"
+									disabled={quantity < 1}
 								>
-									Make a Reservation
+									{quantity < 1 ? "No available copies" : "Make a Reservation"}
 								</button>
 							)}
 						</div>
