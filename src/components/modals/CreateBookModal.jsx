@@ -48,7 +48,6 @@ export default function CreateBookModal({
 
 	const onSave = () => {
 		handleSave();
-		closeModal();
 	};
 
 	return (
