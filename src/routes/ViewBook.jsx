@@ -52,6 +52,7 @@ export default function ViewBook() {
 	const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
 	const [isReserved, setIsReserved] = useState(false);
 	const [quantity, setQuantity] = useState(0);
+	const [daysLoaned, setDaysLoaned] = useState(0);
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
@@ -69,12 +70,10 @@ export default function ViewBook() {
 	}, []);
 
 	const fetchBookData = useCallback(async () => {
-		console.log("Fetching book data");
 		try {
 			const data = await fetchData(
 				`/books/title?title=${encodeURIComponent(title)}`
 			);
-			console.log(data);
 			setBook(data.book);
 			setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
 			setSelectedAuthors(data.book.authors || []);
@@ -322,7 +321,6 @@ export default function ViewBook() {
 				const resizedImageBlob = await compressImage(newImage, 300, 300);
 				payload.append("image", resizedImageBlob);
 			} catch (error) {
-				console.log(error.message);
 				toast.error("Error resizing image: " + error.message);
 				return;
 			}
@@ -365,47 +363,6 @@ export default function ViewBook() {
 			navigate("/");
 		} catch (error) {
 			toast.error(error.message);
-		}
-	};
-
-	const handleLoanClick = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			toast.error("No token found, user might not be authenticated");
-			return;
-		}
-
-		if (quantity < 1) {
-			const response = await fetchData(
-				`/isAvailable?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
-			if (response == false) {
-				setIsAvailable(false);
-				setShowUnavailableModal(true);
-				return;
-			}
-			return;
-		}
-
-		setIsAvailable(true);
-
-		try {
-			if (!isLoaned && isAvailable) {
-				await fetchData("/loan", "POST", title, token, "text/plain");
-				setLoanStatus(true);
-			}
-			if (isLoaned) {
-				await fetchData("/return", "PUT", { title: title }, token);
-				setUsersLoans((prevLoans) =>
-					prevLoans.filter((item) => item !== username)
-				);
-				setLoanStatus(false);
-			}
-		} catch (error) {
-			toast.error(error.message || "Something went wrong");
 		}
 	};
 
@@ -649,16 +606,18 @@ export default function ViewBook() {
 
 		try {
 			const response = await fetchData(
-				`/loan/${selectedUser}?title=${encodeURIComponent(title)}`,
+				`/loan/${selectedUser}`,
 				"POST",
-				null,
+				{
+					bookTitle: book.title,
+					daysLoaned: daysLoaned,
+				},
 				token
 			);
 
-			if (response.ok) {
+			if (response.message) {
 				toast.success("Book loaned to user successfully");
-			} else if (response.message.includes("existences")) {
-				setShowUnavailableModal(true);
+				await fetchQuantity();
 			} else {
 				toast.error(response.message || "Something went wrong");
 			}
@@ -740,24 +699,11 @@ export default function ViewBook() {
 										Edit image
 									</button>
 								</div>
-								<div className="col d-flex justify-content-center align-items-center">
-									<button
-										onClick={handleLoanClick}
-										className={`btn ${
-											isLoaned && usersLoans.includes(username)
-												? "btn-danger"
-												: "btn-primary"
-										} p-3`}
-									>
-										{isLoaned && usersLoans.includes(username)
-											? "Return"
-											: "Loan"}
-									</button>
-								</div>
 								<div className="col">
 									<button
 										onClick={() => setShowLoanToUserModal(true)}
 										className="btn btn-secondary w-100"
+										disabled={quantity < 1} // Disable button if no available copies
 									>
 										Loan to User
 									</button>
@@ -1120,6 +1066,8 @@ export default function ViewBook() {
 				onConfirm={handleLoanToUser}
 				selectedUser={selectedUser}
 				setSelectedUser={setSelectedUser}
+				daysLoaned={daysLoaned}
+				setDaysLoaned={setDaysLoaned}
 			/>
 
 			<ReserveForUserModal
