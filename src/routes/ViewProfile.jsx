@@ -5,12 +5,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import ChangeRoleModal from "../components/modals/changeRoleModal";
+import InfiniteScroll from "react-infinite-scroll-component";
+import Loading from "../components/Loading.jsx";
 
 const ViewProfile = () => {
-  const [userData, setUserData] = useState({});
+  const [userProfile, setUserProfile] = useState(null);
+  const [userReservations, setUserReservations] = useState([]);
+  const [reservationPage, setReservationPage] = useState(0);
+  const [dateFilterReservation, setDateFilterReservation] = useState("");
+  const [titleFilterReservation, setTitleFilterReservation] = useState("");
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("USER");
+  const [isFetching, setIsFetching] = useState(false);
+  const [hasMoreReservations, setHasMoreReservations] = useState(true);
   const navigate = useNavigate();
   const { email } = useParams();
 
@@ -34,12 +42,12 @@ const ViewProfile = () => {
       }
       try {
         const data = await fetchData(
-          `/users/info/${email}`,
+          `/users/info/profile/${email}`,
           "GET",
           null,
           token
         );
-        setUserData(data.message);
+        setUserProfile(data.message);
       } catch (error) {
         toast.error("Error loading user profile: " + error.message);
       }
@@ -47,6 +55,50 @@ const ViewProfile = () => {
 
     fetchUserProfile();
   }, [email, navigate]);
+
+  useEffect(() => {
+    setUserReservations([]);
+    setReservationPage(0);
+    setHasMoreReservations(true);
+
+    fetchUserReservations(0, dateFilterReservation, titleFilterReservation); // <-- esta línea es clave
+  }, [email, dateFilterReservation, titleFilterReservation]);
+
+  const fetchUserReservations = async (page, date, title) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return navigate("/");
+    }
+
+    try {
+      setIsFetching(true);
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", page);
+      if (date) queryParams.append("date", date);
+      if (title) queryParams.append("title", title);
+
+      const data = await fetchData(
+        `/users/info/reservation/${email}?${queryParams.toString()}`,
+        "GET",
+        null,
+        token
+      );
+
+      const newReservations = data.message;
+
+      if (newReservations.length === 0) {
+        setHasMoreReservations(false);
+      } else {
+        setUserReservations((prev) => [...prev, ...newReservations]);
+        setReservationPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      toast.error("Error loading reservations: " + error.message);
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
   const handleReturnBook = async (bookTitle, email) => {
     const token = localStorage.getItem("token");
@@ -61,8 +113,10 @@ const ViewProfile = () => {
         token
       );
       if (response.success) {
-        toast.success(`The book "${bookTitle}" has been returned successfully.`);
-        setUserData((prevData) => ({
+        toast.success(
+          `The book "${bookTitle}" has been returned successfully.`
+        );
+        setUserReservations((prevData) => ({
           ...prevData,
           loanList: prevData.loanList.map((loan) =>
             loan.book === bookTitle ? { ...loan, isReturned: true } : loan
@@ -79,9 +133,8 @@ const ViewProfile = () => {
   const handleRoleChange = async () => {
     const token = localStorage.getItem("token");
     try {
-      console.log("🚀 ~ handleRoleChange ~ selectedRole:", selectedRole)
       const response = await fetchData(
-        `/users/update/${userData.email}`,
+        `/users/update/${userProfile.email}`,
         "PUT",
         { attribute: "role", newAttribute: selectedRole, image: null },
         token
@@ -90,7 +143,7 @@ const ViewProfile = () => {
       if (response.success) {
         toast.success(`Role changed to "${selectedRole}" successfully.`);
         setShowModal(false);
-        setUserData((prevData) => ({
+        setUserReservations((prevData) => ({
           ...prevData,
           role: selectedRole,
         }));
@@ -107,18 +160,18 @@ const ViewProfile = () => {
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
           <p>
-            <strong>Username:</strong> {userData?.username || "N/A"}
+            <strong>Username:</strong> {userProfile?.username || "N/A"}
           </p>
           <p>
-            <strong>Email:</strong> {userData?.email || "N/A"}
+            <strong>Email:</strong> {userProfile?.email || "N/A"}
           </p>
           <p>
-            <strong>Birth Date:</strong> {userData?.birthday || "N/A"}
+            <strong>Birth Date:</strong> {userProfile?.birthday || "N/A"}
           </p>
           <p>
             <strong>Role:</strong>{" "}
-            {typeof userData?.role === "string"
-              ? userData.role.toLowerCase()
+            {typeof userProfile?.role === "string"
+              ? userProfile.role.toLowerCase()
               : "N/A"}
           </p>
           {userRole === "ADMIN" && (
@@ -140,34 +193,73 @@ const ViewProfile = () => {
         setSelectedRole={setSelectedRole}
       />
 
+      {/* TODO: QUITAR SCROLL HORIZONTAL */}
       <section className="card p-4 mb-4 shadow">
-        <div className="card-body">
-          <h3 className="mb-3">Reservations</h3>
-          {userData?.reservationList?.length > 0 ? (
+        <h3 className="mb-3">Reservations</h3>
+
+        {/* Filtros de búsqueda */}
+        <div className="mb-3">
+          <input
+            type="date"
+            className="form-control mb-2"
+            value={dateFilterReservation}
+            onChange={(e) => setDateFilterReservation(e.target.value)}
+            placeholder="Filter by date"
+          />
+          <input
+            type="text"
+            className="form-control"
+            value={titleFilterReservation}
+            onChange={(e) => setTitleFilterReservation(e.target.value)}
+            placeholder="Filter by title"
+          />
+        </div>
+
+        <div
+          id="scrollableReservations"
+          className="card-body"
+          style={{ maxHeight: "500px", overflowY: "auto" }}
+        >
+          <InfiniteScroll
+            dataLength={userReservations.length}
+            next={() =>
+              fetchUserReservations(
+                reservationPage,
+                dateFilterReservation,
+                titleFilterReservation
+              )
+            }
+            loader={isFetching && <Loading />}
+            hasMore={hasMoreReservations}
+            scrollableTarget="scrollableReservations"
+            endMessage={
+              <p className="text-center mt-3 text-muted">
+                There aren't more reservations
+              </p>
+            }
+          >
             <div className="row">
-              {userData.reservationList.map((reservation, index) => (
+              {userReservations.map((reservation, index) => (
                 <article key={index} className="col-md-6 mb-3">
-                  <div className="card shadow-sm">
+                  <div className="card shadow-sm w-100">
                     <div className="card-body">
                       <i className="bi bi-calendar-check me-2"></i>
-                      Reservation {index + 1}
+                      {reservation.bookTitle} {reservation.id}
                     </div>
                   </div>
                 </article>
               ))}
             </div>
-          ) : (
-            <p>No reservations found.</p>
-          )}
+          </InfiniteScroll>
         </div>
       </section>
 
       <section className="card p-4 shadow">
         <div className="card-body">
           <h3 className="mb-3">Loans</h3>
-          {userData?.loanList?.length > 0 ? (
+          {userProfile?.loanList?.length > 0 ? (
             <div className="row">
-              {userData.loanList.map((loan, index) => (
+              {userProfile.loanList.map((loan, index) => (
                 <article key={index} className="col-md-6 mb-3">
                   <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
                     <div>
@@ -178,7 +270,7 @@ const ViewProfile = () => {
                       <button
                         className="btn btn-primary btn-sm ms-2 my-2"
                         onClick={() =>
-                          handleReturnBook(loan.book, userData.email)
+                          handleReturnBook(loan.book, userProfile.email)
                         }
                       >
                         Return

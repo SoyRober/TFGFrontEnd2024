@@ -34,7 +34,7 @@ export default function Settings() {
   const getUserInfo = async (token) => {
     const decodedToken = jwtDecode(token);
     const data = await fetchData(
-      `/users/info/${decodedToken.email}`,
+      `/users/info/profile/${decodedToken.email}`,
       "GET",
       null,
       token
