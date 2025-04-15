@@ -10,10 +10,15 @@ import Loading from "../components/Loading.jsx";
 
 const ViewProfile = () => {
   const [userProfile, setUserProfile] = useState(null);
+
   const [userReservations, setUserReservations] = useState([]);
   const [reservationPage, setReservationPage] = useState(0);
   const [dateFilterReservation, setDateFilterReservation] = useState("");
   const [titleFilterReservation, setTitleFilterReservation] = useState("");
+
+  const [userLoans, setUserLoans] = useState([]);
+  const [loanPage, setLoanPage] = useState(0);
+
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("USER");
@@ -95,6 +100,43 @@ const ViewProfile = () => {
       }
     } catch (error) {
       toast.error("Error loading reservations: " + error.message);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserLoans(loanPage, "", "");
+  }, [email]);
+
+  const fetchUserLoans = async (page, date, title) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return navigate("/");
+    }
+
+    try {
+      setIsFetching(true);
+      
+      const data = await fetchData(
+        `/users/info/loan/${email}?page=${loanPage}`,
+        "GET",
+        null,
+        token
+      );
+      console.log("🚀 ~ fetchUserLoans ~ data:", data)
+
+      const newLoans = data.message;
+
+      if (newLoans.length === 0) {
+        setHasMoreReservations(false);
+      } else {
+        setUserLoans((prev) => [...prev, ...newLoans]);
+        setLoanPage((prev) => prev + 1);
+      }
+    } catch (error) {
+      toast.error(error.message);
     } finally {
       setIsFetching(false);
     }
@@ -257,9 +299,8 @@ const ViewProfile = () => {
       <section className="card p-4 shadow">
         <div className="card-body">
           <h3 className="mb-3">Loans</h3>
-          {userProfile?.loanList?.length > 0 ? (
             <div className="row">
-              {userProfile.loanList.map((loan, index) => (
+              {userLoans.map((loan, index) => (
                 <article key={index} className="col-md-6 mb-3">
                   <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
                     <div>
@@ -280,9 +321,6 @@ const ViewProfile = () => {
                 </article>
               ))}
             </div>
-          ) : (
-            <p>No loans found.</p>
-          )}
         </div>
       </section>
     </main>
