@@ -19,6 +19,8 @@ const ViewProfile = () => {
   const [userLoans, setUserLoans] = useState([]);
   const [loanPage, setLoanPage] = useState(0);
   const [hasMoreLoans, setHasMoreLoans] = useState(true);
+  const [dateFilterLoan, setDateFilterLoan] = useState("");
+  const [titleFilterLoan, setTitleFilterLoan] = useState("");
 
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -111,8 +113,8 @@ const ViewProfile = () => {
     setLoanPage(0);
     setHasMoreLoans(true);
 
-    fetchUserLoans(loanPage, "", "");
-  }, [email]);
+    fetchUserLoans(0, dateFilterLoan, titleFilterLoan);
+  }, [email, dateFilterLoan, titleFilterLoan]);
 
   const fetchUserLoans = async (page, date, title) => {
     const token = localStorage.getItem("token");
@@ -124,8 +126,13 @@ const ViewProfile = () => {
     try {
       setIsFetching(true);
 
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", page);
+      if (date) queryParams.append("date", date);
+      if (title) queryParams.append("title", title);
+
       const data = await fetchData(
-        `/users/info/loan/${email}?page=${loanPage}`,
+        `/users/info/loan/${email}?page=${page}&${queryParams.toString()}`,
         "GET",
         null,
         token
@@ -302,50 +309,64 @@ const ViewProfile = () => {
       </section>
 
       <section className="card p-4 shadow">
-        <div className="card-body">
-          <h3 className="mb-3">Loans</h3>
-          <div className="mb-3">
-            <InfiniteScroll
-              dataLength={userReservations.length}
-              next={() =>
-                fetchUserLoans(
-                  reservationPage,
-                  dateFilterReservation,
-                  titleFilterReservation
-                )
-              }
-              loader={isFetching && <Loading />}
-              hasMore={hasMoreLoans}
-              endMessage={
-                <p className="text-center mt-3 text-muted">
-                  There aren't more loans
-                </p>
-              }
-            >
-              <div className="row" style={{height: "500px", overflowY: "auto"}}>
-                {userLoans.map((loan, index) => (
-                  <article key={index} className="col-md-6 mb-3">
-                    <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
-                      <div>
-                        <i className="bi bi-book me-2"></i>
-                        {loan.book}
-                        {!loan.isReturned && (
-                          <button
-                            className="btn btn-primary btn-sm ms-2 my-2"
-                            onClick={() =>
-                              handleReturnBook(loan.book, userProfile.email)
-                            }
-                          >
-                            Return
-                          </button>
-                        )}
-                      </div>
+        <h3 className="mb-3">Loans</h3>
+
+        {/* Filtros de búsqueda */}
+        <div className="mb-3">
+          <input
+            type="date"
+            className="form-control mb-2"
+            value={dateFilterLoan}
+            onChange={(e) => setDateFilterLoan(e.target.value)}
+            placeholder="Filter by date"
+          />
+          <input
+            type="text"
+            className="form-control"
+            value={titleFilterLoan}
+            onChange={(e) => setTitleFilterLoan(e.target.value)}
+            placeholder="Filter by title"
+          />
+        </div>
+
+        <div
+          id="scrollableLoans"
+          className="card-body"
+          style={{ height: "500px", overflowY: "auto" }}
+        >
+          <InfiniteScroll
+            dataLength={userLoans.length}
+            next={() =>
+              fetchUserLoans(loanPage, dateFilterLoan, titleFilterLoan)
+            }
+            loader={isFetching && <Loading />}
+            hasMore={hasMoreLoans}
+            scrollableTarget="scrollableLoans"
+            endMessage={
+              <p className="text-center mt-3 text-muted">
+                There aren't more loans
+              </p>
+            }
+          >
+            <div className="row">
+              {userLoans.map((loan, index) => (
+                <article key={index} className="col-md-6 mb-3">
+                  <div className="card shadow-sm w-100">
+                    <div className="card-body">
+                      <i className="bi bi-book me-2"></i>
+                      {loan.book} {loan.id}
+                      <button
+                        className="btn btn-primary btn-sm float-end"
+                        onClick={() => handleReturnBook(loan.book, email)}
+                      >
+                        Return
+                      </button>
                     </div>
-                  </article>
-                ))}
-              </div>
-            </InfiniteScroll>
-          </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </InfiniteScroll>
         </div>
       </section>
     </main>
