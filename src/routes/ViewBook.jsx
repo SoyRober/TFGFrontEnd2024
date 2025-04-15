@@ -12,7 +12,6 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import defaultBook from "../img/defaultBook.svg";
 import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
-import ReserveForUserModal from "../components/modals/ReserveForUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
 
@@ -44,12 +43,10 @@ export default function ViewBook() {
 		comment: "",
 	});
 	const [usersLoans, setUsersLoans] = useState([]);
-	const [isAvailable, setIsAvailable] = useState(true);
 	const [showUnavailableModal, setShowUnavailableModal] = useState(false);
 	const [username, setUsername] = useState("");
 	const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
 	const [selectedUser, setSelectedUser] = useState("");
-	const [showReserveForUserModal, setShowReserveForUserModal] = useState(false);
 	const [isReserved, setIsReserved] = useState(false);
 	const [quantity, setQuantity] = useState(0);
 	const [daysLoaned, setDaysLoaned] = useState(0);
@@ -600,7 +597,6 @@ export default function ViewBook() {
 
 		if (quantity < 1) {
 			setShowLoanToUserModal(false);
-			setShowReserveForUserModal(true);
 			return;
 		}
 
@@ -622,32 +618,6 @@ export default function ViewBook() {
 				toast.error(response.message || "Something went wrong");
 			}
 			setShowLoanToUserModal(false);
-		} catch (error) {
-			toast.error(error.message || "Something went wrong");
-		}
-	};
-
-	const handleReserveForUser = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) {
-			toast.error("No token found, user might not be authenticated");
-			return;
-		}
-
-		try {
-			const response = await fetchData(
-				`/reserve/${selectedUser}?title=${encodeURIComponent(title)}`,
-				"POST",
-				null,
-				token
-			);
-
-			if (response.ok) {
-				toast.success("Book reserved for user successfully");
-			} else {
-				toast.error(response.message);
-			}
-			setShowReserveForUserModal(false);
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -1068,13 +1038,6 @@ export default function ViewBook() {
 				setSelectedUser={setSelectedUser}
 				daysLoaned={daysLoaned}
 				setDaysLoaned={setDaysLoaned}
-			/>
-
-			<ReserveForUserModal
-				show={showReserveForUserModal}
-				onClose={() => setShowReserveForUserModal(false)}
-				onConfirm={handleReserveForUser}
-				selectedUser={selectedUser}
 			/>
 		</main>
 	);
