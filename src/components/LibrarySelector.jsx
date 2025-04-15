@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch";
+import { jwtDecode } from "jwt-decode";
 
 const LibrarySelector = () => {
   const [libraries, setLibraries] = useState([]);
   const [token, setToken] = useState("");
+  const [selectedLibrary, setSelectedLibrary] = useState("");
 
   useEffect(() => {
     const tokenStored = localStorage.getItem("token");
     setToken(tokenStored);
+
+    if (tokenStored) {
+      const decodedToken = jwtDecode(tokenStored);
+      setSelectedLibrary(decodedToken.libraryId);
+    }
   }, []);
 
   useEffect(() => {
@@ -29,8 +36,12 @@ const LibrarySelector = () => {
     );
 
     if (response?.success) {
-      localStorage.setItem("token", response.message);
-      setToken(response.message);
+      const newToken = response.message;
+      const libraryId = jwtDecode(newToken).libraryId;
+      localStorage.setItem("token", newToken);
+      localStorage.setItem("libraryId", libraryId);
+      setToken(newToken);
+      setSelectedLibrary(libraryId);
     }
   };
 
@@ -38,7 +49,7 @@ const LibrarySelector = () => {
     <div>
       <select
         className="form-select bg-dark text-light"
-        defaultValue=""
+        value={selectedLibrary}
         onChange={handleLibraryChange}
       >
         <option key="default" value="" disabled>
