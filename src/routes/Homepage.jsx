@@ -187,7 +187,6 @@ export default function Homepage() {
 		navigate(`/viewBook/${encodeURIComponent(title)}`);
 	};
 
-	// Renderizado
 	return (
 		<main
 			className="fade-in d-flex flex-column justify-content-center align-items-center"

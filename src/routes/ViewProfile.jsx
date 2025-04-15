@@ -218,7 +218,7 @@ const ViewProfile = () => {
         <div
           id="scrollableReservations"
           className="card-body"
-          style={{ maxHeight: "500px", overflowY: "auto" }}
+          style={{ height: "500px", overflowY: "auto" }}
         >
           <InfiniteScroll
             dataLength={userReservations.length}
