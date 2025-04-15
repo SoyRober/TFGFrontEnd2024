@@ -253,21 +253,37 @@ const ViewProfile = () => {
         <h3 className="mb-3">Reservations</h3>
 
         {/* Filtros de búsqueda */}
-        <div className="mb-3">
-          <input
-            type="date"
-            className="form-control mb-2"
-            value={dateFilterReservation}
-            onChange={(e) => setDateFilterReservation(e.target.value)}
-            placeholder="Filter by date"
-          />
-          <input
-            type="text"
-            className="form-control"
-            value={titleFilterReservation}
-            onChange={(e) => setTitleFilterReservation(e.target.value)}
-            placeholder="Filter by title"
-          />
+        <div className="mb-3 d-flex justify-content-center flex-wrap align-items-end gap-4">
+          <div className="d-flex align-items-end gap-2">
+            <input
+              type="date"
+              className="form-control"
+              value={dateFilterReservation}
+              onChange={(e) => setDateFilterReservation(e.target.value)}
+            />
+            <button
+              className="btn btn-warning"
+              onClick={() => setDateFilterReservation("")}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+          <div className="d-flex align-items-end gap-2">
+            <input
+              type="text"
+              className="form-control"
+              value={titleFilterReservation}
+              onChange={(e) => setTitleFilterReservation(e.target.value)}
+              placeholder="Filter by title"
+            />
+            <button
+              className="btn btn-warning"
+              onClick={() => setTitleFilterReservation("")}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
         </div>
 
         <div
@@ -313,30 +329,57 @@ const ViewProfile = () => {
         <h3 className="mb-3">Loans</h3>
 
         {/* Filtros de búsqueda */}
-        <div className="mb-3">
-          <input
-            type="date"
-            className="form-control mb-2"
-            value={dateFilterLoan}
-            onChange={(e) => setDateFilterLoan(e.target.value)}
-            placeholder="Filter by date"
-          />
-          <input
-            type="text"
-            className="form-control"
-            value={titleFilterLoan}
-            onChange={(e) => setTitleFilterLoan(e.target.value)}
-            placeholder="Filter by title"
-          />
-          <select
-            name="isReturned"
-            id="isReturned"
-            onChange={(e) => setIsReturnedLoan(e.target.value)}
-          >
-            <option value="">All</option>
-            <option value="true">Returned</option>
-            <option value="false">Not returned</option>
-          </select>
+        <div className="mb-3 d-flex justify-content-center flex-wrap align-items-end gap-4">
+          <div className="d-flex align-items-end gap-2">
+            <input
+              type="date"
+              className="form-control"
+              value={dateFilterLoan}
+              onChange={(e) => setDateFilterLoan(e.target.value)}
+            />
+            <button
+              className="btn btn-warning"
+              onClick={() => setDateFilterLoan("")}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+          <div className="d-flex align-items-end gap-2">
+            <input
+              type="text"
+              className="form-control"
+              value={titleFilterLoan}
+              onChange={(e) => setTitleFilterLoan(e.target.value)}
+              placeholder="Filter by title"
+            />
+            <button
+              className="btn btn-warning"
+              onClick={() => setTitleFilterLoan("")}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
+
+          <div className="d-flex align-items-end gap-2">
+            <select
+              name="isReturned"
+              id="isReturned"
+              className="form-select"
+              value={isReturnedLoan}
+              onChange={(e) => setIsReturnedLoan(e.target.value)}
+            >
+              <option value="">All</option>
+              <option value="true">Returned</option>
+              <option value="false">Not returned</option>
+            </select>
+            <button
+              className="btn btn-warning"
+              onClick={() => setIsReturnedLoan("")}
+            >
+              <i className="fa-solid fa-rotate-right"></i>
+            </button>
+          </div>
         </div>
 
         <div
@@ -347,7 +390,12 @@ const ViewProfile = () => {
           <InfiniteScroll
             dataLength={userLoans.length}
             next={() =>
-              fetchUserLoans(loanPage, dateFilterLoan, titleFilterLoan, isReturnedLoan)
+              fetchUserLoans(
+                loanPage,
+                dateFilterLoan,
+                titleFilterLoan,
+                isReturnedLoan
+              )
             }
             loader={isFetching && <Loading />}
             hasMore={hasMoreLoans}
