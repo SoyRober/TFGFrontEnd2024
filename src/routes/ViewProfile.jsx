@@ -21,6 +21,7 @@ const ViewProfile = () => {
   const [hasMoreLoans, setHasMoreLoans] = useState(true);
   const [dateFilterLoan, setDateFilterLoan] = useState("");
   const [titleFilterLoan, setTitleFilterLoan] = useState("");
+  const [isReturnedLoan, setIsReturnedLoan] = useState(false);
 
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -113,10 +114,10 @@ const ViewProfile = () => {
     setLoanPage(0);
     setHasMoreLoans(true);
 
-    fetchUserLoans(0, dateFilterLoan, titleFilterLoan);
-  }, [email, dateFilterLoan, titleFilterLoan]);
+    fetchUserLoans(0, dateFilterLoan, titleFilterLoan, isReturnedLoan);
+  }, [email, dateFilterLoan, titleFilterLoan, isReturnedLoan]);
 
-  const fetchUserLoans = async (page, date, title) => {
+  const fetchUserLoans = async (page, date, title, isReturned) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found, user might not be authenticated");
@@ -130,6 +131,7 @@ const ViewProfile = () => {
       queryParams.append("page", page);
       if (date) queryParams.append("date", date);
       if (title) queryParams.append("title", title);
+      if (isReturned) queryParams.append("isReturned", isReturned);
 
       const data = await fetchData(
         `/users/info/loan/${email}?page=${page}&${queryParams.toString()}`,
@@ -137,7 +139,6 @@ const ViewProfile = () => {
         null,
         token
       );
-      console.log("🚀 ~ fetchUserLoans ~ data:", data);
 
       const newLoans = data.message;
 
@@ -327,6 +328,15 @@ const ViewProfile = () => {
             onChange={(e) => setTitleFilterLoan(e.target.value)}
             placeholder="Filter by title"
           />
+          <select
+            name="isReturned"
+            id="isReturned"
+            onChange={(e) => setIsReturnedLoan(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="true">Returned</option>
+            <option value="false">Not returned</option>
+          </select>
         </div>
 
         <div
@@ -337,7 +347,7 @@ const ViewProfile = () => {
           <InfiniteScroll
             dataLength={userLoans.length}
             next={() =>
-              fetchUserLoans(loanPage, dateFilterLoan, titleFilterLoan)
+              fetchUserLoans(loanPage, dateFilterLoan, titleFilterLoan, isReturnedLoan)
             }
             loader={isFetching && <Loading />}
             hasMore={hasMoreLoans}
