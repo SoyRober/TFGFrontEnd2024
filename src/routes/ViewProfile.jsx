@@ -18,6 +18,7 @@ const ViewProfile = () => {
 
   const [userLoans, setUserLoans] = useState([]);
   const [loanPage, setLoanPage] = useState(0);
+  const [hasMoreLoans, setHasMoreLoans] = useState(true);
 
   const [userRole, setUserRole] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -106,6 +107,10 @@ const ViewProfile = () => {
   };
 
   useEffect(() => {
+    setUserLoans([]);
+    setLoanPage(0);
+    setHasMoreLoans(true);
+
     fetchUserLoans(loanPage, "", "");
   }, [email]);
 
@@ -118,19 +123,19 @@ const ViewProfile = () => {
 
     try {
       setIsFetching(true);
-      
+
       const data = await fetchData(
         `/users/info/loan/${email}?page=${loanPage}`,
         "GET",
         null,
         token
       );
-      console.log("🚀 ~ fetchUserLoans ~ data:", data)
+      console.log("🚀 ~ fetchUserLoans ~ data:", data);
 
       const newLoans = data.message;
 
       if (newLoans.length === 0) {
-        setHasMoreReservations(false);
+        setHasMoreLoans(false);
       } else {
         setUserLoans((prev) => [...prev, ...newLoans]);
         setLoanPage((prev) => prev + 1);
@@ -299,28 +304,48 @@ const ViewProfile = () => {
       <section className="card p-4 shadow">
         <div className="card-body">
           <h3 className="mb-3">Loans</h3>
-            <div className="row">
-              {userLoans.map((loan, index) => (
-                <article key={index} className="col-md-6 mb-3">
-                  <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
-                    <div>
-                      <i className="bi bi-book me-2"></i>
-                      {loan.book}
+          <div className="mb-3">
+            <InfiniteScroll
+              dataLength={userReservations.length}
+              next={() =>
+                fetchUserLoans(
+                  reservationPage,
+                  dateFilterReservation,
+                  titleFilterReservation
+                )
+              }
+              loader={isFetching && <Loading />}
+              hasMore={hasMoreLoans}
+              endMessage={
+                <p className="text-center mt-3 text-muted">
+                  There aren't more loans
+                </p>
+              }
+            >
+              <div className="row" style={{height: "500px", overflowY: "auto"}}>
+                {userLoans.map((loan, index) => (
+                  <article key={index} className="col-md-6 mb-3">
+                    <div className="card shadow-sm d-flex justify-content-between align-items-center p-2">
+                      <div>
+                        <i className="bi bi-book me-2"></i>
+                        {loan.book}
+                        {!loan.isReturned && (
+                          <button
+                            className="btn btn-primary btn-sm ms-2 my-2"
+                            onClick={() =>
+                              handleReturnBook(loan.book, userProfile.email)
+                            }
+                          >
+                            Return
+                          </button>
+                        )}
+                      </div>
                     </div>
-                    {!loan.isReturned && (
-                      <button
-                        className="btn btn-primary btn-sm ms-2 my-2"
-                        onClick={() =>
-                          handleReturnBook(loan.book, userProfile.email)
-                        }
-                      >
-                        Return
-                      </button>
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+            </InfiniteScroll>
+          </div>
         </div>
       </section>
     </main>
