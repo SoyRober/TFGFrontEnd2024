@@ -92,7 +92,7 @@ export default function Attributes() {
 
 		try {
 			const loanRequest = {
-				Username: currentReserve.userName,
+				Username: currentReserve.username,
 				BookTitle: currentReserve.bookTitle,
 				daysLoaned,
 			};
@@ -102,6 +102,7 @@ export default function Attributes() {
 				loanRequest,
 				token
 			);
+
 			if (response.success) {
 				toast.success("Loan successful");
 				fetchReserves();

@@ -14,30 +14,32 @@ import defaultBook from "../img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Homepage() {
-  const [hasPermissions, setHasPermissions] = useState(false);
-  const [books, setBooks] = useState([]);
-  const [authors, setAuthors] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [bookData, setBookData] = useState({
-    title: "",
-    authors: [],
-    genres: [],
-    location: "",
-    synopsis: "",
-    publicationDate: "",
-    isAdult: false,
-    libraryId: 1,
-    image: "",
-  });
-  const [showModal, setShowModal] = useState(false);
-  const [searchTermTitle, setSearchTermTitle] = useState("");
-  const [searchTermAuthor, setSearchTermAuthor] = useState("");
-  const [startDateFilter, setStartDateFilter] = useState("");
-  const [cardSize, setCardSize] = useState(
-    () => localStorage.getItem("cardSize") || "medium"
-  );
-  const [isFetching, setIsFetching] = useState(false);
-  const [page, setPage] = useState(0);
+	const [hasPermissions, setHasPermissions] = useState(false);
+	const [books, setBooks] = useState([]);
+	const [authors, setAuthors] = useState([]);
+	const [genres, setGenres] = useState([]);
+	const [bookData, setBookData] = useState({
+		title: "",
+		authors: [],
+		genres: [],
+		location: "",
+		synopsis: "",
+		publicationDate: "",
+		isAdult: false,
+		libraryId: 1,
+		image: "",
+	});
+	const [showModal, setShowModal] = useState(false);
+	const [searchTermTitle, setSearchTermTitle] = useState("");
+	const [searchTermAuthor, setSearchTermAuthor] = useState("");
+	const [startDateFilter, setStartDateFilter] = useState("");
+	const [cardSize, setCardSize] = useState(
+		() => localStorage.getItem("cardSize") || "medium"
+	);
+	const [isFetching, setIsFetching] = useState(false);
+	const [page, setPage] = useState(0);
+	const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
+	const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
 
   const navigate = useNavigate();
 
@@ -61,11 +63,27 @@ export default function Homepage() {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
-  useEffect(() => {
-    setBooks([]);
-    setPage(0);
-    fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
-  }, [startDateFilter, searchTermTitle, searchTermAuthor]);
+	useEffect(() => {
+		setBooks([]);
+		setPage(0);
+		fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
+	}, [startDateFilter, debouncedTitle, debouncedAuthor]);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedTitle(searchTermTitle);
+		}, 500);
+
+		return () => clearTimeout(handler);
+	}, [searchTermTitle]);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedAuthor(searchTermAuthor);
+		}, 500);
+
+		return () => clearTimeout(handler);
+	}, [searchTermAuthor]);
 
   // Funciones
   const fetchBooksData = useCallback(
@@ -76,11 +94,9 @@ export default function Homepage() {
       try {
         const params = new URLSearchParams({ page, size: "10" });
 
-        if (searchTermTitle.length > 2)
-          params.append("bookName", searchTermTitle);
-        if (searchTermAuthor.length > 2)
-          params.append("authorName", searchTermAuthor);
-        if (year !== null) params.append("date", year);
+				if (debouncedTitle) params.append("bookName", debouncedTitle);
+				if (debouncedAuthor) params.append("authorName", debouncedAuthor);
+				if (year !== null) params.append("date", year);
 
         const url = `/books/filter?${params.toString()}`;
         const data = await fetchData(url, "GET", null, token);
@@ -90,24 +106,24 @@ export default function Homepage() {
           return;
         }
 
-        setBooks((prevBooks) =>
-          page === 0
-            ? data
-            : [
-                ...prevBooks,
-                ...data.filter(
-                  (book) => !prevBooks.some((b) => b.title === book.title)
-                ),
-              ]
-        );
-      } catch (error) {
-        toast.info(error.message || "An unknown error occurred.");
-      } finally {
-        setIsFetching(false);
-      }
-    },
-    [isFetching, searchTermTitle, searchTermAuthor]
-  );
+				setBooks((prevBooks) =>
+					page === 0
+						? data
+						: [
+								...prevBooks,
+								...data.filter(
+									(book) => !prevBooks.some((b) => b.title === book.title)
+								),
+						  ]
+				);
+			} catch (error) {
+				toast.info(error.message || "An unknown error occurred.");
+			} finally {
+				setIsFetching(false);
+			}
+		},
+		[isFetching, debouncedTitle, debouncedAuthor]
+	);
 
   const fetchAuthors = async (searchString) => {
     try {
