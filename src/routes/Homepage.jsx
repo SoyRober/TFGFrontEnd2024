@@ -38,6 +38,8 @@ export default function Homepage() {
 	);
 	const [isFetching, setIsFetching] = useState(false);
 	const [page, setPage] = useState(0);
+	const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
+	const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
 
 	const navigate = useNavigate();
 
@@ -62,7 +64,23 @@ export default function Homepage() {
 		setBooks([]);
 		setPage(0);
 		fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
-	}, [startDateFilter, searchTermTitle, searchTermAuthor]);
+	}, [startDateFilter, debouncedTitle, debouncedAuthor]);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedTitle(searchTermTitle);
+		}, 500);
+
+		return () => clearTimeout(handler);
+	}, [searchTermTitle]);
+
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedAuthor(searchTermAuthor);
+		}, 500);
+
+		return () => clearTimeout(handler);
+	}, [searchTermAuthor]);
 
 	// Funciones
 	const fetchBooksData = useCallback(
@@ -73,10 +91,8 @@ export default function Homepage() {
 			try {
 				const params = new URLSearchParams({ page, size: "10" });
 
-				if (searchTermTitle.length > 2)
-					params.append("bookName", searchTermTitle);
-				if (searchTermAuthor.length > 2)
-					params.append("authorName", searchTermAuthor);
+				if (debouncedTitle) params.append("bookName", debouncedTitle);
+				if (debouncedAuthor) params.append("authorName", debouncedAuthor);
 				if (year !== null) params.append("date", year);
 
 				const url = `/books/filter?${params.toString()}`;
@@ -103,7 +119,7 @@ export default function Homepage() {
 				setIsFetching(false);
 			}
 		},
-		[isFetching, searchTermTitle, searchTermAuthor]
+		[isFetching, debouncedTitle, debouncedAuthor]
 	);
 
 	const fetchAuthors = async (searchString) => {
