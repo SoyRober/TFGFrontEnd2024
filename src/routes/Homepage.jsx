@@ -14,32 +14,32 @@ import defaultBook from "../img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 export default function Homepage() {
-	const [hasPermissions, setHasPermissions] = useState(false);
-	const [books, setBooks] = useState([]);
-	const [authors, setAuthors] = useState([]);
-	const [genres, setGenres] = useState([]);
-	const [bookData, setBookData] = useState({
-		title: "",
-		authors: [],
-		genres: [],
-		location: "",
-		synopsis: "",
-		publicationDate: "",
-		isAdult: false,
-		libraryId: 1,
-		image: "",
-	});
-	const [showModal, setShowModal] = useState(false);
-	const [searchTermTitle, setSearchTermTitle] = useState("");
-	const [searchTermAuthor, setSearchTermAuthor] = useState("");
-	const [startDateFilter, setStartDateFilter] = useState("");
-	const [cardSize, setCardSize] = useState(
-		() => localStorage.getItem("cardSize") || "medium"
-	);
-	const [isFetching, setIsFetching] = useState(false);
-	const [page, setPage] = useState(0);
-	const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
-	const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
+  const [hasPermissions, setHasPermissions] = useState(false);
+  const [books, setBooks] = useState([]);
+  const [authors, setAuthors] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [bookData, setBookData] = useState({
+    title: "",
+    authors: [],
+    genres: [],
+    location: "",
+    synopsis: "",
+    publicationDate: "",
+    isAdult: false,
+    libraryId: 1,
+    image: "",
+  });
+  const [showModal, setShowModal] = useState(false);
+  const [searchTermTitle, setSearchTermTitle] = useState("");
+  const [searchTermAuthor, setSearchTermAuthor] = useState("");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [cardSize, setCardSize] = useState(
+    () => localStorage.getItem("cardSize") || "medium"
+  );
+  const [isFetching, setIsFetching] = useState(false);
+  const [page, setPage] = useState(0);
+  const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
+  const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
 
   const navigate = useNavigate();
 
@@ -51,7 +51,7 @@ export default function Homepage() {
     if (token) {
       const userRole = JSON.parse(atob(token.split(".")[1])).role.toLowerCase();
       if (userRole !== "user") setHasPermissions(true);
-      setBookData([])
+      setBookData([]);
     }
   }, [token]);
 
@@ -63,27 +63,27 @@ export default function Homepage() {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
-	useEffect(() => {
-		setBooks([]);
-		setPage(0);
-		fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
-	}, [startDateFilter, debouncedTitle, debouncedAuthor]);
+  useEffect(() => {
+    setBooks([]);
+    setPage(0);
+    fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
+  }, [startDateFilter, debouncedTitle, debouncedAuthor]);
 
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedTitle(searchTermTitle);
-		}, 500);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedTitle(searchTermTitle);
+    }, 500);
 
-		return () => clearTimeout(handler);
-	}, [searchTermTitle]);
+    return () => clearTimeout(handler);
+  }, [searchTermTitle]);
 
-	useEffect(() => {
-		const handler = setTimeout(() => {
-			setDebouncedAuthor(searchTermAuthor);
-		}, 500);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedAuthor(searchTermAuthor);
+    }, 500);
 
-		return () => clearTimeout(handler);
-	}, [searchTermAuthor]);
+    return () => clearTimeout(handler);
+  }, [searchTermAuthor]);
 
   // Funciones
   const fetchBooksData = useCallback(
@@ -94,9 +94,9 @@ export default function Homepage() {
       try {
         const params = new URLSearchParams({ page, size: "10" });
 
-				if (debouncedTitle) params.append("bookName", debouncedTitle);
-				if (debouncedAuthor) params.append("authorName", debouncedAuthor);
-				if (year !== null) params.append("date", year);
+        if (debouncedTitle) params.append("bookName", debouncedTitle);
+        if (debouncedAuthor) params.append("authorName", debouncedAuthor);
+        if (year !== null) params.append("date", year);
 
         const url = `/books/filter?${params.toString()}`;
         const data = await fetchData(url, "GET", null, token);
@@ -106,24 +106,24 @@ export default function Homepage() {
           return;
         }
 
-				setBooks((prevBooks) =>
-					page === 0
-						? data
-						: [
-								...prevBooks,
-								...data.filter(
-									(book) => !prevBooks.some((b) => b.title === book.title)
-								),
-						  ]
-				);
-			} catch (error) {
-				toast.info(error.message || "An unknown error occurred.");
-			} finally {
-				setIsFetching(false);
-			}
-		},
-		[isFetching, debouncedTitle, debouncedAuthor]
-	);
+        setBooks((prevBooks) =>
+          page === 0
+            ? data
+            : [
+                ...prevBooks,
+                ...data.filter(
+                  (book) => !prevBooks.some((b) => b.title === book.title)
+                ),
+              ]
+        );
+      } catch (error) {
+        toast.info(error.message || "An unknown error occurred.");
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [isFetching, debouncedTitle, debouncedAuthor]
+  );
 
   const fetchAuthors = async (searchString) => {
     try {
@@ -212,11 +212,11 @@ export default function Homepage() {
       style={{ overflow: "hidden" }}
     >
       {hasPermissions && (
-        <div className="d-flex justify-content-start w-100 ms-3">
+        <section className="d-flex justify-content-start w-100 ms-3">
           <button className="btn btn-primary my-2" onClick={openModal}>
             Create New Book
           </button>
-        </div>
+        </section>
       )}
 
       <CustomCarousel />
@@ -232,7 +232,7 @@ export default function Homepage() {
       />
 
       <header className="container text-center">
-        <section className="row w-100 justify-content-center mb-4">
+        <div className="row w-100 justify-content-center mb-4">
           <div className="col-12 col-md-6 col-lg-4">
             <fieldset className="btn-group w-100">
               <button
@@ -264,27 +264,26 @@ export default function Homepage() {
               </button>
             </fieldset>
           </div>
-        </section>
+        </div>
 
-        <section className="mb-3">
-          <DatePicker
-            selected={startDateFilter}
-            onChange={(date) => setStartDateFilter(date)}
-            className="form-control"
-            dateFormat="yyyy"
-            placeholderText="Select a year"
-            showYearPicker
-          />
-          <button
-            className="btn btn-secondary mt-2"
-            onClick={resetStartDateFilter}
-          >
-            Reset
-          </button>
-        </section>
-
-        <section className="row w-100 justify-content-center">
-          <div className="col-12 col-md-6 col-lg-3">
+        <form className="row w-100 justify-content-center">
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+            <DatePicker
+              selected={startDateFilter}
+              onChange={(date) => setStartDateFilter(date)}
+              className="form-control me-2"
+              dateFormat="yyyy"
+              placeholderText="Select a year"
+              showYearPicker
+            />
+            <button
+              className="btn btn-secondary mx-2"
+              onClick={resetStartDateFilter}
+            >
+              Reset
+            </button>
+          </div>
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <input
               type="text"
               className="form-control"
@@ -293,7 +292,7 @@ export default function Homepage() {
               onChange={(e) => setSearchTermTitle(e.target.value)}
             />
           </div>
-          <div className="col-12 col-md-6 col-lg-3">
+          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
             <input
               type="text"
               className="form-control"
@@ -302,7 +301,7 @@ export default function Homepage() {
               onChange={(e) => setSearchTermAuthor(e.target.value)}
             />
           </div>
-        </section>
+        </form>
       </header>
 
       <section className="container mt-5">
@@ -320,9 +319,12 @@ export default function Homepage() {
         >
           <div className="row gy-4">
             {books.map((book) => (
-              <div key={book.title} className={`${getColumnClass(cardSize)}`}>
-                <article
-                  className="customized-card pt-1"
+              <article
+                key={book.title}
+                className={`${getColumnClass(cardSize)}`}
+              >
+                <div
+                  className="customized-card pt-1 shadow-sm"
                   onClick={() => navigateToBookDetails(book.title)}
                   onKeyDown={(e) =>
                     e.key === "Enter" && navigateToBookDetails(book.title)
@@ -336,7 +338,7 @@ export default function Homepage() {
                         : "600px",
                   }}
                 >
-                  <div
+                  <figure
                     className="d-flex justify-content-center align-items-center pb-2"
                     style={{
                       height: "60%",
@@ -353,7 +355,7 @@ export default function Homepage() {
                       alt={book.title}
                       className="img-fluid w-50"
                     />
-                  </div>
+                  </figure>
                   <div className="d-flex justify-content-center">
                     <hr
                       className="my-1"
@@ -361,7 +363,7 @@ export default function Homepage() {
                     />
                   </div>
                   <div className="card-body">
-                    <p
+                    <h2
                       className={`text-center ${
                         cardSize === "small"
                           ? "mt-3"
@@ -380,10 +382,10 @@ export default function Homepage() {
                       }}
                     >
                       {book.title}
-                    </p>
+                    </h2>
                   </div>
-                </article>
-              </div>
+                </div>
+              </article>
             ))}
           </div>
         </InfiniteScroll>
