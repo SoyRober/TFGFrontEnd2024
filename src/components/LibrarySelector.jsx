@@ -42,6 +42,7 @@ const LibrarySelector = () => {
       localStorage.setItem("libraryId", libraryId);
       setToken(newToken);
       setSelectedLibrary(libraryId);
+      window.location.reload();
     }
   };
 
