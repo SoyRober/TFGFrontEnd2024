@@ -78,20 +78,7 @@ export default function Root() {
             id="navbarNav"
           >
             <ul className="navbar-nav me-auto">
-              {!isLoggedIn ? (
-                <>
-                  <li className="nav-item">
-                    <Link className="nav-link text-light" to="/login">
-                      Login
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link className="nav-link text-light" to="/register">
-                      Register
-                    </Link>
-                  </li>
-                </>
-              ) : (
+              {isLoggedIn && (
                 <>
                   <li className="nav-item">
                     <Link className="nav-link text-light ms-3" to="/userBookDetails">
@@ -105,7 +92,6 @@ export default function Root() {
                       </Link>
                     </li>
                   )}
-                  
                   {hasPermissions && (
                     <li className="nav-item">
                       <Link className="nav-link text-light ms-3" to="/attributes">
@@ -113,17 +99,30 @@ export default function Root() {
                       </Link>
                     </li>
                   )}
-
                   {hasPermissions && (
                     <li className="nav-item">
                       <Link className="nav-link text-light ms-3" to="/pendingBooks">
-                      PendingBooks
+                        PendingBooks
                       </Link>
                     </li>
-                  )}            
+                  )}
                 </>
               )}
             </ul>
+            {!isLoggedIn && (
+              <ul className="navbar-nav ms-auto">
+                <li className="nav-item">
+                  <Link className="nav-link text-light" to="/login">
+                    Login
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link text-light" to="/register">
+                    Register
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
 
           {isLoggedIn && (
