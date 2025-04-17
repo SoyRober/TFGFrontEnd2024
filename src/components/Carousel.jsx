@@ -9,7 +9,7 @@ const MAX_VISIBILITY = 3;
 
 const fetchBooks = async (setBooks) => {
   try {
-    const data = await fetchData('/books/random', 'GET', null);
+    const data = await fetchData(`/books/random/${localStorage.getItem("libraryId")}`, 'GET', null);
     if (data.success) {
       setBooks(data.message);
     } else {

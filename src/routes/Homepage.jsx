@@ -98,7 +98,7 @@ export default function Homepage() {
         if (debouncedAuthor) params.append("authorName", debouncedAuthor);
         if (year !== null) params.append("date", year);
 
-        const url = `/books/filter?${params.toString()}`;
+        const url = `/books/filter/${localStorage.getItem("libraryId")}?${params.toString()}`;
         const data = await fetchData(url, "GET", null, token);
 
         if (!data || data.length === 0) {
