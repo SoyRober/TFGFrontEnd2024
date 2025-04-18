@@ -106,22 +106,27 @@ export default function ReviewList({ title, username }) {
     setIsFetching(true);
     try {
       const data = await fetchData(`/reviews/${title}?page=${page}`);
-      setReviews((prev) => [...prev, ...data]); // Asume que el backend devuelve un array de reviews
-      setTotalReviews(data.total); // Asume que el backend devuelve el total de reviews disponibles
+      if (data.length > 0) {
+        setReviews((prev) => [...prev, ...data]); // Asume que el backend devuelve un array de reviews
+        setTotalReviews(data.total); // Asume que el backend devuelve el total de reviews disponibles
 
-      const token = localStorage.getItem("token");
-      if (token) {
-        const updatedReviews = await Promise.all(
-          data.map(async (review) => {
-            const userVote = await fetchUserVote(review.id, token);
-            return {
-              ...review,
-              userLiked: userVote === "liked",
-              userDisliked: userVote === "disliked",
-            };
-          })
-        );
-        setReviews((prev) => [...prev, ...updatedReviews]);
+        const token = localStorage.getItem("token");
+        if (token) {
+          const updatedReviews = await Promise.all(
+            data
+              .filter((review) => review.userName !== username)
+              .map(async (review) => {
+                const userVote = await fetchUserVote(review.id, token);
+                return {
+                  ...review,
+                  userLiked: userVote === "liked",
+                  userDisliked: userVote === "disliked",
+                };
+              })
+          );
+
+          setReviews((prev) => [...prev, ...updatedReviews]);
+        }
       }
     } catch (error) {
       toast.error(error.message || "Something went wrong");
@@ -152,87 +157,83 @@ export default function ReviewList({ title, username }) {
         hasMore={!isFetching && reviews.length < totalReviews}
         loader={<Loading />}
         endMessage={
-          <p className="text-center mt-3 text-muted">There aren't more reviews</p>
+          <p className="text-center mt-3 text-muted">
+            There aren't more reviews
+          </p>
         }
         style={{ overflow: "hidden" }}
       >
-        {reviews.filter((review) => review.userName !== username).length > 0 ? (
-          reviews
-            .filter((review) => review.userName !== username)
-            .map((review) => (
-              <article key={review.id} className="card p-3 mb-4">
-                <p className="d-flex align-items-center">
-                  <span
+        {reviews.map((review) => (
+          <article key={review.id} className="card p-3 mb-4">
+            <p className="d-flex align-items-center">
+              <span
+                style={{
+                  backgroundImage: review.profileImage
+                    ? `url(data:image/jpeg;base64,${review.profileImage})`
+                    : `url(${defaultAvatar})`,
+                }}
+                className="review"
+              ></span>
+              {review.userName}
+            </p>
+            <p>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className="star"
+                  style={{
+                    fontSize: "2rem",
+                    color: star <= review.score ? "gold" : "grey",
+                  }}
+                >
+                  &#9733;
+                </span>
+              ))}
+            </p>
+            <p>{review.comment}</p>
+            <div className="d-flex justify-content-start">
+              <div className="d-flex align-items-center me-3">
+                <button
+                  onClick={() => handleVotes(review.id, false)}
+                  className="btn btn-link p-0"
+                  aria-label="Dislike review"
+                >
+                  <i
+                    className={`bi ${
+                      review.userDisliked
+                        ? "bi-hand-thumbs-down-fill"
+                        : "bi-hand-thumbs-down"
+                    }`}
                     style={{
-                      backgroundImage: review.profileImage
-                        ? `url(data:image/jpeg;base64,${review.profileImage})`
-                        : `url(${defaultAvatar})`,
+                      fontSize: "1.5rem",
+                      color: review.userDisliked ? "#dc3545" : "inherit",
                     }}
-                    className="review"
-                  ></span>
-                  {review.userName}
-                </p>
-                <p>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className="star"
-                      style={{
-                        fontSize: "2rem",
-                        color: star <= review.score ? "gold" : "grey",
-                      }}
-                    >
-                      &#9733;
-                    </span>
-                  ))}
-                </p>
-                <p>{review.comment}</p>
-                <div className="d-flex justify-content-start">
-                  <div className="d-flex align-items-center me-3">
-                    <button
-                      onClick={() => handleVotes(review.id, false)}
-                      className="btn btn-link p-0"
-                      aria-label="Dislike review"
-                    >
-                      <i
-                        className={`bi ${
-                          review.userDisliked
-                            ? "bi-hand-thumbs-down-fill"
-                            : "bi-hand-thumbs-down"
-                        }`}
-                        style={{
-                          fontSize: "1.5rem",
-                          color: review.userDisliked ? "#dc3545" : "inherit",
-                        }}
-                      ></i>
-                    </button>
-                    <p className="mb-0 ms-2">{review.reviewDislikes}</p>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    <button
-                      onClick={() => debouncedHandleVotes(review.id, true)}
-                      className="btn btn-link p-0"
-                    >
-                      <i
-                        className={`bi ${
-                          review.userLiked
-                            ? "bi-hand-thumbs-up-fill"
-                            : "bi-hand-thumbs-up"
-                        }`}
-                        style={{
-                          fontSize: "1.5rem",
-                          color: review.userLiked ? "#28a745" : "inherit",
-                        }}
-                      ></i>
-                    </button>
-                    <p className="mb-0 ms-2">{review.reviewLikes}</p>
-                  </div>
-                </div>
-              </article>
-            ))
-        ) : (
-          <p>No reviews available</p>
-        )}
+                  ></i>
+                </button>
+                <p className="mb-0 ms-2">{review.reviewDislikes}</p>
+              </div>
+              <div className="d-flex align-items-center">
+                <button
+                  onClick={() => debouncedHandleVotes(review.id, true)}
+                  className="btn btn-link p-0"
+                >
+                  <i
+                    className={`bi ${
+                      review.userLiked
+                        ? "bi-hand-thumbs-up-fill"
+                        : "bi-hand-thumbs-up"
+                    }`}
+                    style={{
+                      fontSize: "1.5rem",
+                      color: review.userLiked ? "#28a745" : "inherit",
+                    }}
+                  ></i>
+                </button>
+                <p className="mb-0 ms-2">{review.reviewLikes}</p>
+              </div>
+            </div>
+          </article>
+        ))}
       </InfiniteScroll>
     </section>
   );
