@@ -3,6 +3,7 @@ import defaultAvatar from "../img/defaultAvatar.svg";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
 import { debounce } from "lodash";
+import "../styles/main.css";
 
 export default function ReviewList({ title, username }) {
   const [reviews, setReviews] = useState([]);
@@ -136,20 +137,11 @@ export default function ReviewList({ title, username }) {
               <p className="d-flex align-items-center">
                 <span
                   style={{
-                    border: "1px solid black",
-                    display: "inline-block",
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
                     backgroundImage: review.profileImage
                       ? `url(data:image/jpeg;base64,${review.profileImage})`
                       : `url(${defaultAvatar})`,
-                    backgroundPosition: "center",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    cursor: "pointer",
-                    marginRight: "10px",
                   }}
+                  className="review"
                 ></span>
                 {review.userName}
               </p>
