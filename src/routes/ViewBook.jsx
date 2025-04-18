@@ -206,8 +206,8 @@ export default function ViewBook() {
       try {
         const data = await fetchData(endpoint, "GET");
         const libraryNames = data.map((library) => library.name);
-        setLibraries(libraryNames);
         console.log("🚀 ~ fetchLibraries ~ libraryNames:", libraryNames); // Verifica los datos aquí
+        setLibraries(libraryNames);
       } catch (error) {
         toast.error(error.message || "Something went wrong");
         setLibraries([]);
@@ -275,7 +275,7 @@ export default function ViewBook() {
     } else if (attribute === "genres") {
       setSelectedGenres(book.genres || []);
     } else if (attribute === "libraries") {
-      setSelectedLibraries(libraries || []);
+      setSelectedLibraries(book.libraries || []); // Asegúrate de que `book.libraries` contenga los nombres
     }
   };
 
@@ -337,6 +337,8 @@ export default function ViewBook() {
       payload.append("value", JSON.stringify(selectedAuthors));
     } else if (editingAttribute === "genres") {
       payload.append("value", JSON.stringify(selectedGenres));
+    } else if (editingAttribute === "libraries") {
+      payload.append("value", JSON.stringify(selectedLibraries));
     } else if (editingAttribute === "isAdult") {
       const booleanValue = editValue === "true";
       payload.append("value", booleanValue);
@@ -556,7 +558,6 @@ export default function ViewBook() {
     let updatedReviews;
 
     if ((value && review.userLiked) || (!value && review.userDisliked)) {
-      // User has already voted the same way, remove the vote
       updatedReviews = reviews.map((r) =>
         r.id === reviewId
           ? {
@@ -1044,8 +1045,8 @@ export default function ViewBook() {
         selectedAuthors={selectedAuthors}
         genres={genres}
         selectedGenres={selectedGenres}
-        libraries={libraries}
-        selectedLibraries={selectedLibraries}
+        libraries={libraries} // Todas las librerías disponibles
+        selectedLibraries={selectedLibraries} // Librerías seleccionadas
         handleAuthorChange={handleAuthorChange}
         handleGenreChange={handleGenreChange}
         handleEditChange={handleEditChange}

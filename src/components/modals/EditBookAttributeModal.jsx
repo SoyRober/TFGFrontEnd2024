@@ -84,18 +84,17 @@ const EditBookAttributeModal = ({
 		}
 	};
 
-	const handleAddLibrary = (e) => {
-		const selectedLibrary = e;
-		if (selectedLibrary && !selectedGenres.includes(selectedLibrary)) {
-			handleGenreChange({
+	const handleAddLibrary = (library) => {
+		if (library && !selectedLibraries.includes(library)) {
+			handleLibraryChange({
 				target: {
-					options: [...selectedLibraries, selectedLibrary].map((g) => ({
+					options: [...selectedLibraries, library].map((l) => ({
 						selected: true,
-						value: g,
+						value: l,
 					})),
 				},
 			});
-			setNewGenre("");
+			setNewLibrary("");
 		}
 	};
 
@@ -127,20 +126,17 @@ const EditBookAttributeModal = ({
 				/>
 			);
 			break;
-			case "libraries":
-				
-				inputField = (
-					<SelectableList
-						label="Library"
-						items={libraries}
-						selectedItems={selectedLibraries}
-						newItem={newLibrary}
-						setNewItem={setNewLibrary}
-						handleAddItem={handleAddLibrary}
-						handleRemoveItem={handleRemoveLibrary}
-					/>
-				);
-				break;
+		case "libraries":
+			inputField = (
+				<SelectableList
+					label="Library"
+					items={libraries} // Todas las librerías disponibles
+					selectedItems={selectedLibraries} // Librerías seleccionadas
+					handleAddItem={handleAddLibrary} // Método para agregar una librería
+					handleRemoveItem={handleRemoveLibrary} // Método para eliminar una librería
+				/>
+			);
+			break;
 		//TODO Fix bookCopies
 		case "quantity":
 			inputField = (
