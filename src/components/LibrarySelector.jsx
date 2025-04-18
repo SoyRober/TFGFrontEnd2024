@@ -10,7 +10,7 @@ const LibrarySelector = () => {
 
 	useEffect(() => {
 		const fetchLibraries = async () => {
-			const data = await fetchData("/library/list", "GET");
+			const data = await fetchData("/libraries/list", "GET");
 			setLibraries(data);
 		};
 		fetchLibraries();
@@ -34,8 +34,8 @@ const LibrarySelector = () => {
 					Select a library
 				</option>
 				{libraries.map((library) => (
-					<option key={library.id} value={library.name}>
-						{library.name}
+					<option key={library} value={library}>
+						{library}
 					</option>
 				))}
 			</select>
