@@ -96,10 +96,22 @@ const Carousel = ({ children }) => {
 
 const CustomCarousel = () => {
   const [books, setBooks] = useState([]);
+  const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
   useEffect(() => {
     fetchBooks(setBooks);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLibrary = localStorage.getItem("libraryName");
+      if (currentLibrary !== library) {
+        setLibrary(currentLibrary);
+        fetchBooks(setBooks);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [library]);
 
   return (
     <div className="carousel-wrapper my-3">
