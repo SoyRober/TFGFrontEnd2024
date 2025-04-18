@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SelectableList from "../SelectableList";
 
 const EditBookAttributeModal = ({
@@ -8,15 +8,19 @@ const EditBookAttributeModal = ({
 	selectedAuthors,
 	genres,
 	selectedGenres,
+	libraries,
+	selectedLibraries,
 	handleAuthorChange,
 	handleGenreChange,
 	handleEditChange,
 	handleEditSubmit,
 	handleCloseModal,
 	handleImageChange,
+	handleLibraryChange
 }) => {
 	const [newAuthor, setNewAuthor] = useState("");
 	const [newGenre, setNewGenre] = useState("");
+	const [newLibrary, setNewLibrary] = useState("");
 
 	if (!editingAttribute) return null;
 
@@ -40,6 +44,16 @@ const EditBookAttributeModal = ({
 		});
 	};
 
+	const handleRemoveLibrary = (library) => {
+		handleLibraryChange({
+			target: {
+				options: selectedLibraries
+					.filter((l) => l !== library)
+					.map((l) => ({ selected: true, value: l })),
+			},
+		});
+	};
+
 	const handleAddAuthor = (e) => {
 		const selectedAuthor = e;
 		if (selectedAuthor && !selectedAuthors.includes(selectedAuthor)) {
@@ -56,13 +70,26 @@ const EditBookAttributeModal = ({
 	};
 
 	const handleAddGenre = (e) => {
-		console.log("🚀 ~ handleAddGenre ~ e:", e);
-
 		const selectedGenre = e;
 		if (selectedGenre && !selectedGenres.includes(selectedGenre)) {
 			handleGenreChange({
 				target: {
 					options: [...selectedGenres, selectedGenre].map((g) => ({
+						selected: true,
+						value: g,
+					})),
+				},
+			});
+			setNewGenre("");
+		}
+	};
+
+	const handleAddLibrary = (e) => {
+		const selectedLibrary = e;
+		if (selectedLibrary && !selectedGenres.includes(selectedLibrary)) {
+			handleGenreChange({
+				target: {
+					options: [...selectedLibraries, selectedLibrary].map((g) => ({
 						selected: true,
 						value: g,
 					})),
@@ -100,6 +127,20 @@ const EditBookAttributeModal = ({
 				/>
 			);
 			break;
+			case "libraries":
+				
+				inputField = (
+					<SelectableList
+						label="Library"
+						items={libraries}
+						selectedItems={selectedLibraries}
+						newItem={newLibrary}
+						setNewItem={setNewLibrary}
+						handleAddItem={handleAddLibrary}
+						handleRemoveItem={handleRemoveLibrary}
+					/>
+				);
+				break;
 		//TODO Fix bookCopies
 		case "quantity":
 			inputField = (

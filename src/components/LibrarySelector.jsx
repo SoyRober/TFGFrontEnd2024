@@ -1,49 +1,26 @@
 import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch";
-import { jwtDecode } from "jwt-decode";
+import { useNavigate } from 'react-router-dom';
 
 const LibrarySelector = () => {
   const [libraries, setLibraries] = useState([]);
-  const [token, setToken] = useState("");
   const [selectedLibrary, setSelectedLibrary] = useState("");
 
-  useEffect(() => {
-    const tokenStored = localStorage.getItem("token");
-    setToken(tokenStored);
-
-    if (tokenStored) {
-      const decodedToken = jwtDecode(tokenStored);
-      setSelectedLibrary(decodedToken.libraryId);
-    }
-  }, []);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (!token) return;
     const fetchLibraries = async () => {
-      const data = await fetchData("/library/list", "GET", null, token);
+      const data = await fetchData("/libraries/list", "GET");
       setLibraries(data);
     };
     fetchLibraries();
-  }, [token]);
+  }, []);
 
   const handleLibraryChange = async (e) => {
-    const selectedLibraryId = e.target.value;
-    const response = await fetchData(
-      `/library/switch-library?id=${selectedLibraryId}`,
-      "POST",
-      null,
-      token
-    );
-
-    if (response?.success) {
-      const newToken = response.message;
-      const libraryId = jwtDecode(newToken).libraryId;
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("libraryId", libraryId);
-      setToken(newToken);
-      setSelectedLibrary(libraryId);
-      window.location.reload();
-    }
+    const selectedLibraryName = e.target.value;
+    localStorage.setItem("libraryName", selectedLibraryName);
+    setSelectedLibrary(selectedLibraryName);
+    navigate("/")
   };
 
   return (
@@ -57,8 +34,8 @@ const LibrarySelector = () => {
           Select a library
         </option>
         {libraries.map((library) => (
-          <option key={library.id} value={library.id}>
-            {library.name}
+          <option key={library} value={library}>
+            {library}
           </option>
         ))}
       </select>

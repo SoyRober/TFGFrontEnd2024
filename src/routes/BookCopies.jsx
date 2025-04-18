@@ -36,7 +36,7 @@ export default function BookCopies() {
 
 	const fetchLibraries = async () => {
 		try {
-			const data = await fetchData("/library/list", "GET");
+			const data = await fetchData("/libraries/list", "GET");
 			setLibraries(data);
 		} catch (err) {
 			toast.error("Failed to fetch libraries");

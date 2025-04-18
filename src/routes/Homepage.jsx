@@ -1,4 +1,3 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -40,12 +39,11 @@ export default function Homepage() {
   const [page, setPage] = useState(0);
   const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
   const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
+  const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
   const navigate = useNavigate();
-
   const token = localStorage.getItem("token");
 
-  // Efectos
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -73,7 +71,6 @@ export default function Homepage() {
     const handler = setTimeout(() => {
       setDebouncedTitle(searchTermTitle);
     }, 500);
-
     return () => clearTimeout(handler);
   }, [searchTermTitle]);
 
@@ -81,24 +78,38 @@ export default function Homepage() {
     const handler = setTimeout(() => {
       setDebouncedAuthor(searchTermAuthor);
     }, 500);
-
     return () => clearTimeout(handler);
   }, [searchTermAuthor]);
 
-  // Funciones
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLibrary = localStorage.getItem("libraryName");
+      setLibrary((prev) => (prev !== currentLibrary ? currentLibrary : prev));
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (library) {
+      setBooks([]);
+      setPage(0);
+      fetchBooksData(0);
+    }
+  }, [library]);
+
   const fetchBooksData = useCallback(
     async (page, year = null) => {
       if (isFetching) return;
       setIsFetching(true);
-
       try {
         const params = new URLSearchParams({ page, size: "10" });
-
         if (debouncedTitle) params.append("bookName", debouncedTitle);
         if (debouncedAuthor) params.append("authorName", debouncedAuthor);
         if (year !== null) params.append("date", year);
 
-        const url = `/books/filter/${localStorage.getItem("libraryId")}?${params.toString()}`;
+        const url = `/books/filter/${localStorage.getItem(
+          "libraryName"
+        )}?${params.toString()}`;
         const data = await fetchData(url, "GET", null, token);
 
         if (!data || data.length === 0) {
@@ -122,7 +133,7 @@ export default function Homepage() {
         setIsFetching(false);
       }
     },
-    [isFetching, debouncedTitle, debouncedAuthor]
+    [isFetching, debouncedTitle, debouncedAuthor, library]
   );
 
   const fetchAuthors = async (searchString) => {
@@ -170,12 +181,10 @@ export default function Homepage() {
     try {
       const token = localStorage.getItem("token");
       const response = await fetchData("/books", "POST", bookData, token);
-
       if (!response.success) {
         toast.error(response.message || "Failed to create book.");
         return;
       }
-
       toast.success("Book created successfully.");
       closeModal();
       fetchBooksData(0);

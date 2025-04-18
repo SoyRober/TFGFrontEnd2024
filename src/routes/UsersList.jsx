@@ -48,7 +48,6 @@ const UsersList = () => {
       if (filters.username) params.append("username", filters.username); 
       if (filters.email) params.append("email", filters.email);
   
-      console.log("🚀 ~ fetchUsers ~ params:", params)
       const url = `/users/list?${params.toString()}`;
       const data = await fetchData(url, "GET", null, token);
       
