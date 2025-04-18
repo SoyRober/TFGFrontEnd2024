@@ -8,18 +8,17 @@ import EditBookAttributeModal from "../components/modals/EditBookAttributeModal.
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import BookReservationModal from "../components/modals/BookReservationModal.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import defaultAvatar from "../img/defaultAvatar.svg";
 import defaultBook from "../img/defaultBook.svg";
 import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
+import ReviewList from "../components/ReviewList.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
-  const [reviews, setReviews] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [hasPermissions, setHasPermissions] = useState(false);
   const [editingAttribute, setEditingAttribute] = useState(null);
@@ -44,7 +43,6 @@ export default function ViewBook() {
     score: "",
     comment: "",
   });
-  const [usersLoans, setUsersLoans] = useState([]);
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [username, setUsername] = useState("");
   const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
@@ -154,31 +152,6 @@ export default function ViewBook() {
       }
     };
 
-    const fetchReviews = async () => {
-      try {
-        const data = await fetchData(`/reviews/${title}`);
-        setReviews(data);
-
-        const token = localStorage.getItem("token");
-        if (token) {
-          //for each review, fetch user vote
-          const updatedReviews = await Promise.all(
-            data.map(async (review) => {
-              const userVote = await fetchUserVote(review.id, token);
-              return {
-                ...review,
-                userLiked: userVote === "liked",
-                userDisliked: userVote === "disliked",
-              };
-            })
-          );
-          setReviews(updatedReviews);
-        }
-      } catch (error) {
-        toast.error(error.message || "Something went wrong");
-      }
-    };
-
     const fetchAuthors = async () => {
       const endpoint = "/authors/search";
       try {
@@ -215,8 +188,7 @@ export default function ViewBook() {
     };
 
     fetchBookData();
-    fetchReviews();
-    fetchAuthors();
+        fetchAuthors();
     fetchGenres();
     checkLoanStatus();
     checkReservationStatus();
@@ -515,111 +487,6 @@ export default function ViewBook() {
     }
   };
 
-  const handleReturnModal = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      await fetchData("/return", "PUT", { title: title }, token);
-      setUsersLoans((prevLoans) =>
-        prevLoans.filter((item) => item !== username)
-      );
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
-  const fetchUserVote = async (reviewId, token) => {
-    try {
-      const response = await fetchData(
-        `/getUserVote?reviewId=${reviewId}`,
-        "GET",
-        null,
-        token
-      );
-      return response;
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
-  const handleVotes = async (reviewId, value) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    const review = reviews.find((r) => r.id === reviewId);
-
-    let updatedReviews;
-
-    if ((value && review.userLiked) || (!value && review.userDisliked)) {
-      updatedReviews = reviews.map((r) =>
-        r.id === reviewId
-          ? {
-              ...r,
-              userLiked: false,
-              userDisliked: false,
-              reviewLikes: value ? r.reviewLikes - 1 : r.reviewLikes,
-              reviewDislikes: !value ? r.reviewDislikes - 1 : r.reviewDislikes,
-            }
-          : r
-      );
-
-      try {
-        await fetchData(
-          `/deleteVote?reviewId=${reviewId}`,
-          "DELETE",
-          null,
-          token
-        );
-        setReviews(updatedReviews);
-      } catch (error) {
-        toast.error(error.message || "Something went wrong");
-      }
-    } else {
-      // Update votes and ensure only one type of vote is active
-      updatedReviews = reviews.map((r) =>
-        r.id === reviewId
-          ? {
-              ...r,
-              userLiked: value,
-              userDisliked: !value,
-              reviewLikes: value
-                ? r.userLiked
-                  ? r.reviewLikes
-                  : r.reviewLikes + 1
-                : r.userLiked
-                ? r.reviewLikes - 1
-                : r.reviewLikes,
-              reviewDislikes: !value
-                ? r.userDisliked
-                  ? r.reviewDislikes
-                  : r.reviewDislikes + 1
-                : r.userDisliked
-                ? r.reviewDislikes - 1
-                : r.reviewDislikes,
-            }
-          : r
-      );
-
-      try {
-        let body = {
-          reviewId: reviewId,
-          positive: value,
-        };
-        await fetchData(`/addVote`, "PUT", body, token);
-        setReviews(updatedReviews);
-      } catch (error) {
-        toast.error(error.message || "Something went wrong");
-      }
-    }
-  };
-
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -654,7 +521,6 @@ export default function ViewBook() {
       toast.error(error.message || "Something went wrong");
     }
   };
-
   if (!book) {
     return (
       <div className="modal-book">
@@ -664,7 +530,6 @@ export default function ViewBook() {
       </div>
     );
   }
-
   return (
     <main className="container mt-5">
       {/* Info, edition and requesting book */}
@@ -733,6 +598,7 @@ export default function ViewBook() {
             </div>
           )}
         </div>
+
         <BookDetails
           book={book}
           quantity={quantity}
@@ -902,94 +768,7 @@ export default function ViewBook() {
 
       {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
-      <section className="list-group mb-3">
-        {reviews.length > 0 &&
-        reviews.filter((review) => review.userName !== username).length > 0 ? (
-          reviews
-            .filter((review) => review.userName !== username)
-            .map((review) => (
-              <article key={review.id} className="card p-3 mb-4">
-                <p className="d-flex align-items-center">
-                  <span
-                    style={{
-                      border: "1px solid black",
-                      display: "inline-block",
-                      width: "50px",
-                      height: "50px",
-                      borderRadius: "50%",
-                      backgroundImage: review.profileImage
-                        ? `url(data:image/jpeg;base64,${review.profileImage})`
-                        : `url(${defaultAvatar})`,
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundRepeat: "no-repeat",
-                      cursor: "pointer",
-                      marginRight: "10px",
-                    }}
-                  ></span>
-                  {review.userName}
-                </p>
-                <p>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className="star"
-                      style={{
-                        fontSize: "2rem",
-                        color: star <= review.score ? "gold" : "grey",
-                      }}
-                    >
-                      &#9733;
-                    </span>
-                  ))}
-                </p>
-                <p>{review.comment}</p>
-                <div className="d-flex justify-content-start">
-                  <div className="d-flex align-items-center me-3">
-                    <button
-                      onClick={() => handleVotes(review.id, false)}
-                      className="btn btn-link p-0"
-                    >
-                      <i
-                        className={`bi ${
-                          review.userDisliked
-                            ? "bi-hand-thumbs-down-fill"
-                            : "bi-hand-thumbs-down"
-                        }`}
-                        style={{
-                          fontSize: "1.5rem",
-                          color: review.userDisliked ? "#dc3545" : "inherit",
-                        }}
-                      ></i>
-                    </button>
-                    <p className="mb-0 ms-2">{review.reviewDislikes}</p>
-                  </div>
-                  <div className="d-flex align-items-center">
-                    <button
-                      onClick={() => handleVotes(review.id, true)}
-                      className="btn btn-link p-0"
-                    >
-                      <i
-                        className={`bi ${
-                          review.userLiked
-                            ? "bi-hand-thumbs-up-fill"
-                            : "bi-hand-thumbs-up"
-                        }`}
-                        style={{
-                          fontSize: "1.5rem",
-                          color: review.userLiked ? "#28a745" : "inherit",
-                        }}
-                      ></i>
-                    </button>
-                    <p className="mb-0 ms-2">{review.reviewLikes}</p>
-                  </div>
-                </div>
-              </article>
-            ))
-        ) : (
-          <p>No reviews available</p>
-        )}
-      </section>
+      <ReviewList title={title} username={username} />
 
       <EditBookAttributeModal
         editingAttribute={editingAttribute}
