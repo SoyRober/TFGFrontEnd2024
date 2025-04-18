@@ -5,7 +5,6 @@ import "../styles/main.css";
 import { fetchData } from "../utils/fetch.js";
 import { jwtDecode } from "jwt-decode";
 import EditBookAttributeModal from "../components/modals/EditBookAttributeModal.jsx";
-import BookLoansModal from "../components/modals/BookLoansModal.jsx";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import BookReservationModal from "../components/modals/BookReservationModal.jsx";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -14,6 +13,7 @@ import defaultBook from "../img/defaultBook.svg";
 import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
+import BookDetails from "../components/BookDetails.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -667,13 +667,6 @@ export default function ViewBook() {
 
   return (
     <main className="container mt-5">
-      {hasPermissions && (
-        <BookLoansModal
-          usersLoans={usersLoans}
-          onReturnLoan={handleReturnModal}
-        />
-      )}
-
       {/* Info, edition and requesting book */}
       <h1 className="display-4 text-center mb-4">{book.title}</h1>
       <section className="row">
@@ -740,53 +733,13 @@ export default function ViewBook() {
             </div>
           )}
         </div>
-        <div className="col-md-6 mb-3">
-          {[
-            { label: "Title", value: book.title, key: "title" },
-            {
-              label: "Authors",
-              value: book.authors?.join(", ") || "N/A",
-              key: "authors",
-            },
-            {
-              label: "Genres",
-              value: book.genres?.join(", ") || "N/A",
-              key: "genres",
-            },
-            { label: "Available Copies", value: quantity, key: "quantity" },
-            { label: "Location", value: book.location, key: "location" },
-            { label: "Synopsis", value: book.synopsis, key: "synopsis" },
-            {
-              label: "Publication Date",
-              value: book.publicationDate,
-              key: "publicationDate",
-            },
-            {
-              label: "Adult",
-              value: book.adult ? "Yes" : "No",
-              key: "isAdult",
-            },
-            {
-              label: "Libraries",
-              value: book.libraries?.join(", ") || "N/A",
-              key: "libraries",
-            },
-          ].map(({ label, value, key }) => (
-            <div className="mb-2" key={key}>
-              <p className="mb-0">
-                <strong>{label}:</strong> {value}
-              </p>
-              {isLoggedIn && hasPermissions && (
-                <button
-                  onClick={() => handleEditClick(key)}
-                  className="btn btn-primary mt-1"
-                >
-                  Edit
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
+        <BookDetails
+          book={book}
+          quantity={quantity}
+          isLoggedIn={isLoggedIn}
+          hasPermissions={hasPermissions}
+          handleEditClick={handleEditClick}
+        />
       </section>
       {isLoggedIn && hasPermissions && (
         <div className="col-12 d-flex justify-content-between mb-3">
