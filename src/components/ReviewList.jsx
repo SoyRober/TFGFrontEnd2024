@@ -107,8 +107,8 @@ export default function ReviewList({ title, username }) {
     try {
       const data = await fetchData(`/reviews/${title}?page=${page}`);
       if (data.length > 0) {
-        setReviews((prev) => [...prev, ...data]); // Asume que el backend devuelve un array de reviews
-        setTotalReviews(data.total); // Asume que el backend devuelve el total de reviews disponibles
+        setReviews((prev) => [...prev, ...data]);
+        setTotalReviews(data.total);
 
         const token = localStorage.getItem("token");
         if (token) {
