@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
-import { Modal, Button, Form } from "react-bootstrap"; // Import Bootstrap components
+import { Modal, Button, Form } from "react-bootstrap";
 
 export default function BookCopies() {
 	const { title } = useParams();
@@ -11,7 +11,7 @@ export default function BookCopies() {
 	const [error, setError] = useState(null);
 	const [showModal, setShowModal] = useState(false);
 	const [libraries, setLibraries] = useState([]);
-	const [newCopy, setNewCopy] = useState({ barcode: "", libraryId: "" });
+	const [newCopy, setNewCopy] = useState({ barcode: "", libraryName: "" });
 
 	useEffect(() => {
 		fetchBookCopies();
@@ -38,13 +38,14 @@ export default function BookCopies() {
 		try {
 			const data = await fetchData("/libraries/list", "GET");
 			setLibraries(data);
+			console.log("🚀 ~ fetchLibraries ~ data:", data);
 		} catch (err) {
 			toast.error("Failed to fetch libraries");
 		}
 	};
 
 	const handleAddCopy = async () => {
-		if (!newCopy.barcode || !newCopy.libraryId) {
+		if (!newCopy.barcode || !newCopy.libraryName) {
 			toast.error("Both Barcode and Library are required");
 			return;
 		}
@@ -56,13 +57,13 @@ export default function BookCopies() {
 				{
 					bookTitle: title,
 					barcode: newCopy.barcode,
-					libraryId: newCopy.libraryId,
+					libraryName: newCopy.libraryName,
 				},
 				token
 			);
 			toast.success("Copy added successfully");
 			setShowModal(false);
-			setNewCopy({ barcode: "", libraryId: "" });
+			setNewCopy({ barcode: "", libraryName: "" });
 			await fetchBookCopies();
 		} catch (err) {
 			toast.error(err.message || "Failed to add copy");
@@ -181,15 +182,15 @@ export default function BookCopies() {
 							<Form.Label>Library</Form.Label>
 							<Form.Control
 								as="select"
-								value={newCopy.libraryId}
+								value={newCopy.libraryName}
 								onChange={(e) =>
-									setNewCopy({ ...newCopy, libraryId: e.target.value })
+									setNewCopy({ ...newCopy, libraryName: e.target.value })
 								}
 							>
 								<option value="">Select a library</option>
-								{libraries.map((library) => (
-									<option key={library.id} value={library.id}>
-										{library.name}
+								{libraries.map((libraryName, index) => (
+									<option key={index} value={libraryName}>
+										{libraryName}
 									</option>
 								))}
 							</Form.Control>
