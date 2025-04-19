@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import defaultAvatar from "../img/defaultAvatar.svg";
-import { fetchData } from "../utils/fetch";
+import defaultAvatar from "../../img/defaultAvatar.svg";
+import { fetchData } from "../../utils/fetch";
 import { toast } from "react-toastify";
 import { debounce } from "lodash";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Loading from "./Loading";
-import "../styles/main.css";
+import Loading from "../Loading";
+import "../../styles/main.css";
 
 export default function ReviewList({ title, username }) {
   const [reviews, setReviews] = useState([]);

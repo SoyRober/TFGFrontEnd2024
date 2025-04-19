@@ -13,8 +13,8 @@ import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
-import ReviewList from "../components/ReviewList.jsx";
-import UserReview from "../components/UserReview.jsx";
+import ReviewList from "../components/ReviewComponents/ReviewList.jsx";
+import UserReview from "../components/ReviewComponents/UserReview.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
