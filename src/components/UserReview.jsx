@@ -1,19 +1,97 @@
-import React from "react";
+import { useState, useCallback } from "react";
+import { toast } from "react-toastify";
+import { fetchData } from "../utils/fetch";
 
 const UserReview = ({
   isLoggedIn,
   alreadyRated,
-  isEditing,
-  tempReviewData,
+  setAlreadyRated,
+  title,
   currentUserScore,
+  setCurrentUserScore,
   currentUserComment,
-  handleSaveEditedReview,
-  handleTempStarClick,
-  handleTempReviewChange,
-  handleCancelEdit,
-  handleEditReview,
-  handleDeleteReview,
+  setCurrentUserComment,
+  fetchExistingReview
 }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempReviewData, setTempReviewData] = useState({
+    score: "",
+    comment: "",
+  });
+
+  const handleEditReview = () => {
+    setIsEditing(true);
+    setTempReviewData({ score: currentUserScore, comment: currentUserComment });
+  };
+
+  const handleTempReviewChange = (e) => {
+    const { name, value } = e.target;
+    setTempReviewData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleTempStarClick = (star) => {
+    setTempReviewData((prevData) => ({
+      ...prevData,
+      score: star,
+    }));
+  };
+
+  const handleSaveEditedReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData(
+        "/reviews",
+        "PUT",
+        {
+          title,
+          score: tempReviewData.score,
+          comment: tempReviewData.comment,
+        },
+        token
+      );
+
+      setCurrentUserScore(tempReviewData.score);
+      setCurrentUserComment(tempReviewData.comment);
+      setIsEditing(false);
+      fetchExistingReview();
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setTempReviewData({ score: "", comment: "" });
+  };
+
+  const handleDeleteReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData(`/reviews/${title}`, "DELETE", null, token);
+
+      setAlreadyRated(false);
+      setCurrentUserScore("");
+      setCurrentUserComment("");
+
+      toast.success("Review deleted successfully");
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
   return (
     <div>
       {isLoggedIn &&

@@ -14,6 +14,7 @@ import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
 import ReviewList from "../components/ReviewList.jsx";
+import UserReview from "../components/UserReview.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -36,13 +37,6 @@ export default function ViewBook() {
   const [libraries, setLibraries] = useState([]);
   const [selectedLibraries, setSelectedLibraries] = useState([]);
   const [alreadyRated, setAlreadyRated] = useState(false);
-  const [currentUserScore, setCurrentUserScore] = useState("");
-  const [currentUserComment, setCurrentUserComment] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [tempReviewData, setTempReviewData] = useState({
-    score: "",
-    comment: "",
-  });
   const [showUnavailableModal, setShowUnavailableModal] = useState(false);
   const [username, setUsername] = useState("");
   const [showLoanToUserModal, setShowLoanToUserModal] = useState(false);
@@ -50,6 +44,8 @@ export default function ViewBook() {
   const [isReserved, setIsReserved] = useState(false);
   const [quantity, setQuantity] = useState(0);
   const [daysLoaned, setDaysLoaned] = useState(0);
+  const [currentUserScore, setCurrentUserScore] = useState("");
+  const [currentUserComment, setCurrentUserComment] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,6 +76,18 @@ export default function ViewBook() {
     }
   }, [title]);
 
+  const fetchQuantity = async () => {
+    try {
+      const data = await fetchData(
+        `/books/getQuantity?title=${encodeURIComponent(title)}`,
+        "GET"
+      );
+      setQuantity(data);
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
   const fetchExistingReview = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -104,18 +112,6 @@ export default function ViewBook() {
       toast.error(error.message || "Something went wrong");
     }
   }, [title]);
-
-  const fetchQuantity = async () => {
-    try {
-      const data = await fetchData(
-        `/books/getQuantity?title=${encodeURIComponent(title)}`,
-        "GET"
-      );
-      setQuantity(data);
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
 
   useEffect(() => {
     const checkLoanStatus = async () => {
@@ -179,7 +175,6 @@ export default function ViewBook() {
       try {
         const data = await fetchData(endpoint, "GET");
         const libraryNames = data.map((library) => library.name);
-        console.log("🚀 ~ fetchLibraries ~ libraryNames:", libraryNames); // Verifica los datos aquí
         setLibraries(libraryNames);
       } catch (error) {
         toast.error(error.message || "Something went wrong");
@@ -213,6 +208,11 @@ export default function ViewBook() {
       return;
     }
 
+    if (reviewData.score < 1 || reviewData.score > 5) {
+      toast.error("Score must be between 1 and 5");
+      return;
+    }
+
     try {
       await fetchData(
         "/reviews",
@@ -224,10 +224,7 @@ export default function ViewBook() {
         },
         token
       );
-
-      const reviewsData = await fetchData(`/reviews/${title}`);
-      setReviews(reviewsData);
-      setReviewData({ score: "", comment: "" });
+      toast.success("Review submitted successfully");
       setAlreadyRated(true);
       await fetchExistingReview();
     } catch (error) {
@@ -412,81 +409,6 @@ export default function ViewBook() {
     }
   };
 
-  const handleEditReview = () => {
-    setIsEditing(true);
-    setTempReviewData({ score: currentUserScore, comment: currentUserComment });
-  };
-
-  const handleTempReviewChange = (e) => {
-    const { name, value } = e.target;
-    setTempReviewData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleTempStarClick = (star) => {
-    setTempReviewData((prevData) => ({
-      ...prevData,
-      score: star,
-    }));
-  };
-
-  const handleSaveEditedReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      await fetchData(
-        "/reviews",
-        "PUT",
-        {
-          title,
-          score: tempReviewData.score,
-          comment: tempReviewData.comment,
-        },
-        token
-      );
-
-      setCurrentUserScore(tempReviewData.score);
-      setCurrentUserComment(tempReviewData.comment);
-      setIsEditing(false);
-      fetchExistingReview();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setTempReviewData({ score: "", comment: "" });
-  };
-
-  const handleDeleteReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      await fetchData(`/reviews/${title}`, "DELETE", null, token);
-
-      setAlreadyRated(false);
-      setReviewData({ score: "", comment: "" });
-      setCurrentUserScore("");
-      setCurrentUserComment("");
-
-      const reviewsData = await fetchData(`/reviews/${title}`);
-      setReviews(reviewsData);
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -521,6 +443,7 @@ export default function ViewBook() {
       toast.error(error.message || "Something went wrong");
     }
   };
+
   if (!book) {
     return (
       <div className="modal-book">
@@ -530,6 +453,7 @@ export default function ViewBook() {
       </div>
     );
   }
+
   return (
     <main className="container mt-5">
       {/* Info, edition and requesting book */}
@@ -666,11 +590,21 @@ export default function ViewBook() {
       )}
 
       {/* Your review */}
-
+      <UserReview
+        isLoggedIn={isLoggedIn}
+        alreadyRated={alreadyRated}
+        setAlreadyRated={setAlreadyRated}
+        title={title}
+        currentUserScore={currentUserScore}
+        setCurrentUserScore={setCurrentUserScore}
+        currentUserComment={currentUserComment}
+        setCurrentUserComment={setCurrentUserComment}
+        fetchExistingReview={fetchExistingReview}
+      />
 
       {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
-      <ReviewList title={title} username={username} />
+      <ReviewList title={title} username={username}/>
 
       <EditBookAttributeModal
         editingAttribute={editingAttribute}
