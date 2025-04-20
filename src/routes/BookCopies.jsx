@@ -12,6 +12,9 @@ export default function BookCopies() {
 	const [showModal, setShowModal] = useState(false);
 	const [libraries, setLibraries] = useState([]);
 	const [newCopy, setNewCopy] = useState({ barcode: "", libraryName: "" });
+	const [showChangeLibraryModal, setShowChangeLibraryModal] = useState(false);
+	const [selectedCopyId, setSelectedCopyId] = useState(null);
+	const [selectedLibrary, setSelectedLibrary] = useState("");
 
 	useEffect(() => {
 		fetchBookCopies();
@@ -70,6 +73,33 @@ export default function BookCopies() {
 		}
 	};
 
+	const handleChangeLibrary = async (copyId) => {
+		setSelectedCopyId(copyId);
+		setSelectedLibrary("");
+		setShowChangeLibraryModal(true);
+	};
+
+	const submitChangeLibrary = async () => {
+		if (!selectedLibrary) {
+			toast.error("Please select a library");
+			return;
+		}
+		try {
+			const token = localStorage.getItem("token");
+			await fetchData(
+				`/bookCopy/changeLibrary`,
+				"POST",
+				{ copyId: selectedCopyId, libraryName: selectedLibrary },
+				token
+			);
+			toast.success("Library changed successfully");
+			setShowChangeLibraryModal(false);
+			await fetchBookCopies();
+		} catch (err) {
+			toast.error(err.message || "Failed to change library");
+		}
+	};
+
 	const handleDeleteCopy = async (copyId) => {
 		if (!window.confirm("Are you sure you want to delete this copy?")) {
 			return;
@@ -111,9 +141,10 @@ export default function BookCopies() {
 					{copies.map((copy) => (
 						<li
 							key={copy.id}
-							className="list-group-item d-flex align-items-center"
+							className="list-group-item d-flex align-items-center flex-wrap"
+							style={{ padding: "10px" }}
 						>
-							<div className="col-md-3">
+							<div className="col-md-2">
 								<strong>Barcode:</strong> {copy.barcode}
 							</div>
 							<div className="col-md-2">
@@ -138,7 +169,15 @@ export default function BookCopies() {
 									<span>No current reservation or loan</span>
 								)}
 							</div>
-							<div className="col-md-1 text-end">
+							<div className="col-md-2 text-end d-flex justify-content-between">
+								<Button
+									variant="warning"
+									size="sm"
+									className="me-1"
+									onClick={() => handleChangeLibrary(copy.id)}
+								>
+									Change Library
+								</Button>
 								<Button
 									variant="danger"
 									size="sm"
@@ -203,6 +242,45 @@ export default function BookCopies() {
 					</Button>
 					<Button variant="primary" onClick={handleAddCopy}>
 						Add Copy
+					</Button>
+				</Modal.Footer>
+			</Modal>
+
+			<Modal
+				show={showChangeLibraryModal}
+				onHide={() => setShowChangeLibraryModal(false)}
+			>
+				<Modal.Header closeButton>
+					<Modal.Title>Change Library</Modal.Title>
+				</Modal.Header>
+				<Modal.Body>
+					<Form>
+						<Form.Group controlId="formChangeLibrary">
+							<Form.Label>Select New Library</Form.Label>
+							<Form.Control
+								as="select"
+								value={selectedLibrary}
+								onChange={(e) => setSelectedLibrary(e.target.value)}
+							>
+								<option value="">Select a library</option>
+								{libraries.map((libraryName, index) => (
+									<option key={index} value={libraryName}>
+										{libraryName}
+									</option>
+								))}
+							</Form.Control>
+						</Form.Group>
+					</Form>
+				</Modal.Body>
+				<Modal.Footer>
+					<Button
+						variant="secondary"
+						onClick={() => setShowChangeLibraryModal(false)}
+					>
+						Close
+					</Button>
+					<Button variant="primary" onClick={submitChangeLibrary}>
+						Change Library
 					</Button>
 				</Modal.Footer>
 			</Modal>
