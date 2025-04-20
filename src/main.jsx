@@ -15,6 +15,7 @@ import Genres from "./routes/Genres.jsx";
 import Authors from "./routes/Authors.jsx";
 import PendingBooks from "./routes/PendingBooks.jsx";
 import BookCopies from "./routes/BookCopies.jsx";
+import Libraries from "./routes/Libraries.jsx";
 
 const router = createBrowserRouter([
 	{
@@ -76,6 +77,10 @@ const router = createBrowserRouter([
 			{
 				path: "/bookCopies/:title",
 				element: <BookCopies />,
+			},
+			{
+				path: "/libraries",
+				element: <Libraries />,
 			},
 		],
 	},
