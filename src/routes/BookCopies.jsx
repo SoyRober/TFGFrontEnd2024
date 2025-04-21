@@ -68,7 +68,7 @@ export default function BookCopies() {
     try {
       const token = localStorage.getItem("token");
       await fetchData(
-        "/bookCopy/addCopy",
+        "/bookCopy/add",
         "POST",
         {
           bookTitle: title,
@@ -117,7 +117,7 @@ export default function BookCopies() {
     try {
       const token = localStorage.getItem("token");
       await fetchData(
-        `/bookCopy/deleteCopy?copyId=${selectedCopyId}`,
+        `/bookCopy?copyId=${selectedCopyId}`,
         "DELETE",
         null,
         token
@@ -178,7 +178,7 @@ export default function BookCopies() {
               </div>
               <div className="col-md-2">
                 <strong>Available:</strong>{" "}
-                {copy.available ? (
+                {copy.loanUser === "none" ? (
                   <span className="text-success">Yes</span>
                 ) : (
                   <span className="text-danger">No</span>
