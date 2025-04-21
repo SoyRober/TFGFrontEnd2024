@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
-import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal"; // Importar el modal
+import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
+import ChangeLibraryModal from "../components/BookCopies/ChangeLibraryModal"; 
+import CreateCopyModal from "../components/BookCopies/CreateCopyModal";
 
 export default function BookCopies() {
   const { title } = useParams();
@@ -18,7 +20,7 @@ export default function BookCopies() {
   const [showChangeLibraryModal, setShowChangeLibraryModal] = useState(false);
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [selectedLibrary, setSelectedLibrary] = useState("");
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Estado para mostrar el modal de eliminación
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchBookCopies();
@@ -36,7 +38,7 @@ export default function BookCopies() {
         setCopies((prevCopies) => [...prevCopies, ...data.message]);
       } else {
         setCopies(data);
-		toast.error(data.message);
+        toast.error(data.message);
       }
     } catch (err) {
       setError(err.message || "Failed to fetch book copies");
@@ -121,7 +123,7 @@ export default function BookCopies() {
         token
       );
       toast.success("Copy deleted successfully");
-      setShowDeleteModal(false); // Cerrar el modal después de eliminar
+      setShowDeleteModal(false);
       await fetchBookCopies();
     } catch (err) {
       toast.error(err.message || "Failed to delete copy");
@@ -208,7 +210,7 @@ export default function BookCopies() {
                 <Button
                   variant="danger"
                   size="sm"
-                  onClick={() => openDeleteModal(copy.id)} // Abrir el modal de confirmación
+                  onClick={() => openDeleteModal(copy.id)}
                 >
                   Delete
                 </Button>
@@ -227,91 +229,24 @@ export default function BookCopies() {
       />
 
       {/* Add New Copy Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Copy</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formBarcode">
-              <Form.Label>Barcode</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter barcode"
-                value={newCopy.barcode}
-                onChange={(e) =>
-                  setNewCopy({ ...newCopy, barcode: e.target.value })
-                }
-              />
-            </Form.Group>
-            <Form.Group controlId="formLibrary">
-              <Form.Label>Library</Form.Label>
-              <Form.Control
-                as="select"
-                value={newCopy.libraryName}
-                onChange={(e) =>
-                  setNewCopy({ ...newCopy, libraryName: e.target.value })
-                }
-              >
-                <option value="">Select a library</option>
-                {libraries.map((libraryName, index) => (
-                  <option key={index} value={libraryName}>
-                    {libraryName}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleAddCopy}>
-            Add Copy
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <CreateCopyModal
+        showModal={showModal}
+        setShowModal={setShowModal}
+        newCopy={newCopy}
+        setNewCopy={setNewCopy}
+        libraries={libraries}
+        handleAddCopy={handleAddCopy}
+      />
 
       {/* Change Library Modal */}
-      <Modal
-        show={showChangeLibraryModal}
-        onHide={() => setShowChangeLibraryModal(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Change Library</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formChangeLibrary">
-              <Form.Label>Select New Library</Form.Label>
-              <Form.Control
-                as="select"
-                value={selectedLibrary}
-                onChange={(e) => setSelectedLibrary(e.target.value)}
-              >
-                <option value="">Select a library</option>
-                {libraries.map((libraryName, index) => (
-                  <option key={index} value={libraryName}>
-                    {libraryName}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowChangeLibraryModal(false)}
-          >
-            Close
-          </Button>
-          <Button variant="primary" onClick={submitChangeLibrary}>
-            Change Library
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <ChangeLibraryModal
+        showChangeLibraryModal={showChangeLibraryModal}
+        setShowChangeLibraryModal={setShowChangeLibraryModal}
+        selectedLibrary={selectedLibrary}
+        setSelectedLibrary={setSelectedLibrary}
+        libraries={libraries}
+        submitChangeLibrary={submitChangeLibrary}
+      />
     </div>
   );
 }
