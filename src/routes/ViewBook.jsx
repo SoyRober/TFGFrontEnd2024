@@ -17,6 +17,15 @@ import ReviewList from "../components/ReviewComponents/ReviewList.jsx";
 import UserReview from "../components/ReviewComponents/UserReview.jsx";
 import SubmitReview from "../components/ReviewComponents/SubmitReview.jsx";
 
+// Constantes para evitar valores mágicos
+const IMAGE_DIMENSIONS = { width: 300, height: 300 };
+const API_ENDPOINTS = {
+  BOOKS: "/books",
+  RESERVE: "/reserveByTitle",
+  CANCEL_RESERVATION: "/cancelReservation",
+  LOAN: "/loan",
+};
+
 export default function ViewBook() {
   const { title } = useParams();
   const navigate = useNavigate();
@@ -244,6 +253,38 @@ export default function ViewBook() {
     setSelectedLibraries(selectedValues);
   };
 
+  // Función auxiliar para manejar errores
+  const handleError = (error, defaultMessage = "Something went wrong") => {
+    toast.error(error.message || defaultMessage);
+  };
+
+  // Función auxiliar para construir el payload
+  const buildPayload = () => {
+    const payload = new FormData();
+    payload.append("title", title);
+    payload.append("attribute", editingAttribute);
+
+    switch (editingAttribute) {
+      case "authors":
+        payload.append("value", JSON.stringify(selectedAuthors));
+        break;
+      case "genres":
+        payload.append("value", JSON.stringify(selectedGenres));
+        break;
+      case "libraries":
+        payload.append("value", JSON.stringify(selectedLibraries));
+        break;
+      case "isAdult":
+        payload.append("value", editValue === "true");
+        break;
+      default:
+        payload.append("value", editValue);
+    }
+
+    return payload;
+  };
+
+  // Función para manejar la edición y envío del formulario
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -257,36 +298,24 @@ export default function ViewBook() {
       return;
     }
 
-    const payload = new FormData();
-    payload.append("title", title);
-    payload.append("attribute", editingAttribute);
-
-    if (editingAttribute === "authors") {
-      payload.append("value", JSON.stringify(selectedAuthors));
-    } else if (editingAttribute === "genres") {
-      payload.append("value", JSON.stringify(selectedGenres));
-    } else if (editingAttribute === "libraries") {
-      payload.append("value", JSON.stringify(selectedLibraries));
-    } else if (editingAttribute === "isAdult") {
-      const booleanValue = editValue === "true";
-      payload.append("value", booleanValue);
-    } else {
-      payload.append("value", editValue);
-    }
+    const payload = buildPayload();
 
     if (newImage) {
       try {
-        const resizedImageBlob = await compressImage(newImage, 300, 300);
+        const resizedImageBlob = await compressImage(
+          newImage,
+          IMAGE_DIMENSIONS.width,
+          IMAGE_DIMENSIONS.height
+        );
         payload.append("image", resizedImageBlob);
       } catch (error) {
-        toast.error("Error resizing image: " + error.message);
+        handleError(error, "Error resizing image");
         return;
       }
     }
 
     try {
-      const updatedBook = await fetchData("/books", "PUT", payload, token);
-
+      const updatedBook = await fetchData(API_ENDPOINTS.BOOKS, "PUT", payload, token);
       setBook(updatedBook);
       setEditingAttribute(null);
 
@@ -296,7 +325,7 @@ export default function ViewBook() {
         fetchBookData();
       }
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
@@ -324,6 +353,7 @@ export default function ViewBook() {
     }
   };
 
+  // Función para manejar la reserva de un libro
   const handleReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -333,7 +363,7 @@ export default function ViewBook() {
 
     try {
       await fetchData(
-        `/reserveByTitle?title=${encodeURIComponent(title)}`,
+        `${API_ENDPOINTS.RESERVE}?title=${encodeURIComponent(title)}`,
         "POST",
         null,
         token
@@ -342,10 +372,11 @@ export default function ViewBook() {
       setIsReserved(true);
       await fetchQuantity();
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
+  // Función para cancelar la reserva
   const handleCancelReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -355,7 +386,7 @@ export default function ViewBook() {
 
     try {
       await fetchData(
-        `/cancelReservation?title=${encodeURIComponent(title)}`,
+        `${API_ENDPOINTS.CANCEL_RESERVATION}?title=${encodeURIComponent(title)}`,
         "POST",
         null,
         token
@@ -364,10 +395,11 @@ export default function ViewBook() {
       setIsReserved(false);
       await fetchQuantity();
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
+  // Función para manejar el préstamo a un usuario
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -382,7 +414,7 @@ export default function ViewBook() {
 
     try {
       const response = await fetchData(
-        `/loan/${selectedUser}`,
+        `${API_ENDPOINTS.LOAN}/${selectedUser}`,
         "POST",
         {
           bookTitle: book.title,
@@ -395,11 +427,11 @@ export default function ViewBook() {
         toast.success("Book loaned to user successfully");
         await fetchQuantity();
       } else {
-        toast.error(response.message || "Something went wrong");
+        handleError(response);
       }
       setShowLoanToUserModal(false);
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
