@@ -5,6 +5,8 @@ const ChangeLibraryModal = ({
     setShowChangeLibraryModal,
     selectedLibrary,
     setSelectedLibrary,
+    selectedBarcode,
+    setSelectedBarcode,
     libraries,
     submitChangeLibrary,
 }) => {
@@ -14,10 +16,22 @@ const ChangeLibraryModal = ({
             onHide={() => setShowChangeLibraryModal(false)}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Change Library</Modal.Title>
+                <Modal.Title>Change Attributes</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <Form>
+                    {/* Input para cambiar el Barcode */}
+                    <Form.Group controlId="formChangeBarcode" className="mb-3">
+                        <Form.Label>Change Barcode</Form.Label>
+                        <Form.Control
+                            type="text"
+                            placeholder="Enter new barcode"
+                            value={selectedBarcode}
+                            onChange={(e) => setSelectedBarcode(e.target.value)}
+                        />
+                    </Form.Group>
+
+                    {/* Dropdown para cambiar la Library */}
                     <Form.Group controlId="formChangeLibrary">
                         <Form.Label>Select New Library</Form.Label>
                         <Form.Control
@@ -43,7 +57,7 @@ const ChangeLibraryModal = ({
                     Close
                 </Button>
                 <Button variant="primary" onClick={submitChangeLibrary}>
-                    Change Library
+                    Save Changes
                 </Button>
             </Modal.Footer>
         </Modal>

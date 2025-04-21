@@ -6,7 +6,7 @@ import { Button } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
-import ChangeLibraryModal from "../components/BookCopies/ChangeLibraryModal"; 
+import ChangeLibraryModal from "../components/BookCopies/ChangeAttributes.jsx";
 import CreateCopyModal from "../components/BookCopies/CreateCopyModal";
 
 export default function BookCopies() {
@@ -20,6 +20,7 @@ export default function BookCopies() {
   const [showChangeLibraryModal, setShowChangeLibraryModal] = useState(false);
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [selectedLibrary, setSelectedLibrary] = useState("");
+  const [selectedBarcode, setSelectedBarcode] = useState(""); // Nuevo estado para el barcode
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
@@ -35,7 +36,12 @@ export default function BookCopies() {
       );
 
       if (data.success) {
-        setCopies((prevCopies) => [...prevCopies, ...data.message]);
+        setCopies((prevCopies) => {
+          const newCopies = data.message.filter(
+            (newCopy) => !prevCopies.some((copy) => copy.id === newCopy.id)
+          );
+          return [...prevCopies, ...newCopies];
+        });
       } else {
         setCopies(data);
         toast.error(data.message);
@@ -86,30 +92,50 @@ export default function BookCopies() {
     }
   };
 
-  const handleChangeLibrary = async (copyId) => {
+  const handleChangeLibrary = async (copyId, barcode, libraryName) => {
     setSelectedCopyId(copyId);
-    setSelectedLibrary("");
+    setSelectedBarcode(barcode);
+    setSelectedLibrary(libraryName);
     setShowChangeLibraryModal(true);
   };
 
-  const submitChangeLibrary = async () => {
-    if (!selectedLibrary) {
-      toast.error("Please select a library");
+  const handleUpdate = async () => {
+    if (!selectedLibrary && !selectedBarcode) {
+      toast.error(
+        "At least one attribute (Barcode or Library) must be updated"
+      );
       return;
     }
+
     try {
       const token = localStorage.getItem("token");
       await fetchData(
-        `/bookCopy/changeLibrary`,
-        "POST",
-        { copyId: selectedCopyId, libraryName: selectedLibrary },
+        `/bookCopy`,
+        "PUT",
+        {
+          id: selectedCopyId,
+          newLibrary: selectedLibrary || "",
+          newBarcode: selectedBarcode || "",
+        },
         token
       );
-      toast.success("Library changed successfully");
+      toast.success("Attributes changed successfully");
+
+      setCopies((prevCopies) =>
+        prevCopies.map((copy) =>
+          copy.id === selectedCopyId
+            ? {
+                ...copy,
+                libraryName: selectedLibrary || copy.libraryName,
+                barcode: selectedBarcode || copy.barcode,
+              }
+            : copy
+        )
+      );
+
       setShowChangeLibraryModal(false);
-      await fetchBookCopies();
     } catch (err) {
-      toast.error(err.message || "Failed to change library");
+      toast.error(err.message || "Failed to change attributes");
     }
   };
 
@@ -152,10 +178,7 @@ export default function BookCopies() {
     <div className="container mt-5">
       <div className="d-flex justify-content-between align-items-center">
         <h1>Copies of {title}</h1>
-        <Button
-          variant="primary"
-          onClick={() => setShowModal(true)}
-        >
+        <Button variant="primary" onClick={() => setShowModal(true)}>
           Add New Copy
         </Button>
       </div>
@@ -164,7 +187,9 @@ export default function BookCopies() {
         next={fetchMoreCopies}
         hasMore={copies.length % 30 === 0}
         loader={<Loading />}
-        endMessage={<p style={{ textAlign: "center" }}>There aren't more copies</p>}
+        endMessage={
+          <p style={{ textAlign: "center" }}>There aren't more copies</p>
+        }
       >
         <ul className="list-group">
           {copies.map((copy) => (
@@ -203,9 +228,11 @@ export default function BookCopies() {
                   variant="warning"
                   size="sm"
                   className="me-1"
-                  onClick={() => handleChangeLibrary(copy.id)}
+                  onClick={() =>
+                    handleChangeLibrary(copy.id, copy.barcode, copy.libraryName)
+                  }
                 >
-                  Change Library
+                  Update
                 </Button>
                 <Button
                   variant="danger"
@@ -244,8 +271,10 @@ export default function BookCopies() {
         setShowChangeLibraryModal={setShowChangeLibraryModal}
         selectedLibrary={selectedLibrary}
         setSelectedLibrary={setSelectedLibrary}
+        selectedBarcode={selectedBarcode} // Pasar el estado del barcode
+        setSelectedBarcode={setSelectedBarcode} // Pasar el setter del barcode
         libraries={libraries}
-        submitChangeLibrary={submitChangeLibrary}
+        submitChangeLibrary={handleUpdate}
       />
     </div>
   );
