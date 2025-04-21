@@ -26,8 +26,6 @@ export default function ViewBook() {
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [imageSrc, setImageSrc] = useState("");
-  const [reviewData, setReviewData] = useState({ score: "", comment: "" });
-  const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isLoaned, setLoanStatus] = useState();
@@ -192,46 +190,6 @@ export default function ViewBook() {
     fetchQuantity();
     fetchLibraries();
   }, [title, fetchBookData, fetchExistingReview]);
-
-  const handleReviewChange = (e) => {
-    const { name, value } = e.target;
-    setReviewData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    if (reviewData.score < 1 || reviewData.score > 5) {
-      toast.error("Score must be between 1 and 5");
-      return;
-    }
-
-    try {
-      await fetchData(
-        "/reviews",
-        "POST",
-        {
-          title,
-          score: reviewData.score,
-          comment: reviewData.comment,
-        },
-        token
-      );
-      toast.success("Review submitted successfully");
-      setAlreadyRated(true);
-      await fetchExistingReview();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
 
   const handleEditClick = (attribute) => {
     if (attribute === "quantity") {
@@ -405,25 +363,6 @@ export default function ViewBook() {
       toast.success("Reservation canceled");
       setIsReserved(false);
       await fetchQuantity();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
-  const handleDeleteReview = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    try {
-      await fetchData(`/reviews/${title}`, "DELETE", null, token);
-
-      setAlreadyRated(false);
-      setReviewData({ score: "", comment: "" });
-      setCurrentUserScore("");
-      setCurrentUserComment("");
     } catch (error) {
       toast.error(error.message || "Something went wrong");
     }
