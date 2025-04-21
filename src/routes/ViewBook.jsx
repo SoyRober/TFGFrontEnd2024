@@ -543,51 +543,7 @@ export default function ViewBook() {
       )}
 
       {/* Review sender */}
-      {isLoggedIn && !alreadyRated && (
-        <form onSubmit={handleReviewSubmit} className="mb-5">
-          <div className="form-group">
-            <label>Score:</label>
-            <div className="star-rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  type="button"
-                  key={star}
-                  className={star <= (hover || reviewData.score) ? "on" : "off"}
-                  onClick={() =>
-                    setReviewData((prevData) => ({ ...prevData, score: star }))
-                  }
-                  onMouseEnter={() => setHover(star)}
-                  onMouseLeave={() => setHover(reviewData.score)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "2rem",
-                    color:
-                      star <= (hover || reviewData.score) ? "gold" : "grey",
-                  }}
-                >
-                  <span className="star">&#9733;</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="comment">Comment:</label>
-            <textarea
-              className="form-control"
-              id="comment"
-              name="comment"
-              value={reviewData.comment}
-              onChange={handleReviewChange}
-              required
-            ></textarea>
-          </div>
-          <button type="submit" className="btn btn-primary mt-3">
-            Submit Review
-          </button>
-        </form>
-      )}
+      <SubmitReview />
 
       {/* Your review */}
       <UserReview
