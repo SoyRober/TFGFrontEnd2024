@@ -15,6 +15,16 @@ import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
 import ReviewList from "../components/ReviewComponents/ReviewList.jsx";
 import UserReview from "../components/ReviewComponents/UserReview.jsx";
+import SubmitReview from "../components/ReviewComponents/SubmitReview.jsx";
+
+// Constantes para evitar valores mágicos
+const IMAGE_DIMENSIONS = { width: 300, height: 300 };
+const API_ENDPOINTS = {
+  BOOKS: "/books",
+  RESERVE: "/reserveByTitle",
+  CANCEL_RESERVATION: "/cancelReservation",
+  LOAN: "/loan",
+};
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -25,8 +35,6 @@ export default function ViewBook() {
   const [editingAttribute, setEditingAttribute] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [imageSrc, setImageSrc] = useState("");
-  const [reviewData, setReviewData] = useState({ score: "", comment: "" });
-  const [hover, setHover] = useState(0);
   const [newImage, setNewImage] = useState(null);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isLoaned, setLoanStatus] = useState();
@@ -192,46 +200,6 @@ export default function ViewBook() {
     fetchLibraries();
   }, [title, fetchBookData, fetchExistingReview]);
 
-  const handleReviewChange = (e) => {
-    const { name, value } = e.target;
-    setReviewData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleReviewSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
-    if (reviewData.score < 1 || reviewData.score > 5) {
-      toast.error("Score must be between 1 and 5");
-      return;
-    }
-
-    try {
-      await fetchData(
-        "/reviews",
-        "POST",
-        {
-          title,
-          score: reviewData.score,
-          comment: reviewData.comment,
-        },
-        token
-      );
-      toast.success("Review submitted successfully");
-      setAlreadyRated(true);
-      await fetchExistingReview();
-    } catch (error) {
-      toast.error(error.message || "Something went wrong");
-    }
-  };
-
   const handleEditClick = (attribute) => {
     if (attribute === "quantity") {
       navigate(`/bookCopies/${title}`);
@@ -285,6 +253,38 @@ export default function ViewBook() {
     setSelectedLibraries(selectedValues);
   };
 
+  // Función auxiliar para manejar errores
+  const handleError = (error, defaultMessage = "Something went wrong") => {
+    toast.error(error.message || defaultMessage);
+  };
+
+  // Función auxiliar para construir el payload
+  const buildPayload = () => {
+    const payload = new FormData();
+    payload.append("title", title);
+    payload.append("attribute", editingAttribute);
+
+    switch (editingAttribute) {
+      case "authors":
+        payload.append("value", JSON.stringify(selectedAuthors));
+        break;
+      case "genres":
+        payload.append("value", JSON.stringify(selectedGenres));
+        break;
+      case "libraries":
+        payload.append("value", JSON.stringify(selectedLibraries));
+        break;
+      case "isAdult":
+        payload.append("value", editValue === "true");
+        break;
+      default:
+        payload.append("value", editValue);
+    }
+
+    return payload;
+  };
+
+  // Función para manejar la edición y envío del formulario
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -298,36 +298,24 @@ export default function ViewBook() {
       return;
     }
 
-    const payload = new FormData();
-    payload.append("title", title);
-    payload.append("attribute", editingAttribute);
-
-    if (editingAttribute === "authors") {
-      payload.append("value", JSON.stringify(selectedAuthors));
-    } else if (editingAttribute === "genres") {
-      payload.append("value", JSON.stringify(selectedGenres));
-    } else if (editingAttribute === "libraries") {
-      payload.append("value", JSON.stringify(selectedLibraries));
-    } else if (editingAttribute === "isAdult") {
-      const booleanValue = editValue === "true";
-      payload.append("value", booleanValue);
-    } else {
-      payload.append("value", editValue);
-    }
+    const payload = buildPayload();
 
     if (newImage) {
       try {
-        const resizedImageBlob = await compressImage(newImage, 300, 300);
+        const resizedImageBlob = await compressImage(
+          newImage,
+          IMAGE_DIMENSIONS.width,
+          IMAGE_DIMENSIONS.height
+        );
         payload.append("image", resizedImageBlob);
       } catch (error) {
-        toast.error("Error resizing image: " + error.message);
+        handleError(error, "Error resizing image");
         return;
       }
     }
 
     try {
-      const updatedBook = await fetchData("/books", "PUT", payload, token);
-
+      const updatedBook = await fetchData(API_ENDPOINTS.BOOKS, "PUT", payload, token);
       setBook(updatedBook);
       setEditingAttribute(null);
 
@@ -337,7 +325,7 @@ export default function ViewBook() {
         fetchBookData();
       }
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
@@ -365,6 +353,7 @@ export default function ViewBook() {
     }
   };
 
+  // Función para manejar la reserva de un libro
   const handleReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -374,7 +363,7 @@ export default function ViewBook() {
 
     try {
       await fetchData(
-        `/reserveByTitle?title=${encodeURIComponent(title)}`,
+        `${API_ENDPOINTS.RESERVE}?title=${encodeURIComponent(title)}`,
         "POST",
         null,
         token
@@ -383,10 +372,11 @@ export default function ViewBook() {
       setIsReserved(true);
       await fetchQuantity();
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
+  // Función para cancelar la reserva
   const handleCancelReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -396,7 +386,7 @@ export default function ViewBook() {
 
     try {
       await fetchData(
-        `/cancelReservation?title=${encodeURIComponent(title)}`,
+        `${API_ENDPOINTS.CANCEL_RESERVATION}?title=${encodeURIComponent(title)}`,
         "POST",
         null,
         token
@@ -405,10 +395,11 @@ export default function ViewBook() {
       setIsReserved(false);
       await fetchQuantity();
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
+  // Función para manejar el préstamo a un usuario
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -423,7 +414,7 @@ export default function ViewBook() {
 
     try {
       const response = await fetchData(
-        `/loan/${selectedUser}`,
+        `${API_ENDPOINTS.LOAN}/${selectedUser}`,
         "POST",
         {
           bookTitle: book.title,
@@ -436,11 +427,11 @@ export default function ViewBook() {
         toast.success("Book loaned to user successfully");
         await fetchQuantity();
       } else {
-        toast.error(response.message || "Something went wrong");
+        handleError(response);
       }
       setShowLoanToUserModal(false);
     } catch (error) {
-      toast.error(error.message || "Something went wrong");
+      handleError(error);
     }
   };
 
@@ -543,51 +534,13 @@ export default function ViewBook() {
       )}
 
       {/* Review sender */}
-      {isLoggedIn && !alreadyRated && (
-        <form onSubmit={handleReviewSubmit} className="mb-5">
-          <div className="form-group">
-            <label>Score:</label>
-            <div className="star-rating">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  type="button"
-                  key={star}
-                  className={star <= (hover || reviewData.score) ? "on" : "off"}
-                  onClick={() =>
-                    setReviewData((prevData) => ({ ...prevData, score: star }))
-                  }
-                  onMouseEnter={() => setHover(star)}
-                  onMouseLeave={() => setHover(reviewData.score)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "2rem",
-                    color:
-                      star <= (hover || reviewData.score) ? "gold" : "grey",
-                  }}
-                >
-                  <span className="star">&#9733;</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="form-group">
-            <label htmlFor="comment">Comment:</label>
-            <textarea
-              className="form-control"
-              id="comment"
-              name="comment"
-              value={reviewData.comment}
-              onChange={handleReviewChange}
-              required
-            ></textarea>
-          </div>
-          <button type="submit" className="btn btn-primary mt-3">
-            Submit Review
-          </button>
-        </form>
-      )}
+      <SubmitReview
+        title={title}
+        isLoggedIn={isLoggedIn}
+        alreadyRated={alreadyRated}
+        setAlreadyRated={setAlreadyRated}
+        fetchExistingReview={fetchExistingReview}
+      />
 
       {/* Your review */}
       <UserReview
@@ -601,11 +554,10 @@ export default function ViewBook() {
         setCurrentUserComment={setCurrentUserComment}
         fetchExistingReview={fetchExistingReview}
       />
-
       {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
-      <ReviewList title={title} username={username}/>
-
+      <ReviewList title={title} username={username} />
+      
       <EditBookAttributeModal
         editingAttribute={editingAttribute}
         editValue={editValue}
@@ -623,21 +575,18 @@ export default function ViewBook() {
         handleImageChange={handleImageChange}
         handleLibraryChange={handleLibraryChange}
       />
-
       <DeleteConfirmationModal
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={handleDeleteBook}
         message={`This book "${book.title}" will be deleted. Are you sure?`}
       />
-
       <BookReservationModal
         show={showUnavailableModal}
         onClose={() => setShowUnavailableModal(false)}
         onConfirm={handleReservation}
         onCancel={() => setShowUnavailableModal(false)}
       />
-
       <LoanToUserModal
         show={showLoanToUserModal}
         onClose={() => setShowLoanToUserModal(false)}

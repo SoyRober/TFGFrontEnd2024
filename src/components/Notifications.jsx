@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 const Notifications = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [token] = useState(localStorage.getItem("token") || "");
   const notificationsRef = useRef(null);
 
   useEffect(() => {

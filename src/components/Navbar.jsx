@@ -6,8 +6,8 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { jwtDecode } from "jwt-decode";
 import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
-import Notifications from "../components/Notifications.jsx";
-import LibrarySelector from "../components/LibrarySelector.jsx";
+import Notifications from "./Notifications.jsx";
+import LibrarySelector from "./LibrarySelector.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
