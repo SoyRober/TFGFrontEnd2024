@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const SelectableList = ({
   label,
@@ -8,11 +8,6 @@ const SelectableList = ({
   handleRemoveItem,
 }) => {
   const [newItem, setNewItem] = useState("");
-
-  useEffect(() => {
-    console.log("🚀 ~ items:", items);
-    console.log("🚀 ~ selectedItems:", selectedItems);
-  }, [items, selectedItems]);
 
   const handleSelectChange = (value) => {
     if (value) {
