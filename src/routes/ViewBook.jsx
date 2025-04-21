@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
 import ReviewList from "../components/ReviewComponents/ReviewList.jsx";
 import UserReview from "../components/ReviewComponents/UserReview.jsx";
+import SubmitReview from "../components/ReviewComponents/SubmitReview.jsx";
 
 export default function ViewBook() {
   const { title } = useParams();
@@ -409,6 +410,25 @@ export default function ViewBook() {
     }
   };
 
+  const handleDeleteReview = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found, user might not be authenticated");
+      return;
+    }
+
+    try {
+      await fetchData(`/reviews/${title}`, "DELETE", null, token);
+
+      setAlreadyRated(false);
+      setReviewData({ score: "", comment: "" });
+      setCurrentUserScore("");
+      setCurrentUserComment("");
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
   const handleLoanToUser = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -543,7 +563,13 @@ export default function ViewBook() {
       )}
 
       {/* Review sender */}
-      <SubmitReview />
+      <SubmitReview
+        title={title}
+        isLoggedIn={isLoggedIn}
+        alreadyRated={alreadyRated}
+        setAlreadyRated={setAlreadyRated}
+        fetchExistingReview={fetchExistingReview}
+      />
 
       {/* Your review */}
       <UserReview
@@ -557,11 +583,10 @@ export default function ViewBook() {
         setCurrentUserComment={setCurrentUserComment}
         fetchExistingReview={fetchExistingReview}
       />
-
       {/* All reviews */}
       <h2 className="mt-5">Reviews</h2>
-      <ReviewList title={title} username={username}/>
-
+      <ReviewList title={title} username={username} />
+      
       <EditBookAttributeModal
         editingAttribute={editingAttribute}
         editValue={editValue}
@@ -579,21 +604,18 @@ export default function ViewBook() {
         handleImageChange={handleImageChange}
         handleLibraryChange={handleLibraryChange}
       />
-
       <DeleteConfirmationModal
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={handleDeleteBook}
         message={`This book "${book.title}" will be deleted. Are you sure?`}
       />
-
       <BookReservationModal
         show={showUnavailableModal}
         onClose={() => setShowUnavailableModal(false)}
         onConfirm={handleReservation}
         onCancel={() => setShowUnavailableModal(false)}
       />
-
       <LoanToUserModal
         show={showLoanToUserModal}
         onClose={() => setShowLoanToUserModal(false)}
