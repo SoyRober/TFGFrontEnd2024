@@ -53,6 +53,7 @@ export default function Homepage() {
   const [debouncedGenre, setDebouncedGenre] = useState(searchTermGenre);
   const [debouncedStartDate, setDebouncedStartDate] = useState(startDateFilter);
   const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
+  const [isAdultUser, setIsAdultUser] = useState(false);
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -75,6 +76,16 @@ export default function Homepage() {
       });
     }
   }, [token]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userPayload = JSON.parse(atob(token.split(".")[1]));
+      const birthDate = new Date(userPayload.birthDate); // Suponiendo que el token contiene la fecha de nacimiento
+      const age = new Date().getFullYear() - birthDate.getFullYear();
+      setIsAdultUser(age >= 18);
+    }
+  }, []);
 
   useEffect(() => {
     fetchBooksData(page);
@@ -115,7 +126,10 @@ export default function Homepage() {
   useEffect(() => {
     setBooks([]);
     setPage(0);
-    fetchBooksData(0, debouncedStartDate ? debouncedStartDate.getFullYear() : null);
+    fetchBooksData(
+      0,
+      debouncedStartDate ? debouncedStartDate.getFullYear() : null
+    );
   }, [
     debouncedTitle,
     debouncedAuthor,
@@ -175,8 +189,11 @@ export default function Homepage() {
         if (debouncedTitle) params.append("bookName", debouncedTitle);
         if (debouncedAuthor) params.append("authorName", debouncedAuthor);
         if (year !== null) params.append("date", year);
-        if (bookData.isAdult !== "both")
+        if (!isAdultUser) {
+          params.append("isAdult", "false");
+        } else if (bookData.isAdult !== "both") {
           params.append("isAdult", bookData.isAdult);
+        }
         if (debouncedGenre) params.append("genreName", debouncedGenre);
 
         const url = `/books/filter/${localStorage.getItem(
@@ -355,13 +372,13 @@ export default function Homepage() {
             <DatePicker
               selected={startDateFilter}
               onChange={(date) => setStartDateFilter(date)}
-              className="form-control form-control-sm me-2" 
+              className="form-control form-control-sm me-2"
               dateFormat="yyyy"
               placeholderText="Select a year"
               showYearPicker
             />
             <button
-              className="btn btn-outline-secondary bt-sm mx-2" 
+              className="btn btn-outline-secondary bt-sm mx-2"
               type="button"
               onClick={() => {
                 setStartDateFilter("");
@@ -376,13 +393,13 @@ export default function Homepage() {
           <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <input
               type="text"
-              className="form-control form-control-sm me-2" 
+              className="form-control form-control-sm me-2"
               placeholder="Search books..."
               value={searchTermTitle}
               onChange={(e) => setSearchTermTitle(e.target.value)}
             />
             <button
-              className="btn btn-outline-secondary bt-sm" 
+              className="btn btn-outline-secondary bt-sm"
               type="button"
               onClick={() => {
                 setSearchTermTitle("");
@@ -397,13 +414,13 @@ export default function Homepage() {
           <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <input
               type="text"
-              className="form-control form-control-sm me-2" 
+              className="form-control form-control-sm me-2"
               placeholder="Search by author"
               value={searchTermAuthor}
               onChange={(e) => setSearchTermAuthor(e.target.value)}
             />
             <button
-              className="btn btn-outline-secondary bt-sm" 
+              className="btn btn-outline-secondary bt-sm"
               type="button"
               onClick={() => {
                 setSearchTermAuthor("");
@@ -415,41 +432,43 @@ export default function Homepage() {
           </div>
 
           {/* Filtro por contenido adulto */}
-          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-            <select
-              className="form-control form-control-sm me-2" 
-              value={bookData.isAdult}
-              onChange={(e) =>
-                setBookData({ ...bookData, isAdult: e.target.value })
-              }
-            >
-              <option value="both">Both</option>
-              <option value="false">Non-Adult Content</option>
-              <option value="true">Adult Content</option>
-            </select>
-            <button
-              className="btn btn-outline-secondary bt-sm" 
-              type="button"
-              onClick={() => {
-                setBookData({ ...bookData, isAdult: "both" });
-                fetchBooksData(0);
-              }}
-            >
-              ⟲
-            </button>
-          </div>
+          {isAdultUser && (
+            <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
+              <select
+                className="form-control form-control-sm me-2"
+                value={bookData.isAdult}
+                onChange={(e) =>
+                  setBookData({ ...bookData, isAdult: e.target.value })
+                }
+              >
+                <option value="both">Both</option>
+                <option value="false">Non-Adult Content</option>
+                <option value="true">Adult Content</option>
+              </select>
+              <button
+                className="btn btn-outline-secondary btn-sm"
+                type="button"
+                onClick={() => {
+                  setBookData({ ...bookData, isAdult: "both" });
+                  fetchBooksData(0);
+                }}
+              >
+                ⟲
+              </button>
+            </div>
+          )}
 
           {/* Filtro por género */}
           <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <input
               type="text"
-              className="form-control form-control-sm me-2" 
+              className="form-control form-control-sm me-2"
               placeholder="Search by genre"
               value={searchTermGenre}
               onChange={(e) => setSearchTermGenre(e.target.value)}
             />
             <button
-              className="btn btn-outline-secondary bt-sm" 
+              className="btn btn-outline-secondary bt-sm"
               type="button"
               onClick={() => {
                 setSearchTermGenre("");
@@ -463,7 +482,7 @@ export default function Homepage() {
           {/* Botón para reiniciar todos los filtros */}
           <div className="col-12 d-flex justify-content-center mt-3">
             <button
-              className="btn btn-warning" 
+              className="btn btn-warning"
               type="button"
               onClick={() => {
                 setStartDateFilter("");
