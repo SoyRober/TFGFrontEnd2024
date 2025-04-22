@@ -104,35 +104,39 @@ const UsersList = () => {
 
   const resetFilters = () => {
     setFilters({ username: "", email: "" });
-    setPage(0); // Reset page to 0 when resetting filters
-    setReset(true); // Trigger the reset flag to fetch new data
+    setPage(0); 
+    setReset(true);
   };
 
   return (
     <main className="container">
       <h2>User List</h2>
-      <div className="filters mb-4 d-flex align-items-center justify-content-center">
-        <input
-          type="text"
-          placeholder="Filter by username"
-          className="form-control me-2"
-          onChange={(e) => {
-            setFilters((prev) => ({ ...prev, username: e.target.value.trim() }));
-          }}
-          style={{ width: "20%" }}
-        />
-        <input
-          type="text"
-          placeholder="Filter by email"
-          className="form-control me-2"
-          onChange={(e) => {
-            setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
-          }}
-          style={{ width: "20%" }}
-        />
-        <button className="btn btn-warning" onClick={resetFilters}>
-          Reset Filters
-        </button>
+      <div className="filters mb-4 row justify-content-center">
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <input
+            type="text"
+            placeholder="Filter by username"
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({ ...prev, username: e.target.value.trim() }));
+            }}
+          />
+        </div>
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <input
+            type="text"
+            placeholder="Filter by email"
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
+            }}
+          />
+        </div>
+        <div className="col-12 col-md-2 d-flex justify-content-center">
+          <button className="btn btn-warning w-100" onClick={resetFilters}>
+            Reset Filters
+          </button>
+        </div>
       </div>
 
       <InfiniteScroll
