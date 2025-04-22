@@ -9,11 +9,12 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
+  const [address, setAddress] = useState("");
+  const [telephone, setTelephone] = useState("");
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
 
-  const handleShowModal = () => setShowModal(true);
   const handleHideModal = () => setShowModal(false);
 
   useEffect(() => {
@@ -39,6 +40,8 @@ const Register = () => {
       password: password,
       email: email,
       birthDate: birthDate,
+      address: address,
+      telephone: telephone,
       role: "USER",
       image: null,
     };
@@ -64,7 +67,7 @@ const Register = () => {
               <form onSubmit={handleRegister}>
                 <div className="mb-3">
                   <label htmlFor="username" className="form-label">
-                    Username:
+                    Username
                   </label>
                   <input
                     type="text"
@@ -76,7 +79,7 @@ const Register = () => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="password" className="form-label">
-                    Password:
+                    Password
                   </label>
                   <input
                     type="password"
@@ -88,7 +91,7 @@ const Register = () => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">
-                    Email:
+                    Email
                   </label>
                   <input
                     type="email"
@@ -100,7 +103,7 @@ const Register = () => {
                 </div>
                 <div className="mb-3">
                   <label htmlFor="birthDate" className="form-label">
-                    Birth Date:
+                    Birth Date
                   </label>
                   <input
                     type="date"
@@ -108,6 +111,31 @@ const Register = () => {
                     id="birthDate"
                     value={birthDate}
                     onChange={(e) => setBirthDate(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="address" className="form-label">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control shadow-sm"
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="telephone" className="form-label">
+                    Telephone
+                  </label>
+                  <input
+                    type="tel"
+                    className="form-control shadow-sm"
+                    id="telephone"
+                    value={telephone}
+                    onChange={(e) => setTelephone(e.target.value)}
+                    placeholder="No spaces or dashes"
                   />
                 </div>
                 <button
