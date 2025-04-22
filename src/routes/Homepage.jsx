@@ -24,13 +24,14 @@ export default function Homepage() {
     location: "",
     synopsis: "",
     publicationDate: "",
-    isAdult: false,
+    isAdult: "both",
     libraryId: 1,
     image: "",
   });
   const [showModal, setShowModal] = useState(false);
   const [searchTermTitle, setSearchTermTitle] = useState("");
   const [searchTermAuthor, setSearchTermAuthor] = useState("");
+  const [searchTermGenre, setSearchTermGenre] = useState("");
   const [startDateFilter, setStartDateFilter] = useState("");
   const [cardSize, setCardSize] = useState(
     () => localStorage.getItem("cardSize") || "medium"
@@ -39,6 +40,8 @@ export default function Homepage() {
   const [page, setPage] = useState(0);
   const [debouncedTitle, setDebouncedTitle] = useState(searchTermTitle);
   const [debouncedAuthor, setDebouncedAuthor] = useState(searchTermAuthor);
+  const [debouncedGenre, setDebouncedGenre] = useState(searchTermGenre);
+  const [debouncedStartDate, setDebouncedStartDate] = useState(startDateFilter);
   const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
   const navigate = useNavigate();
@@ -49,7 +52,17 @@ export default function Homepage() {
     if (token) {
       const userRole = JSON.parse(atob(token.split(".")[1])).role.toLowerCase();
       if (userRole !== "user") setHasPermissions(true);
-      setBookData([]);
+      setBookData({
+        title: "",
+        authors: [],
+        genres: [],
+        location: "",
+        synopsis: "",
+        publicationDate: "",
+        isAdult: "",
+        libraryId: 1,
+        image: "",
+      });
     }
   }, [token]);
 
@@ -60,12 +73,6 @@ export default function Homepage() {
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
-
-  useEffect(() => {
-    setBooks([]);
-    setPage(0);
-    fetchBooksData(0, startDateFilter ? startDateFilter.getFullYear() : null);
-  }, [startDateFilter, debouncedTitle, debouncedAuthor]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -80,6 +87,33 @@ export default function Homepage() {
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTermAuthor]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedGenre(searchTermGenre);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchTermGenre]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedStartDate(startDateFilter);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [startDateFilter]);
+
+  useEffect(() => {
+    setBooks([]);
+    setPage(0);
+    fetchBooksData(0, debouncedStartDate ? debouncedStartDate.getFullYear() : null);
+  }, [
+    debouncedTitle,
+    debouncedAuthor,
+    debouncedGenre,
+    debouncedStartDate,
+    bookData.isAdult,
+    library,
+  ]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,6 +131,31 @@ export default function Homepage() {
     }
   }, [library]);
 
+  {
+    /* HAY QUE MIRAR POR QUE NO FUNCIONA CORRECTAMENTE EL FILTRO */
+  }
+
+  // Guardar los filtros en localStorage cuando cambien
+  useEffect(() => {
+    localStorage.setItem("searchTermTitle", searchTermTitle);
+  }, [searchTermTitle]);
+
+  useEffect(() => {
+    localStorage.setItem("searchTermAuthor", searchTermAuthor);
+  }, [searchTermAuthor]);
+
+  useEffect(() => {
+    localStorage.setItem("searchTermGenre", searchTermGenre);
+  }, [searchTermGenre]);
+
+  useEffect(() => {
+    localStorage.setItem("startDateFilter", startDateFilter || "");
+  }, [startDateFilter]);
+
+  useEffect(() => {
+    localStorage.setItem("isAdultFilter", bookData.isAdult);
+  }, [bookData.isAdult]);
+
   const fetchBooksData = useCallback(
     async (page, year = null) => {
       if (isFetching) return;
@@ -106,6 +165,9 @@ export default function Homepage() {
         if (debouncedTitle) params.append("bookName", debouncedTitle);
         if (debouncedAuthor) params.append("authorName", debouncedAuthor);
         if (year !== null) params.append("date", year);
+        if (bookData.isAdult !== "both")
+          params.append("isAdult", bookData.isAdult);
+        if (debouncedGenre) params.append("genreName", debouncedGenre);
 
         const url = `/books/filter/${localStorage.getItem(
           "libraryName"
@@ -133,7 +195,14 @@ export default function Homepage() {
         setIsFetching(false);
       }
     },
-    [isFetching, debouncedTitle, debouncedAuthor, library]
+    [
+      isFetching,
+      debouncedTitle,
+      debouncedAuthor,
+      bookData.isAdult,
+      debouncedGenre,
+      library,
+    ]
   );
 
   const fetchAuthors = async (searchString) => {
@@ -191,11 +260,6 @@ export default function Homepage() {
     } catch (error) {
       toast.error(error.message || "An unknown error occurred.");
     }
-  };
-
-  const resetStartDateFilter = () => {
-    setStartDateFilter("");
-    fetchBooksData(0);
   };
 
   const getColumnClass = (size) => {
@@ -276,39 +340,132 @@ export default function Homepage() {
         </div>
 
         <form className="row w-100 justify-content-center">
-          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+          {/* Filtro por año */}
+          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <DatePicker
               selected={startDateFilter}
               onChange={(date) => setStartDateFilter(date)}
-              className="form-control me-2"
+              className="form-control form-control-sm me-2" 
               dateFormat="yyyy"
               placeholderText="Select a year"
               showYearPicker
             />
             <button
-              className="btn btn-secondary mx-2"
-              onClick={resetStartDateFilter}
+              className="btn btn-outline-secondary bt-sm" 
+              type="button"
+              onClick={() => {
+                setStartDateFilter("");
+                fetchBooksData(0);
+              }}
             >
-              Reset
+              ⟲
             </button>
           </div>
-          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+
+          {/* Filtro por título */}
+          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <input
               type="text"
-              className="form-control"
+              className="form-control form-control-sm me-2" 
               placeholder="Search books..."
               value={searchTermTitle}
               onChange={(e) => setSearchTermTitle(e.target.value)}
             />
+            <button
+              className="btn btn-outline-secondary bt-sm" 
+              type="button"
+              onClick={() => {
+                setSearchTermTitle("");
+                fetchBooksData(0);
+              }}
+            >
+              ⟲
+            </button>
           </div>
-          <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center">
+
+          {/* Filtro por autor */}
+          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
             <input
               type="text"
-              className="form-control"
+              className="form-control form-control-sm me-2" 
               placeholder="Search by author"
               value={searchTermAuthor}
               onChange={(e) => setSearchTermAuthor(e.target.value)}
             />
+            <button
+              className="btn btn-outline-secondary bt-sm" 
+              type="button"
+              onClick={() => {
+                setSearchTermAuthor("");
+                fetchBooksData(0);
+              }}
+            >
+              ⟲
+            </button>
+          </div>
+
+          {/* Filtro por contenido adulto */}
+          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
+            <select
+              className="form-control form-control-sm me-2" 
+              value={bookData.isAdult}
+              onChange={(e) =>
+                setBookData({ ...bookData, isAdult: e.target.value })
+              }
+            >
+              <option value="both">Both</option>
+              <option value="false">Non-Adult Content</option>
+              <option value="true">Adult Content</option>
+            </select>
+            <button
+              className="btn btn-outline-secondary bt-sm" 
+              type="button"
+              onClick={() => {
+                setBookData({ ...bookData, isAdult: "both" });
+                fetchBooksData(0);
+              }}
+            >
+              ⟲
+            </button>
+          </div>
+
+          {/* Filtro por género */}
+          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
+            <input
+              type="text"
+              className="form-control form-control-sm me-2" 
+              placeholder="Search by genre"
+              value={searchTermGenre}
+              onChange={(e) => setSearchTermGenre(e.target.value)}
+            />
+            <button
+              className="btn btn-outline-secondary bt-sm" 
+              type="button"
+              onClick={() => {
+                setSearchTermGenre("");
+                fetchBooksData(0);
+              }}
+            >
+              ⟲
+            </button>
+          </div>
+
+          {/* Botón para reiniciar todos los filtros */}
+          <div className="col-12 d-flex justify-content-center mt-3">
+            <button
+              className="btn btn-warning" 
+              type="button"
+              onClick={() => {
+                setStartDateFilter("");
+                setSearchTermTitle("");
+                setSearchTermAuthor("");
+                setBookData({ ...bookData, isAdult: "both" });
+                setSearchTermGenre("");
+                fetchBooksData(0);
+              }}
+            >
+              Reset All Filters
+            </button>
           </div>
         </form>
       </header>
@@ -317,10 +474,10 @@ export default function Homepage() {
         <InfiniteScroll
           dataLength={books.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={!isFetching && books.length % 10 === 0}
+          hasMore={!isFetching && books.length % 10 === 0 && books.length > 0}
           loader={<Loading />}
           endMessage={
-            <p className="text-center mt-3 text-muted">
+            <p className="text-center mt-4 text-muted">
               There aren't more books
             </p>
           }
