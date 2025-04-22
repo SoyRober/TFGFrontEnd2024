@@ -24,15 +24,25 @@ export default function Homepage() {
     location: "",
     synopsis: "",
     publicationDate: "",
-    isAdult: "both",
+    isAdult: localStorage.getItem("isAdultFilter") || "both",
     libraryId: 1,
     image: "",
   });
   const [showModal, setShowModal] = useState(false);
-  const [searchTermTitle, setSearchTermTitle] = useState("");
-  const [searchTermAuthor, setSearchTermAuthor] = useState("");
-  const [searchTermGenre, setSearchTermGenre] = useState("");
-  const [startDateFilter, setStartDateFilter] = useState("");
+  const [searchTermTitle, setSearchTermTitle] = useState(
+    localStorage.getItem("searchTermTitle") || ""
+  );
+  const [searchTermAuthor, setSearchTermAuthor] = useState(
+    localStorage.getItem("searchTermAuthor") || ""
+  );
+  const [searchTermGenre, setSearchTermGenre] = useState(
+    localStorage.getItem("searchTermGenre") || ""
+  );
+  const [startDateFilter, setStartDateFilter] = useState(
+    localStorage.getItem("startDateFilter")
+      ? new Date(localStorage.getItem("startDateFilter"))
+      : ""
+  );
   const [cardSize, setCardSize] = useState(
     () => localStorage.getItem("cardSize") || "medium"
   );
@@ -351,7 +361,7 @@ export default function Homepage() {
               showYearPicker
             />
             <button
-              className="btn btn-outline-secondary bt-sm" 
+              className="btn btn-outline-secondary bt-sm mx-2" 
               type="button"
               onClick={() => {
                 setStartDateFilter("");
