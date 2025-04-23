@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import Homepage from "./routes/Homepage.jsx";
-import Navbar from "./components/Navbar.jsx";
+import Navbar from "./components/navbar/Navbar.jsx";
 import Login from "./routes/Login.jsx";
 import Register from "./routes/Register.jsx";
 import ViewBook from "./routes/ViewBook.jsx";

@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import SelectableList from "../SelectableList";
+import { useState } from "react";
+import SelectableList from "../navbar/SelectableList.jsx";
 
 const EditBookAttributeModal = ({
 	editingAttribute,

@@ -6,8 +6,8 @@ import { Button } from "react-bootstrap";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
-import ChangeLibraryModal from "../components/BookCopies/ChangeAttributes.jsx";
-import CreateCopyModal from "../components/BookCopies/CreateCopyModal";
+import ChangeLibraryModal from "../components/bookCopies/ChangeAttributes.jsx";
+import CreateCopyModal from "../components/bookCopies/CreateCopyModal";
 
 export default function BookCopies() {
   const { title } = useParams();

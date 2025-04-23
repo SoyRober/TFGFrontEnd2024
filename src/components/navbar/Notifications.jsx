@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchData } from "../../utils/fetch";
-import "../styles/notifications.css";
+import "../../styles/notifications.css";
 import { toast } from "react-toastify";
 
 const Notifications = () => {

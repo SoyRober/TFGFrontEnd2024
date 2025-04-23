@@ -13,9 +13,9 @@ import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";
 import BookDetails from "../components/BookDetails.jsx";
-import ReviewList from "../components/Reviews/ReviewList.jsx";
-import UserReview from "../components/Reviews/UserReview.jsx";
-import SubmitReview from "../components/Reviews/SubmitReview.jsx";
+import ReviewList from "../components/reviews/ReviewList.jsx";
+import UserReview from "../components/reviews/UserReview.jsx";
+import SubmitReview from "../components/reviews/SubmitReview.jsx";
 
 // Constantes para evitar valores mágicos
 const IMAGE_DIMENSIONS = { width: 300, height: 300 };

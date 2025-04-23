@@ -1,5 +1,5 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap";
-import SelectableList from "../SelectableList.jsx";
+import SelectableList from "../navbar/SelectableList.jsx";
 import { compressImage } from "../../utils/compressImage.js";
 
 export default function CreateBookModal({
