@@ -8,133 +8,133 @@ import { useNavigate } from "react-router-dom";
 const MAX_VISIBILITY = 3;
 
 const fetchBooks = async (setBooks) => {
-	try {
-		const data = await fetchData(
-			`/books/random/${localStorage.getItem("libraryName")}`,
-			"GET",
-			null
-		);
-		if (data.success) {
-			setBooks(data.message);
-		} else {
-			toast.error(data.message || "An error occurred while fetching books");
-		}
-	} catch (err) {
-		toast.error(err.message || "An error occurred while fetching books");
-	}
+  try {
+    const data = await fetchData(
+      `/books/random/${localStorage.getItem("libraryName")}`,
+      "GET",
+      null
+    );
+    if (data.success) {
+      setBooks(data.message);
+    } else {
+      toast.error(data.message || "An error occurred while fetching books");
+    }
+  } catch (err) {
+    toast.error(err.message || "An error occurred while fetching books");
+  }
 };
 
 const Card = ({ title, image }) => {
-	const navigate = useNavigate();
+  const navigate = useNavigate();
 
-	const navigateToBookDetails = (title) => {
-		navigate(`/viewBook/${encodeURIComponent(title)}`);
-	};
+  const navigateToBookDetails = (title) => {
+    navigate(`/viewBook/${encodeURIComponent(title)}`);
+  };
 
-	return (
-		<div
-			className="cardC"
-			style={{ textAlign: "center", cursor: "pointer" }}
-			onClick={() => navigateToBookDetails(title)}
-		>
-			<h2>{title}</h2>
-			<img src={image || defaultBook} alt={title} />
-		</div>
-	);
+  return (
+    <div
+      className="cardC"
+      style={{ textAlign: "center", cursor: "pointer" }}
+      onClick={() => navigateToBookDetails(title)}
+    >
+      <h2>{title}</h2>
+      <img src={image || defaultBook} alt={title} />
+    </div>
+  );
 };
 
 const Carousel = ({ children }) => {
-	const [active, setActive] = useState(0);
-	const [direction, setDirection] = useState(1);
-	const count = React.Children.count(children);
+  const [active, setActive] = useState(0);
+  const [direction, setDirection] = useState(1);
+  const count = React.Children.count(children);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			setActive((prev) => {
-				if (prev === count - 1) {
-					setDirection(-1);
-					return prev - 1;
-				} else if (prev === 0) {
-					setDirection(1);
-					return prev + 1;
-				} else {
-					return prev + direction;
-				}
-			});
-		}, 3000);
-		return () => clearInterval(interval);
-	}, [count, direction]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActive((prev) => {
+        if (prev === count - 1) {
+          setDirection(-1);
+          return prev - 1;
+        } else if (prev === 0) {
+          setDirection(1);
+          return prev + 1;
+        } else {
+          return prev + direction;
+        }
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [count, direction]);
 
-	return (
-		<div className="carousel">
-			<button
-				className="nav left"
-				onClick={() => setActive((i) => (i - 1 + count) % count)}
-			>
-				<i className="fa-solid fa-arrow-left py-5"></i>
-			</button>
+  return (
+    <div className="carousel">
+      <button
+        className="nav left"
+        onClick={() => setActive((i) => (i - 1 + count) % count)}
+      >
+        <i className="fa-solid fa-arrow-left py-5"></i>
+      </button>
 
-			{React.Children.map(children, (child, i) => (
-				<div
-					className="cardC-container"
-					style={{
-						"--active": i === active ? 1 : 0,
-						"--offset": (active - i) / 3,
-						"--direction": Math.sign(active - i),
-						"--abs-offset": Math.abs(active - i) / 3,
-						pointerEvents: active === i ? "auto" : "none",
-						opacity: Math.abs(active - i) >= MAX_VISIBILITY ? "0" : "1",
-						display: Math.abs(active - i) > MAX_VISIBILITY ? "none" : "block",
-					}}
-				>
-					{child}
-				</div>
-			))}
+      {React.Children.map(children, (child, i) => (
+        <div
+          className="cardC-container"
+          style={{
+            "--active": i === active ? 1 : 0,
+            "--offset": (active - i) / 3,
+            "--direction": Math.sign(active - i),
+            "--abs-offset": Math.abs(active - i) / 3,
+            pointerEvents: active === i ? "auto" : "none",
+            opacity: Math.abs(active - i) >= MAX_VISIBILITY ? "0" : "1",
+            display: Math.abs(active - i) > MAX_VISIBILITY ? "none" : "block",
+          }}
+        >
+          {child}
+        </div>
+      ))}
 
-			<button
-				className="nav right"
-				onClick={() => setActive((i) => (i + 1) % count)}
-			>
-				<i className="fa-solid fa-arrow-right py-5"></i>
-			</button>
-		</div>
-	);
+      <button
+        className="nav right"
+        onClick={() => setActive((i) => (i + 1) % count)}
+      >
+        <i className="fa-solid fa-arrow-right py-5"></i>
+      </button>
+    </div>
+  );
 };
 
 const CustomCarousel = () => {
-	const [books, setBooks] = useState([]);
-	const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
+  const [books, setBooks] = useState([]);
+  const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
-	useEffect(() => {
-		fetchBooks(setBooks);
-	}, []);
+  useEffect(() => {
+    fetchBooks(setBooks);
+  }, []);
 
-	useEffect(() => {
-		const interval = setInterval(() => {
-			const currentLibrary = localStorage.getItem("libraryName");
-			if (currentLibrary !== library) {
-				setLibrary(currentLibrary);
-				fetchBooks(setBooks);
-			}
-		}, 500);
-		return () => clearInterval(interval);
-	}, [library]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLibrary = localStorage.getItem("libraryName");
+      if (currentLibrary !== library) {
+        setLibrary(currentLibrary);
+        fetchBooks(setBooks);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, [library]);
 
-	return (
-		<div className="carousel-wrapper my-3">
-			<Carousel>
-				{books.map((book, i) => (
-					<Card
-						key={i}
-						title={book.title}
-						image={
-							book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook
-						}
-					/>
-				))}
-			</Carousel>
-		</div>
-	);
+  return (
+    <div className="carousel-wrapper my-3">
+      <Carousel>
+        {books.map((book, i) => (
+          <Card
+            key={i}
+            title={book.title}
+            image={
+              book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook
+            }
+          />
+        ))}
+      </Carousel>
+    </div>
+  );
 };
 
 export default CustomCarousel;
