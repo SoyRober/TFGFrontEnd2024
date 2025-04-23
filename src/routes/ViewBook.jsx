@@ -98,11 +98,8 @@ export default function ViewBook() {
 
   const fetchExistingReview = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return;
-    }
-
+    if (!token) return;
+    
     try {
       const data = await fetchData(
         `/reviews/user/${title}`,
