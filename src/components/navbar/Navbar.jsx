@@ -4,7 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { jwtDecode } from "jwt-decode";
-import useCheckTokenExpiration from "../hooks/checkToken.jsx";
+import useCheckTokenExpiration from "../../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
 import Notifications from "./Notifications.jsx";
 import LibrarySelector from "./LibrarySelector.jsx";
