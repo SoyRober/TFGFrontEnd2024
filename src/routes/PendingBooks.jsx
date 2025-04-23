@@ -60,7 +60,7 @@ export default function Attributes() {
   const fetchLoans = async () => {
     try {
       const data = await fetchData(
-        `/getAllLoans?page=${loansPage}`,
+        `/loans/getAllLoans?page=${loansPage}`,
         "GET",
         null,
         token
@@ -93,7 +93,7 @@ export default function Attributes() {
         daysLoaned,
       };
       const response = await fetchData(
-        `/loanReserved`,
+        `/loans//loanReserved`,
         "POST",
         loanRequest,
         token

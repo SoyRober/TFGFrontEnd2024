@@ -125,7 +125,7 @@ export default function ViewBook() {
 
       try {
         const response = await fetchData(
-          "/isLoaned",
+          "/loans/isLoaned",
           "POST",
           { title: title },
           token
