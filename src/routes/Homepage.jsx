@@ -5,29 +5,31 @@ import "../styles/main.css";
 import CreateBookModal from "../components/modals/CreateBookModal.jsx";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import CustomCarousel from "../components/Carousel.jsx";
 import defaultBook from "../img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
+import Filters from "../components/BookFilters.jsx";
+
+const initialBookData = {
+  title: "",
+  authors: [],
+  genres: [],
+  location: "",
+  synopsis: "",
+  publicationDate: "",
+  isAdult: false,
+  libraryId: 1,
+  image: "",
+};
 
 export default function Homepage() {
   const [hasPermissions, setHasPermissions] = useState(false);
   const [books, setBooks] = useState([]);
   const [authors, setAuthors] = useState([]);
   const [genres, setGenres] = useState([]);
-  const [bookData, setBookData] = useState({
-    title: "",
-    authors: [],
-    genres: [],
-    location: "",
-    synopsis: "",
-    publicationDate: "",
-    isAdult: localStorage.getItem("isAdultFilter") || "both",
-    libraryId: 1,
-    image: "",
-  });
+  const [bookData, setBookData] = useState(initialBookData);
   const [showModal, setShowModal] = useState(false);
   const [searchTermTitle, setSearchTermTitle] = useState(
     localStorage.getItem("searchTermTitle") || ""
@@ -63,17 +65,7 @@ export default function Homepage() {
     if (token) {
       const userRole = JSON.parse(atob(token.split(".")[1])).role.toLowerCase();
       if (userRole !== "user") setHasPermissions(true);
-      setBookData({
-        title: "",
-        authors: [],
-        genres: [],
-        location: "",
-        synopsis: "",
-        publicationDate: "",
-        isAdult: "",
-        libraryId: 1,
-        image: "",
-      });
+      setBookData(initialBookData);
     }
   }, [token]);
 
@@ -185,20 +177,22 @@ export default function Homepage() {
       if (isFetching) return;
       setIsFetching(true);
       try {
-        const params = new URLSearchParams({ page, size: "10" });
-        if (debouncedTitle) params.append("bookName", debouncedTitle);
-        if (debouncedAuthor) params.append("authorName", debouncedAuthor);
-        if (year !== null) params.append("date", year);
-        if (!isAdultUser) {
-          params.append("isAdult", "false");
-        } else if (bookData.isAdult !== "both") {
-          params.append("isAdult", bookData.isAdult);
-        }
-        if (debouncedGenre) params.append("genreName", debouncedGenre);
+        const params = {
+          page,
+          size: "10",
+          ...(debouncedTitle && { bookName: debouncedTitle }),
+          ...(debouncedAuthor && { authorName: debouncedAuthor }),
+          ...(year !== null && { date: year }),
+          ...(debouncedGenre && { genreName: debouncedGenre }),
+          ...(isAdultUser
+            ? bookData.isAdult !== "both" && { isAdult: bookData.isAdult }
+            : { isAdult: "false" }),
+        };
 
+        const queryString = new URLSearchParams(params).toString();
         const url = `/books/filter/${localStorage.getItem(
           "libraryName"
-        )}?${params.toString()}`;
+        )}?${queryString}`;
         const data = await fetchData(url, "GET", null, token);
 
         if (!data || data.length === 0) {
@@ -232,25 +226,29 @@ export default function Homepage() {
     ]
   );
 
-  const fetchAuthors = async (searchString) => {
+  const fetchDataWithErrorHandling = async (url, setState, errorMessage) => {
     try {
-      const data = await fetchData(`/authors/search?search=${searchString}`);
-      setAuthors(data);
+      const data = await fetchData(url);
+      setState(data);
     } catch (error) {
-      toast.error(error.message || "Failed to fetch authors.");
-      setAuthors([]);
+      toast.error(error.message || errorMessage);
+      setState([]);
     }
   };
 
-  const fetchGenres = async (searchString) => {
-    try {
-      const data = await fetchData(`/genres/search?search=${searchString}`);
-      setGenres(data);
-    } catch (error) {
-      toast.error(error.message || "Failed to fetch genres.");
-      setGenres([]);
-    }
-  };
+  const fetchAuthors = (searchString) =>
+    fetchDataWithErrorHandling(
+      `/authors/search?search=${searchString}`,
+      setAuthors,
+      "Failed to fetch authors."
+    );
+
+  const fetchGenres = (searchString) =>
+    fetchDataWithErrorHandling(
+      `/genres/search?search=${searchString}`,
+      setGenres,
+      "Failed to fetch genres."
+    );
 
   const openModal = () => {
     fetchAuthors("");
@@ -260,17 +258,7 @@ export default function Homepage() {
 
   const closeModal = () => {
     setShowModal(false);
-    setBookData({
-      title: "",
-      authors: [],
-      genres: [],
-      location: "",
-      synopsis: "",
-      publicationDate: "",
-      isAdult: false,
-      libraryId: 1,
-      image: "",
-    });
+    setBookData(initialBookData);
   };
 
   const handleSave = async () => {
@@ -366,137 +354,28 @@ export default function Homepage() {
           </div>
         </div>
 
-        <form className="row w-100 justify-content-center">
-          {/* Filtro por año */}
-          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-            <DatePicker
-              selected={startDateFilter}
-              onChange={(date) => setStartDateFilter(date)}
-              className="form-control form-control-sm me-2"
-              dateFormat="yyyy"
-              placeholderText="Select a year"
-              showYearPicker
-            />
-            <button
-              className="btn btn-outline-secondary bt-sm mx-2"
-              type="button"
-              onClick={() => {
-                setStartDateFilter("");
-                fetchBooksData(0);
-              }}
-            >
-              ⟲
-            </button>
-          </div>
-
-          {/* Filtro por título */}
-          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-            <input
-              type="text"
-              className="form-control form-control-sm me-2"
-              placeholder="Search books..."
-              value={searchTermTitle}
-              onChange={(e) => setSearchTermTitle(e.target.value)}
-            />
-            <button
-              className="btn btn-outline-secondary bt-sm"
-              type="button"
-              onClick={() => {
-                setSearchTermTitle("");
-                fetchBooksData(0);
-              }}
-            >
-              ⟲
-            </button>
-          </div>
-
-          {/* Filtro por autor */}
-          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-            <input
-              type="text"
-              className="form-control form-control-sm me-2"
-              placeholder="Search by author"
-              value={searchTermAuthor}
-              onChange={(e) => setSearchTermAuthor(e.target.value)}
-            />
-            <button
-              className="btn btn-outline-secondary bt-sm"
-              type="button"
-              onClick={() => {
-                setSearchTermAuthor("");
-                fetchBooksData(0);
-              }}
-            >
-              ⟲
-            </button>
-          </div>
-
-          {/* Filtro por contenido adulto */}
-          {isAdultUser && (
-            <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-              <select
-                className="form-control form-control-sm me-2"
-                value={bookData.isAdult}
-                onChange={(e) =>
-                  setBookData({ ...bookData, isAdult: e.target.value })
-                }
-              >
-                <option value="both">Both</option>
-                <option value="false">Non-Adult Content</option>
-                <option value="true">Adult Content</option>
-              </select>
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                type="button"
-                onClick={() => {
-                  setBookData({ ...bookData, isAdult: "both" });
-                  fetchBooksData(0);
-                }}
-              >
-                ⟲
-              </button>
-            </div>
-          )}
-
-          {/* Filtro por género */}
-          <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-            <input
-              type="text"
-              className="form-control form-control-sm me-2"
-              placeholder="Search by genre"
-              value={searchTermGenre}
-              onChange={(e) => setSearchTermGenre(e.target.value)}
-            />
-            <button
-              className="btn btn-outline-secondary bt-sm"
-              type="button"
-              onClick={() => {
-                setSearchTermGenre("");
-                fetchBooksData(0);
-              }}
-            >
-              ⟲
-            </button>
-          </div>
-
-          {/* Botón para reiniciar todos los filtros */}
-          <div className="col-12 d-flex justify-content-center mt-3">
-            <button
-              className="btn btn-warning"
-              type="button"
-              onClick={() => {
-                setStartDateFilter("");
-                setSearchTermTitle("");
-                setSearchTermAuthor("");
-                setBookData({ ...bookData, isAdult: "both" });
-                setSearchTermGenre("");
-                fetchBooksData(0);
-              }}
-            >
-              Reset All Filters
-            </button>
-          </div>
-        </form>
+        <Filters
+          startDateFilter={startDateFilter}
+          setStartDateFilter={setStartDateFilter}
+          searchTermTitle={searchTermTitle}
+          setSearchTermTitle={setSearchTermTitle}
+          searchTermAuthor={searchTermAuthor}
+          setSearchTermAuthor={setSearchTermAuthor}
+          searchTermGenre={searchTermGenre}
+          setSearchTermGenre={setSearchTermGenre}
+          resetFilters={() => {
+            setStartDateFilter("");
+            setSearchTermTitle("");
+            setSearchTermAuthor("");
+            setSearchTermGenre("");
+            fetchBooksData(0);
+          }}
+          fetchBooksData={fetchBooksData}
+          bookData={bookData}
+          setBookData={setBookData}
+          isAdultUser={isAdultUser}
+          setIsAdultUser={setIsAdultUser}
+        />
       </header>
 
       <section className="container mt-5">
