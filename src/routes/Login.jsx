@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import ReactivationInfoModal from "../components/modals/ReactivationInfoModal.jsx";
 
 const Login = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
-  const navigate = useNavigate();
-
   const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleShowModal = () => setShowModal(true);
   const handleHideModal = () => setShowModal(false);
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const error = params.get("error");
+    if (error === "google_auth") {
+      toast.error("Google authentication failed. Check if you have an account");
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
