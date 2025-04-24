@@ -23,7 +23,7 @@ const API_ENDPOINTS = {
   BOOKS: "/books",
   RESERVE: "/reserveByTitle",
   CANCEL_RESERVATION: "/cancelReservation",
-  LOAN: "/loan",
+  LOAN: "/loans/loan",
 };
 
 export default function ViewBook() {
