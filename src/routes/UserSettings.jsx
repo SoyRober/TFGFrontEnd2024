@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
 import { toast } from "react-toastify";
+import EditDateModal from "../components/modals/EditDateModal";
 
 export default function Settings() {
 	const [role, setRole] = useState("");
@@ -20,6 +21,8 @@ export default function Settings() {
 	const [modalValue, setModalValue] = useState("");
 	const [showDeactivationConfirmationModal, setShowDeleteConfirmationModal] =
 		useState(false);
+	const [showDateModal, setShowDateModal] = useState(false);
+	const [dateErrorMessage, setDateErrorMessage] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -56,9 +59,14 @@ export default function Settings() {
 	};
 
 	const handleEditAttribute = (attribute, currentValue) => {
-		setModalAttribute(attribute);
-		setModalValue(currentValue);
-		setShowModal(true);
+		if (attribute === "birthdate") {
+			setModalValue(currentValue);
+			setShowDateModal(true);
+		} else {
+			setModalAttribute(attribute);
+			setModalValue(currentValue);
+			setShowModal(true);
+		}
 	};
 
 	const handleSaveAttribute = async () => {
@@ -82,6 +90,35 @@ export default function Settings() {
 				toast.success(`Successfully updated ${modalAttribute}`);
 			} else {
 				toast.error(data.message || `Error: ${modalAttribute} not changed`);
+			}
+		} catch (error) {
+			toast.error(error.message || "An unexpected error occurred.");
+		}
+	};
+
+	const handleSaveDate = async () => {
+		try {
+			if (!modalValue) {
+				setDateErrorMessage("The field is required.");
+				return;
+			}
+
+			const token = localStorage.getItem("token");
+			const decodedToken = jwtDecode(token);
+
+			const url = getUpdateUrl(decodedToken.email, "birthdate");
+			const formData = new FormData();
+			formData.append("attribute", "birthdate");
+			formData.append("newAttribute", modalValue);
+
+			const data = await fetchData(url, "PUT", formData, token);
+
+			if (data.success) {
+				setBirthDate(modalValue);
+				setShowDateModal(false);
+				toast.success("Successfully updated birthdate");
+			} else {
+				toast.error(data.message || "Error: birthdate not changed");
 			}
 		} catch (error) {
 			toast.error(error.message || "An unexpected error occurred.");
@@ -296,6 +333,16 @@ export default function Settings() {
 					</Button>
 				</Modal.Footer>
 			</Modal>
+
+			<EditDateModal
+				show={showDateModal}
+				onClose={() => setShowDateModal(false)}
+				attribute="BirthDate"
+				value={modalValue}
+				onChange={(e) => setModalValue(e.target.value)}
+				onSave={handleSaveDate}
+				errorMessage={dateErrorMessage}
+			/>
 
 			<Modal
 				show={showDeactivationConfirmationModal}
