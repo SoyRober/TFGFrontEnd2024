@@ -177,7 +177,7 @@ export default function Attributes() {
           <InfiniteScroll
             dataLength={reserves.length}
             next={fetchMoreReserves}
-            hasMore={reserves.length % 10 === 0}
+            hasMore={reserves.length % 10 === 0 && reserves.length > 0}
             loader={<Loading />}
             endMessage={
               <p className="text-center mt-3 text-muted">
@@ -354,6 +354,7 @@ export default function Attributes() {
           </InfiniteScroll>
         )}
       </section>
+
       {/* Modal for loan confirmation */}
       {showModal && currentReserve && (
         <div className="modal d-block" tabIndex="-1" role="dialog">
