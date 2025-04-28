@@ -168,13 +168,11 @@ const UserReservations = ({ cardSize }) => {
         <InfiniteScroll
           dataLength={filteredReservations.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={!isFetching && filteredReservations.length % 30 === 0}
+          hasMore={!isFetching && filteredReservations.length % 30 === 0 && filteredReservations.length > 0}
           loader={<Loading />}
-          endMessage={
-            reservations.length > 0 ? (
-              <p className="text-center mt-4">No more reserves</p>
-            ) : null
-          }
+					endMessage={
+            <p className="text-center mt-4 text-muted">There aren't more loans</p>
+        }
           style={{ overflow: "hidden" }}
         >
           <div className="row">

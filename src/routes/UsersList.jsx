@@ -156,7 +156,7 @@ const UsersList = () => {
       <InfiniteScroll
         dataLength={users.length}
         next={fetchMoreUsers}
-        hasMore={users.length % 10 === 0}
+        hasMore={users.length % 10 === 0 && users.length > 0}
         loader={<Loading />}
         endMessage={<p className="text-center mt-4">No more users to show</p>}
       >

@@ -165,12 +165,10 @@ const Loans = ({ cardSize = "medium" }) => {
 				<InfiniteScroll
 					dataLength={loans.length}
 					next={() => setPage((prev) => prev + 1)}
-					hasMore={hasMore}
+					hasMore={loans.length % 30 === 0 && loans.length > 0}
 					loader={<Loading />}
 					endMessage={
-						loans.length > 0 ? (
-							<p className="text-center mt-4">No more loans</p>
-						) : null
+							<p className="text-center mt-4 text-muted">There aren't more loans</p>
 					}
 					style={{ overflow: "hidden" }}
 				>
