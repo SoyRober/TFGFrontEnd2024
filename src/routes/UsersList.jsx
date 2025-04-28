@@ -47,6 +47,7 @@ const UsersList = () => {
       params.append("page", page);
       if (filters.username) params.append("username", filters.username); 
       if (filters.email) params.append("email", filters.email);
+      if (filters.role) params.append("role", filters.role);
   
       const url = `/users/list?${params.toString()}`;
       const data = await fetchData(url, "GET", null, token);
@@ -103,7 +104,7 @@ const UsersList = () => {
   };
 
   const resetFilters = () => {
-    setFilters({ username: "", email: "" });
+    setFilters({ username: "", email: "", role: "" });
     setPage(0); 
     setReset(true);
   };
@@ -132,6 +133,19 @@ const UsersList = () => {
             }}
           />
         </div>
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <select
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({ ...prev, role: e.target.value }));
+            }}
+          >
+            <option value="">Filter by role</option>
+            <option value="user">User</option>
+            <option value="librarian">Librarian</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
         <div className="col-12 col-md-2 d-flex justify-content-center">
           <button className="btn btn-warning w-100" onClick={resetFilters}>
             Reset Filters
@@ -152,13 +166,24 @@ const UsersList = () => {
               <th scope="col">Username</th>
               <th scope="col">Email</th>
               <th scope="col">Actions</th>
+              <th scope="col">Role</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id}>
+              <tr
+                key={user.id}
+                style={{
+                  border: user.role.toLowerCase() === "admin"
+                    ? "2px solid red"
+                    : user.role.toLowerCase() === "librarian"
+                    ? "2px solid blue"
+                    : "none",
+                }}
+              >
                 <td>{user.username}</td>
                 <td>{user.email}</td>
+                <td>{user.role}</td>
                 <td>
                   <button
                     onClick={() => handleDeleteClick(user.id)}
