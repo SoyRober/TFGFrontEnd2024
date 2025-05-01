@@ -46,7 +46,7 @@ export default function Attributes() {
 	const fetchReserves = async () => {
 		try {
 			const data = await fetchData(
-				`/getAllReservations?page=${reservesPage}`,
+				`/librarian/getAllReservations?page=${reservesPage}`,
 				"GET",
 				null,
 				token
@@ -60,7 +60,7 @@ export default function Attributes() {
 	const fetchLoans = async () => {
 		try {
 			const data = await fetchData(
-				`/loans/getAllLoans?page=${loansPage}`,
+				`/librarian/loans/getAllLoans?page=${loansPage}`,
 				"GET",
 				null,
 				token
@@ -93,7 +93,7 @@ export default function Attributes() {
 				daysLoaned,
 			};
 			const response = await fetchData(
-				`/loans/loanReserved`,
+				`/librarian/loans/loanReserved`,
 				"POST",
 				loanRequest,
 				token
@@ -177,7 +177,7 @@ export default function Attributes() {
 					<InfiniteScroll
 						dataLength={reserves.length}
 						next={fetchMoreReserves}
-            hasMore={reserves.length % 10 === 0 && reserves.length > 0}
+						hasMore={reserves.length % 10 === 0 && reserves.length > 0}
 						loader={<Loading />}
 						endMessage={
 							<p className="text-center mt-3 text-muted">

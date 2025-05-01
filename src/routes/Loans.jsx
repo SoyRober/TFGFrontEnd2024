@@ -33,7 +33,9 @@ const Loans = ({ cardSize = "medium" }) => {
 				: "";
 
 			const data = await fetchData(
-				`/loans/getUserLoans?page=${page}&size=10&title=${filters.title}&isReturned=${
+				`/user/loans/getUserLoans?page=${page}&size=10&title=${
+					filters.title
+				}&isReturned=${
 					filters.returned !== "notReturned"
 				}&startDate=${formattedStartDate}`,
 				"GET",
@@ -168,7 +170,9 @@ const Loans = ({ cardSize = "medium" }) => {
 					hasMore={loans.length % 30 === 0 && loans.length > 0}
 					loader={<Loading />}
 					endMessage={
-							<p className="text-center mt-4 text-muted">There aren't more loans</p>
+						<p className="text-center mt-4 text-muted">
+							There aren't more loans
+						</p>
 					}
 					style={{ overflow: "hidden" }}
 				>

@@ -74,7 +74,12 @@ export default function Homepage() {
 	useEffect(() => {
 		const fetchLibraries = async () => {
 			try {
-				const data = await fetchData("/libraries/list", "GET", null, token);
+				const data = await fetchData(
+					"/public/libraries/list",
+					"GET",
+					null,
+					token
+				);
 				setLibraries(data);
 			} catch (error) {
 				toast.error("Failed to fetch libraries.");
@@ -205,7 +210,7 @@ export default function Homepage() {
 				};
 
 				const queryString = new URLSearchParams(params).toString();
-				const url = `/books/filter/${localStorage.getItem(
+				const url = `/public/books/filter/${localStorage.getItem(
 					"libraryName"
 				)}?${queryString}`;
 				const data = await fetchData(url, "GET", null, token);
@@ -253,14 +258,14 @@ export default function Homepage() {
 
 	const fetchAuthors = (searchString) =>
 		fetchDataWithErrorHandling(
-			`/authors/search?search=${searchString}`,
+			`/public/authors/search?search=${searchString}`,
 			setAuthors,
 			"Failed to fetch authors."
 		);
 
 	const fetchGenres = (searchString) =>
 		fetchDataWithErrorHandling(
-			`/genres/search?search=${searchString}`,
+			`/public/genres/search?search=${searchString}`,
 			setGenres,
 			"Failed to fetch genres."
 		);
@@ -279,7 +284,12 @@ export default function Homepage() {
 	const handleSave = async () => {
 		try {
 			const token = localStorage.getItem("token");
-			const response = await fetchData("/books", "POST", bookData, token);
+			const response = await fetchData(
+				"/librarian/books",
+				"POST",
+				bookData,
+				token
+			);
 			if (!response.success) {
 				toast.error(response.message || "Failed to create book.");
 				return;

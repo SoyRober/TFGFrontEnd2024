@@ -27,7 +27,7 @@ export default function Libraries() {
 		setLoading(true);
 		setError(null);
 		try {
-			const data = await fetchData("/libraries/detailedList", "GET");
+			const data = await fetchData("/public/libraries/detailedList", "GET");
 			setLibraries(data);
 		} catch (err) {
 			setError(err.message || "Failed to fetch libraries");
@@ -45,7 +45,7 @@ export default function Libraries() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				"/libraries",
+				"/admin/libraries",
 				"POST",
 				{ name: newLibrary.name, address: newLibrary.address },
 				token
@@ -75,7 +75,7 @@ export default function Libraries() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				`/libraries/${selectedLibraryId}`,
+				`/admin/libraries/${selectedLibraryId}`,
 				"PUT",
 				{ [editAttribute]: editValue },
 				token
@@ -101,7 +101,7 @@ export default function Libraries() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				`/libraries?id=${libraryToDelete}`,
+				`/admin/libraries?id=${libraryToDelete}`,
 				"DELETE",
 				null,
 				token

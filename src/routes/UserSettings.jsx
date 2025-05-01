@@ -37,7 +37,7 @@ export default function Settings() {
 	const getUserInfo = async (token) => {
 		const decodedToken = jwtDecode(token);
 		const data = await fetchData(
-			`/users/info/profile/${decodedToken.email}`,
+			`/user/users/info/profile/${decodedToken.email}`,
 			"GET",
 			null,
 			token
@@ -127,9 +127,9 @@ export default function Settings() {
 
 	const getUpdateUrl = (email, attribute) => {
 		if (attribute === "image") {
-			return `/users/update/profileImage/${email}`;
+			return `/user/users/update/profileImage/${email}`;
 		}
-		return `/users/update/${email}`;
+		return `/user/users/update/${email}`;
 	};
 
 	const prepareFormData = async (attribute, value) => {
@@ -183,7 +183,7 @@ export default function Settings() {
 			const decodedToken = jwtDecode(token);
 
 			const data = await fetchData(
-				`/users/${decodedToken.email}`,
+				`/user/users/${decodedToken.email}`,
 				"DELETE",
 				null,
 				token
