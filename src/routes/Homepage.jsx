@@ -81,6 +81,11 @@ export default function Homepage() {
 					token
 				);
 				setLibraries(data);
+
+				if (!library) {
+					setLibrary(data[0]);
+					localStorage.setItem("libraryName", data[0]);
+				}
 			} catch (error) {
 				toast.error("Failed to fetch libraries.");
 			}
@@ -210,9 +215,9 @@ export default function Homepage() {
 				};
 
 				const queryString = new URLSearchParams(params).toString();
-				const url = `/public/books/filter/${localStorage.getItem(
-					"libraryName"
-				)}?${queryString}`;
+				const libraryName =
+					localStorage.getItem("libraryName") || libraries[0]?.name;
+				const url = `/public/books/filter/${libraryName}?${queryString}`;
 				const data = await fetchData(url, "GET", null, token);
 
 				if (!data || data.length === 0) {
