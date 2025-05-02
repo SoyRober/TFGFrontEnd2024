@@ -15,6 +15,7 @@ export default function Settings() {
 	const [username, setUsername] = useState("");
 	const [email, setEmail] = useState("");
 	const [birthDate, setBirthDate] = useState("");
+	const [isOauth, setisOauth] = useState(true);
 	const [profileImage, setProfileImage] = useState(null);
 	const [showModal, setShowModal] = useState(false);
 	const [modalAttribute, setModalAttribute] = useState("");
@@ -47,6 +48,8 @@ export default function Settings() {
 			setUsername(data.message.username);
 			setEmail(data.message.email);
 			setBirthDate(data.message.birthday);
+			setisOauth(data.message.oauth);
+			console.log("isOauth: ", data.message.oauth);
 			setProfileImage(
 				data.message.profileImage
 					? `data:image/jpeg;base64,${data.message.profileImage}`
@@ -268,12 +271,14 @@ export default function Settings() {
 							>
 								Edit BirthDate
 							</button>
-							<button
-								className="btn btn-secondary mb-3 w-50"
-								onClick={() => handleEditAttribute("password", "")}
-							>
-								Change Password
-							</button>
+							{!isOauth && (
+								<button
+									className="btn btn-secondary mb-3 w-50"
+									onClick={() => handleEditAttribute("password", "")}
+								>
+									Change Password
+								</button>
+							)}
 						</div>
 					</div>
 					<div>
