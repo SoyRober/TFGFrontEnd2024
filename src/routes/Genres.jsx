@@ -40,7 +40,7 @@ const GenresComponent = () => {
 
 				await new Promise((resolve) => setTimeout(resolve, 500));
 				const data = await fetchData(
-					`/genres?${params.toString()}`,
+					`/public/genres?${params.toString()}`,
 					"GET",
 					null,
 					token
@@ -58,7 +58,7 @@ const GenresComponent = () => {
 
 	const handleAddGenre = async (newName) => {
 		try {
-			await fetchData("/genres", "POST", newName, token);
+			await fetchData("/librarian/genres", "POST", newName, token);
 			toast.success(`Genre added successfully!`);
 			setModals({ ...modals, add: false, edit: false });
 			fetchGenres();
@@ -70,7 +70,7 @@ const GenresComponent = () => {
 	const handleEditGenre = async (id, name) => {
 		const body = { id, name };
 		try {
-			await fetchData("/genres", "PUT", body, token);
+			await fetchData("/librarian/genres", "PUT", body, token);
 			toast.success(`Genre updated successfully!`);
 			setModals({ ...modals, add: false, edit: false });
 			fetchGenres();
@@ -81,7 +81,12 @@ const GenresComponent = () => {
 
 	const handleDeleteGenre = async () => {
 		try {
-			await fetchData(`/genres/${selectedGenre.id}`, "DELETE", null, token);
+			await fetchData(
+				`/librarian/genres/${selectedGenre.id}`,
+				"DELETE",
+				null,
+				token
+			);
 			toast.success("Genre deleted successfully!");
 			setModals({ ...modals, delete: false });
 			setPage(0);

@@ -74,11 +74,16 @@ export default function Homepage() {
 	useEffect(() => {
 		const fetchLibraries = async () => {
 			try {
-				const data = await fetchData("/libraries/list", "GET", null, token);
+				const data = await fetchData(
+					"/public/libraries/list",
+					"GET",
+					null,
+					token
+				);
 				setLibraries(data);
 
 				if (!library) {
-				setLibrary(data[0]);
+					setLibrary(data[0]);
 					localStorage.setItem("libraryName", data[0]);
 				}
 			} catch (error) {
@@ -210,8 +215,9 @@ export default function Homepage() {
 				};
 
 				const queryString = new URLSearchParams(params).toString();
-				const libraryName = localStorage.getItem("libraryName") || libraries[0]?.name;
-				const url = `/books/filter/${libraryName}?${queryString}`;
+				const libraryName =
+					localStorage.getItem("libraryName") || libraries[0]?.name;
+				const url = `/public/books/filter/${libraryName}?${queryString}`;
 				const data = await fetchData(url, "GET", null, token);
 
 				if (!data || data.length === 0) {
@@ -257,14 +263,14 @@ export default function Homepage() {
 
 	const fetchAuthors = (searchString) =>
 		fetchDataWithErrorHandling(
-			`/authors/search?search=${searchString}`,
+			`/public/authors/search?search=${searchString}`,
 			setAuthors,
 			"Failed to fetch authors."
 		);
 
 	const fetchGenres = (searchString) =>
 		fetchDataWithErrorHandling(
-			`/genres/search?search=${searchString}`,
+			`/public/genres/search?search=${searchString}`,
 			setGenres,
 			"Failed to fetch genres."
 		);
@@ -283,7 +289,12 @@ export default function Homepage() {
 	const handleSave = async () => {
 		try {
 			const token = localStorage.getItem("token");
-			const response = await fetchData("/books", "POST", bookData, token);
+			const response = await fetchData(
+				"/librarian/books",
+				"POST",
+				bookData,
+				token
+			);
 			if (!response.success) {
 				toast.error(response.message || "Failed to create book.");
 				return;

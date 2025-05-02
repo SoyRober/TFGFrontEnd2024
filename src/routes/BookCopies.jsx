@@ -39,7 +39,7 @@ export default function BookCopies() {
 		setError(null);
 		try {
 			const data = await fetchData(
-				`/bookCopy?title=${encodeURIComponent(
+				`/public/bookCopy?title=${encodeURIComponent(
 					title
 				)}&page=${page}&barcode=${barcodeFilter}&libraryName=${libraryFilter}`,
 				"GET"
@@ -69,7 +69,7 @@ export default function BookCopies() {
 
 	const fetchLibraries = async () => {
 		try {
-			const data = await fetchData("/libraries/list", "GET");
+			const data = await fetchData("/public/libraries/list", "GET");
 			setLibraries(data);
 		} catch (err) {
 			toast.error(err.message || "Failed to fetch libraries");
@@ -84,7 +84,7 @@ export default function BookCopies() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				"/bookCopy",
+				"/librarian/bookCopy",
 				"POST",
 				{
 					bookTitle: title,
@@ -120,7 +120,7 @@ export default function BookCopies() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				`/bookCopy`,
+				`/librarian/bookCopy`,
 				"PUT",
 				{
 					id: selectedCopyId,
@@ -153,7 +153,7 @@ export default function BookCopies() {
 		try {
 			const token = localStorage.getItem("token");
 			await fetchData(
-				`/bookCopy?copyId=${selectedCopyId}`,
+				`/librarian/bookCopy?copyId=${selectedCopyId}`,
 				"DELETE",
 				null,
 				token

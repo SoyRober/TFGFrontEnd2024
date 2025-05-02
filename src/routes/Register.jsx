@@ -47,7 +47,11 @@ const Register = () => {
 		};
 
 		try {
-			const response = await fetchData("/users/register", "POST", userData);
+			const response = await fetchData(
+				"/public/users/register",
+				"POST",
+				userData
+			);
 
 			if (response.success) {
 				toast.success("Registered successfully. Now go to the login page");

@@ -30,7 +30,7 @@ const Login = () => {
 		const userData = { username, password };
 
 		try {
-			const response = await fetchData("/users/login", "POST", userData);
+			const response = await fetchData("/public/users/login", "POST", userData);
 			if (response.success) {
 				localStorage.setItem("token", response.message);
 				toast.success("Logged in successfully");

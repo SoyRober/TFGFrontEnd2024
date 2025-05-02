@@ -20,10 +20,10 @@ import SubmitReview from "../components/reviews/SubmitReview.jsx";
 // Constantes para evitar valores mágicos
 const IMAGE_DIMENSIONS = { width: 300, height: 300 };
 const API_ENDPOINTS = {
-	BOOKS: "/books",
-	RESERVE: "/reserveByTitle",
-	CANCEL_RESERVATION: "/cancelReservation",
-	LOAN: "/loans/loan",
+	BOOKS: "/librarian/books",
+	RESERVE: "/user/reserveByTitle",
+	CANCEL_RESERVATION: "/user/cancelReservation",
+	LOAN: "/librarian/loans",
 };
 
 export default function ViewBook() {
@@ -73,7 +73,7 @@ export default function ViewBook() {
 	const fetchBookData = useCallback(async () => {
 		try {
 			const data = await fetchData(
-				`/books/title?title=${encodeURIComponent(title)}`
+				`/public/books/title?title=${encodeURIComponent(title)}`
 			);
 			setBook(data.book);
 			setImageSrc(data.image ? `data:image/jpeg;base64,${data.image}` : "");
@@ -87,7 +87,7 @@ export default function ViewBook() {
 	const fetchQuantity = async () => {
 		try {
 			const data = await fetchData(
-				`/books/getQuantity?title=${encodeURIComponent(title)}`,
+				`/public/books/getQuantity?title=${encodeURIComponent(title)}`,
 				"GET"
 			);
 			setQuantity(data);
@@ -102,7 +102,7 @@ export default function ViewBook() {
 
 		try {
 			const data = await fetchData(
-				`/reviews/user/${title}`,
+				`/user/reviews/${title}`,
 				"GET",
 				null,
 				token
@@ -125,7 +125,7 @@ export default function ViewBook() {
 
 			try {
 				const response = await fetchData(
-					"/loans/isLoaned",
+					"/user/loans/isLoaned",
 					"POST",
 					{ title: title },
 					token
@@ -142,7 +142,7 @@ export default function ViewBook() {
 
 			try {
 				const response = await fetchData(
-					`/isReserved?title=${encodeURIComponent(title)}`,
+					`/user/isReserved?title=${encodeURIComponent(title)}`,
 					"GET",
 					null,
 					token
@@ -154,7 +154,7 @@ export default function ViewBook() {
 		};
 
 		const fetchAuthors = async () => {
-			const endpoint = "/authors/search";
+			const endpoint = "/public/authors/search";
 			try {
 				const data = await fetchData(endpoint, "GET");
 				setAuthors(data);
@@ -165,7 +165,7 @@ export default function ViewBook() {
 		};
 
 		const fetchGenres = async () => {
-			const endpoint = "/genres/search";
+			const endpoint = "/public/genres/search";
 			try {
 				const data = await fetchData(endpoint, "GET");
 				setGenres(data);
@@ -176,7 +176,7 @@ export default function ViewBook() {
 		};
 
 		const fetchLibraries = async () => {
-			const endpoint = "/libraries/list";
+			const endpoint = "/public/libraries/list";
 			try {
 				const data = await fetchData(endpoint, "GET");
 				const libraryNames = data;
@@ -347,7 +347,7 @@ export default function ViewBook() {
 		}
 
 		try {
-			await fetchData(`/books/${title}`, "DELETE", null, token);
+			await fetchData(`/librarian/books/${title}`, "DELETE", null, token);
 			setShowDeleteConfirmation(false);
 			navigate("/");
 		} catch (error) {
