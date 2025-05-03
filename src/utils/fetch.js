@@ -1,4 +1,7 @@
-const BASE_URL = "http://localhost:8080";
+//Desarrollo
+//const BASE_URL = "http://localhost:8080";
+//Produccion
+const BASE_URL = "";
 
 export const fetchData = async (
   endpoint,
