@@ -214,7 +214,7 @@ const UserReservations = ({ cardSize }) => {
 										<img
 											src={`data:image/jpeg;base64,${reservation.image}`}
 											className="img-fluid"
-											alt={`Cover of ${reservation.bookTitle}`}
+											alt={`Cover of ${reservation.bookTitle}`} //TODO Add default image
 											style={{
 												maxWidth: "100%",
 												maxHeight: "100%",
@@ -247,15 +247,16 @@ const UserReservations = ({ cardSize }) => {
 											)}
 										</p>
 										<p className="card-text">
-											<strong>Status:</strong>{" "}
-											{reservation.isLoaned ? "Loaned" : "Not loaned"}
+											<strong>Status:</strong> {reservation.status}
 										</p>
-										<button
-											className="btn btn-primary ms-2"
-											onClick={() => cancelReservation(reservation.bookTitle)}
-										>
-											Cancel Reservation
-										</button>
+										{reservation.status === "PENDING" && (
+											<button
+												className="btn btn-primary ms-2"
+												onClick={() => cancelReservation(reservation.bookTitle)}
+											>
+												Cancel Reservation
+											</button>
+										)}
 									</div>
 								</div>
 							</div>
