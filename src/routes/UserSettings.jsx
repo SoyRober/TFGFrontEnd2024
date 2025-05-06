@@ -314,6 +314,7 @@ export default function Settings() {
 					) : (
 						<Form.Group className="mt-3">
 							<Form.Label>
+								{/*TODO Password is a special case, we need to ask for the old password*/}
 								{modalAttribute === "password"
 									? "New Password"
 									: `New ${
