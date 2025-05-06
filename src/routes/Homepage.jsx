@@ -69,6 +69,7 @@ export default function Homepage() {
       if (userRole !== "user") setHasPermissions(true);
       setBookData(initialBookData);
     }
+    console.log("Esto lo he puesto para los 20mins");
   }, [token]);
 
   useEffect(() => {
