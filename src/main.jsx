@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
-import Homepage from "./routes/LibraryHomepage.jsx";
+import LibraryHomepage from "./routes/LibraryHomepage.jsx";
 import Presentation from "./routes/Presentation.jsx";
 import Navbar from "./components/navbar/Navbar.jsx";
 import Login from "./routes/Login.jsx";
