@@ -144,56 +144,54 @@ export default function Root() {
 						)}
 					</div>
 
-					<div className="d-flex align-items-center ms-auto">
-						<ul className="navbar-nav d-flex flex-row align-items-center">
-							<li className="nav-item me-3">
-								<LibrarySelector />
-							</li>
-							{isLoggedIn && (
-								<>
-									<li className="nav-item me-3">
-										<Notifications />
-									</li>
-									<li className="nav-item dropdown">
-										<button
-											className="nav-link dropdown-toggle text-light bg-dark"
-											id="navbarDropdown"
-											data-bs-toggle="dropdown"
-											aria-expanded="false"
-										>
-											<span className="d-none d-lg-inline">Profile</span>
-											<i className="fas fa-user d-lg-none"></i>
-										</button>
-										<ul
-											className="dropdown-menu dropdown-menu-end bg-dark"
-											aria-labelledby="navbarDropdown"
-											style={{
-												position: "absolute",
-												zIndex: 1050,
-											}}
-										>
-											<li>
-												<Link
-													className="dropdown-item text-light hover-navbar"
-													to="/user/userSettings"
-												>
-													Settings
-												</Link>
-											</li>
-											<li>
-												<button
-													className="dropdown-item text-light hover-navbar"
-													onClick={handleLogout}
-												>
-													Log out
-												</button>
-											</li>
-										</ul>
-									</li>
-								</>
-							)}
-						</ul>
-					</div>
+					{isLoggedIn && (
+						<div className="d-flex align-items-center ms-auto">
+							<ul className="navbar-nav d-flex flex-row align-items-center">
+								<li className="nav-item me-3">
+									<LibrarySelector />
+								</li>
+								<li className="nav-item me-3">
+									<Notifications />
+								</li>
+								<li className="nav-item dropdown">
+									<button
+										className="nav-link dropdown-toggle text-light bg-dark"
+										id="navbarDropdown"
+										data-bs-toggle="dropdown"
+										aria-expanded="false"
+									>
+										<span className="d-none d-lg-inline">Profile</span>
+										<i className="fas fa-user d-lg-none"></i>
+									</button>
+									<ul
+										className="dropdown-menu dropdown-menu-end bg-dark"
+										aria-labelledby="navbarDropdown"
+										style={{
+											position: "absolute",
+											zIndex: 1050,
+										}}
+									>
+										<li>
+											<Link
+												className="dropdown-item text-light hover-navbar"
+												to="/user/userSettings"
+											>
+												Settings
+											</Link>
+										</li>
+										<li>
+											<button
+												className="dropdown-item text-light hover-navbar"
+												onClick={handleLogout}
+											>
+												Log out
+											</button>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					)}
 				</div>
 			</nav>
 			<Outlet />

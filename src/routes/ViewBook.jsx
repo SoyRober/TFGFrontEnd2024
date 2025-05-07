@@ -349,7 +349,7 @@ export default function ViewBook() {
 		try {
 			await fetchData(`/librarian/books/${title}`, "DELETE", null, token);
 			setShowDeleteConfirmation(false);
-			navigate("/");
+			navigate("/libraryHomepage");
 		} catch (error) {
 			toast.error(error.message);
 		}

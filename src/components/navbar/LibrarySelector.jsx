@@ -22,7 +22,7 @@ const LibrarySelector = () => {
 		const selectedLibraryName = e.target.value;
 		localStorage.setItem("libraryName", selectedLibraryName);
 		setSelectedLibrary(selectedLibraryName);
-		navigate("/");
+		navigate("/libraryHomepage");
 	};
 
 	return (
