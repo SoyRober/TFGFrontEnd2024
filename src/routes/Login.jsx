@@ -44,7 +44,7 @@ const Login = () => {
 	};
 
 	const handleGoogleLogin = () => {
-		window.location.href = "http://localhost:8080/oauth/login/google";
+		window.location.href = "https://biliceu.store/oauth/login/google";
 	};
 
 	return (
