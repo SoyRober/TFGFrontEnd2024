@@ -74,7 +74,11 @@ export default function Libraries() {
 				null,
 				token
 			);
-			setAllLibrarians(data);
+			//Only get the usernames of the librarians
+			const usernames = Array.isArray(data)
+				? data.map((librarian) => librarian.username)
+				: [];
+			setAllLibrarians(usernames);
 			const library = libraries.find((lib) => lib.id === libraryId);
 			setSelectedLibrarians(library.librarianNames || []);
 		} catch (err) {
