@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { Button, Modal, Form } from "react-bootstrap";
 import EditAttributeModal from "../components/modals/EditAttributeModal";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
+import EditLibrariansModal from "../components/modals/EditLibrariansModal.jsx";
 
 export default function Libraries() {
 	const [libraries, setLibraries] = useState([]);
@@ -18,6 +19,9 @@ export default function Libraries() {
 	const [errorMessage, setErrorMessage] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [libraryToDelete, setLibraryToDelete] = useState(null);
+	const [showEditLibrariansModal, setShowEditLibrariansModal] = useState(false);
+	const [allLibrarians, setAllLibrarians] = useState([]);
+	const [selectedLibrarians, setSelectedLibrarians] = useState([]);
 
 	useEffect(() => {
 		fetchLibraries();
@@ -56,6 +60,46 @@ export default function Libraries() {
 			await fetchLibraries();
 		} catch (err) {
 			toast.error(err.message || "Failed to create library");
+		}
+	};
+
+	const handleEditibrarians = async (libraryId) => {
+		setSelectedLibraryId(libraryId);
+		setShowEditLibrariansModal(true);
+		try {
+			const token = localStorage.getItem("token");
+			const data = await fetchData(
+				"/librarian/users/list?page=1&role=librarian",
+				"GET",
+				null,
+				token
+			);
+			//Only get the usernames of the librarians
+			const usernames = Array.isArray(data)
+				? data.map((librarian) => librarian.username)
+				: [];
+			setAllLibrarians(usernames);
+			const library = libraries.find((lib) => lib.id === libraryId);
+			setSelectedLibrarians(library.librarianNames || []);
+		} catch (err) {
+			toast.error(err.message || "Failed to fetch librarians");
+		}
+	};
+
+	const submitLibrariansUpdate = async () => {
+		try {
+			const token = localStorage.getItem("token");
+			await fetchData(
+				`/admin/libraries/${selectedLibraryId}`,
+				"PUT",
+				{ librarians: selectedLibrarians },
+				token
+			);
+			toast.success("Librarians updated successfully");
+			setShowEditLibrariansModal(false);
+			await fetchLibraries();
+		} catch (err) {
+			toast.error(err.message || "Failed to update librarians");
 		}
 	};
 
@@ -163,12 +207,27 @@ export default function Libraries() {
 									Change Address
 								</Button>
 								<Button
+									variant="success"
+									size="sm"
+									onClick={() => handleEditibrarians(library.id)}
+								>
+									Add Librarian
+								</Button>
+								<Button
 									variant="danger"
 									size="sm"
 									onClick={() => handleDeleteLibrary(library.id)}
 								>
 									Delete
 								</Button>
+							</div>
+							<div className="col-12 mt-2">
+								<strong>Librarians:</strong>{" "}
+								{library.librarianNames.length > 0 ? (
+									library.librarianNames.join(", ")
+								) : (
+									<em>No librarians</em>
+								)}
 							</div>
 						</li>
 					))}
@@ -246,6 +305,15 @@ export default function Libraries() {
 				onClose={() => setShowDeleteModal(false)}
 				onDelete={confirmDeleteLibrary}
 				message="Are you sure you want to delete this library? This action cannot be undone."
+			/>
+
+			<EditLibrariansModal
+				show={showEditLibrariansModal}
+				onClose={() => setShowEditLibrariansModal(false)}
+				allLibrarians={allLibrarians}
+				selectedLibrarians={selectedLibrarians}
+				onSelect={(librarians) => setSelectedLibrarians(librarians)}
+				onSave={submitLibrariansUpdate}
 			/>
 		</div>
 	);

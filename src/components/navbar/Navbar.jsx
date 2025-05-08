@@ -130,6 +130,9 @@ export default function Root() {
 						</ul>
 						{!isLoggedIn && (
 							<ul className="navbar-nav ms-auto">
+								<li className="nav-item me-3">
+									<LibrarySelector />
+								</li>
 								<li className="nav-item">
 									<Link className="nav-link text-light" to="/login">
 										Login
