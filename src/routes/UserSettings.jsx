@@ -84,6 +84,7 @@ export default function Settings() {
 
 			const url = getUpdateUrl(decodedToken.email, modalAttribute);
 			const formData = await prepareFormData(modalAttribute, modalValue);
+			console.log("🚀 ~ handleSaveAttribute ~ modalValue:", modalValue)
 
 			const data = await fetchData(url, "PUT", formData, token);
 
@@ -101,27 +102,37 @@ export default function Settings() {
 
 	const handleSaveDate = async () => {
 		try {
-			if (!modalValue) {
-				setDateErrorMessage("The field is required.");
+			if (!modalValue || (modalAttribute === "password" && (!modalValue.oldPassword || !modalValue.newAttribute))) {
+				setDateErrorMessage("All fields are required.");
 				return;
 			}
 
 			const token = localStorage.getItem("token");
 			const decodedToken = jwtDecode(token);
 
-			const url = getUpdateUrl(decodedToken.email, "birthdate");
+			const url = getUpdateUrl(decodedToken.email, modalAttribute);
 			const formData = new FormData();
-			formData.append("attribute", "birthdate");
-			formData.append("newAttribute", modalValue);
+
+			if (modalAttribute === "password") {
+				formData.append("attribute", modalAttribute);
+				formData.append("oldPassword", modalValue.oldPassword);
+				formData.append("newAttribute", modalValue.newAttribute);
+			} else {
+				formData.append("attribute", modalAttribute);
+				formData.append("newAttribute", modalValue);
+			}
+
 
 			const data = await fetchData(url, "PUT", formData, token);
 
 			if (data.success) {
-				setBirthDate(modalValue);
+				if (modalAttribute === "birthdate") {
+					setBirthDate(modalValue);
+				}
 				setShowDateModal(false);
-				toast.success("Successfully updated birthdate");
+				toast.success(`Successfully updated ${modalAttribute}`);
 			} else {
-				toast.error(data.message || "Error: birthdate not changed");
+				toast.error(data.message || `Error: ${modalAttribute} not changed`);
 			}
 		} catch (error) {
 			toast.error(error.message || "An unexpected error occurred.");
@@ -136,6 +147,9 @@ export default function Settings() {
 	};
 
 	const prepareFormData = async (attribute, value) => {
+		console.log("🚀 ~ prepareFormData ~ value:", value)
+		console.log("🚀 ~ prepareFormData ~ value:", value.oldPassword)
+		console.log("🚀 ~ prepareFormData ~ value:", value.newAttribute)
 		const formData = new FormData();
 
 		if (attribute === "image") {
@@ -144,6 +158,10 @@ export default function Settings() {
 			}
 			const compressedImage = await compressImage(value, 1, 400, 400);
 			formData.append("newImage", compressedImage);
+		} else if (attribute === "password") {
+			formData.append("attribute", attribute);
+			formData.append("oldPassword", value.oldPassword);
+			formData.append("newAttribute", value.newAttribute);
 		} else {
 			formData.append("attribute", attribute || "");
 			formData.append("newAttribute", value || "");
@@ -311,19 +329,35 @@ export default function Settings() {
 								onChange={(e) => setModalValue(e.target.files[0])}
 							/>
 						</Form.Group>
+					) : modalAttribute === "password" ? (
+						<>
+							<Form.Group className="mt-3">
+								<Form.Label>Current Password</Form.Label>
+								<Form.Control
+									type="password"
+									placeholder="Enter current password"
+									onChange={(e) => setModalValue({ ...modalValue, oldPassword: e.target.value })}
+								/>
+							</Form.Group>
+							<Form.Group className="mt-3">
+								<Form.Label>New Password</Form.Label>
+								<Form.Control
+									type="password"
+									placeholder="Enter new password"
+									onChange={(e) => setModalValue({ ...modalValue, newAttribute: e.target.value })}
+								/>
+							</Form.Group>
+						</>
 					) : (
 						<Form.Group className="mt-3">
 							<Form.Label>
-								{/*TODO Password is a special case, we need to ask for the old password*/}
-								{modalAttribute === "password"
-									? "New Password"
-									: `New ${
-											modalAttribute.charAt(0).toUpperCase() +
-											modalAttribute.slice(1)
-									  }`}
+								{`New ${
+									modalAttribute.charAt(0).toUpperCase() +
+									modalAttribute.slice(1)
+								}`}
 							</Form.Label>
 							<Form.Control
-								type={modalAttribute === "password" ? "password" : "text"}
+								type="text"
 								value={modalValue}
 								onChange={(e) => setModalValue(e.target.value)}
 							/>
