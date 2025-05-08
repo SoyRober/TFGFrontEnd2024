@@ -139,6 +139,9 @@ export default function Libraries() {
 								<strong>Name:</strong> {library.name}
 							</div>
 							<div className="col-md-4">
+								<strong>Librarians:</strong> {library.librarianNames.join(", ")}
+							</div>
+							<div className="col-md-4">
 								<strong>Address:</strong> {library.address}
 							</div>
 							<div className="col-md-4 text-end d-flex justify-content-between">
