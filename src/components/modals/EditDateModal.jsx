@@ -11,29 +11,40 @@ export default function EditDateModal({
   errorMessage
 }) {
   return (
-    <Modal show={show} onHide={onClose}>
+    <Modal show={show} onHide={onClose} aria-label="Edit Date Modal">
       <Modal.Header closeButton>
-        <Modal.Title>Edit {attribute}</Modal.Title>
+        <Modal.Title aria-label={`Edit ${attribute} Title`}>Edit {attribute}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form.Group>
-          <Form.Label>New {attribute}</Form.Label>
+        <Form.Group aria-label={`Edit ${attribute} Form Group`}>
+          <Form.Label aria-label={`New ${attribute} Label`}>New {attribute}</Form.Label>
           <Form.Control
             type="date"
             value={value}
             onChange={onChange}
             placeholder="Select new date"
+            aria-label={`Select new ${attribute}`}
           />
         </Form.Group>
         {errorMessage && (
-          <p style={{ color: 'red', marginTop: '10px' }}>{errorMessage}</p>
+          <p style={{ color: 'red', marginTop: '10px' }} aria-label="Error Message">
+            {errorMessage}
+          </p>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
+        <Button
+          variant="secondary"
+          onClick={onClose}
+          aria-label="Cancel Edit Date Button"
+        >
           Cancel
         </Button>
-        <Button variant="primary" onClick={onSave}>
+        <Button
+          variant="primary"
+          onClick={onSave}
+          aria-label="Save Edited Date Button"
+        >
           Save
         </Button>
       </Modal.Footer>
