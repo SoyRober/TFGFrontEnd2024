@@ -10,14 +10,18 @@ const CreateCopyModal = ({
   handleAddCopy,
 }) => {
   return (
-    <Modal show={showModal} onHide={() => setShowModal(false)}>
+    <Modal
+      show={showModal}
+      onHide={() => setShowModal(false)}
+      aria-label="Create Copy Modal"
+    >
       <Modal.Header closeButton>
-        <Modal.Title>Add New Copy</Modal.Title>
+        <Modal.Title aria-label="Add New Copy Title">Add New Copy</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
           <Form.Group controlId="formBarcode">
-            <Form.Label>Barcode</Form.Label>
+            <Form.Label aria-label="Barcode Label">Barcode</Form.Label>
             <Form.Control
               type="text"
               placeholder="Enter barcode"
@@ -25,20 +29,28 @@ const CreateCopyModal = ({
               onChange={(e) =>
                 setNewCopy({ ...newCopy, barcode: e.target.value })
               }
+              aria-label="Enter barcode"
             />
           </Form.Group>
           <Form.Group controlId="formLibrary">
-            <Form.Label>Library</Form.Label>
+            <Form.Label aria-label="Library Label">Library</Form.Label>
             <Form.Control
               as="select"
               value={newCopy.libraryName}
               onChange={(e) =>
                 setNewCopy({ ...newCopy, libraryName: e.target.value })
               }
+              aria-label="Select a library"
             >
-              <option value="">Select a library</option>
+              <option value="" aria-label="Select a library option">
+                Select a library
+              </option>
               {libraries.map((libraryName, index) => (
-                <option key={index} value={libraryName}>
+                <option
+                  key={index}
+                  value={libraryName}
+                  aria-label={`Library ${libraryName}`}
+                >
                   {libraryName}
                 </option>
               ))}
@@ -47,10 +59,18 @@ const CreateCopyModal = ({
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowModal(false)}>
+        <Button
+          variant="secondary"
+          onClick={() => setShowModal(false)}
+          aria-label="Close Modal Button"
+        >
           Close
         </Button>
-        <Button variant="primary" onClick={handleAddCopy}>
+        <Button
+          variant="primary"
+          onClick={handleAddCopy}
+          aria-label="Add Copy Button"
+        >
           Add Copy
         </Button>
       </Modal.Footer>
