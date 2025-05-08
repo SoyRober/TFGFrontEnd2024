@@ -18,31 +18,41 @@ const SelectableList = ({
 
   return (
     <>
-      <div className="selected-items">
+      <div className="selected-items" aria-label={`Selected ${label}s`}>
         {selectedItems.map((item, index) => (
-          <span key={index} className="badge bg-primary me-2">
+          <span
+            key={index}
+            className="badge bg-primary me-2"
+            aria-label={`Selected ${label}: ${item}`}
+          >
             {item}{" "}
             <button
               type="button"
               className="btn-close btn-close-white"
               onClick={() => handleRemoveItem(item)}
+              aria-label={`Remove ${label}: ${item}`}
             ></button>
           </span>
         ))}
       </div>
       <div className="form-group mt-3">
-        <label htmlFor={`new${label}`}>Add New {label}</label>
+        <label htmlFor={`new${label}`} aria-label={`Add New ${label} Label`}>
+          Add New {label}
+        </label>
         <select
           className="form-control"
           id={`new${label}`}
           value={newItem}
           onChange={(e) => handleSelectChange(e.target.value)}
+          aria-label={`Select a ${label.toLowerCase()}`}
         >
-          <option value="">Select a {label.toLowerCase()}</option>
+          <option value="" aria-label={`Default ${label} Option`}>
+            Select a {label.toLowerCase()}
+          </option>
           {items
             .filter((item) => !selectedItems.includes(item))
             .map((item, index) => (
-              <option key={index} value={item}>
+              <option key={index} value={item} aria-label={`${label}: ${item}`}>
                 {item}
               </option>
             ))}
