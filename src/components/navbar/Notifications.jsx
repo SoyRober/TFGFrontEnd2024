@@ -78,7 +78,7 @@ const Notifications = () => {
 		);
 	};
 
-	const hasUnreadMessages = messages.some((message) => !message.isRead);
+	const hasUnreadMessages = Array.isArray(messages) && messages.some((message) => !message.isRead);
 
 	return (
 		<div className="notifications" ref={notificationsRef}>
