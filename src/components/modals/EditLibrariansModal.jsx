@@ -48,6 +48,7 @@ const EditLibrariansModal = ({
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
+				//Modal body content
 				{/*Selected Librarians */}
 				<div aria-label="Selected Librarians List">
 					{selectedLibrarians.map((librarian) => (
@@ -64,7 +65,6 @@ const EditLibrariansModal = ({
 						</div>
 					))}
 				</div>
-
 				{/*Add librarian */}
 				<InputGroup className="mb-3" aria-label="Add Librarian Input">
 					<FormControl
@@ -87,20 +87,23 @@ const EditLibrariansModal = ({
 						))}
 					</datalist>
 				</InputGroup>
-
 				{/* checkboxes */}
-				<Form aria-label="Edit Librarians Form">
-					{allLibrarians.map((librarian) => (
-						<Form.Check
-							key={librarian}
-							type="checkbox"
-							label={librarian}
-							checked={selectedLibrarians.includes(librarian)}
-							onChange={() => handleCheckboxChange(librarian)}
-							aria-label={`Select librarian ${librarian}`}
-						/>
-					))}
-				</Form>
+				{allLibrarians.length === 0 ? (
+					<p>Loading librarians...</p>
+				) : (
+					<Form aria-label="Edit Librarians Form">
+						{allLibrarians.map((librarian) => (
+							<Form.Check
+								key={librarian}
+								type="checkbox"
+								label={librarian}
+								checked={selectedLibrarians.includes(librarian)}
+								onChange={() => handleCheckboxChange(librarian)}
+								aria-label={`Select librarian ${librarian}`}
+							/>
+						))}
+					</Form>
+				)}
 			</Modal.Body>
 			<Modal.Footer>
 				<Button
