@@ -48,7 +48,7 @@ const EditLibrariansModal = ({
 				</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				//Modal body content
+				<p className="mb-3">This should be seen</p>
 				{/*Selected Librarians */}
 				<div aria-label="Selected Librarians List">
 					{selectedLibrarians.map((librarian) => (
