@@ -27,25 +27,26 @@ export default function Attributes() {
   };
 
   return (
-    <main className="container text-center mt-5">
+    <main className="container text-center mt-5" aria-label="Attributes Page">
       <header className="mb-4">
-        <h1>Select an attribute</h1>
+        <h1 aria-label="Select an Attribute Title">Select an attribute</h1>
       </header>
 
-      <section className="btn-group mb-3" role="group">
+      <section className="btn-group mb-3" role="group" aria-label="Attribute Selection Buttons">
         {["Genres", "Authors"].map((attr) => (
           <button
             key={attr}
             type="button"
             className={`btn ${selectedButton === attr ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => handleButtonClick(attr)}
+            aria-label={`Select ${attr} Button`}
           >
             {attr}
           </button>
         ))}
       </section>
 
-      <section>
+      <section aria-label="Selected Attribute Section">
         {selectedButton === "Authors" && <Authors />}
         {selectedButton === "Genres" && <Genres />}
       </section>

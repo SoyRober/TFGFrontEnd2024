@@ -102,10 +102,12 @@ const Loans = ({ cardSize = "medium" }) => {
 						dateFormat="dd/MM/yyyy"
 						placeholderText="Select a start date"
 						id="startDateFilter"
+						aria-label="Filter loans by start date"
 					/>
 					<button
 						className="btn btn-outline-secondary btn-sm ms-2"
 						onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
+						aria-label="Reset start date filter"
 					>
 						<i className="fa-solid fa-rotate-right"></i>
 					</button>
@@ -124,10 +126,12 @@ const Loans = ({ cardSize = "medium" }) => {
 						onChange={(e) =>
 							setFilters((prev) => ({ ...prev, title: e.target.value }))
 						}
+						aria-label="Filter loans by title"
 					/>
 					<button
 						className="btn btn-outline-secondary btn-sm ms-2"
 						onClick={() => setFilters((prev) => ({ ...prev, title: "" }))}
+						aria-label="Reset title filter"
 					>
 						<i className="fa-solid fa-rotate-right"></i>
 					</button>
@@ -144,6 +148,7 @@ const Loans = ({ cardSize = "medium" }) => {
 						onChange={(e) =>
 							setFilters((prev) => ({ ...prev, returned: e.target.value }))
 						}
+						aria-label="Filter loans by return status"
 					>
 						<option value="returned">Returned</option>
 						<option value="notReturned">Not Returned</option>
@@ -153,12 +158,17 @@ const Loans = ({ cardSize = "medium" }) => {
 						onClick={() =>
 							setFilters((prev) => ({ ...prev, returned: "notReturned" }))
 						}
+						aria-label="Reset return status filter"
 					>
 						<i className="fa-solid fa-rotate-right"></i>
 					</button>
 				</div>
 
-				<button className="btn btn-warning" onClick={resetFilters}>
+				<button
+					className="btn btn-warning"
+					onClick={resetFilters}
+					aria-label="Reset all filters"
+				>
 					Reset Filters
 				</button>
 			</section>
@@ -181,12 +191,14 @@ const Loans = ({ cardSize = "medium" }) => {
 							<article
 								key={index}
 								className={`${getColumnClass(cardSize)} mb-4`}
+								aria-label={`Loan card for the book ${loan.book}`}
 							>
 								<div className="card h-100 p-1">
 									<img
 										src={`data:image/jpeg;base64,${loan.bookImage}`}
 										className="card-img-top"
 										alt={`Cover of ${loan.book}`}
+										aria-label={`Cover image of the book ${loan.book}`}
 									/>
 									<div className="d-flex justify-content-center">
 										<hr
@@ -199,6 +211,7 @@ const Loans = ({ cardSize = "medium" }) => {
 											<Link
 												to={`/viewBook/${loan.book}`}
 												className="text-decoration-none"
+												aria-label={`View details for the book ${loan.book}`}
 											>
 												{loan.book}
 											</Link>
@@ -214,8 +227,7 @@ const Loans = ({ cardSize = "medium" }) => {
 												: "N/A"}
 										</p>
 										<p>
-											<strong>Returned:</strong>{" "}
-											{loan.isReturned ? "Yes" : "No"}
+											<strong>Returned:</strong> {loan.isReturned ? "Yes" : "No"}
 										</p>
 									</div>
 								</div>

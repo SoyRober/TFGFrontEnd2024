@@ -29,15 +29,18 @@ const UserBooksDetails = () => {
 
   return (
     <main className="container text-center mt-5">
-      <h1 className="mb-4">What do you wanna see?</h1>
+      <h1 className="mb-4" aria-label="Page title">
+        What do you wanna see?
+      </h1>
 
-      <div className="btn-group" role="group">
+      <div className="btn-group" role="group" aria-label="View selection">
         <button
           type="button"
           className={`btn ${
             selectedButton === "Loans" ? "btn-primary" : "btn-outline-primary"
           }`}
           onClick={() => handleButtonClick("Loans")}
+          aria-label="Show loans"
         >
           Loans
         </button>
@@ -50,6 +53,7 @@ const UserBooksDetails = () => {
               : "btn-outline-primary"
           }`}
           onClick={() => handleButtonClick("Reservations")}
+          aria-label="Show reservations"
         >
           Reservations
         </button>
@@ -68,8 +72,9 @@ const UserBooksDetails = () => {
                 cardSize === "small" ? "active" : ""
               }`}
               onClick={() => setCardSize("small")}
+              aria-label="Set card size to small"
             >
-              Pequeño
+              Small
             </button>
             <button
               type="button"
@@ -77,8 +82,9 @@ const UserBooksDetails = () => {
                 cardSize === "medium" ? "active" : ""
               }`}
               onClick={() => setCardSize("medium")}
+              aria-label="Set card size to medium"
             >
-              Mediano
+              Medium
             </button>
             <button
               type="button"
@@ -86,8 +92,9 @@ const UserBooksDetails = () => {
                 cardSize === "large" ? "active" : ""
               }`}
               onClick={() => setCardSize("large")}
+              aria-label="Set card size to large"
             >
-              Grande
+              Large
             </button>
           </div>
         </div>

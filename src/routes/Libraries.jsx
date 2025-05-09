@@ -190,9 +190,8 @@ export default function Libraries() {
 									variant="info"
 									size="sm"
 									className="me-1"
-									onClick={() =>
-										handleEditAttribute(library.id, "name", library.name)
-									}
+									onClick={() => handleEditAttribute(library.id, "name", library.name)}
+									aria-label={`Change name of library ${library.name}`}
 								>
 									Change Name
 								</Button>
@@ -200,9 +199,8 @@ export default function Libraries() {
 									variant="warning"
 									size="sm"
 									className="me-1"
-									onClick={() =>
-										handleEditAttribute(library.id, "address", library.address)
-									}
+									onClick={() => handleEditAttribute(library.id, "address", library.address)}
+									aria-label={`Change address of library ${library.name}`}
 								>
 									Change Address
 								</Button>
@@ -210,6 +208,7 @@ export default function Libraries() {
 									variant="success"
 									size="sm"
 									onClick={() => handleEditibrarians(library.id)}
+									aria-label={`Add librarian to library ${library.name}`}
 								>
 									Add Librarian
 								</Button>
@@ -217,6 +216,7 @@ export default function Libraries() {
 									variant="danger"
 									size="sm"
 									onClick={() => handleDeleteLibrary(library.id)}
+									aria-label={`Delete library ${library.name}`}
 								>
 									Delete
 								</Button>
@@ -239,6 +239,7 @@ export default function Libraries() {
 				className="mt-3"
 				style={{ position: "absolute", bottom: "20px", left: "20px" }}
 				onClick={() => setShowAddLibraryModal(true)}
+				aria-label="Add a new library"
 			>
 				Add New Library
 			</Button>
@@ -246,6 +247,7 @@ export default function Libraries() {
 			<Modal
 				show={showAddLibraryModal}
 				onHide={() => setShowAddLibraryModal(false)}
+				aria-label="Add new library modal"
 			>
 				<Modal.Header closeButton>
 					<Modal.Title>Add New Library</Modal.Title>
@@ -261,6 +263,7 @@ export default function Libraries() {
 								onChange={(e) =>
 									setNewLibrary({ ...newLibrary, name: e.target.value })
 								}
+								aria-label="Library name input"
 							/>
 						</Form.Group>
 						<Form.Group controlId="formLibraryAddress" className="mt-3">
@@ -272,6 +275,7 @@ export default function Libraries() {
 								onChange={(e) =>
 									setNewLibrary({ ...newLibrary, address: e.target.value })
 								}
+								aria-label="Library address input"
 							/>
 						</Form.Group>
 					</Form>
@@ -280,10 +284,15 @@ export default function Libraries() {
 					<Button
 						variant="secondary"
 						onClick={() => setShowAddLibraryModal(false)}
+						aria-label="Close add library modal"
 					>
 						Close
 					</Button>
-					<Button variant="primary" onClick={handleAddLibrary}>
+					<Button
+						variant="primary"
+						onClick={handleAddLibrary}
+						aria-label="Save new library"
+					>
 						Add Library
 					</Button>
 				</Modal.Footer>
@@ -298,6 +307,7 @@ export default function Libraries() {
 				placeholder={`Enter new ${editAttribute}`}
 				onSave={submitEditAttribute}
 				errorMessage={errorMessage}
+				aria-label="Edit library attribute modal"
 			/>
 
 			<DeleteConfirmationModal
@@ -305,6 +315,7 @@ export default function Libraries() {
 				onClose={() => setShowDeleteModal(false)}
 				onDelete={confirmDeleteLibrary}
 				message="Are you sure you want to delete this library? This action cannot be undone."
+				aria-label="Delete library confirmation modal"
 			/>
 
 			<EditLibrariansModal
@@ -314,6 +325,7 @@ export default function Libraries() {
 				selectedLibrarians={selectedLibrarians}
 				onSelect={(librarians) => setSelectedLibrarians(librarians)}
 				onSave={submitLibrariansUpdate}
+				aria-label="Edit librarians modal"
 			/>
 		</div>
 	);

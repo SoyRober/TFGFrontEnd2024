@@ -122,10 +122,12 @@ const UserReservations = ({ cardSize }) => {
 						dateFormat="dd/MM/yyyy"
 						placeholderText="Select a date"
 						id="startDateFilter"
+						aria-label="Filter reservations by date"
 					/>
 					<button
 						className="btn btn-outline-secondary btn-sm ms-2"
 						onClick={() => setDateFilter("")}
+						aria-label="Reset date filter"
 					>
 						⟲
 					</button>
@@ -140,6 +142,7 @@ const UserReservations = ({ cardSize }) => {
 						className="form-select"
 						value={loanedFilter}
 						onChange={(e) => setReturnedFilter(e.target.value)}
+						aria-label="Filter reservations by loan status"
 					>
 						<option value="all">All</option>
 						<option value="returned">Loaned</option>
@@ -148,6 +151,7 @@ const UserReservations = ({ cardSize }) => {
 					<button
 						className="btn btn-outline-secondary ms-2"
 						onClick={() => setReturnedFilter("all")}
+						aria-label="Reset loan status filter"
 					>
 						⟲
 					</button>
@@ -159,6 +163,7 @@ const UserReservations = ({ cardSize }) => {
 						setDateFilter("");
 						setReturnedFilter("all");
 					}}
+					aria-label="Reset all filters"
 				>
 					Reset Filters
 				</button>
@@ -214,7 +219,8 @@ const UserReservations = ({ cardSize }) => {
 										<img
 											src={`data:image/jpeg;base64,${reservation.image}`}
 											className="img-fluid"
-											alt={`Cover of ${reservation.bookTitle}`} //TODO Add default image
+											alt={`Cover of ${reservation.bookTitle}`}
+											aria-label={`Cover image of the book ${reservation.bookTitle}`}
 											style={{
 												maxWidth: "100%",
 												maxHeight: "100%",
@@ -230,6 +236,7 @@ const UserReservations = ({ cardSize }) => {
 											<Link
 												to={`/viewBook/${reservation.bookTitle}`}
 												className="text-decoration-none d-flex align-items-center"
+												aria-label={`View details for the book ${reservation.bookTitle}`}
 											>
 												{reservation.bookTitle}
 												<i className="fas fa-mouse-pointer ms-2"></i>
@@ -253,6 +260,7 @@ const UserReservations = ({ cardSize }) => {
 											<button
 												className="btn btn-primary ms-2"
 												onClick={() => cancelReservation(reservation.bookTitle)}
+												aria-label={`Cancel reservation for the book ${reservation.bookTitle}`}
 											>
 												Cancel Reservation
 											</button>

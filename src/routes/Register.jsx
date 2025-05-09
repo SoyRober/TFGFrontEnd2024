@@ -82,6 +82,7 @@ const Register = () => {
 										id="username"
 										value={username}
 										onChange={(e) => setUsername(e.target.value)}
+										aria-label="Enter your username"
 									/>
 								</div>
 								<div className="mb-3">
@@ -94,6 +95,7 @@ const Register = () => {
 										id="password"
 										value={password}
 										onChange={(e) => setPassword(e.target.value)}
+										aria-label="Enter your password"
 									/>
 								</div>
 								<div className="mb-3">
@@ -106,6 +108,7 @@ const Register = () => {
 										id="email"
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
+										aria-label="Enter your email address"
 									/>
 								</div>
 								<div className="mb-3">
@@ -118,6 +121,7 @@ const Register = () => {
 										id="birthDate"
 										value={birthDate}
 										onChange={(e) => setBirthDate(e.target.value)}
+										aria-label="Enter your birth date"
 									/>
 								</div>
 								<div className="mb-3">
@@ -130,6 +134,7 @@ const Register = () => {
 										id="address"
 										value={address}
 										onChange={(e) => setAddress(e.target.value)}
+										aria-label="Enter your address"
 									/>
 								</div>
 								<div className="mb-3">
@@ -143,11 +148,13 @@ const Register = () => {
 										value={telephone}
 										onChange={(e) => setTelephone(e.target.value)}
 										placeholder="No spaces or dashes"
+										aria-label="Enter your telephone number"
 									/>
 								</div>
 								<button
 									type="submit"
 									className="btn btn-primary w-100 shadow-sm"
+									aria-label="Sign up for an account"
 								>
 									Sign Up
 								</button>
@@ -155,6 +162,7 @@ const Register = () => {
 									type="button"
 									className="btn btn-danger w-100 shadow-sm mt-2"
 									onClick={handleGoogleSignUp}
+									aria-label="Sign up with Google"
 								>
 									Sign up with Google
 								</button>
@@ -163,7 +171,11 @@ const Register = () => {
 					</div>
 				</div>
 			</div>
-			<ReactivationInfoModal show={showModal} handleClose={handleHideModal} />
+			<ReactivationInfoModal
+				show={showModal}
+				handleClose={handleHideModal}
+				aria-label="Reactivation information modal"
+			/>
 		</main>
 	);
 };

@@ -332,7 +332,11 @@ export default function LibraryHomepage() {
 		>
 			{hasPermissions && (
 				<section className="d-flex justify-content-start w-100 ms-3">
-					<button className="btn btn-primary my-2" onClick={openModal}>
+					<button
+						className="btn btn-primary my-2"
+						onClick={openModal}
+						aria-label="Create a new book"
+					>
 						Create New Book
 					</button>
 				</section>
@@ -349,6 +353,7 @@ export default function LibraryHomepage() {
 				authors={authors}
 				genres={genres}
 				libraries={libraries}
+				aria-label="Create book modal"
 			/>
 
 			<header className="container text-center">
@@ -361,6 +366,7 @@ export default function LibraryHomepage() {
 									cardSize === "small" ? "active" : ""
 								}`}
 								onClick={() => setCardSize("small")}
+								aria-label="Set card size to small"
 							>
 								Small
 							</button>
@@ -370,6 +376,7 @@ export default function LibraryHomepage() {
 									cardSize === "medium" ? "active" : ""
 								}`}
 								onClick={() => setCardSize("medium")}
+								aria-label="Set card size to medium"
 							>
 								Medium
 							</button>
@@ -379,6 +386,7 @@ export default function LibraryHomepage() {
 									cardSize === "large" ? "active" : ""
 								}`}
 								onClick={() => setCardSize("large")}
+								aria-label="Set card size to large"
 							>
 								Large
 							</button>
@@ -407,6 +415,7 @@ export default function LibraryHomepage() {
 					setBookData={setBookData}
 					isAdultUser={isAdultUser}
 					setIsAdultUser={setIsAdultUser}
+					aria-label="Book filters"
 				/>
 			</header>
 
@@ -429,6 +438,7 @@ export default function LibraryHomepage() {
 								<article
 									key={book.title}
 									className={`${getColumnClass(cardSize)}`}
+									aria-label={`Book card for ${book.title}`}
 								>
 									<div
 										className="customized-card pt-1 shadow-sm"
@@ -436,7 +446,7 @@ export default function LibraryHomepage() {
 										onKeyDown={(e) =>
 											e.key === "Enter" && navigateToBookDetails(book.title)
 										}
-										style={{
+																				style={{
 											height:
 												cardSize === "small"
 													? "250px"
@@ -452,6 +462,7 @@ export default function LibraryHomepage() {
 												width: "100%",
 												overflow: "hidden",
 											}}
+											aria-label={`Image of ${book.title}`}
 										>
 											<img
 												src={

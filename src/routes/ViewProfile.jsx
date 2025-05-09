@@ -12,7 +12,7 @@ const ViewProfile = () => {
 	const [userProfile, setUserProfile] = useState(null);
 
 	const [userReservations, setUserReservations] = useState([]);
-	const [reservationPage, setReservationPage] = useState(0);
+	// const [reservationPage, setReservationPage] = useState(0);
 	const [dateFilterReservation, setDateFilterReservation] = useState("");
 	const [titleFilterReservation, setTitleFilterReservation] = useState("");
 
@@ -67,7 +67,7 @@ const ViewProfile = () => {
 
 	useEffect(() => {
 		setUserReservations([]);
-		setReservationPage(0);
+		// setReservationPage(0);
 		setHasMoreReservations(true);
 
 		fetchUserReservations(0, dateFilterReservation, titleFilterReservation); // <-- esta línea es clave
@@ -100,7 +100,7 @@ const ViewProfile = () => {
 				setHasMoreReservations(false);
 			} else {
 				setUserReservations((prev) => [...prev, ...newReservations]);
-				setReservationPage((prev) => prev + 1);
+				// setReservationPage((prev) => prev + 1);
 			}
 		} catch (error) {
 			toast.error("Error loading reservations: " + error.message);
@@ -233,6 +233,7 @@ const ViewProfile = () => {
 						<button
 							className="btn btn-warning"
 							onClick={() => setShowModal(true)}
+							aria-label="Change user role"
 						>
 							Change Role
 						</button>
@@ -246,6 +247,7 @@ const ViewProfile = () => {
 				handleRoleChange={handleRoleChange}
 				selectedRole={selectedRole}
 				setSelectedRole={setSelectedRole}
+				aria-label="Change role modal"
 			/>
 
 			{/* TODO: QUITAR SCROLL HORIZONTAL */}
@@ -260,10 +262,12 @@ const ViewProfile = () => {
 							className="form-control"
 							value={dateFilterReservation}
 							onChange={(e) => setDateFilterReservation(e.target.value)}
+							aria-label="Filter reservations by date"
 						/>
 						<button
 							className="btn btn-warning"
 							onClick={() => setDateFilterReservation("")}
+							aria-label="Reset reservation date filter"
 						>
 							<i className="fa-solid fa-rotate-right"></i>
 						</button>
@@ -276,10 +280,12 @@ const ViewProfile = () => {
 							value={titleFilterReservation}
 							onChange={(e) => setTitleFilterReservation(e.target.value)}
 							placeholder="Filter by title"
+							aria-label="Filter reservations by title"
 						/>
 						<button
 							className="btn btn-warning"
 							onClick={() => setTitleFilterReservation("")}
+							aria-label="Reset reservation title filter"
 						>
 							<i className="fa-solid fa-rotate-right"></i>
 						</button>
@@ -336,10 +342,12 @@ const ViewProfile = () => {
 							className="form-control"
 							value={dateFilterLoan}
 							onChange={(e) => setDateFilterLoan(e.target.value)}
+							aria-label="Filter loans by date"
 						/>
 						<button
 							className="btn btn-warning"
 							onClick={() => setDateFilterLoan("")}
+							aria-label="Reset loan date filter"
 						>
 							<i className="fa-solid fa-rotate-right"></i>
 						</button>
@@ -352,10 +360,12 @@ const ViewProfile = () => {
 							value={titleFilterLoan}
 							onChange={(e) => setTitleFilterLoan(e.target.value)}
 							placeholder="Filter by title"
+							aria-label="Filter loans by title"
 						/>
 						<button
 							className="btn btn-warning"
 							onClick={() => setTitleFilterLoan("")}
+							aria-label="Reset loan title filter"
 						>
 							<i className="fa-solid fa-rotate-right"></i>
 						</button>
@@ -368,6 +378,7 @@ const ViewProfile = () => {
 							className="form-select"
 							value={isReturnedLoan}
 							onChange={(e) => setIsReturnedLoan(e.target.value)}
+							aria-label="Filter loans by return status"
 						>
 							<option value="">All</option>
 							<option value="true">Returned</option>
@@ -376,6 +387,7 @@ const ViewProfile = () => {
 						<button
 							className="btn btn-warning"
 							onClick={() => setIsReturnedLoan("")}
+							aria-label="Reset loan return status filter"
 						>
 							<i className="fa-solid fa-rotate-right"></i>
 						</button>
@@ -416,6 +428,7 @@ const ViewProfile = () => {
 											<button
 												className="btn btn-primary btn-sm float-end"
 												onClick={() => handleReturnBook(loan.book, email)}
+												aria-label={`Return the book ${loan.book}`}
 											>
 												Return
 											</button>

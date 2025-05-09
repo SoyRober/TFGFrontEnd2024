@@ -130,7 +130,7 @@ export default function ViewBook() {
           { title: title },
           token
         );
-        setLoanStatus(response);
+        setLoanStatus(response.message);
       } catch (error) {
         toast.error(error.message || "Something went wrong");
       }
@@ -474,6 +474,7 @@ export default function ViewBook() {
                   <button
                     onClick={() => handleEditClick("image")}
                     className="btn btn-primary w-100"
+                    aria-label="Edit book image"
                   >
                     Edit image
                   </button>
@@ -482,7 +483,8 @@ export default function ViewBook() {
                   <button
                     onClick={() => setShowLoanToUserModal(true)}
                     className="btn btn-secondary w-100"
-                    disabled={quantity < 1} // Disable button if no available copies
+                    disabled={quantity < 1}
+                    aria-label="Loan book to user"
                   >
                     Loan to User
                   </button>
@@ -494,13 +496,18 @@ export default function ViewBook() {
           {isLoggedIn && !hasPermissions && (
             <div className="d-flex justify-content-center align-items-center mt-2">
               {isLoaned ? (
-                <button className="btn btn-secondary w-100" disabled>
+                <button
+                  className="btn btn-secondary w-100"
+                  disabled
+                  aria-label="Book is currently loaned"
+                >
                   Currently Loaned
                 </button>
               ) : isReserved ? (
                 <button
                   onClick={handleCancelReservation}
                   className="btn btn-warning w-100"
+                  aria-label="Cancel book reservation"
                 >
                   Cancel Reservation
                 </button>
@@ -509,6 +516,11 @@ export default function ViewBook() {
                   onClick={handleReservation}
                   className="btn btn-primary w-100"
                   disabled={quantity < 1}
+                  aria-label={
+                    quantity < 1
+                      ? "No available copies to reserve"
+                      : "Make a reservation for this book"
+                  }
                 >
                   {quantity < 1 ? "No available copies" : "Make a Reservation"}
                 </button>
@@ -530,6 +542,7 @@ export default function ViewBook() {
           <button
             onClick={() => setShowDeleteConfirmation(true)}
             className="btn btn-danger ml-2"
+            aria-label="Delete this book"
           >
             Delete Book
           </button>
@@ -568,8 +581,8 @@ export default function ViewBook() {
         selectedAuthors={selectedAuthors}
         genres={genres}
         selectedGenres={selectedGenres}
-        libraries={libraries} // Todas las librerías disponibles
-        selectedLibraries={selectedLibraries} // Librerías seleccionadas
+        libraries={libraries}
+        selectedLibraries={selectedLibraries}
         handleAuthorChange={handleAuthorChange}
         handleGenreChange={handleGenreChange}
         handleEditChange={handleEditChange}
@@ -577,18 +590,21 @@ export default function ViewBook() {
         handleCloseModal={handleCloseModal}
         handleImageChange={handleImageChange}
         handleLibraryChange={handleLibraryChange}
+        aria-label="Edit book attributes modal"
       />
       <DeleteConfirmationModal
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={handleDeleteBook}
         message={`This book "${book.title}" will be deleted. Are you sure?`}
+        aria-label="Delete book confirmation modal"
       />
       <BookReservationModal
         show={showUnavailableModal}
         onClose={() => setShowUnavailableModal(false)}
         onConfirm={handleReservation}
         onCancel={() => setShowUnavailableModal(false)}
+        aria-label="Book reservation modal"
       />
       <LoanToUserModal
         show={showLoanToUserModal}
@@ -598,6 +614,7 @@ export default function ViewBook() {
         setSelectedUser={setSelectedUser}
         daysLoaned={daysLoaned}
         setDaysLoaned={setDaysLoaned}
+        aria-label="Loan book to user modal"
       />
     </main>
   );

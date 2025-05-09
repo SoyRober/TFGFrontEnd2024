@@ -274,18 +274,21 @@ export default function Settings() {
 							<button
 								className="btn btn-primary mb-3 w-50"
 								onClick={() => handleEditAttribute("username", username)}
+								aria-label="Edit username"
 							>
 								Edit Username
 							</button>
 							<button
 								className="btn btn-primary mb-3 w-50"
 								onClick={() => handleEditAttribute("email", email)}
+								aria-label="Edit email"
 							>
 								Edit Email
 							</button>
 							<button
 								className="btn btn-primary mb-3 w-50"
 								onClick={() => handleEditAttribute("birthdate", birthDate)}
+								aria-label="Edit birthdate"
 							>
 								Edit BirthDate
 							</button>
@@ -293,6 +296,7 @@ export default function Settings() {
 								<button
 									className="btn btn-secondary mb-3 w-50"
 									onClick={() => handleEditAttribute("password", "")}
+									aria-label="Change password"
 								>
 									Change Password
 								</button>
@@ -300,7 +304,11 @@ export default function Settings() {
 						</div>
 					</div>
 					<div>
-						<button className="btn btn-danger" onClick={handleOpenDeleteModal}>
+						<button
+							className="btn btn-danger"
+							onClick={handleOpenDeleteModal}
+							aria-label="Deactivate user account"
+						>
 							Deactivate user
 						</button>
 					</div>
@@ -323,34 +331,47 @@ export default function Settings() {
 				<Modal.Body>
 					{modalAttribute === "image" ? (
 						<Form.Group className="mt-3">
-							<Form.Label>Upload New Profile Image</Form.Label>
+							<Form.Label aria-label="Upload new profile image">
+								Upload New Profile Image
+							</Form.Label>
 							<Form.Control
 								type="file"
 								onChange={(e) => setModalValue(e.target.files[0])}
+								aria-label="Select a new profile image"
 							/>
 						</Form.Group>
 					) : modalAttribute === "password" ? (
 						<>
 							<Form.Group className="mt-3">
-								<Form.Label>Current Password</Form.Label>
+								<Form.Label aria-label="Enter current password">
+									Current Password
+								</Form.Label>
 								<Form.Control
 									type="password"
 									placeholder="Enter current password"
-									onChange={(e) => setModalValue({ ...modalValue, oldPassword: e.target.value })}
+									onChange={(e) =>
+										setModalValue({ ...modalValue, oldPassword: e.target.value })
+									}
+									aria-label="Enter your current password"
 								/>
 							</Form.Group>
 							<Form.Group className="mt-3">
-								<Form.Label>New Password</Form.Label>
+								<Form.Label aria-label="Enter new password">
+									New Password
+								</Form.Label>
 								<Form.Control
 									type="password"
 									placeholder="Enter new password"
-									onChange={(e) => setModalValue({ ...modalValue, newAttribute: e.target.value })}
+									onChange={(e) =>
+										setModalValue({ ...modalValue, newAttribute: e.target.value })
+									}
+									aria-label="Enter your new password"
 								/>
 							</Form.Group>
 						</>
 					) : (
 						<Form.Group className="mt-3">
-							<Form.Label>
+							<Form.Label aria-label={`Enter new ${modalAttribute}`}>
 								{`New ${
 									modalAttribute.charAt(0).toUpperCase() +
 									modalAttribute.slice(1)
@@ -360,15 +381,24 @@ export default function Settings() {
 								type="text"
 								value={modalValue}
 								onChange={(e) => setModalValue(e.target.value)}
+								aria-label={`Enter new ${modalAttribute}`}
 							/>
 						</Form.Group>
 					)}
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={handleCancel}>
+					<Button
+						variant="secondary"
+						onClick={handleCancel}
+						aria-label="Cancel changes"
+					>
 						Cancel
 					</Button>
-					<Button variant="primary" onClick={handleSaveAttribute}>
+					<Button
+						variant="primary"
+						onClick={handleSaveAttribute}
+						aria-label="Save changes"
+					>
 						Save
 					</Button>
 				</Modal.Footer>
@@ -396,10 +426,18 @@ export default function Settings() {
 					Are you sure you want to deactivate your account?
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={handleCloseDeactivationModal}>
+					<Button
+						variant="secondary"
+						onClick={handleCloseDeactivationModal}
+						aria-label="Cancel account deactivation"
+					>
 						Cancel
 					</Button>
-					<Button variant="danger" onClick={handleDeactivationUser}>
+					<Button
+						variant="danger"
+						onClick={handleDeactivationUser}
+						aria-label="Confirm account deactivation"
+					>
 						Deactivate
 					</Button>
 				</Modal.Footer>

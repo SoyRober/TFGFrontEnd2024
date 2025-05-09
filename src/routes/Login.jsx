@@ -65,6 +65,7 @@ const Login = () => {
 										id="username"
 										value={username}
 										onChange={(e) => setUsername(e.target.value)}
+										aria-label="Enter your username"
 									/>
 								</div>
 								<div className="mb-3">
@@ -77,11 +78,13 @@ const Login = () => {
 										id="password"
 										value={password}
 										onChange={(e) => setPassword(e.target.value)}
+										aria-label="Enter your password"
 									/>
 								</div>
 								<button
 									type="submit"
 									className="btn btn-primary w-100 shadow-sm"
+									aria-label="Log in to your account"
 								>
 									Log In
 								</button>
@@ -89,6 +92,7 @@ const Login = () => {
 									type="button"
 									className="btn btn-danger w-100 shadow-sm mt-2"
 									onClick={handleGoogleLogin}
+									aria-label="Log in with Google"
 								>
 									Log in with Google
 								</button>
@@ -97,6 +101,7 @@ const Login = () => {
 										href="#"
 										onClick={handleShowModal}
 										style={{ cursor: "pointer" }}
+										aria-label="Open reactivation information modal"
 									>
 										Reactivation Info
 									</a>
@@ -106,7 +111,11 @@ const Login = () => {
 					</div>
 				</div>
 			</div>
-			<ReactivationInfoModal show={showModal} handleClose={handleHideModal} />
+			<ReactivationInfoModal
+				show={showModal}
+				handleClose={handleHideModal}
+				aria-label="Reactivation information modal"
+			/>
 		</main>
 	);
 };

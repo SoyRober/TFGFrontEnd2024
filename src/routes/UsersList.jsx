@@ -123,6 +123,7 @@ const UsersList = () => {
 								username: e.target.value.trim(),
 							}));
 						}}
+						aria-label="Filter users by username"
 					/>
 				</div>
 				<div className="col-12 col-md-5 col-lg-4 mb-2">
@@ -133,6 +134,7 @@ const UsersList = () => {
 						onChange={(e) => {
 							setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
 						}}
+						aria-label="Filter users by email"
 					/>
 				</div>
 				<div className="col-12 col-md-5 col-lg-4 mb-2">
@@ -141,6 +143,7 @@ const UsersList = () => {
 						onChange={(e) => {
 							setFilters((prev) => ({ ...prev, role: e.target.value }));
 						}}
+						aria-label="Filter users by role"
 					>
 						<option value="">Filter by role</option>
 						<option value="user">User</option>
@@ -149,7 +152,11 @@ const UsersList = () => {
 					</select>
 				</div>
 				<div className="col-12 col-md-2 d-flex justify-content-center">
-					<button className="btn btn-warning w-100" onClick={resetFilters}>
+					<button
+						className="btn btn-warning w-100"
+						onClick={resetFilters}
+						aria-label="Reset all filters"
+					>
 						Reset Filters
 					</button>
 				</div>
@@ -191,12 +198,14 @@ const UsersList = () => {
 									<button
 										onClick={() => handleDeleteClick(user.id)}
 										className="btn btn-danger me-2"
+										aria-label={`Delete user ${user.username}`}
 									>
 										Delete
 									</button>
 									<button
 										onClick={() => handleViewProfile(user.email)}
 										className="btn btn-primary"
+										aria-label={`View profile of user ${user.username}`}
 									>
 										View Profile
 									</button>
@@ -212,6 +221,7 @@ const UsersList = () => {
 				onClose={() => setShowDeleteConfirmation(false)}
 				onDelete={deleteUser}
 				message={`This user will be deleted. Are you sure?`}
+				aria-label="Delete confirmation modal"
 			/>
 		</main>
 	);

@@ -190,7 +190,11 @@ export default function BookCopies() {
 		<div className="container mt-5">
 			<div className="d-flex justify-content-between align-items-center">
 				<h1>Copies of {title}</h1>
-				<Button variant="primary" onClick={() => setShowModal(true)}>
+				<Button
+					variant="primary"
+					onClick={() => setShowModal(true)}
+					aria-label="Add New Copy"
+				>
 					Add New Copy
 				</Button>
 			</div>
@@ -203,12 +207,14 @@ export default function BookCopies() {
 					className="form-control me-2"
 					value={barcodeFilter}
 					onChange={(e) => setBarcodeFilter(e.target.value)}
+					aria-label="Filter by barcode"
 				/>
 				<Button
 					variant="secondary"
 					size="sm"
 					className="me-3"
 					onClick={() => setBarcodeFilter("")}
+					aria-label="Reset barcode filter"
 				>
 					Reset
 				</Button>
@@ -217,6 +223,7 @@ export default function BookCopies() {
 					className="form-control me-2"
 					value={libraryFilter}
 					onChange={(e) => setLibraryFilter(e.target.value)}
+					aria-label="Filter by library"
 				>
 					<option value="">Select a library</option>
 					{libraries.map((libraryName, index) => (
@@ -230,6 +237,7 @@ export default function BookCopies() {
 					size="sm"
 					className="me-3"
 					onClick={() => setLibraryFilter("")}
+					aria-label="Reset library filter"
 				>
 					Reset
 				</Button>
@@ -284,6 +292,7 @@ export default function BookCopies() {
 									onClick={() =>
 										handleChangeLibrary(copy.id, copy.barcode, copy.libraryName)
 									}
+									aria-label={`Update copy with barcode ${copy.barcode}`}
 								>
 									Update
 								</Button>
@@ -291,6 +300,7 @@ export default function BookCopies() {
 									variant="danger"
 									size="sm"
 									onClick={() => openDeleteModal(copy.id)}
+									aria-label={`Delete copy with barcode ${copy.barcode}`}
 								>
 									Delete
 								</Button>

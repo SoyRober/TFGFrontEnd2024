@@ -120,6 +120,7 @@ const GenresComponent = () => {
 												setSelectedGenre(genre);
 												setModals({ ...modals, edit: true });
 											}}
+											aria-label={`Edit genre ${genre.name}`}
 										>
 											<i className="bi bi-pencil"></i>
 										</button>
@@ -129,6 +130,7 @@ const GenresComponent = () => {
 												setSelectedGenre(genre);
 												setModals({ ...modals, delete: true });
 											}}
+											aria-label={`Delete genre ${genre.name}`}
 										>
 											<i className="bi bi-x"></i>
 										</button>
@@ -143,6 +145,7 @@ const GenresComponent = () => {
 			<button
 				className="btn btn-primary fixed-bottom m-3 w-25"
 				onClick={() => setModals({ ...modals, add: true })}
+				aria-label="Add a new genre"
 			>
 				+ Add Genre
 			</button>
@@ -158,6 +161,7 @@ const GenresComponent = () => {
 				handleClose={() => setModals({ ...modals, edit: false })}
 				handleRename={(id, name) => handleEditGenre(id, name)}
 				attribute={selectedGenre}
+				aria-label="Edit genre modal"
 			/>
 
 			<DeleteConfirmationModal
@@ -165,12 +169,14 @@ const GenresComponent = () => {
 				onClose={() => setModals({ ...modals, delete: false })}
 				onDelete={handleDeleteGenre}
 				message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
+				aria-label="Delete genre confirmation modal"
 			/>
 
 			<AddAttributeModal
 				show={modals.add}
 				handleClose={() => setModals({ ...modals, add: false })}
 				handleAdd={(name) => handleAddGenre(name)}
+				aria-label="Add genre modal"
 			/>
 		</main>
 	);

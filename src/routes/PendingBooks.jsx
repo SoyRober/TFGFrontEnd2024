@@ -149,15 +149,14 @@ export default function Attributes() {
         <h1>Reservations and Loans</h1>
       </header>
 
-      <section className="btn-group mb-3" role="group">
+      <section className="btn-group mb-3" role="group" aria-label="Reservation and loan selection">
         <button
           type="button"
           className={`btn ${
-            selectedButton === "Reserves"
-              ? "btn-primary"
-              : "btn-outline-primary"
+            selectedButton === "Reserves" ? "btn-primary" : "btn-outline-primary"
           }`}
           onClick={() => setSelectedButton("Reserves")}
+          aria-label="Show reservations"
         >
           Reserves
         </button>
@@ -168,6 +167,7 @@ export default function Attributes() {
             selectedButton === "Loans" ? "btn-primary" : "btn-outline-primary"
           }`}
           onClick={() => setSelectedButton("Loans")}
+          aria-label="Show loans"
         >
           Loans
         </button>
@@ -248,6 +248,7 @@ export default function Attributes() {
                         <button
                           className="btn btn-sm btn-success"
                           onClick={() => openLoanModal(reserve)}
+                          aria-label={`Loan the book ${reserve.bookTitle} reserved by ${reserve.userName}`}
                         >
                           Loan
                         </button>
@@ -343,6 +344,7 @@ export default function Attributes() {
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() => handleReturn(loan)}
+                          aria-label={`Return the book ${loan.book} loaned by ${loan.userName}`}
                         >
                           Return
                         </button>
@@ -357,7 +359,7 @@ export default function Attributes() {
       </section>
       {/* Modal for loan confirmation */}
       {showModal && currentReserve && (
-        <div className="modal d-block" tabIndex="-1" role="dialog">
+        <div className="modal d-block" tabIndex="-1" role="dialog" aria-label="Loan confirmation modal">
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
@@ -368,7 +370,7 @@ export default function Attributes() {
                   type="button"
                   className="close"
                   onClick={closeLoanModal}
-                  aria-label="Close"
+                  aria-label="Close loan confirmation modal"
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -383,6 +385,7 @@ export default function Attributes() {
                     value={daysLoaned}
                     onChange={(e) => setDaysLoaned(e.target.value)}
                     min="1"
+                    aria-label="Enter the number of days for the loan"
                   />
                 </div>
               </div>
@@ -391,6 +394,7 @@ export default function Attributes() {
                   type="button"
                   className="btn btn-primary"
                   onClick={confirmLoan}
+                  aria-label="Confirm loan"
                 >
                   Confirm
                 </button>
@@ -398,6 +402,7 @@ export default function Attributes() {
                   type="button"
                   className="btn btn-secondary"
                   onClick={closeLoanModal}
+                  aria-label="Cancel loan"
                 >
                   Cancel
                 </button>
