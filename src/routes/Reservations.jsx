@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
+import defaultBook from "../img/defaultBook.svg";
 
 const UserReservations = ({ cardSize }) => {
 	const [reservations, setReservations] = useState([]);
@@ -217,7 +218,11 @@ const UserReservations = ({ cardSize }) => {
 										}}
 									>
 										<img
-											src={`data:image/jpeg;base64,${reservation.image}`}
+											src={
+												reservation.image
+													? `data:image/jpeg;base64,${reservation.image}`
+													: defaultBook
+											}
 											className="img-fluid"
 											alt={`Cover of ${reservation.bookTitle}`}
 											aria-label={`Cover image of the book ${reservation.bookTitle}`}

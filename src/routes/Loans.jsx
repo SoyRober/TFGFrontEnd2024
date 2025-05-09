@@ -7,6 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
+import defaultBook from "../img/defaultBook.svg";
 
 const Loans = ({ cardSize = "medium" }) => {
 	const [loans, setLoans] = useState([]);
@@ -195,7 +196,11 @@ const Loans = ({ cardSize = "medium" }) => {
 							>
 								<div className="card h-100 p-1">
 									<img
-										src={`data:image/jpeg;base64,${loan.bookImage}`}
+										src={
+											loan.bookImage
+												? `data:image/jpeg;base64,${loan.bookImage}`
+												: defaultBook
+										}
 										className="card-img-top"
 										alt={`Cover of ${loan.book}`}
 										aria-label={`Cover image of the book ${loan.book}`}
