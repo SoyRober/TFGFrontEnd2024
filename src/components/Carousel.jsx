@@ -7,13 +7,17 @@ import { useNavigate } from "react-router-dom";
 
 const MAX_VISIBILITY = 3;
 
-const fetchBooks = async (setBooks) => {
+const fetchBooks = async (setBooks, genre = "") => {
     try {
+        const params = new URLSearchParams();
+        if (genre) params.append("genre", genre);
+
         const data = await fetchData(
-            `/public/books/random/${localStorage.getItem("libraryName")}`,
+            `/public/books/random/${localStorage.getItem("libraryName")}?${params.toString()}`,
             "GET",
             null
         );
+
         if (data.success) {
             setBooks(data.message);
         } else {
@@ -105,24 +109,24 @@ const Carousel = ({ children }) => {
     );
 };
 
-const CustomCarousel = () => {
+const CustomCarousel = ({ genre = ""}) => {
     const [books, setBooks] = useState([]);
     const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
     useEffect(() => {
-        fetchBooks(setBooks);
-    }, []);
+        fetchBooks(setBooks, genre);
+    }, [genre]);
 
     useEffect(() => {
         const interval = setInterval(() => {
             const currentLibrary = localStorage.getItem("libraryName");
             if (currentLibrary !== library) {
                 setLibrary(currentLibrary);
-                fetchBooks(setBooks);
+                fetchBooks(setBooks, genre);
             }
         }, 500);
         return () => clearInterval(interval);
-    }, [library]);
+    }, [library, genre]);
 
     return (
         <div className="carousel-wrapper my-3" aria-label="Custom Book Carousel">
