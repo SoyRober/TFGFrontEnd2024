@@ -75,7 +75,6 @@ export default function Libraries() {
 			const usernames = Array.isArray(response.message)
 				? response.message.map((librarian) => librarian.username)
 				: [];
-			console.log("🚀 ~ handleEditibrarians ~ usernames:", usernames); //null
 			setAllLibrarians(usernames);
 			const library = libraries.find((lib) => lib.id === libraryId);
 			setSelectedLibrarians(library?.librarianNames || []);

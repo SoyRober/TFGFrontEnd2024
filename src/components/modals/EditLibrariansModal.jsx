@@ -1,5 +1,5 @@
-import { Modal, Button, Form, InputGroup, FormControl } from "react-bootstrap";
-import { useState } from "react";
+import { Modal, Button } from "react-bootstrap";
+import Select from "react-select";
 
 const EditLibrariansModal = ({
 	show,
@@ -9,116 +9,39 @@ const EditLibrariansModal = ({
 	onSelect,
 	onSave,
 }) => {
-	console.log("🚀 ~ EditLibrariansModal allLibrarians:", allLibrarians); //null
-	const [searchTerm, setSearchTerm] = useState("");
+	// Convert strings to react-select's { value, label } format
+	const options = allLibrarians.map((name) => ({ value: name, label: name }));
+	const selectedOptions = selectedLibrarians.map((name) => ({
+		value: name,
+		label: name,
+	}));
 
-	const handleCheckboxChange = (librarian) => {
-		if (selectedLibrarians.includes(librarian)) {
-			onSelect(selectedLibrarians.filter((l) => l !== librarian));
-		} else {
-			onSelect([...selectedLibrarians, librarian]);
-		}
+	const handleChange = (selected) => {
+		// selected can be null or an array
+		onSelect(selected ? selected.map((option) => option.value) : []);
 	};
-
-	const handleRemoveLibrarian = (librarian) => {
-		onSelect(selectedLibrarians.filter((l) => l !== librarian));
-	};
-
-	const handleAddLibrarian = () => {
-		if (
-			searchTerm &&
-			allLibrarians.includes(searchTerm) &&
-			!selectedLibrarians.includes(searchTerm)
-		) {
-			onSelect([...selectedLibrarians, searchTerm]);
-			setSearchTerm("");
-		}
-	};
-
-	const filteredLibrarians = allLibrarians.filter(
-		(librarian) =>
-			librarian.toLowerCase().includes(searchTerm.toLowerCase()) &&
-			!selectedLibrarians.includes(librarian)
-	);
 
 	return (
-		<Modal show={show} onHide={onClose} aria-label="Edit Librarians Modal">
+		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title aria-label="Manage Librarians Title">
-					Manage Librarians
-				</Modal.Title>
+				<Modal.Title>Manage Librarians</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				<p className="mb-3">This should be seen</p>
-				{/*Selected Librarians */}
-				<div aria-label="Selected Librarians List">
-					{selectedLibrarians.map((librarian) => (
-						<div key={librarian} className="d-flex align-items-center mb-2">
-							<span className="me-2">{librarian}</span>
-							<Button
-								variant="danger"
-								size="sm"
-								onClick={() => handleRemoveLibrarian(librarian)}
-								aria-label={`Remove librarian ${librarian}`}
-							>
-								X
-							</Button>
-						</div>
-					))}
-				</div>
-				{/*Add librarian */}
-				<InputGroup className="mb-3" aria-label="Add Librarian Input">
-					<FormControl
-						placeholder="Add librarian"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						list="librarian-options"
-						aria-label="Librarian Search Input"
-					/>
-					<Button
-						variant="primary"
-						onClick={handleAddLibrarian}
-						aria-label="Add Librarian Button"
-					>
-						Add
-					</Button>
-					<datalist id="librarian-options">
-						{filteredLibrarians.map((librarian) => (
-							<option key={librarian} value={librarian} />
-						))}
-					</datalist>
-				</InputGroup>
-				{/* checkboxes */}
-				{allLibrarians.length === 0 ? (
-					<p>Loading librarians...</p>
-				) : (
-					<Form aria-label="Edit Librarians Form">
-						{allLibrarians.map((librarian) => (
-							<Form.Check
-								key={librarian}
-								type="checkbox"
-								label={librarian}
-								checked={selectedLibrarians.includes(librarian)}
-								onChange={() => handleCheckboxChange(librarian)}
-								aria-label={`Select librarian ${librarian}`}
-							/>
-						))}
-					</Form>
-				)}
+				<p>Select librarians from the list below:</p>
+				<Select
+					isMulti
+					options={options}
+					value={selectedOptions}
+					onChange={handleChange}
+					placeholder="Search and select librarians..."
+					className="mb-3"
+				/>
 			</Modal.Body>
 			<Modal.Footer>
-				<Button
-					variant="secondary"
-					onClick={onClose}
-					aria-label="Close Edit Librarians Modal Button"
-				>
+				<Button variant="secondary" onClick={onClose}>
 					Close
 				</Button>
-				<Button
-					variant="primary"
-					onClick={onSave}
-					aria-label="Save Librarians Changes Button"
-				>
+				<Button variant="primary" onClick={onSave}>
 					Save Changes
 				</Button>
 			</Modal.Footer>
