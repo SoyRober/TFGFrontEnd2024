@@ -67,7 +67,7 @@ export default function Libraries() {
 		try {
 			const token = localStorage.getItem("token");
 			const response = await fetchData(
-				"/librarian/users/list?page=1&role=librarian",
+				"/librarian/users/getAllLibrarians",
 				"GET",
 				null,
 				token
