@@ -66,21 +66,21 @@ export default function Libraries() {
 	const handleEditibrarians = async (libraryId) => {
 		try {
 			const token = localStorage.getItem("token");
-			const data = await fetchData(
+			const response = await fetchData(
 				"/librarian/users/list?page=1&role=librarian",
 				"GET",
 				null,
 				token
 			);
-			const usernames = Array.isArray(data)
-				? data.map((librarian) => librarian.username)
+			const usernames = Array.isArray(response.message)
+				? response.message.map((librarian) => librarian.username)
 				: [];
-			console.log("🚀 ~ handleEditibrarians ~ usernames:", usernames);
+			console.log("🚀 ~ handleEditibrarians ~ usernames:", usernames); //null
 			setAllLibrarians(usernames);
 			const library = libraries.find((lib) => lib.id === libraryId);
 			setSelectedLibrarians(library?.librarianNames || []);
 			setSelectedLibraryId(libraryId);
-			setShowEditLibrariansModal(true); // <-- ahora sí se muestra después de que todo está listo
+			setShowEditLibrariansModal(true);
 		} catch (err) {
 			toast.error(err.message || "Failed to fetch librarians");
 		}
