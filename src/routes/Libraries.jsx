@@ -75,6 +75,7 @@ export default function Libraries() {
 			const usernames = Array.isArray(data)
 				? data.map((librarian) => librarian.username)
 				: [];
+			console.log("🚀 ~ handleEditibrarians ~ usernames:", usernames);
 			setAllLibrarians(usernames);
 			const library = libraries.find((lib) => lib.id === libraryId);
 			setSelectedLibrarians(library?.librarianNames || []);
@@ -189,7 +190,9 @@ export default function Libraries() {
 									variant="info"
 									size="sm"
 									className="me-1"
-									onClick={() => handleEditAttribute(library.id, "name", library.name)}
+									onClick={() =>
+										handleEditAttribute(library.id, "name", library.name)
+									}
 									aria-label={`Change name of library ${library.name}`}
 								>
 									Change Name
@@ -198,7 +201,9 @@ export default function Libraries() {
 									variant="warning"
 									size="sm"
 									className="me-1"
-									onClick={() => handleEditAttribute(library.id, "address", library.address)}
+									onClick={() =>
+										handleEditAttribute(library.id, "address", library.address)
+									}
 									aria-label={`Change address of library ${library.name}`}
 								>
 									Change Address

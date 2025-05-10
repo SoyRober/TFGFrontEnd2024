@@ -9,6 +9,7 @@ const EditLibrariansModal = ({
 	onSelect,
 	onSave,
 }) => {
+	console.log("🚀 ~ EditLibrariansModal allLibrarians:", allLibrarians);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const handleCheckboxChange = (librarian) => {
