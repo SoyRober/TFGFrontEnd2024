@@ -87,10 +87,10 @@ export default function Presentation() {
         </div>
       </div>
       <div className="container mt-5">
-        <h2 className="text-center mb-4 fw-bold">Featured Genres</h2>
+        <h2 className="mb-4 fw-bold">Featured Genres</h2>
         {genres.slice(0, 3).map((genre) => (
           <div key={genre.id} className="mb-5">
-            <h3 className="text-center text-primary">{genre.name}</h3>
+            <h3 className="text-primary">{genre.name}</h3>
             <CustomCarousel aria-label={`Carousel for ${genre.name}`} />
           </div>
         ))}
