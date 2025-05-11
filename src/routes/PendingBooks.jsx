@@ -210,7 +210,7 @@ export default function Attributes() {
 
 								return (
 									<div
-										key={`${reserve.userName}-${reserve.bookTitle}`}
+										key={`${reserve.username}-${reserve.bookTitle}`}
 										className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
 									>
 										<div className="card h-100 shadow-sm">
@@ -240,7 +240,7 @@ export default function Attributes() {
 											</div>
 											<div className="card-body text-center">
 												<p className="mb-1">
-													<strong>Reserved by:</strong> {reserve.userName}
+													<strong>Reserved by:</strong> {reserve.username}
 												</p>
 												<p className="mb-1">
 													<strong>Title:</strong> {reserve.bookTitle}
@@ -259,7 +259,7 @@ export default function Attributes() {
 												<button
 													className="btn btn-sm btn-success"
 													onClick={() => openLoanModal(reserve)}
-													aria-label={`Loan the book ${reserve.bookTitle} reserved by ${reserve.userName}`}
+													aria-label={`Loan the book ${reserve.bookTitle} reserved by ${reserve.username}`}
 												>
 													Loan
 												</button>
@@ -328,7 +328,7 @@ export default function Attributes() {
 											</div>
 											<div className="card-body text-center">
 												<p className="mb-1">
-													<strong>Loaned by:</strong> {loan.userName}
+													<strong>Loaned by:</strong> {loan.username}
 												</p>
 												<p className="mb-1">
 													<strong>Title:</strong> {loan.book}
@@ -355,7 +355,7 @@ export default function Attributes() {
 												<button
 													className="btn btn-sm btn-danger"
 													onClick={() => handleReturn(loan)}
-													aria-label={`Return the book ${loan.book} loaned by ${loan.userName}`}
+													aria-label={`Return the book ${loan.book} loaned by ${loan.username}`}
 												>
 													Return
 												</button>
@@ -380,7 +380,7 @@ export default function Attributes() {
 						<div className="modal-content">
 							<div className="modal-header">
 								<h5 className="modal-title">
-									Loan {currentReserve.bookTitle} to {currentReserve.userName}
+									Loan {currentReserve.bookTitle} to {currentReserve.username}
 								</h5>
 								<button
 									type="button"
