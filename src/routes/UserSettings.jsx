@@ -84,7 +84,7 @@ export default function Settings() {
 
 			const url = getUpdateUrl(decodedToken.email, modalAttribute);
 			const formData = await prepareFormData(modalAttribute, modalValue);
-			console.log("🚀 ~ handleSaveAttribute ~ modalValue:", modalValue)
+			console.log("🚀 ~ handleSaveAttribute ~ modalValue:", modalValue);
 
 			const data = await fetchData(url, "PUT", formData, token);
 
@@ -102,7 +102,11 @@ export default function Settings() {
 
 	const handleSaveDate = async () => {
 		try {
-			if (!modalValue || (modalAttribute === "password" && (!modalValue.oldPassword || !modalValue.newAttribute))) {
+			if (
+				!modalValue ||
+				(modalAttribute === "password" &&
+					(!modalValue.oldPassword || !modalValue.newAttribute))
+			) {
 				setDateErrorMessage("All fields are required.");
 				return;
 			}
@@ -120,8 +124,8 @@ export default function Settings() {
 			} else {
 				formData.append("attribute", modalAttribute);
 				formData.append("newAttribute", modalValue);
+				formData.append("oldPassword", ""); //Avoid crashing the backend
 			}
-
 
 			const data = await fetchData(url, "PUT", formData, token);
 
@@ -147,9 +151,9 @@ export default function Settings() {
 	};
 
 	const prepareFormData = async (attribute, value) => {
-		console.log("🚀 ~ prepareFormData ~ value:", value)
-		console.log("🚀 ~ prepareFormData ~ value:", value.oldPassword)
-		console.log("🚀 ~ prepareFormData ~ value:", value.newAttribute)
+		console.log("🚀 ~ prepareFormData ~ value:", value);
+		console.log("🚀 ~ prepareFormData ~ value:", value.oldPassword);
+		console.log("🚀 ~ prepareFormData ~ value:", value.newAttribute);
 		const formData = new FormData();
 
 		if (attribute === "image") {
@@ -350,7 +354,10 @@ export default function Settings() {
 									type="password"
 									placeholder="Enter current password"
 									onChange={(e) =>
-										setModalValue({ ...modalValue, oldPassword: e.target.value })
+										setModalValue({
+											...modalValue,
+											oldPassword: e.target.value,
+										})
 									}
 									aria-label="Enter your current password"
 								/>
@@ -363,7 +370,10 @@ export default function Settings() {
 									type="password"
 									placeholder="Enter new password"
 									onChange={(e) =>
-										setModalValue({ ...modalValue, newAttribute: e.target.value })
+										setModalValue({
+											...modalValue,
+											newAttribute: e.target.value,
+										})
 									}
 									aria-label="Enter your new password"
 								/>
