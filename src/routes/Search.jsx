@@ -10,6 +10,8 @@ import { toast } from "react-toastify";
 import defaultBook from "../img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
+import CardSizeSelector from "../components/CardSizeSelector.jsx";
+import BookCard from "../components/BookCard.jsx";
 
 const initialBookData = {
   title: "",
@@ -98,7 +100,7 @@ export default function LibraryHomepage() {
     const token = localStorage.getItem("token");
     if (token) {
       const userPayload = JSON.parse(atob(token.split(".")[1]));
-      const birthDate = new Date(userPayload.birthDate); // Suponiendo que el token contiene la fecha de nacimiento
+      const birthDate = new Date(userPayload.birthDate); 
       const age = new Date().getFullYear() - birthDate.getFullYear();
       setIsAdultUser(age >= 18);
     }
@@ -307,19 +309,6 @@ export default function LibraryHomepage() {
     }
   };
 
-  const getColumnClass = (size) => {
-    switch (size) {
-      case "small":
-        return "col-12 col-sm-6 col-md-4 col-lg-3";
-      case "medium":
-        return "col-12 col-sm-6 col-md-6 col-lg-4";
-      case "large":
-        return "col-12 col-md-6";
-      default:
-        return "col-12";
-    }
-  };
-
   const navigateToBookDetails = (title) => {
     navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
@@ -378,42 +367,7 @@ export default function LibraryHomepage() {
           aria-label="Book filters"
         />
 
-        <div className="row w-100 justify-content-center mb-4 mt-3">
-          <div className="col-12 col-md-6 col-lg-4">
-            <fieldset className="btn-group w-100">
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === "small" ? "active" : ""
-                }`}
-                onClick={() => setCardSize("small")}
-                aria-label="Set card size to small"
-              >
-                Small
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === "medium" ? "active" : ""
-                }`}
-                onClick={() => setCardSize("medium")}
-                aria-label="Set card size to medium"
-              >
-                Medium
-              </button>
-              <button
-                type="button"
-                className={`btn btn-outline-primary ${
-                  cardSize === "large" ? "active" : ""
-                }`}
-                onClick={() => setCardSize("large")}
-                aria-label="Set card size to large"
-              >
-                Large
-              </button>
-            </fieldset>
-          </div>
-        </div>
+        <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </header>
 
       <section className="container mt-5">
@@ -432,75 +386,13 @@ export default function LibraryHomepage() {
           <div className="row gy-4">
             {Array.isArray(books) &&
               books.map((book) => (
-                <article
-                  key={book.title}
-                  className={`${getColumnClass(cardSize)}`}
-                  aria-label={`Book card for ${book.title}`}
-                >
-                  <div
-                    className="customized-card pt-1 shadow-sm"
-                    onClick={() => navigateToBookDetails(book.title)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && navigateToBookDetails(book.title)
-                    }
-                    style={{
-                      height:
-                        cardSize === "small"
-                          ? "250px"
-                          : cardSize === "medium"
-                          ? "350px"
-                          : "600px",
-                    }}
-                  >
-                    <figure
-                      className="d-flex justify-content-center align-items-center pb-2"
-                      style={{
-                        height: "60%",
-                        width: "100%",
-                        overflow: "hidden",
-                      }}
-                      aria-label={`Image of ${book.title}`}
-                    >
-                      <img
-                        src={
-                          book.image
-                            ? `data:image/jpeg;base64,${book.image}`
-                            : defaultBook
-                        }
-                        alt={book.title}
-                        className="img-fluid w-50"
-                      />
-                    </figure>
-                    <div className="d-flex justify-content-center">
-                      <hr
-                        className="my-1"
-                        style={{ borderTop: "1px solid black", width: "80%" }}
-                      />
-                    </div>
-                    <div className="card-body">
-                      <h2
-                        className={`text-center ${
-                          cardSize === "small"
-                            ? "mt-3"
-                            : cardSize === "medium"
-                            ? "mt-4"
-                            : "mt-5"
-                        }`}
-                        style={{
-                          fontWeight: "500",
-                          fontSize:
-                            cardSize === "small"
-                              ? "1.5em"
-                              : cardSize === "medium"
-                              ? "2em"
-                              : "2.5em",
-                        }}
-                      >
-                        {book.title}
-                      </h2>
-                    </div>
-                  </div>
-                </article>
+                <BookCard
+                key={`${book.id}-${book.title}`} // Composite key using id and title
+                book={book}
+                cardSize={cardSize}
+                defaultBook={defaultBook}
+                onClick={() => navigateToBookDetails(book.title)}
+              />
               ))}
           </div>
         </InfiniteScroll>
