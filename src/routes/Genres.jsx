@@ -112,7 +112,7 @@ const GenresComponent = () => {
 						<div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
 							<article className="card">
 								<div className="card-body d-flex justify-content-between align-items-center">
-									<h5 className="card-title text-truncate">{genre.name}</h5>
+									<h2 className="card-title text-truncate">{genre.name}</h2>
 									<div>
 										<button
 											className="btn btn-outline-primary btn-sm me-2"

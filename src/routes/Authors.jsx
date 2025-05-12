@@ -103,9 +103,9 @@ const AuthorsComponent = () => {
                         <div key={author.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
                             <article className="card" aria-label={`Author Card: ${author.name}`}>
                                 <div className="card-body d-flex justify-content-between align-items-center">
-                                    <h5 className="card-title text-truncate" aria-label={`Author Name: ${author.name}`}>
+                                    <h2 className="card-title text-truncate" aria-label={`Author Name: ${author.name}`}>
                                         {author.name}
-                                    </h5>
+                                    </h2>
                                     <div>
                                         <button
                                             className="btn btn-outline-primary btn-sm me-2"
