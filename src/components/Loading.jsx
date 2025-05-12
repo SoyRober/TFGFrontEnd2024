@@ -9,7 +9,6 @@ const Loading = () => {
         alignItems: "center",
         height: "50vh",
       }}
-      aria-label="Loading Spinner"
     >
       <Grid size={"90px"} color={"#000"} speed={500} />
     </div>
