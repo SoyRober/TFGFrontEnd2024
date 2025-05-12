@@ -90,13 +90,10 @@ export default function Presentation() {
         <h2 className="mb-4 fw-bold">Featured Genres</h2>
 
         {genres.slice(0, 3).map((genre) => {
-          console.log("🚀 ~ Presentation ~ genre:", genre);
-          return (
             <div key={genre.id} className="mb-5">
               <h3 className="text-primary">{genre.name}</h3>
               <CustomCarousel aria-label={`Carousel for ${genre.name}`} genre={genre.name}/>
             </div>
-          );
         })}
       </div>
     </main>
