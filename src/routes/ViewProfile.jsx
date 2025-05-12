@@ -187,16 +187,15 @@ const ViewProfile = () => {
 
 	const handleRoleChange = async () => {
 		const token = localStorage.getItem("token");
+		const formData = new FormData();
+		formData.append("attribute", "role");
+		formData.append("newAttribute", selectedRole);
+
 		try {
 			const response = await fetchData(
 				`/user/users/update/${userProfile.email}`,
 				"PUT",
-				{
-					attribute: "role",
-					newAttribute: selectedRole,
-					image: null,
-					oldPassword: null,
-				},
+				formData,
 				token
 			);
 
