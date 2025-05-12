@@ -187,19 +187,23 @@ const ViewProfile = () => {
 
 	const handleRoleChange = async () => {
 		const token = localStorage.getItem("token");
+		const formData = new FormData();
+		formData.append("attribute", "role");
+		formData.append("newAttribute", selectedRole);
+
 		try {
 			const response = await fetchData(
 				`/user/users/update/${userProfile.email}`,
 				"PUT",
-				{ attribute: "role", newAttribute: selectedRole, image: null },
+				formData,
 				token
 			);
 
 			if (response.success) {
 				toast.success(`Role changed to "${selectedRole}" successfully.`);
 				setShowModal(false);
-				setUserReservations((prevData) => ({
-					...prevData,
+				setUserProfile((prevProfile) => ({
+					...prevProfile,
 					role: selectedRole,
 				}));
 			} else {
