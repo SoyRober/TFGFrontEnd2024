@@ -261,7 +261,7 @@ export default function Settings() {
 						</div>
 
 						<div className="col-md-4 text-center">
-							<h5 className="card-title mb-4">User Information</h5>
+							<h2 className="card-title mb-4">User Information</h2>
 							<p className="card-text mb-4">Username: {username}</p>
 							<p className="card-text mb-4">Email: {email}</p>
 							<p className="card-text">
