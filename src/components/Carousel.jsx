@@ -43,7 +43,7 @@ const Card = ({ title, image }) => {
             aria-label={`Book Card: ${title}`}
         >
             <h2 aria-label="Book Title">{title}</h2>
-            <img src={image || defaultBook} alt={title} aria-label="Book Image" />
+            <img src={image || defaultBook} alt={title} aria-label="Book Image"/>
         </div>
     );
 };
