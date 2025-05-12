@@ -191,7 +191,12 @@ const ViewProfile = () => {
 			const response = await fetchData(
 				`/user/users/update/${userProfile.email}`,
 				"PUT",
-				{ attribute: "role", newAttribute: selectedRole, image: null },
+				{
+					attribute: "role",
+					newAttribute: selectedRole,
+					image: null,
+					oldPassword: null,
+				},
 				token
 			);
 
