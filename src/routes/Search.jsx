@@ -7,7 +7,6 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
-import CustomCarousel from "../components/Carousel.jsx";
 import defaultBook from "../img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
