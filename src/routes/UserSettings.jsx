@@ -151,9 +151,6 @@ export default function Settings() {
 	};
 
 	const prepareFormData = async (attribute, value) => {
-		console.log("🚀 ~ prepareFormData ~ value:", value);
-		console.log("🚀 ~ prepareFormData ~ value:", value.oldPassword);
-		console.log("🚀 ~ prepareFormData ~ value:", value.newAttribute);
 		const formData = new FormData();
 
 		if (attribute === "image") {
@@ -169,6 +166,7 @@ export default function Settings() {
 		} else {
 			formData.append("attribute", attribute || "");
 			formData.append("newAttribute", value || "");
+			formData.append("oldPassword", ""); //Avoid crashing the backend
 		}
 
 		return formData;
