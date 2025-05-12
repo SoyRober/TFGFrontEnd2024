@@ -202,8 +202,8 @@ const ViewProfile = () => {
 			if (response.success) {
 				toast.success(`Role changed to "${selectedRole}" successfully.`);
 				setShowModal(false);
-				setUserReservations((prevData) => ({
-					...prevData,
+				setUserProfile((prevProfile) => ({
+					...prevProfile,
 					role: selectedRole,
 				}));
 			} else {
