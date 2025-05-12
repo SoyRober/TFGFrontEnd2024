@@ -53,9 +53,9 @@ export default function Presentation() {
               className="fas fa-book fa-3x mb-3 text-primary"
               aria-hidden="true"
             ></i>
-            <h4 className="fw-bold" aria-label="Browse Collections section">
+            <h2 className="fw-bold" aria-label="Browse Collections section">
               Browse Collections
-            </h4>
+            </h2>
             <p className="text-muted" aria-label="Description of Browse Collections">
               Explore book catalogs from multiple libraries, all in one place.
             </p>
@@ -65,9 +65,9 @@ export default function Presentation() {
               className="fas fa-user-plus fa-3x mb-3 text-success"
               aria-hidden="true"
             ></i>
-            <h4 className="fw-bold" aria-label="Register and Connect section">
+            <h2 className="fw-bold" aria-label="Register and Connect section">
               Register & Connect
-            </h4>
+            </h2>
             <p className="text-muted" aria-label="Description of Register and Connect">
               Create your account to start reserving, borrowing, and reviewing books.
             </p>
@@ -77,9 +77,9 @@ export default function Presentation() {
               className="fas fa-calendar-check fa-3x mb-3 text-warning"
               aria-hidden="true"
             ></i>
-            <h4 className="fw-bold" aria-label="Reserve and Borrow section">
+            <h2 className="fw-bold" aria-label="Reserve and Borrow section">
               Reserve & Borrow
-            </h4>
+            </h2>
             <p className="text-muted" aria-label="Description of Reserve and Borrow">
               Easily reserve your favorite titles and manage your book loans online.
             </p>
