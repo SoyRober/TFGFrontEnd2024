@@ -1,12 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/main.css";
 import "react-datepicker/dist/react-datepicker.css";
-import CustomCarousel from "../components/Carousel.jsx";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
-
+import CustomCarousel from "../components/Carousel.jsx";
 export default function Presentation() {
   const [genres, setGenres] = useState([]);
 
@@ -36,7 +35,9 @@ export default function Presentation() {
 
   return (
     <main>
-      <CustomCarousel aria-label="Image carousel showcasing random books" />
+      <Suspense fallback={<Loading />}>
+        <CustomCarousel aria-label="Image carousel showcasing random books" />
+      </Suspense>
       <div className="container mt-5">
         <h1 className="text-center mb-4 display-4" aria-label="Welcome message">
           Welcome to BiblioForum!
@@ -102,19 +103,17 @@ export default function Presentation() {
       <div className="container mt-5">
         <h2 className="mb-4 fw-bold">Featured Genres</h2>
 
-        {genres.length === 0 ? (
-          <Loading />
-        ) : (
-          genres.slice(0, 3).map((genre) => (
-            <div key={genre.id} className="mb-5">
-              <h3 className="text-primary">{genre.name}</h3>
+        {genres.slice(0, 3).map((genre) => (
+          <div key={genre.id} className="mb-5">
+            <h3 className="text-primary">{genre.name}</h3>
+            <Suspense fallback={<Loading />}>
               <CustomCarousel
                 aria-label={`Carousel for ${genre.name}`}
                 genre={genre.name}
               />
-            </div>
-          ))
-        )}
+            </Suspense>
+          </div>
+        ))}
       </div>
     </main>
   );
