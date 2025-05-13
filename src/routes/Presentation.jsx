@@ -1,11 +1,21 @@
-import React, { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, lazy, useRef } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import Loading from "../components/Loading";
-import CustomCarousel from "../components/Carousel";
+
+const CustomCarousel = lazy(() => import("../components/Carousel"));
 
 export default function Presentation() {
   const [genres, setGenres] = useState([]);
+  const [showSections, setShowSections] = useState({
+    carousel: false,
+    features: false,
+    genres: false,
+  });
+
+  const carouselRef = useRef(null);
+  const featuresRef = useRef(null);
+  const genresRef = useRef(null);
 
   useEffect(() => {
     const fetchGenres = async () => {
@@ -31,6 +41,37 @@ export default function Presentation() {
     }
   }, [genres]);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const target = entry.target;
+
+            if (target === carouselRef.current) {
+              setShowSections((prev) => ({ ...prev, carousel: true }));
+            } else if (target === featuresRef.current) {
+              setShowSections((prev) => ({ ...prev, features: true }));
+            } else if (target === genresRef.current) {
+              setShowSections((prev) => ({ ...prev, genres: true }));
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (carouselRef.current) observer.observe(carouselRef.current);
+    if (featuresRef.current) observer.observe(featuresRef.current);
+    if (genresRef.current) observer.observe(genresRef.current);
+
+    return () => {
+      if (carouselRef.current) observer.unobserve(carouselRef.current);
+      if (featuresRef.current) observer.unobserve(featuresRef.current);
+      if (genresRef.current) observer.unobserve(genresRef.current);
+    };
+  }, []);
+
   return (
     <main>
       <div className="container mt-5">
@@ -45,73 +86,98 @@ export default function Presentation() {
           city.
         </p>
         <hr className="my-4" aria-hidden="true" />
-        <Suspense fallback={<Loading />}>
-          <CustomCarousel aria-label="Image carousel showcasing random books" />
-        </Suspense>
-        <div className="row mt-5">
-          <div className="col-md-4 text-center">
-            <i
-              className="fas fa-book fa-3x mb-3 text-primary"
-              aria-hidden="true"
-            ></i>
-            <h2 className="fw-bold" aria-label="Browse Collections section">
-              Browse Collections
-            </h2>
-            <p
-              className="text-muted"
-              aria-label="Description of Browse Collections"
-            >
-              Explore book catalogs from multiple libraries, all in one place.
-            </p>
-          </div>
-          <div className="col-md-4 text-center">
-            <i
-              className="fas fa-user-plus fa-3x mb-3 text-success"
-              aria-hidden="true"
-            ></i>
-            <h2 className="fw-bold" aria-label="Register and Connect section">
-              Register & Connect
-            </h2>
-            <p
-              className="text-muted"
-              aria-label="Description of Register and Connect"
-            >
-              Create your account to start reserving, borrowing, and reviewing
-              books.
-            </p>
-          </div>
-          <div className="col-md-4 text-center">
-            <i
-              className="fas fa-calendar-check fa-3x mb-3 text-warning"
-              aria-hidden="true"
-            ></i>
-            <h2 className="fw-bold" aria-label="Reserve and Borrow section">
-              Reserve & Borrow
-            </h2>
-            <p
-              className="text-muted"
-              aria-label="Description of Reserve and Borrow"
-            >
-              Easily reserve your favorite titles and manage your book loans
-              online.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="container mt-5">
-        <h2 className="mb-4 fw-bold">Featured Genres</h2>
 
-        {genres.slice(0, 3).map((genre) => (
-          <div key={genre.id} className="mb-5">
-            <h3 className="text-primary">{genre.name}</h3>
+        <div ref={carouselRef}>
+          {showSections.carousel && (
             <Suspense fallback={<Loading />}>
-              <CustomCarousel
-                aria-label={`Carousel for ${genre.name}`}
-                genre={genre.name}
-              />
+              <CustomCarousel aria-label="Image carousel showcasing random books" />
             </Suspense>
-          </div>
-        ))}
+          )}
+        </div>
+
+        <div ref={featuresRef}>
+          {showSections.features && (
+            <div className="row mt-5">
+              <div className="col-md-4 text-center">
+                <i
+                  className="fas fa-book fa-3x mb-3 text-primary"
+                  aria-hidden="true"
+                ></i>
+                <h2
+                  className="fw-bold"
+                  aria-label="Browse Collections section"
+                >
+                  Browse Collections
+                </h2>
+                <p
+                  className="text-muted"
+                  aria-label="Description of Browse Collections"
+                >
+                  Explore book catalogs from multiple libraries, all in one
+                  place.
+                </p>
+              </div>
+              <div className="col-md-4 text-center">
+                <i
+                  className="fas fa-user-plus fa-3x mb-3 text-success"
+                  aria-hidden="true"
+                ></i>
+                <h2
+                  className="fw-bold"
+                  aria-label="Register and Connect section"
+                >
+                  Register & Connect
+                </h2>
+                <p
+                  className="text-muted"
+                  aria-label="Description of Register and Connect"
+                >
+                  Create your account to start reserving, borrowing, and
+                  reviewing books.
+                </p>
+              </div>
+              <div className="col-md-4 text-center">
+                <i
+                  className="fas fa-calendar-check fa-3x mb-3 text-warning"
+                  aria-hidden="true"
+                ></i>
+                <h2
+                  className="fw-bold"
+                  aria-label="Reserve and Borrow section"
+                >
+                  Reserve & Borrow
+                </h2>
+                <p
+                  className="text-muted"
+                  aria-label="Description of Reserve and Borrow"
+                >
+                  Easily reserve your favorite titles and manage your book loans
+                  online.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div ref={genresRef}>
+          {showSections.genres && (
+            <div className="container mt-5">
+              <h2 className="mb-4 fw-bold">Featured Genres</h2>
+
+              {genres.slice(0, 3).map((genre) => (
+                <div key={genre.id} className="mb-5">
+                  <h3 className="text-primary">{genre.name}</h3>
+                  <Suspense fallback={<Loading />}>
+                    <CustomCarousel
+                      aria-label={`Carousel for ${genre.name}`}
+                      genre={genre.name}
+                    />
+                  </Suspense>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
