@@ -33,10 +33,16 @@ const fetchBooks = async (setBooks, genre = "") => {
 
 const Card = React.memo(({ title, image, preload }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [imageSrc, setImageSrc] = useState(defaultBook); // Imagen por defecto (placeholder)
   const navigate = useNavigate();
 
   const navigateToBookDetails = () => {
     navigate(`/viewBook/${encodeURIComponent(title)}`);
+  };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setImageSrc(image); // Cambiar la imagen por la real cuando se haya cargado
   };
 
   useEffect(() => {
@@ -67,10 +73,15 @@ const Card = React.memo(({ title, image, preload }) => {
         <>
           <h2>{title}</h2>
           <img
-            src={image || defaultBook}
+            src={imageSrc}
             alt={title}
             loading={preload ? "eager" : "lazy"}
             fetchpriority={preload ? "high" : "auto"}
+            onLoad={handleImageLoad} 
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+            }}
           />
         </>
       )}
