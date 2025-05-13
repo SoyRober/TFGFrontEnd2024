@@ -1,11 +1,9 @@
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
-import "react-datepicker/dist/react-datepicker.css";
-import { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { toast } from "react-toastify";
-import { fetchData } from "../utils/fetch.js";
-import Loading from "../components/Loading.jsx";
-import CustomCarousel from "../components/Carousel.jsx";
+import { fetchData } from "../utils/fetch";
+import Loading from "../components/Loading";
+import CustomCarousel from "../components/Carousel";
+
 export default function Presentation() {
   const [genres, setGenres] = useState([]);
 
@@ -21,17 +19,17 @@ export default function Presentation() {
               .sort(() => Math.random() - 0.5)
           );
         } else {
-          toast.error(
-            data.message || "An error occurred while fetching genres"
-          );
+          toast.error(data.message || "An error occurred while fetching genres");
         }
       } catch (err) {
         toast.error(err.message || "An error occurred while fetching genres");
       }
     };
 
-    fetchGenres();
-  }, []);
+    if (!genres.length) {
+      fetchGenres();
+    }
+  }, [genres]);
 
   return (
     <main>

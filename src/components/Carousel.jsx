@@ -31,7 +31,7 @@ const fetchBooks = async (setBooks, genre = "") => {
   }
 };
 
-const Card = ({ title, image }) => {
+const Card = React.memo(({ title, image }) => {
   const navigate = useNavigate();
 
   const navigateToBookDetails = (title) => {
@@ -46,10 +46,10 @@ const Card = ({ title, image }) => {
       aria-label={`Book Card: ${title}`}
     >
       <h2 aria-label="Book Title">{title}</h2>
-      <img src={image || defaultBook} alt={title} aria-label="Book Image" />
+      <img src={image || defaultBook} alt={title} aria-label="Book Image" loading="lazy" />
     </div>
   );
-};
+});
 
 const Carousel = ({ children }) => {
   const [active, setActive] = useState(0);
@@ -121,14 +121,11 @@ const CustomCarousel = ({ genre = "" }) => {
   }, [genre]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLibrary = localStorage.getItem("libraryName");
-      if (currentLibrary !== library) {
-        setLibrary(currentLibrary);
-        fetchBooks(setBooks, genre);
-      }
-    }, 500);
-    return () => clearInterval(interval);
+    const currentLibrary = localStorage.getItem("libraryName");
+    if (currentLibrary !== library) {
+      setLibrary(currentLibrary);
+      fetchBooks(setBooks, genre);
+    }
   }, [library, genre]);
 
   return (
