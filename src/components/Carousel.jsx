@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import "../styles/Carousel.css";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "../img/defaultBookF.webp";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
 
@@ -121,34 +121,33 @@ const CustomCarousel = ({ genre = "" }) => {
   }, [genre]);
 
   useEffect(() => {
-    const currentLibrary = localStorage.getItem("libraryName");
-    setLibrary(currentLibrary);
-    fetchBooks(setBooks, genre);
+    const interval = setInterval(() => {
+      const currentLibrary = localStorage.getItem("libraryName");
+      if (currentLibrary !== library) {
+        setLibrary(currentLibrary);
+        fetchBooks(setBooks, genre);
+      }
+    }, 500);
+    return () => clearInterval(interval);
   }, [library, genre]);
 
   return (
     <div className="carousel-wrapper my-3" aria-label="Custom Book Carousel">
-      {books.length === 0 ? (
-        <Loading />
-      ) : (
-        <div>
-          <div>
-            <Carousel>
-              {books.map((book, i) => (
-                <Card
-                  key={i}
-                  title={book.title}
-                  image={
-                    book.image
-                      ? `data:image/jpeg;base64,${book.image}`
-                      : defaultBook
-                  }
-                />
-              ))}
-            </Carousel>
-          </div>
-        </div>
-      )}
+      <Suspense fallback={<Loading />}>
+        <Carousel>
+          {books.map((book, i) => (
+            <Card
+              key={i}
+              title={book.title}
+              image={
+                book.image
+                  ? `data:image/jpeg;base64,${book.image}`
+                  : defaultBook
+              }
+            />
+          ))}
+        </Carousel>
+      </Suspense>
     </div>
   );
 };
