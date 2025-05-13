@@ -1,3 +1,4 @@
+
 .carousel-wrapper {
   width: 100%;
   height: 100%;
@@ -31,6 +32,12 @@
     translateX(calc(var(--direction) * -15rem));
   filter: blur(calc(var(--abs-offset) * 0.5rem));
   transition: all 0.3s ease-out;
+}
+
+.cardC-container:first-child {
+  opacity: 1 !important;
+  display: block !important;
+  filter: none !important;
 }
 
 .cardC-wrapper {

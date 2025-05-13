@@ -14,9 +14,7 @@ const fetchBooks = async (setBooks, genre = "") => {
     if (genre) params.append("genre", genre);
 
     const data = await fetchData(
-      `/public/books/random/${localStorage.getItem(
-        "libraryName"
-      )}?${params.toString()}`,
+      `/public/books/random/${localStorage.getItem("libraryName")}?${params.toString()}`,
       "GET",
       null
     );
@@ -24,17 +22,16 @@ const fetchBooks = async (setBooks, genre = "") => {
     if (data.success) {
       setBooks(data.message);
     } else {
-      toast.error(data.message || "An error occurred while fetching books");
+      toast.error(data.message || "Error al obtener libros");
     }
   } catch (err) {
-    toast.error(err.message || "An error occurred while fetching books");
+    toast.error(err.message || "Error al obtener libros");
   }
 };
 
-const Card = React.memo(({ title, image }) => {
+const Card = React.memo(({ title, image, preload }) => {
   const navigate = useNavigate();
-
-  const navigateToBookDetails = (title) => {
+  const navigateToBookDetails = () => {
     navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
 
@@ -42,11 +39,15 @@ const Card = React.memo(({ title, image }) => {
     <div
       className="cardC"
       style={{ textAlign: "center", cursor: "pointer" }}
-      onClick={() => navigateToBookDetails(title)}
-      aria-label={`Book Card: ${title}`}
+      onClick={navigateToBookDetails}
     >
-      <h2 aria-label="Book Title">{title}</h2>
-      <img src={image || defaultBook} alt={title} aria-label="Book Image" loading="lazy" />
+      <h2>{title}</h2>
+      <img
+        src={image || defaultBook}
+        alt={title}
+        loading={preload ? "eager" : "lazy"}
+        fetchpriority={preload ? "high" : "auto"}
+      />
     </div>
   );
 });
@@ -75,11 +76,7 @@ const Carousel = ({ children }) => {
 
   return (
     <div className="carousel" aria-label="Book Carousel">
-      <button
-        className="nav left"
-        onClick={() => setActive((i) => (i - 1 + count) % count)}
-        aria-label="Previous Book Button"
-      >
+      <button className="nav left" onClick={() => setActive((i) => (i - 1 + count) % count)}>
         <i className="fa-solid fa-arrow-left py-5"></i>
       </button>
 
@@ -95,24 +92,19 @@ const Carousel = ({ children }) => {
             opacity: Math.abs(active - i) >= MAX_VISIBILITY ? "0" : "1",
             display: Math.abs(active - i) > MAX_VISIBILITY ? "none" : "block",
           }}
-          aria-label={`Carousel Item ${i + 1}`}
         >
           {child}
         </div>
       ))}
 
-      <button
-        className="nav right"
-        onClick={() => setActive((i) => (i + 1) % count)}
-        aria-label="Next Book Button"
-      >
+      <button className="nav right" onClick={() => setActive((i) => (i + 1) % count)}>
         <i className="fa-solid fa-arrow-right py-5"></i>
       </button>
     </div>
   );
 };
 
-const CustomCarousel = ({ genre = "" }) => {
+const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
   const [books, setBooks] = useState([]);
   const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
@@ -129,7 +121,7 @@ const CustomCarousel = ({ genre = "" }) => {
   }, [library, genre]);
 
   return (
-    <div className="carousel-wrapper my-3" aria-label="Custom Book Carousel">
+    <div className="carousel-wrapper my-3">
       <Suspense fallback={<Loading />}>
         <Carousel>
           {books.map((book, i) => (
@@ -141,6 +133,7 @@ const CustomCarousel = ({ genre = "" }) => {
                   ? `data:image/jpeg;base64,${book.image}`
                   : defaultBook
               }
+              preload={preloadFirst && i === 0}
             />
           ))}
         </Carousel>
