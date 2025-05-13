@@ -28,7 +28,7 @@
     "react-select": "^5.10.1",
     "react-toastify": "^11.0.5",
     "react-transition-group": "^4.4.5",
-    "styled-components": "^6.1.17"
+    "styled-components": "^4.3.2"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
