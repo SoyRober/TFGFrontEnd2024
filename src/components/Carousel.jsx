@@ -31,8 +31,6 @@ const fetchBooks = async (setBooks, genre = "") => {
   }
 };
 
-import PropTypes from "prop-types";
-
 const Card = React.memo(({ title, image, preload }) => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -42,12 +40,17 @@ const Card = React.memo(({ title, image, preload }) => {
   };
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, Math.random() * (700 - 300) + 300);
-
-    return () => clearTimeout(timeout);
-  }, []);
+    if (preload) {
+      requestAnimationFrame(() => {
+        setIsLoading(false);
+      });
+    } else {
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+      }, Math.random() * (700 - 300) + 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [preload]);
 
   return (
     <div
@@ -65,9 +68,9 @@ const Card = React.memo(({ title, image, preload }) => {
           <h2>{title}</h2>
           <img
             src={image || defaultBook}
-            fetchPriority={preload ? "high" : "auto"}
+            alt={title}
             loading={preload ? "eager" : "lazy"}
-            fetchPriority={preload ? "high" : "auto"}
+            fetchpriority={preload ? "high" : "auto"}
           />
         </>
       )}
