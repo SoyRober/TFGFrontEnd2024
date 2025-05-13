@@ -5,6 +5,7 @@ import CustomCarousel from "../components/Carousel.jsx";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch.js";
+import Loading from "../components/Loading.jsx";
 
 export default function Presentation() {
   const [genres, setGenres] = useState([]);
@@ -101,15 +102,19 @@ export default function Presentation() {
       <div className="container mt-5">
         <h2 className="mb-4 fw-bold">Featured Genres</h2>
 
-        {genres.slice(0, 3).map((genre) => (
-          <div key={genre.id} className="mb-5">
-            <h3 className="text-primary">{genre.name}</h3>
-            <CustomCarousel
-              aria-label={`Carousel for ${genre.name}`}
-              genre={genre.name}
-            />
-          </div>
-        ))}
+        {genres.length === 0 ? (
+          <Loading />
+        ) : (
+          genres.slice(0, 3).map((genre) => (
+            <div key={genre.id} className="mb-5">
+              <h3 className="text-primary">{genre.name}</h3>
+              <CustomCarousel
+                aria-label={`Carousel for ${genre.name}`}
+                genre={genre.name}
+              />
+            </div>
+          ))
+        )}
       </div>
     </main>
   );
