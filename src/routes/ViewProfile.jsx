@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 import ChangeRoleModal from "../components/modals/changeRoleModal";
+import EditAttributeModal from "../components/modals/EditAttributeModal";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
 
@@ -28,6 +29,8 @@ const ViewProfile = () => {
 	const [selectedRole, setSelectedRole] = useState("USER");
 	const [isFetching, setIsFetching] = useState(false);
 	const [hasMoreReservations, setHasMoreReservations] = useState(true);
+	const [showPasswordModal, setShowPasswordModal] = useState(false);
+	const [newPassword, setNewPassword] = useState("");
 	const navigate = useNavigate();
 	const { email } = useParams();
 
@@ -193,7 +196,7 @@ const ViewProfile = () => {
 
 		try {
 			const response = await fetchData(
-				`/user/users/update/${userProfile.email}`,
+				`/admin/users/update/${userProfile.email}`,
 				"PUT",
 				formData,
 				token
@@ -208,6 +211,31 @@ const ViewProfile = () => {
 				}));
 			} else {
 				toast.error(response.message || "Error changing role.");
+			}
+		} catch (err) {
+			toast.error(err.message);
+		}
+	};
+
+	const handlePasswordChange = async () => {
+		const token = localStorage.getItem("token");
+		const formData = new FormData();
+		formData.append("attribute", "password");
+		formData.append("newAttribute", newPassword);
+
+		try {
+			const response = await fetchData(
+				`/admin/users/update/${userProfile.email}`,
+				"PUT",
+				formData,
+				token
+			);
+
+			if (response.success) {
+				toast.success("Password changed successfully.");
+				setShowPasswordModal(false);
+			} else {
+				toast.error(response.message || "Error changing password.");
 			}
 		} catch (err) {
 			toast.error(err.message);
@@ -234,13 +262,22 @@ const ViewProfile = () => {
 							: "N/A"}
 					</p>
 					{userRole === "ADMIN" && (
-						<button
-							className="btn btn-warning"
-							onClick={() => setShowModal(true)}
-							aria-label="Change user role"
-						>
-							Change Role
-						</button>
+						<>
+							<button
+								className="btn btn-warning"
+								onClick={() => setShowModal(true)}
+								aria-label="Change user role"
+							>
+								Change Role
+							</button>
+							<button
+								className="btn btn-danger ms-2"
+								onClick={() => setShowPasswordModal(true)}
+								aria-label="Change user password"
+							>
+								Change Password
+							</button>
+						</>
 					)}
 				</div>
 			</section>
@@ -252,6 +289,17 @@ const ViewProfile = () => {
 				selectedRole={selectedRole}
 				setSelectedRole={setSelectedRole}
 				aria-label="Change role modal"
+			/>
+
+			<EditAttributeModal
+				showModal={showPasswordModal}
+				setShowModal={setShowPasswordModal}
+				handleAttributeChange={handlePasswordChange}
+				attributeValue={newPassword}
+				setAttributeValue={setNewPassword}
+				modalTitle="Change Password"
+				attributeLabel="New Password"
+				aria-label="Change password modal"
 			/>
 
 			{/* TODO: QUITAR SCROLL HORIZONTAL */}
