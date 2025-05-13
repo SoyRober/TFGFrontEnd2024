@@ -2,6 +2,7 @@ import { useEffect, useState, Suspense, lazy, useRef } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import Loading from "../components/Loading";
+import GenresCarousel from "../components/GenresCarousel";
 
 const CustomCarousel = lazy(() => import("../components/Carousel"));
 
@@ -161,21 +162,7 @@ export default function Presentation() {
 
         <div ref={genresRef}>
           {showSections.genres && (
-            <div className="container mt-5">
-              <h2 className="mb-4 fw-bold">Featured Genres</h2>
-
-              {genres.slice(0, 3).map((genre) => (
-                <div key={genre.id} className="mb-5">
-                  <h3 className="text-primary">{genre.name}</h3>
-                  <Suspense fallback={<Loading />}>
-                    <CustomCarousel
-                      aria-label={`Carousel for ${genre.name}`}
-                      genre={genre.name}
-                    />
-                  </Suspense>
-                </div>
-              ))}
-            </div>
+            <GenresCarousel genres={genres} />
           )}
         </div>
       </div>

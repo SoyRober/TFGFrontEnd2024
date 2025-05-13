@@ -5,6 +5,8 @@ import "../styles/Carousel.css";
 import defaultBook from "../img/defaultBook.svg";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const MAX_VISIBILITY = 3;
 
@@ -29,11 +31,23 @@ const fetchBooks = async (setBooks, genre = "") => {
   }
 };
 
+import PropTypes from "prop-types";
+
 const Card = React.memo(({ title, image, preload }) => {
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
   const navigateToBookDetails = () => {
     navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, Math.random() * (700 - 300) + 300);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   return (
     <div
@@ -41,13 +55,22 @@ const Card = React.memo(({ title, image, preload }) => {
       style={{ textAlign: "center", cursor: "pointer" }}
       onClick={navigateToBookDetails}
     >
-      <h2>{title}</h2>
-      <img
-        src={image || defaultBook}
-        alt={title}
-        loading={preload ? "eager" : "lazy"}
-        fetchpriority={preload ? "high" : "auto"}
-      />
+      {isLoading ? (
+        <div>
+          <Skeleton width={200} height={20} className="my-3" />
+          <Skeleton width={300} height={375} />
+        </div>
+      ) : (
+        <>
+          <h2>{title}</h2>
+          <img
+            src={image || defaultBook}
+            fetchPriority={preload ? "high" : "auto"}
+            loading={preload ? "eager" : "lazy"}
+            fetchPriority={preload ? "high" : "auto"}
+          />
+        </>
+      )}
     </div>
   );
 });
@@ -140,6 +163,6 @@ const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
       </Suspense>
     </div>
   );
-};
+}
 
 export default CustomCarousel;
