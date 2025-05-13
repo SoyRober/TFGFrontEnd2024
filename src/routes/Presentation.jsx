@@ -44,7 +44,8 @@ export default function Presentation() {
           className="lead text-center text-muted"
           aria-label="Platform description"
         >
-          A digital platform that connects readers with libraries across the city.
+          A digital platform that connects readers with libraries across the
+          city.
         </p>
         <hr className="my-4" aria-hidden="true" />
         <div className="row mt-5">
@@ -56,7 +57,10 @@ export default function Presentation() {
             <h2 className="fw-bold" aria-label="Browse Collections section">
               Browse Collections
             </h2>
-            <p className="text-muted" aria-label="Description of Browse Collections">
+            <p
+              className="text-muted"
+              aria-label="Description of Browse Collections"
+            >
               Explore book catalogs from multiple libraries, all in one place.
             </p>
           </div>
@@ -68,8 +72,12 @@ export default function Presentation() {
             <h2 className="fw-bold" aria-label="Register and Connect section">
               Register & Connect
             </h2>
-            <p className="text-muted" aria-label="Description of Register and Connect">
-              Create your account to start reserving, borrowing, and reviewing books.
+            <p
+              className="text-muted"
+              aria-label="Description of Register and Connect"
+            >
+              Create your account to start reserving, borrowing, and reviewing
+              books.
             </p>
           </div>
           <div className="col-md-4 text-center">
@@ -80,8 +88,12 @@ export default function Presentation() {
             <h2 className="fw-bold" aria-label="Reserve and Borrow section">
               Reserve & Borrow
             </h2>
-            <p className="text-muted" aria-label="Description of Reserve and Borrow">
-              Easily reserve your favorite titles and manage your book loans online.
+            <p
+              className="text-muted"
+              aria-label="Description of Reserve and Borrow"
+            >
+              Easily reserve your favorite titles and manage your book loans
+              online.
             </p>
           </div>
         </div>
@@ -89,12 +101,15 @@ export default function Presentation() {
       <div className="container mt-5">
         <h2 className="mb-4 fw-bold">Featured Genres</h2>
 
-        {genres.slice(0, 3).map((genre) => {
-            <div key={genre.id} className="mb-5">
-              <h3 className="text-primary">{genre.name}</h3>
-              <CustomCarousel aria-label={`Carousel for ${genre.name}`} genre={genre.name}/>
-            </div>
-        })}
+        {genres.slice(0, 3).map((genre) => (
+          <div key={genre.id} className="mb-5">
+            <h3 className="text-primary">{genre.name}</h3>
+            <CustomCarousel
+              aria-label={`Carousel for ${genre.name}`}
+              genre={genre.name}
+            />
+          </div>
+        ))}
       </div>
     </main>
   );
