@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import "../styles/Carousel.css";
@@ -121,14 +121,9 @@ const CustomCarousel = ({ genre = "" }) => {
   }, [genre]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLibrary = localStorage.getItem("libraryName");
-      if (currentLibrary !== library) {
-        setLibrary(currentLibrary);
-        fetchBooks(setBooks, genre);
-      }
-    }, 500);
-    return () => clearInterval(interval);
+    const currentLibrary = localStorage.getItem("libraryName");
+    setLibrary(currentLibrary);
+    fetchBooks(setBooks, genre);
   }, [library, genre]);
 
   return (
