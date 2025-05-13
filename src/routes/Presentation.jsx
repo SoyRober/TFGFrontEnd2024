@@ -35,9 +35,6 @@ export default function Presentation() {
 
   return (
     <main>
-      <Suspense fallback={<Loading />}>
-        <CustomCarousel aria-label="Image carousel showcasing random books" />
-      </Suspense>
       <div className="container mt-5">
         <h1 className="text-center mb-4 display-4" aria-label="Welcome message">
           Welcome to BiblioForum!
@@ -50,6 +47,9 @@ export default function Presentation() {
           city.
         </p>
         <hr className="my-4" aria-hidden="true" />
+        <Suspense fallback={<Loading />}>
+          <CustomCarousel aria-label="Image carousel showcasing random books" />
+        </Suspense>
         <div className="row mt-5">
           <div className="col-md-4 text-center">
             <i
