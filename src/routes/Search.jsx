@@ -8,6 +8,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
 import CardSizeSelector from "../components/CardSizeSelector.jsx";
 import BookCard from "../components/BookCard.jsx";
+import { toast } from "react-toastify";
 
 const initialBookData = {
   title: "",
@@ -378,7 +379,7 @@ export default function LibraryHomepage() {
             {Array.isArray(books) &&
               books.map((book) => (
                 <BookCard
-                key={`${book.id}-${book.title}`} // Composite key using id and title
+                key={`${book.id}-${book.title}`}
                 book={book}
                 cardSize={cardSize}
                 defaultBook={defaultBook}
