@@ -292,14 +292,14 @@ const ViewProfile = () => {
 			/>
 
 			<EditAttributeModal
-				showModal={showPasswordModal}
-				setShowModal={setShowPasswordModal}
-				handleAttributeChange={handlePasswordChange}
-				attributeValue={newPassword}
-				setAttributeValue={setNewPassword}
-				modalTitle="Change Password"
-				attributeLabel="New Password"
-				aria-label="Change password modal"
+				show={showPasswordModal}
+				onClose={() => setShowPasswordModal(false)}
+				attribute="Password"
+				value={newPassword}
+				onChange={(e) => setNewPassword(e.target.value)}
+				placeholder="Enter new password"
+				onSave={handlePasswordChange}
+				errorMessage=""
 			/>
 
 			{/* TODO: QUITAR SCROLL HORIZONTAL */}
