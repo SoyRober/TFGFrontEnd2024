@@ -24,16 +24,17 @@ export default function Filters({
 		>
 			{/* Filtro por año */}
 			<div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-				<DatePicker
-					selected={startDateFilter}
-					onChange={(date) => setStartDateFilter(date)}
-					className="form-control form-control-sm me-2"
-					dateFormat="yyyy"
-					placeholderText="Select a year"
-					showYearPicker
-					aria-label="Year Filter"
-					style={{ width: "100%" }}
-				/>
+				<div className="w-100">
+					<DatePicker
+						selected={startDateFilter}
+						onChange={(date) => setStartDateFilter(date)}
+						className="form-control form-control-sm me-2"
+						dateFormat="yyyy"
+						placeholderText="Select a year"
+						showYearPicker
+						aria-label="Year Filter"
+					/>
+				</div>
 				<button
 					className="btn btn-outline-secondary bt-sm mx-2"
 					type="button"
