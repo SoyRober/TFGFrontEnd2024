@@ -1,4 +1,3 @@
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -71,73 +70,85 @@ export default function Root() {
             Home
           </Link>
 
-          <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <Link
-                className="nav-link text-light ms-3"
-                to="/search"
-                aria-label="Search Link"
-              >
-                Search
-              </Link>
-            </li>
-            {isLoggedIn && (
-              <>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link text-light ms-3"
-                    to="/userBookDetails"
-                    aria-label="My Books Link"
-                  >
-                    My books
-                  </Link>
-                </li>
-                {hasPermissions && (
-                  <>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link text-light ms-3"
-                        to="/usersList"
-                        aria-label="Users List Link"
-                      >
-                        Users List
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link text-light ms-3"
-                        to="/attributes"
-                        aria-label="Attributes Link"
-                      >
-                        Attributes
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link text-light ms-3"
-                        to="/pendingBooks"
-                        aria-label="Pending Books Link"
-                      >
-                        Pending Books
-                      </Link>
-                    </li>
-                    <li className="nav-item">
-                      <Link
-                        className="nav-link text-light ms-3"
-                        to="/libraries"
-                        aria-label="Libraries Link"
-                      >
-                        Libraries
-                      </Link>
-                    </li>
-                  </>
-                )}
-              </>
-            )}
-          </ul>
+          <button
+            className="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span className="navbar-toggler-icon"></span>
+          </button>
 
           <div className="collapse navbar-collapse" id="navbarNav">
-            {!isLoggedIn ? (
+            <ul className="navbar-nav me-auto">
+              <li className="nav-item">
+                <Link
+                  className="nav-link text-light ms-3"
+                  to="/search"
+                  aria-label="Search Link"
+                >
+                  Search
+                </Link>
+              </li>
+              {isLoggedIn && (
+                <>
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link text-light ms-3"
+                      to="/userBookDetails"
+                      aria-label="My Books Link"
+                    >
+                      My books
+                    </Link>
+                  </li>
+                  {hasPermissions && (
+                    <>
+                      <li className="nav-item">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/usersList"
+                          aria-label="Users List Link"
+                        >
+                          Users List
+                        </Link>
+                      </li>
+                      <li className="nav-item">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/attributes"
+                          aria-label="Attributes Link"
+                        >
+                          Attributes
+                        </Link>
+                      </li>
+                      <li className="nav-item">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/pendingBooks"
+                          aria-label="Pending Books Link"
+                        >
+                          PendingBooks
+                        </Link>
+                      </li>
+                      <li className="nav-item">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/libraries"
+                          aria-label="Libraries Link"
+                        >
+                          Libraries
+                        </Link>
+                      </li>
+                    </>
+                  )}
+                </>
+              )}
+            </ul>
+
+            {!isLoggedIn && (
               <ul className="navbar-nav ms-auto">
                 <li className="nav-item me-3">
                   <LibrarySelector />
@@ -161,60 +172,63 @@ export default function Root() {
                   </Link>
                 </li>
               </ul>
-            ) : (
-              <div className="d-flex align-items-center ms-auto">
-                <ul className="navbar-nav d-flex flex-row align-items-center">
-                  <li className="nav-item me-3">
-                    <LibrarySelector />
-                  </li>
-                  <li className="nav-item me-3">
-                    <Notifications />
-                  </li>
-                  <li className="nav-item dropdown">
-                    <button
-                      className="nav-link dropdown-toggle text-light bg-dark"
-                      id="navbarDropdown"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                      aria-label="Profile Dropdown Button"
-                    >
-                      <span className="d-none d-lg-inline">Profile</span>
-                      <i className="fas fa-user d-lg-none"></i>
-                    </button>
-                    <ul
-                      className="dropdown-menu dropdown-menu-end bg-dark"
-                      aria-labelledby="navbarDropdown"
-                      style={{
-                        position: "absolute",
-                        zIndex: 1050,
-                      }}
-                    >
-                      <li>
-                        <Link
-                          className="dropdown-item text-light hover-navbar"
-                          to="/user/userSettings"
-                          aria-label="Settings Link"
-                        >
-                          Settings
-                        </Link>
-                      </li>
-                      <li>
-                        <button
-                          className="dropdown-item text-light hover-navbar"
-                          onClick={handleLogout}
-                          aria-label="Logout Button"
-                        >
-                          Log out
-                        </button>
-                      </li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
             )}
           </div>
+
+          {isLoggedIn && (
+            <div className="d-flex align-items-center ms-auto">
+              <ul className="navbar-nav d-flex flex-row align-items-center">
+                <li className="nav-item me-3">
+                  <LibrarySelector />
+                </li>
+                <li className="nav-item me-3">
+                  <Notifications />
+                </li>
+                <li className="nav-item dropdown">
+                  <button
+                    className="nav-link dropdown-toggle text-light bg-dark"
+                    id="navbarDropdown"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    aria-label="Profile Dropdown Button"
+                  >
+                    <span className="d-none d-lg-inline">Profile</span>
+                    <i className="fas fa-user d-lg-none"></i>
+                  </button>
+                  <ul
+                    className="dropdown-menu dropdown-menu-end bg-dark"
+                    aria-labelledby="navbarDropdown"
+                    style={{
+                      position: "absolute",
+                      zIndex: 1050,
+                    }}
+                  >
+                    <li>
+                      <Link
+                        className="dropdown-item text-light hover-navbar"
+                        to="/user/userSettings"
+                        aria-label="Settings Link"
+                      >
+                        Settings
+                      </Link>
+                    </li>
+                    <li>
+                      <button
+                        className="dropdown-item text-light hover-navbar"
+                        onClick={handleLogout}
+                        aria-label="Logout Button"
+                      >
+                        Log out
+                      </button>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
+
       <Outlet />
       <ToastContainer
         position={"bottom-right"}
