@@ -24,7 +24,7 @@ export default function Filters({
 		>
 			{/* Filtro por año */}
 			<div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-3">
-				<div className="w-100">
+				<div className="w-200">
 					<DatePicker
 						selected={startDateFilter}
 						onChange={(date) => setStartDateFilter(date)}
