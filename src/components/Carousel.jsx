@@ -5,6 +5,8 @@ import "../styles/Carousel.css";
 import defaultBook from "../img/defaultBook.svg";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const MAX_VISIBILITY = 3;
 
@@ -30,10 +32,31 @@ const fetchBooks = async (setBooks, genre = "") => {
 };
 
 const Card = React.memo(({ title, image, preload }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [imageSrc, setImageSrc] = useState(defaultBook); // Imagen por defecto (placeholder)
   const navigate = useNavigate();
+
   const navigateToBookDetails = () => {
     navigate(`/viewBook/${encodeURIComponent(title)}`);
   };
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    setImageSrc(image); // Cambiar la imagen por la real cuando se haya cargado
+  };
+
+  useEffect(() => {
+    if (preload) {
+      requestAnimationFrame(() => {
+        setIsLoading(false);
+      });
+    } else {
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+      }, Math.random() * (700 - 300) + 300);
+      return () => clearTimeout(timeout);
+    }
+  }, [preload]);
 
   return (
     <div
@@ -41,13 +64,27 @@ const Card = React.memo(({ title, image, preload }) => {
       style={{ textAlign: "center", cursor: "pointer" }}
       onClick={navigateToBookDetails}
     >
-      <h2>{title}</h2>
-      <img
-        src={image || defaultBook}
-        alt={title}
-        loading={preload ? "eager" : "lazy"}
-        fetchpriority={preload ? "high" : "auto"}
-      />
+      {isLoading ? (
+        <div>
+          <Skeleton width={200} height={20} className="my-3" />
+          <Skeleton width={300} height={375} />
+        </div>
+      ) : (
+        <>
+          <h2>{title}</h2>
+          <img
+            src={imageSrc}
+            alt={title}
+            loading={preload ? "eager" : "lazy"}
+            fetchpriority={preload ? "high" : "auto"}
+            onLoad={handleImageLoad} 
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+            }}
+          />
+        </>
+      )}
     </div>
   );
 });
@@ -140,6 +177,6 @@ const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
       </Suspense>
     </div>
   );
-};
+}
 
 export default CustomCarousel;

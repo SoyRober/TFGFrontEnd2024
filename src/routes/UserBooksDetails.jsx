@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Loans from "./Loans.jsx";
 import Reservations from "./Reservations.jsx";
+import CardSizeSelector from "../components/CardSizeSelector.jsx"; 
 
 const UserBooksDetails = () => {
   const [selectedButton, setSelectedButton] = useState(() => {
@@ -60,44 +61,7 @@ const UserBooksDetails = () => {
       </div>
 
       <div className="row w-100 justify-content-center mb-4">
-        <div className="col-12 col-md-6 col-lg-4 d-flex justify-content-center mt-4">
-          <div
-            className="btn-group w-100"
-            role="group"
-            aria-label="Card size selector"
-          >
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${
-                cardSize === "small" ? "active" : ""
-              }`}
-              onClick={() => setCardSize("small")}
-              aria-label="Set card size to small"
-            >
-              Small
-            </button>
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${
-                cardSize === "medium" ? "active" : ""
-              }`}
-              onClick={() => setCardSize("medium")}
-              aria-label="Set card size to medium"
-            >
-              Medium
-            </button>
-            <button
-              type="button"
-              className={`btn btn-outline-primary ${
-                cardSize === "large" ? "active" : ""
-              }`}
-              onClick={() => setCardSize("large")}
-              aria-label="Set card size to large"
-            >
-              Large
-            </button>
-          </div>
-        </div>
+          <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </div>
 
       {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
