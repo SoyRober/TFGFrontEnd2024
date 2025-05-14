@@ -7,7 +7,7 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
 import CardSizeSelector from "../components/CardSizeSelector.jsx";
@@ -174,11 +174,6 @@ export default function LibraryHomepage() {
     }
   }, [library]);
 
-  {
-    /* HAY QUE MIRAR POR QUE NO FUNCIONA CORRECTAMENTE EL FILTRO */
-  }
-
-  // Guardar los filtros en localStorage cuando cambien
   useEffect(() => {
     localStorage.setItem("searchTermTitle", searchTermTitle);
   }, [searchTermTitle]);

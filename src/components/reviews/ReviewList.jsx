@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import defaultAvatar from "../../img/defaultAvatar.svg";
+import defaultAvatar from "/img/defaultAvatar.svg";
 import { fetchData } from "../../utils/fetch";
 import { toast } from "react-toastify";
 import { debounce } from "lodash";

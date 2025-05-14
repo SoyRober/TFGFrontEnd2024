@@ -7,7 +7,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 
 const UserReservations = ({ cardSize }) => {
 	const [reservations, setReservations] = useState([]);

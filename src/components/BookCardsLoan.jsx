@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 
 export default function BookCardLoans({ loan, cardSize }) {
   const getColumnClass = (size) => {
