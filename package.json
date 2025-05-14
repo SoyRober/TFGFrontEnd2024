@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run critical",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "critical": "npx critical dist/index.html --base dist/ --inline --extract"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
@@ -36,6 +37,7 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
+    "critical": "^7.2.1",
     "eslint": "^8.57.0",
     "eslint-plugin-react": "^7.34.2",
     "eslint-plugin-react-hooks": "^4.6.2",
