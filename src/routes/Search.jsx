@@ -336,7 +336,7 @@ export default function LibraryHomepage() {
         />
       )}
 
-      <header className="container text-center mt-4" style={{maxWidth: "800px", minWidth: "320px"}}>
+      <header className="container text-center mt-4 search-filters">
         <Filters
           startDateFilter={startDateFilter}
           setStartDateFilter={setStartDateFilter}
@@ -364,7 +364,7 @@ export default function LibraryHomepage() {
         <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </header>
 
-      <section className="container mt-5">
+      <section className="container mt-5 search-container">
         <InfiniteScroll
           dataLength={books.length}
           next={() => setPage((prev) => prev + 1)}

@@ -51,6 +51,7 @@ export default function BookCard({
               maxHeight: '100%',
             }}
             width={cardSize === 'small' ? '120px' : cardSize === 'medium' ? '180px' : '300px'}
+            height={cardSize === 'small' ? '180px' : cardSize === 'medium' ? '250px' : '400px'}
             className="img-fluid"
             fetchpriority="high"
             decoding="async"
