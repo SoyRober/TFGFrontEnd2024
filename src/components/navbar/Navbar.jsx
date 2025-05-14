@@ -176,7 +176,7 @@ export default function Root() {
           </div>
 
           {isLoggedIn && (
-            <div className="d-flex align-items-center ms-auto">
+            <div className="d-flex align-items-center ms-auto" style={{ maxWidth: "400px" }}>
               <ul className="navbar-nav d-flex flex-row align-items-center">
                 <li className="nav-item me-3">
                   <LibrarySelector />

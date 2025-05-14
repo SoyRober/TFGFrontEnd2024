@@ -336,7 +336,7 @@ export default function LibraryHomepage() {
         />
       )}
 
-      <header className="container text-center mt-4">
+      <header className="container text-center mt-4" style={{maxWidth: "800px", minWidth: "320px"}}>
         <Filters
           startDateFilter={startDateFilter}
           setStartDateFilter={setStartDateFilter}

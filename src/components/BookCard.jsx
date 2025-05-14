@@ -46,6 +46,10 @@ export default function BookCard({
           <img
             src={imageUrl}
             alt={book.title}
+            style={{
+              maxWidth: '100%',
+              maxHeight: '100%',
+            }}
             width={cardSize === 'small' ? '120px' : cardSize === 'medium' ? '180px' : '300px'}
             className="img-fluid"
             fetchpriority="high"
