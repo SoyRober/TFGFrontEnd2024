@@ -24,13 +24,16 @@ export default function BookCardLoans({ loan, cardSize }) {
       className={`${getColumnClass(cardSize)} mb-4`}
       aria-label={`Loan card for the book ${loan.book}`}
     >
-      <div className="card h-100 p-1">
-        <img
-          src={imageUrl}
-          className="card-img-top w-75 mx-auto"
-          alt={`Cover of ${loan.book}`}
-          aria-label={`Cover image of the book ${loan.book}`}
-        />
+      <div className="customized-card h-100">
+        <figure className="p-1">
+          <img
+            src={imageUrl}
+            style={{ width: "50%", height: "auto" }}
+            className="card-img-top mx-auto"
+            alt={`Cover of ${loan.book}`}
+            aria-label={`Cover image of the book ${loan.book}`}
+          />
+        </figure>
         <div className="d-flex justify-content-center">
           <hr
             className="my-1"

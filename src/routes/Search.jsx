@@ -307,7 +307,7 @@ export default function LibraryHomepage() {
 
   return (
     <main
-      className="fade-in d-flex flex-column justify-content-center align-items-center"
+      className="d-flex flex-column justify-content-center align-items-center"
       style={{ overflow: "hidden" }}
     >
       {hasPermissions && (
