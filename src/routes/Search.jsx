@@ -1,12 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import CreateBookModal from "../components/modals/CreateBookModal.jsx";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
-import "react-datepicker/dist/react-datepicker.css";
-import { toast } from "react-toastify";
 import defaultBook from "/img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";

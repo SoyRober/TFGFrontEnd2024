@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 
 const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
   const [newName, setNewName] = useState("");

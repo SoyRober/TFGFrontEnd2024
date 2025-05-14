@@ -1,15 +1,20 @@
-import { useState, useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import "react-toastify/dist/ReactToastify.css";
+import "react-datepicker/dist/react-datepicker.css";
+import "react-loading-skeleton/dist/skeleton.css";
+import "../../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import useCheckTokenExpiration from "../../hooks/checkToken.jsx";
 import { useNavigate } from "react-router-dom";
 import Notifications from "./Notifications.jsx";
 import LibrarySelector from "./LibrarySelector.jsx";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useState, useEffect } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function Root() {
   const [hasPermissions, setHasPermissions] = useState(false);

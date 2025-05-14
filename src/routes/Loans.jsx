@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { fetchData } from "../utils/fetch.js";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
 import Loading from "../components/Loading.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -66,19 +64,6 @@ const Loans = ({ cardSize = "medium" }) => {
   const resetFilters = () => {
     setFilters({ startDate: "", title: "", returned: "notReturned" });
     setPage(0);
-  };
-
-  const getColumnClass = (size) => {
-    switch (size) {
-      case "small":
-        return "col-12 col-sm-6 col-md-4 col-lg-3";
-      case "medium":
-        return "col-12 col-sm-6 col-md-6 col-lg-4";
-      case "large":
-        return "col-12 col-md-6";
-      default:
-        return "col-12";
-    }
   };
 
   return (
@@ -183,7 +168,7 @@ const Loans = ({ cardSize = "medium" }) => {
         >
           <div className="row">
             {loans.map((loan) => (
-                <BookCardLoans key={loan.id} loan={loan} cardSize={cardSize} />
+                <BookCardLoans key={`${loan.id} - ${loan.startDate}`} loan={loan} cardSize={cardSize} />
             ))}
           </div>
         </InfiniteScroll>

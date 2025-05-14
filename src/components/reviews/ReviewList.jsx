@@ -5,7 +5,6 @@ import { toast } from "react-toastify";
 import { debounce } from "lodash";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../Loading";
-import "../../styles/main.css";
 
 export default function ReviewList({ title, username }) {
     const [reviews, setReviews] = useState([]);

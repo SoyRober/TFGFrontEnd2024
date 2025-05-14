@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";

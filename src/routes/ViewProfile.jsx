@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
@@ -13,7 +12,6 @@ const ViewProfile = () => {
 	const [userProfile, setUserProfile] = useState(null);
 
 	const [userReservations, setUserReservations] = useState([]);
-	// const [reservationPage, setReservationPage] = useState(0);
 	const [dateFilterReservation, setDateFilterReservation] = useState("");
 	const [titleFilterReservation, setTitleFilterReservation] = useState("");
 
@@ -70,10 +68,9 @@ const ViewProfile = () => {
 
 	useEffect(() => {
 		setUserReservations([]);
-		// setReservationPage(0);
 		setHasMoreReservations(true);
 
-		fetchUserReservations(0, dateFilterReservation, titleFilterReservation); // <-- esta línea es clave
+		fetchUserReservations(0, dateFilterReservation, titleFilterReservation);
 	}, [email, dateFilterReservation, titleFilterReservation]);
 
 	const fetchUserReservations = async (page, date, title) => {
@@ -103,7 +100,6 @@ const ViewProfile = () => {
 				setHasMoreReservations(false);
 			} else {
 				setUserReservations((prev) => [...prev, ...newReservations]);
-				// setReservationPage((prev) => prev + 1);
 			}
 		} catch (error) {
 			toast.error("Error loading reservations: " + error.message);
