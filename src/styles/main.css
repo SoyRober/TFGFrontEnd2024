@@ -91,6 +91,7 @@
 }
 
 .search-filters {
+  position: relative;
   max-width: 800px;
   min-width: 320px;
   height: 350px;
@@ -100,4 +101,5 @@
   max-width: 1200px !important;
   min-width: 320px;
   min-height: 300px;
+  position: relative;
 }
