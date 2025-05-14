@@ -97,7 +97,7 @@ export default function LibraryHomepage() {
     const token = localStorage.getItem("token");
     if (token) {
       const userPayload = JSON.parse(atob(token.split(".")[1]));
-      const birthDate = new Date(userPayload.birthDate); 
+      const birthDate = new Date(userPayload.birthDate);
       const age = new Date().getFullYear() - birthDate.getFullYear();
       setIsAdultUser(age >= 18);
     }
@@ -308,7 +308,7 @@ export default function LibraryHomepage() {
   return (
     <main
       className="d-flex flex-column justify-content-center align-items-center"
-      style={{ overflow: "hidden", minHeight: "100vh"}}
+      style={{ overflow: "hidden", minHeight: "100vh" }}
     >
       {hasPermissions && (
         <section className="d-flex justify-content-start w-100 ms-3">
@@ -322,17 +322,19 @@ export default function LibraryHomepage() {
         </section>
       )}
 
-      <CreateBookModal
-        showModal={showModal}
-        closeModal={closeModal}
-        handleSave={handleSave}
-        bookData={bookData}
-        setBookData={setBookData}
-        authors={authors}
-        genres={genres}
-        libraries={libraries}
-        aria-label="Create book modal"
-      />
+      {showModal && (
+        <CreateBookModal
+          showModal={showModal}
+          closeModal={closeModal}
+          handleSave={handleSave}
+          bookData={bookData}
+          setBookData={setBookData}
+          authors={authors}
+          genres={genres}
+          libraries={libraries}
+          aria-label="Create book modal"
+        />
+      )}
 
       <header className="container text-center mt-4">
         <Filters
@@ -379,12 +381,12 @@ export default function LibraryHomepage() {
             {Array.isArray(books) &&
               books.map((book) => (
                 <BookCard
-                key={`${book.id}-${book.title}`}
-                book={book}
-                cardSize={cardSize}
-                defaultBook={defaultBook}
-                onClick={() => navigateToBookDetails(book.title)}
-              />
+                  key={`${book.id}-${book.title}`}
+                  book={book}
+                  cardSize={cardSize}
+                  defaultBook={defaultBook}
+                  onClick={() => navigateToBookDetails(book.title)}
+                />
               ))}
           </div>
         </InfiniteScroll>
