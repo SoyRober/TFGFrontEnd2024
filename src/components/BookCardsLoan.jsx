@@ -28,8 +28,7 @@ export default function BookCardLoans({ loan, cardSize }) {
         <figure className="p-1">
           <img
             src={imageUrl}
-            style={{ width: "50%", height: "auto" }}
-            className="card-img-top mx-auto"
+            className="card-img-top mx-auto img-custom"
             alt={`Cover of ${loan.book}`}
             aria-label={`Cover image of the book ${loan.book}`}
           />

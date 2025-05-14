@@ -308,7 +308,7 @@ export default function LibraryHomepage() {
   return (
     <main
       className="d-flex flex-column justify-content-center align-items-center"
-      style={{ overflow: "hidden" }}
+      style={{ overflow: "hidden", minHeight: "100vh"}}
     >
       {hasPermissions && (
         <section className="d-flex justify-content-start w-100 ms-3">

@@ -45,9 +45,8 @@ export default function BookCard({
         >
           <img
             src={imageUrl}
-            style={{width: '50%', height: 'auto'}}
             alt={book.title}
-            className="img-fluid"
+            className="img-fluid img-custom"
             fetchpriority="high"
             decoding="async"
           />
