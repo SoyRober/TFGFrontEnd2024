@@ -19,9 +19,10 @@ const Authors = lazy(() => import("./routes/Authors.jsx"));
 const PendingBooks = lazy(() => import("./routes/PendingBooks.jsx"));
 const BookCopies = lazy(() => import("./routes/BookCopies.jsx"));
 const Libraries = lazy(() => import("./routes/Libraries.jsx"));
+const Loading = lazy(() => import("./components/Loading.jsx"));
 
 const withSuspense = (Component) => (
-  <Suspense fallback={<div>Loading...</div>}>
+  <Suspense fallback={<Loading />}>
     <Component />
   </Suspense>
 );
