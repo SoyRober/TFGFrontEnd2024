@@ -114,11 +114,13 @@ const UserReservations = ({ cardSize }) => {
           <label htmlFor="startDateFilter" className="me-2">
             Date:
           </label>
-          <YearSelector
-            yearsCount={200}
-            startDateFilter={dateFilter}
-            setStartDateFilter={setDateFilter}
-            fetchBooksData={fetchReservations}
+          <input
+            type="date"
+            id="startDateFilter"
+            className="form-control"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            aria-label="Filter by reservation date"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
