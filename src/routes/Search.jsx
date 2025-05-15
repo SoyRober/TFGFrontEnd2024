@@ -308,7 +308,12 @@ export default function LibraryHomepage() {
   return (
     <main
       className="d-flex flex-column justify-content-center align-items-center"
-      style={{ overflow: "hidden", minHeight: "100vh" }}
+      style={{
+        overflow: "hidden",
+        minHeight: "100vh",
+        width: "100%",
+        position: "relative",
+      }}
     >
       {hasPermissions && (
         <section className="d-flex justify-content-start w-100 ms-3">
@@ -364,14 +369,20 @@ export default function LibraryHomepage() {
         <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </header>
 
-      <section className="container mt-5 search-container">
+      <section
+        className="container mt-5 search-container"
+        style={{ minHeight: "60vh" }}
+      >
         <InfiniteScroll
           dataLength={books.length}
           next={() => setPage((prev) => prev + 1)}
           hasMore={!isFetching && books.length % 10 === 0 && books.length > 0}
           loader={<Loading />}
           endMessage={
-            <p className="text-center mt-4 text-muted">
+            <p
+              className="text-center mt-4 text-muted"
+              style={{ minHeight: "2em" }}
+            >
               There aren't more books
             </p>
           }

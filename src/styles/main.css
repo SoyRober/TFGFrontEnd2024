@@ -94,7 +94,7 @@
   position: relative;
   max-width: 800px;
   min-width: 320px;
-  height: 350px;
+  min-height: 250px;
 }
 
 .search-container {
@@ -102,4 +102,11 @@
   min-width: 320px;
   min-height: 300px;
   position: relative;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  scroll-behavior: smooth;
 }
