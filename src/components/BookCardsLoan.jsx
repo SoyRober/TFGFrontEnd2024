@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom";
-import defaultBook from "/img/defaultBook.svg";
+import React from "react";
 
-export default function BookCardLoans({ loan, cardSize }) {
+const BookCardLoans = React.memo(({ loan, cardSize, isFirst }) => {
   const getColumnClass = (size) => {
     switch (size) {
       case "small":
@@ -45,6 +44,7 @@ export default function BookCardLoans({ loan, cardSize }) {
             aria-label={`View details for the book ${loan.book}`}
           >
             <img
+              loading={isFirst ? "eager" : "lazy"}
               src={imageUrl}
               width={
                 cardSize === "small"
@@ -93,4 +93,6 @@ export default function BookCardLoans({ loan, cardSize }) {
       </div>
     </article>
   );
-}
+});
+
+export default BookCardLoans;

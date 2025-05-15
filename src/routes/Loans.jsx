@@ -167,8 +167,13 @@ const Loans = ({ cardSize = "medium" }) => {
           style={{ overflow: "hidden" }}
         >
           <div className="row">
-            {loans.map((loan) => (
-                <BookCardLoans key={`${loan.id} - ${loan.startDate}`} loan={loan} cardSize={cardSize} />
+            {loans.map((loan, i) => (
+              <BookCardLoans
+                key={loan.id}
+                loan={loan}
+                cardSize={cardSize}
+                isFirst={i === 0}
+              />
             ))}
           </div>
         </InfiniteScroll>
