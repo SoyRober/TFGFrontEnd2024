@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import DatePicker from "react-datepicker";
 
 const EditAttributeModal = ({
   show,
@@ -9,17 +8,20 @@ const EditAttributeModal = ({
   attribute,
 }) => {
   const [newName, setNewName] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState("");
 
   useEffect(() => {
     if (attribute) {
       setNewName(attribute.name);
+      if (attribute.birthDate) {
+        setSelectedDate(new Date(attribute.birthDate).toISOString().split("T")[0]);
+      }
     }
   }, [attribute]);
 
   const handleEditSubmit = (e) => {
     e.preventDefault();
-    handleUpdateAttribute(attribute.id, newName, selectedDate);
+    handleUpdateAttribute(attribute.id, newName, new Date(selectedDate));
   };
 
   return (
@@ -51,15 +53,14 @@ const EditAttributeModal = ({
           </Form.Group>
           <Form.Group controlId="formAttributeDate" className="mb-3">
             <Form.Label aria-label="Attribute Date Label">Birth Date</Form.Label>
-            <div>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                className="form-control"
-                required
-                aria-label="Select birth date"
-              />
-            </div>
+            <Form.Control
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="form-control"
+              required
+              aria-label="Select birth date"
+            />
           </Form.Group>
           <Button
             variant="primary"

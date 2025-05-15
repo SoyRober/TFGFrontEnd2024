@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import DatePicker from "react-datepicker";
 
 const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
   const [newName, setNewName] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0]; // formato yyyy-mm-dd
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleAdd(newName, selectedDate);
+    handleAdd(newName, new Date(selectedDate));
   };
 
   return (
@@ -35,15 +37,14 @@ const AddAttributeWithDateModal = ({ show, handleClose, handleAdd }) => {
           </Form.Group>
           <Form.Group controlId="formAttributeDate" className="mb-3">
             <Form.Label aria-label="Attribute Date Label">Birth Date</Form.Label>
-            <div>
-              <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                className="form-control"
-                required
-                aria-label="Select birth date"
-              />
-            </div>
+            <Form.Control
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="form-control"
+              required
+              aria-label="Select birth date"
+            />
           </Form.Group>
           <Button
             variant="primary"
