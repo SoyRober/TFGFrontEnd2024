@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import defaultBook from "/img/defaultBook.svg";
 
 const BookCardLoans = React.memo(({ loan, cardSize, isFirst }) => {
   const getColumnClass = (size) => {
