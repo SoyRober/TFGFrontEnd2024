@@ -8,7 +8,6 @@
     "build": "vite build && npm run critical",
     "lint": "eslint .",
     "preview": "vite preview",
-    "purge": "npx purgecss --css dist/assets/*.css --content dist/**/*.html dist/**/*.js --output dist/assets/",
     "critical": "npx critical dist/index.html --base dist/ --inline --extract"
   },
   "dependencies": {
