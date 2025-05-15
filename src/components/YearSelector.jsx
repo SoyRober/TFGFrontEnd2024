@@ -1,45 +1,77 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 
-export default function YearSelector({ 
+export default function YearSelector({
   yearsCount = 200,
   startDateFilter,
   setStartDateFilter,
-  fetchBooksData = null
+  onChangeFetch = null,
 }) {
-  const handleYearInputChange = (e) => {
-    const val = e.target.value.trim();
-    if (val === "") {
-      setStartDateFilter(0);
-      if (fetchBooksData) fetchBooksData(0);
-      return;
-    }
-    const year = parseInt(val, 10);
-    if (!isNaN(year)) {
-      setStartDateFilter(new Date(year, 0, 1));
-    }
-  };
-
+  const [open, setOpen] = useState(false);
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: yearsCount }, (_, i) => currentYear - i);
+  const dropdownRef = useRef(null);
+
+  const toggleOpen = () => setOpen((o) => !o);
+
+  const selectYear = (year) => {
+    setStartDateFilter(new Date(year, 0, 1));
+    setOpen(false);
+    if (onChangeFetch) onChangeFetch();
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const isValidDate = (d) => d instanceof Date && !isNaN(d);
 
   return (
-    <>
-      <input
-        list="year-list"
-        id="year-input"
-        name="year-input"
-        value={startDateFilter ? startDateFilter.getFullYear() : ""}
-        onChange={handleYearInputChange}
-        placeholder="Selecciona un año"
-        className="form-control form-control-sm me-2"
-        aria-label="Filtro por año"
-        autoComplete="off"
-      />
-      <datalist id="year-list">
-        {years.map((year) => (
-          <option key={year} value={year} />
-        ))}
-      </datalist>
-    </>
+    <div className="dropdown" ref={dropdownRef} style={{ width: 120 }}>
+      <button
+        className="btn btn-outline-secondary dropdown-toggle w-80"
+        type="button"
+        onClick={toggleOpen}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+      >
+        {isValidDate(startDateFilter)
+          ? startDateFilter.getFullYear()
+          : "Select a year"}
+      </button>
+
+      {open && (
+        <ul
+          className="dropdown-menu show"
+          role="listbox"
+          style={{
+            maxHeight: 150,
+            overflowY: "auto",
+            width: "100%",
+          }}
+        >
+          {years.map((year) => (
+            <li
+              key={year}
+              role="option"
+              aria-selected={isValidDate(startDateFilter) && startDateFilter.getFullYear() === year}
+              className={
+                "dropdown-item" +
+                (isValidDate(startDateFilter) && startDateFilter.getFullYear() === year ? " active" : "")
+              }
+              onClick={() => selectYear(year)}
+              style={{ cursor: "pointer" }}
+            >
+              {year}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
