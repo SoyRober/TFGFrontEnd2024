@@ -1,8 +1,26 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import cssnano from "cssnano";
 
 export default defineConfig({
   plugins: [react()],
+  css: {
+    postcss: {
+      plugins: [
+        cssnano({
+          preset: [
+            "default",
+            {
+              discardComments: {
+                removeAll: true,
+              },
+              normalizeWhitespace: true,
+            },
+          ],
+        }),
+      ],
+    },
+  },
   build: {
     minify: "terser",
     terserOptions: {
@@ -19,13 +37,20 @@ export default defineConfig({
         toplevel: true,
         collapse_vars: true,
         reduce_vars: true,
+        module: true,
+        hoist_funs: true,
+        hoist_props: true,
+        hoist_vars: true,
       },
       mangle: {
         toplevel: true,
+        module: true,
       },
       format: {
         comments: false,
       },
     },
+    cssCodeSplit: true,
+    target: "esnext",
   },
 });
