@@ -8,174 +8,184 @@ import Loading from "../components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 const GenresComponent = () => {
-	const [genres, setGenres] = useState([]);
-	const [token] = useState(localStorage.getItem("token"));
-	const [modals, setModals] = useState({
-		add: false,
-		edit: false,
-		delete: false,
-	});
-	const [selectedGenre, setSelectedGenre] = useState(null);
-	const [page, setPage] = useState(0);
-	const [isFetching, setIsFetching] = useState(false);
+  const [genres, setGenres] = useState([]);
+  const [token] = useState(localStorage.getItem("token"));
+  const [modals, setModals] = useState({
+    add: false,
+    edit: false,
+    delete: false,
+  });
+  const [selectedGenre, setSelectedGenre] = useState(null);
+  const [page, setPage] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
 
-	useEffect(() => {
-		if (page === 0) setGenres([]);
-		fetchGenres(page);
-	}, [page]);
+  useEffect(() => {
+    if (page === 0) setGenres([]);
+    fetchGenres(page);
+  }, [page]);
 
-	const fetchGenres = useCallback(
-		async (page) => {
-			if (isFetching) return;
-			setIsFetching(true);
-			try {
-				if (page === undefined) {
-					page = 0;
-				}
-				const params = new URLSearchParams({ page: page, size: "30" });
+  const fetchGenres = useCallback(
+    async (page) => {
+      if (isFetching) return;
+      setIsFetching(true);
+      try {
+        if (page === undefined) {
+          page = 0;
+        }
+        const params = new URLSearchParams({ page: page, size: "30" });
 
-				await new Promise((resolve) => setTimeout(resolve, 500));
-				const data = await fetchData(
-					`/public/genres?${params.toString()}`,
-					"GET",
-					null,
-					token
-				);
-				const newGenres = data.message || [];
-				setGenres((prev) => (page === 0 ? newGenres : [...prev, ...newGenres]));
-			} catch (err) {
-				toast.error(err.message || "Failed to load genres.");
-			} finally {
-				setIsFetching(false);
-			}
-		},
-		[token, isFetching]
-	);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        const data = await fetchData(
+          `/public/genres?${params.toString()}`,
+          "GET",
+          null,
+          token
+        );
+        const newGenres = data.message || [];
+        setGenres((prev) => (page === 0 ? newGenres : [...prev, ...newGenres]));
+      } catch (err) {
+        toast.error(err.message || "Failed to load genres.");
+      } finally {
+        setIsFetching(false);
+      }
+    },
+    [token, isFetching]
+  );
 
-	const handleAddGenre = async (newName) => {
-		try {
-			await fetchData("/librarian/genres", "POST", newName, token);
-			toast.success(`Genre added successfully!`);
-			setModals({ ...modals, add: false, edit: false });
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to save genre.");
-		}
-	};
+  const handleAddGenre = async (newName) => {
+    try {
+      await fetchData("/librarian/genres", "POST", newName, token);
+      toast.success(`Genre added successfully!`);
+      setModals({ ...modals, add: false, edit: false });
+      fetchGenres();
+    } catch (err) {
+      toast.error(err.message || "Failed to save genre.");
+    }
+  };
 
-	const handleEditGenre = async (id, name) => {
-		const body = { id, name };
-		try {
-			await fetchData("/librarian/genres", "PUT", body, token);
-			toast.success(`Genre updated successfully!`);
-			setModals({ ...modals, add: false, edit: false });
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to save genre.");
-		}
-	};
+  const handleEditGenre = async (id, name) => {
+    const body = { id, name };
+    try {
+      await fetchData("/librarian/genres", "PUT", body, token);
+      toast.success(`Genre updated successfully!`);
+      setModals({ ...modals, add: false, edit: false });
+      fetchGenres();
+    } catch (err) {
+      toast.error(err.message || "Failed to save genre.");
+    }
+  };
 
-	const handleDeleteGenre = async () => {
-		try {
-			await fetchData(
-				`/librarian/genres/${selectedGenre.id}`,
-				"DELETE",
-				null,
-				token
-			);
-			toast.success("Genre deleted successfully!");
-			setModals({ ...modals, delete: false });
-			setPage(0);
-			fetchGenres();
-		} catch (err) {
-			toast.error(err.message || "Failed to delete genre.");
-		}
-	};
+  const handleDeleteGenre = async () => {
+    try {
+      await fetchData(
+        `/librarian/genres/${selectedGenre.id}`,
+        "DELETE",
+        null,
+        token
+      );
+      toast.success("Genre deleted successfully!");
+      setModals({ ...modals, delete: false });
+      setPage(0);
+      fetchGenres();
+    } catch (err) {
+      toast.error(err.message || "Failed to delete genre.");
+    }
+  };
 
-	return (
-		<main className="container" style={{ overflowX: "hidden" }}>
-			<InfiniteScroll
-				dataLength={genres.length}
-				next={() => setPage((prev) => prev + 1)}
-				hasMore={!isFetching && genres.length % 30 === 0}
-				loader={<Loading />}
-				endMessage={
-					<p className="text-center mt-3 text-muted">No more genres to load.</p>
-				}
-			>
-				<section className="row w-100">
-					{genres.map((genre) => (
-						<div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
-							<article className="card">
-								<div className="card-body d-flex justify-content-between align-items-center">
-									<h2 className="card-title text-truncate">{genre.name}</h2>
-									<div>
-										<button
-											className="btn btn-outline-primary btn-sm me-2"
-											onClick={() => {
-												setSelectedGenre(genre);
-												setModals({ ...modals, edit: true });
-											}}
-											aria-label={`Edit genre ${genre.name}`}
-										>
-											<i className="bi bi-pencil"></i>
-										</button>
-										<button
-											className="btn btn-outline-danger btn-sm"
-											onClick={() => {
-												setSelectedGenre(genre);
-												setModals({ ...modals, delete: true });
-											}}
-											aria-label={`Delete genre ${genre.name}`}
-										>
-											<i className="bi bi-x"></i>
-										</button>
-									</div>
-								</div>
-							</article>
-						</div>
-					))}
-				</section>
-			</InfiniteScroll>
+  return (
+    <main className="container" style={{ overflowX: "hidden" }}>
+      <InfiniteScroll
+        dataLength={genres.length}
+        next={() => setPage((prev) => prev + 1)}
+        hasMore={!isFetching && genres.length % 30 === 0}
+        loader={<Loading />}
+        endMessage={
+          <p className="text-center mt-3 text-muted">No more genres to load.</p>
+        }
+      >
+        <section className="row w-100">
+          {genres.map((genre) => (
+            <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
+              <article className="card">
+                <div className="card-body d-flex justify-content-between align-items-center">
+                  <h2 className="card-title text-truncate" >{genre.name}</h2>
+                  <div>
+                    <button
+                      className="btn btn-outline-primary btn-sm me-2"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, edit: true });
+                      }}
+                      aria-label={`Edit genre ${genre.name}`}
+                    >
+                      <img
+                        src="/img/fa-pencil.svg"
+                        alt="Delete"
+                        width={20}
+                        height={25}
+                      />{" "}
+                    </button>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, delete: true });
+                      }}
+                      aria-label={`Delete genre ${genre.name}`}
+                    >
+                      <img
+                        src="/img/fa-xmark.svg"
+                        alt="Delete"
+                        width={20}
+                        height={25}
+                      />{" "}
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          ))}
+        </section>
+      </InfiniteScroll>
 
-			<button
-				className="btn btn-primary fixed-bottom m-3 w-25"
-				onClick={() => setModals({ ...modals, add: true })}
-				aria-label="Add a new genre"
-			>
-				+ Add Genre
-			</button>
+      <button
+        className="btn btn-primary fixed-bottom m-3 w-25"
+        onClick={() => setModals({ ...modals, add: true })}
+        aria-label="Add a new genre"
+      >
+        + Add Genre
+      </button>
 
-			<RenameAttributeModal
-				show={modals.edit}
-				handleClose={() => setModals({ ...modals, edit: false })}
-				handleRename={(id, name) => handleAddGenre(name)}
-				attribute={selectedGenre}
-			/>
-			<RenameAttributeModal
-				show={modals.edit}
-				handleClose={() => setModals({ ...modals, edit: false })}
-				handleRename={(id, name) => handleEditGenre(id, name)}
-				attribute={selectedGenre}
-				aria-label="Edit genre modal"
-			/>
+      <RenameAttributeModal
+        show={modals.edit}
+        handleClose={() => setModals({ ...modals, edit: false })}
+        handleRename={(id, name) => handleAddGenre(name)}
+        attribute={selectedGenre}
+      />
+      <RenameAttributeModal
+        show={modals.edit}
+        handleClose={() => setModals({ ...modals, edit: false })}
+        handleRename={(id, name) => handleEditGenre(id, name)}
+        attribute={selectedGenre}
+        aria-label="Edit genre modal"
+      />
 
-			<DeleteConfirmationModal
-				show={modals.delete}
-				onClose={() => setModals({ ...modals, delete: false })}
-				onDelete={handleDeleteGenre}
-				message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
-				aria-label="Delete genre confirmation modal"
-			/>
+      <DeleteConfirmationModal
+        show={modals.delete}
+        onClose={() => setModals({ ...modals, delete: false })}
+        onDelete={handleDeleteGenre}
+        message={`Delete ${selectedGenre?.name}? This action will also remove it from all books.`}
+        aria-label="Delete genre confirmation modal"
+      />
 
-			<AddAttributeModal
-				show={modals.add}
-				handleClose={() => setModals({ ...modals, add: false })}
-				handleAdd={(name) => handleAddGenre(name)}
-				aria-label="Add genre modal"
-			/>
-		</main>
-	);
+      <AddAttributeModal
+        show={modals.add}
+        handleClose={() => setModals({ ...modals, add: false })}
+        handleAdd={(name) => handleAddGenre(name)}
+        aria-label="Add genre modal"
+      />
+    </main>
+  );
 };
 
 export default GenresComponent;

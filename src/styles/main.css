@@ -107,3 +107,21 @@ body {
   position: relative;
   scroll-behavior: smooth;
 }
+
+.btn-outline-primary img {
+  filter: brightness(0.2);
+  transition: filter 0.2s;
+}
+
+.btn-outline-primary:hover img {
+  filter: brightness(0) invert(1);
+}
+
+.btn-outline-danger img {
+  filter: brightness(0.2);
+  transition: filter 0.2s;
+}
+
+.btn-outline-danger:hover img {
+  filter: brightness(0) invert(1);
+}
