@@ -18,7 +18,7 @@ const LibrarySelector = () => {
         fetchLibraries();
     }, []);
 
-    const handleLibraryChange = async (e) => {
+    const handleLibraryChange = (e) => {
         const selectedLibraryName = e.target.value;
         localStorage.setItem("libraryName", selectedLibraryName);
         setSelectedLibrary(selectedLibraryName);
@@ -31,13 +31,13 @@ const LibrarySelector = () => {
                 className="form-select bg-dark text-light"
                 value={selectedLibrary}
                 onChange={handleLibraryChange}
-                aria-label="Library Selector Dropdown"
+                aria-label="Select library"
             >
-                <option key="default" value="" disabled aria-label="Default Library Option">
+                <option key="default" value="" disabled hidden>
                     Select a library
                 </option>
                 {Array.isArray(libraries) && libraries.map((library) => (
-                    <option key={library} value={library} aria-label={`Library ${library}`}>
+                    <option key={library} value={library}>
                         {library}
                     </option>
                 ))}

@@ -19,26 +19,25 @@ const SelectableList = ({
   return (
     <>
       <div className="selected-items" aria-label={`Selected ${label}s`}>
-        {Array.isArray(selectedItems) && selectedItems.map((item, index) => (
-          <span
-            key={index}
-            className="badge bg-primary me-2"
-            aria-label={`Selected ${label}: ${item}`}
-          >
-            {item}{" "}
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              onClick={() => handleRemoveItem(item)}
-              aria-label={`Remove ${label}: ${item}`}
-            ></button>
-          </span>
-        ))}
+        {Array.isArray(selectedItems) &&
+          selectedItems.map((item) => (
+            <span
+              key={item}
+              className="badge bg-primary me-2"
+              aria-label={`Selected ${label}: ${item}`}
+            >
+              {item}{" "}
+              <button
+                type="button"
+                className="btn-close btn-close-white"
+                onClick={() => handleRemoveItem(item)}
+                aria-label={`Remove ${label}: ${item}`}
+              />
+            </span>
+          ))}
       </div>
       <div className="form-group mt-3">
-        <label htmlFor={`new${label}`} aria-label={`Add New ${label} Label`}>
-          Add New {label}
-        </label>
+        <label htmlFor={`new${label}`}>Add New {label}</label>
         <select
           className="form-control"
           id={`new${label}`}
@@ -46,13 +45,11 @@ const SelectableList = ({
           onChange={(e) => handleSelectChange(e.target.value)}
           aria-label={`Select a ${label.toLowerCase()}`}
         >
-          <option value="" aria-label={`Default ${label} Option`}>
-            Select a {label.toLowerCase()}
-          </option>
+          <option value="">Select a {label.toLowerCase()}</option>
           {items
             .filter((item) => !selectedItems.includes(item))
-            .map((item, index) => (
-              <option key={index} value={item} aria-label={`${label}: ${item}`}>
+            .map((item) => (
+              <option key={item} value={item}>
                 {item}
               </option>
             ))}
