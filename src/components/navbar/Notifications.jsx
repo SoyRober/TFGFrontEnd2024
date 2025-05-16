@@ -69,6 +69,7 @@ const Notifications = () => {
             null,
             token
         );
+        if (messages.length === 0) return;
         setMessages((prevMessages) =>
             prevMessages.map((message) =>
                 message.id === currentMessage.id
@@ -99,7 +100,7 @@ const Notifications = () => {
                         <div className="empty-message-container" aria-label="No Notifications Message">Empty, for now</div>
                     ) : (
                         <ul style={{ color: "white" }} aria-label="Notifications List">
-                            {messages
+                            {Array.isArray(messages) && messages
                                 .filter((message) => !message.isHidden)
                                 .map((message) => (
                                     <li

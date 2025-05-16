@@ -1,9 +1,86 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import cssnano from "cssnano";
+import purgeCss from "vite-plugin-purgecss";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    purgeCss({
+      content: [
+        "./index.html",
+        "./src/**/*.jsx",
+        "./src/**/*.js",
+        "./styles/**/*.css",      // tus CSS personalizados
+      ],
+      safelist: [
+        // Bootstrap
+        /^bg-/,
+        /^text-/,
+        /^btn/,
+        /^navbar/,
+        /^collapse/,
+        /^show$/,
+        /^fade$/,
+        /^modal/,
+        /^dropdown/,
+        /^alert/,
+        /^form-/,
+        /^input-/,
+        /^d-/,
+        /^me-/,
+        /^ms-/,
+        /^mt-/,
+        /^mb-/,
+        /^mx-/,
+        /^my-/,
+        /^p-/,
+        /^pt-/,
+        /^pb-/,
+        /^px-/,
+        /^py-/,
+        /^w-/,
+        /^h-/,
+
+        // FontAwesome
+        /^fa/,
+        /^fas/,
+        /^far/,
+        /^fab/,
+
+        // react-toastify
+        /^Toastify/,
+        /^ToastContainer/,
+        /^toast-/,
+
+        // Skeleton
+        /^react-loading-skeleton/,
+
+        // Personalizados
+        /^hover-navbar/,
+        /^active/,
+        /^text-light/,
+        /^bg-dark/,
+        /^sticky-top/,
+        /^text-center/,
+        /^text-end/,
+        /^text-start/,
+        /^position-/,
+        /^top-/,
+        /^bottom-/,
+        /^z-/,
+        /^overflow-/,
+        /^gap-/,
+        /^rounded/,
+        /^border/,
+        /^shadow/,
+        /^container/,
+        /^row/,
+        /^col/,
+        /^g-/,
+      ],
+    }),
+  ],
   css: {
     postcss: {
       plugins: [

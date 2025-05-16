@@ -36,7 +36,7 @@ const LibrarySelector = () => {
                 <option key="default" value="" disabled aria-label="Default Library Option">
                     Select a library
                 </option>
-                {libraries.map((library) => (
+                {Array.isArray(libraries) && libraries.map((library) => (
                     <option key={library} value={library} aria-label={`Library ${library}`}>
                         {library}
                     </option>

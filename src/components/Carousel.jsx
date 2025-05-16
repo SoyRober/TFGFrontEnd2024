@@ -6,6 +6,7 @@ import defaultBook from "/img/defaultBook.svg";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
 import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const MAX_VISIBILITY = 3;
 

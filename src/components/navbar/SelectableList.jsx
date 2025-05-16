@@ -19,7 +19,7 @@ const SelectableList = ({
   return (
     <>
       <div className="selected-items" aria-label={`Selected ${label}s`}>
-        {selectedItems.map((item, index) => (
+        {Array.isArray(selectedItems) && selectedItems.map((item, index) => (
           <span
             key={index}
             className="badge bg-primary me-2"
