@@ -2,6 +2,14 @@ import { Modal, Form, Button, Row, Col } from "react-bootstrap";
 import SelectableList from "../navbar/SelectableList.jsx";
 import { compressImage } from "../../utils/compressImage.js";
 
+const fileToBase64 = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = (error) => reject(error);
+  });
+
 export default function CreateBookModal({
   showModal,
   closeModal,
@@ -23,10 +31,11 @@ export default function CreateBookModal({
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageResized = await compressImage(file, 200, 200);
-      setBookData((prev) => ({ ...prev, image: imageResized }));
+      const imageResizedFile = await compressImage(file, 0.7, 300, 300, 100);
+      const base64Image = await fileToBase64(imageResizedFile);
+      setBookData((prev) => ({ ...prev, image: base64Image }));
     } else {
-      setBookData((prev) => ({ ...prev, image: null }));
+      setBookData((prev) => ({ ...prev, image: "" }));
     }
   };
 
@@ -55,148 +64,134 @@ export default function CreateBookModal({
       show={showModal}
       onHide={closeModal}
       size="xl"
-      aria-label="Create Book Modal"
+      aria-labelledby="createBookModalTitle"
+      role="dialog"
     >
       <Modal.Header closeButton>
-        <Modal.Title aria-label="Create New Book Title">
-          Create New Book
-        </Modal.Title>
+        <Modal.Title id="createBookModalTitle">Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form aria-label="Create Book Form">
+        <Form>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookTitle">
-                <Form.Label aria-label="Book Title Label">
-                  Book Title:
-                </Form.Label>
+                <Form.Label htmlFor="bookTitleInput">Book Title:</Form.Label>
                 <Form.Control
                   type="text"
+                  id="bookTitleInput"
                   name="title"
                   value={bookData.title}
                   onChange={handleInputChange}
                   placeholder="Book Title"
-                  aria-label="Enter book title"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookAuthors">
-                <Form.Label aria-label="Book Authors Label">
-                  Book Authors:
-                </Form.Label>
+                <Form.Label>Book Authors:</Form.Label>
                 <SelectableList
                   label="Author"
                   items={authors}
                   selectedItems={bookData.authors}
                   handleAddItem={(item) => handleAddItem("authors", item)}
                   handleRemoveItem={(item) => handleRemoveItem("authors", item)}
-                  aria-label="Select authors"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookGenres">
-                <Form.Label aria-label="Book Genres Label">
-                  Book Genres:
-                </Form.Label>
+                <Form.Label>Book Genres:</Form.Label>
                 <SelectableList
                   label="Genre"
                   items={genres}
                   selectedItems={bookData.genres}
                   handleAddItem={(item) => handleAddItem("genres", item)}
                   handleRemoveItem={(item) => handleRemoveItem("genres", item)}
-                  aria-label="Select genres"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookLibraries">
-                <Form.Label aria-label="Book Libraries Label">
-                  Book Libraries:
-                </Form.Label>
+                <Form.Label>Book Libraries:</Form.Label>
                 <SelectableList
                   label="Library"
                   items={libraries}
                   selectedItems={bookData.libraries}
                   handleAddItem={(item) => handleAddItem("libraries", item)}
-                  handleRemoveItem={(item) =>
-                    handleRemoveItem("libraries", item)
-                  }
-                  aria-label="Select libraries"
+                  handleRemoveItem={(item) => handleRemoveItem("libraries", item)}
                 />
               </Form.Group>
             </Col>
+
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookLocation">
-                <Form.Label aria-label="Book Location Label">
-                  Book Location:
-                </Form.Label>
+                <Form.Label htmlFor="bookLocationInput">Book Location:</Form.Label>
                 <Form.Control
                   type="text"
+                  id="bookLocationInput"
                   name="location"
                   value={bookData.location}
                   onChange={handleInputChange}
                   placeholder="Corridor A, Shelf 1."
-                  aria-label="Enter book location"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookSynopsis">
-                <Form.Label aria-label="Book Synopsis Label">
-                  Book Synopsis:
-                </Form.Label>
+                <Form.Label htmlFor="bookSynopsisInput">Book Synopsis:</Form.Label>
                 <Form.Control
                   as="textarea"
+                  id="bookSynopsisInput"
                   name="synopsis"
                   value={bookData.synopsis}
                   onChange={handleInputChange}
                   placeholder="In this book, you will learn..."
-                  aria-label="Enter book synopsis"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookPublicationDate">
-                <Form.Label aria-label="Book Publication Date Label">
-                  Book Publication Date:
-                </Form.Label>
+                <Form.Label htmlFor="bookPublicationDateInput">Book Publication Date:</Form.Label>
                 <Form.Control
                   type="date"
+                  id="bookPublicationDateInput"
                   name="publicationDate"
                   value={bookData.publicationDate}
                   onChange={handleInputChange}
-                  aria-label="Select publication date"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookIsAdult">
-                <Form.Label aria-label="Is Adult Label">Is Adult:</Form.Label>
                 <Form.Check
                   type="checkbox"
+                  id="bookIsAdultInput"
                   name="isAdult"
+                  label="Is Adult"
                   checked={bookData.isAdult}
                   onChange={handleInputChange}
-                  aria-label="Check if book is for adults"
                 />
               </Form.Group>
+
               <Form.Group className="mb-3" controlId="bookImage">
-                <Form.Label aria-label="Book Image Label">
-                  Book Image: (Optional)
-                </Form.Label>
+                <Form.Label htmlFor="bookImageInput">Book Image: (Optional)</Form.Label>
                 <Form.Control
                   type="file"
+                  id="bookImageInput"
+                  accept="image/*"
                   onChange={handleImageChange}
-                  aria-label="Upload book image"
                 />
+                {bookData.image && (
+                  <img
+                    src={`data:image/jpeg;base64,${bookData.image}`}
+                    alt="Preview"
+                    style={{ marginTop: 10, maxWidth: "100%", maxHeight: 200 }}
+                  />
+                )}
               </Form.Group>
             </Col>
           </Row>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={closeModal}
-          aria-label="Cancel Button"
-        >
+        <Button variant="secondary" onClick={closeModal}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={onSave}
-          aria-label="Save Book Button"
-        >
+        <Button variant="primary" onClick={onSave}>
           Save
         </Button>
       </Modal.Footer>
