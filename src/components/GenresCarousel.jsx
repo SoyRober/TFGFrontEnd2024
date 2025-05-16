@@ -7,15 +7,12 @@ export default function GenresCarousel({ genres }) {
     <div className="container mt-5">
       <h2 className="mb-4 fw-bold">Featured Genres</h2>
       {genres.slice(0, 3).map((genre) => (
-        <div key={genre.id} className="mb-5">
+        <section key={genre.id} className="mb-5" aria-label={`Género: ${genre.name}`}>
           <h3 className="text-primary">{genre.name}</h3>
           <Suspense fallback={<Loading />}>
-            <CustomCarousel
-              aria-label={`Carousel for ${genre.name}`}
-              genre={genre.name}
-            />
+            <CustomCarousel genre={genre.name} />
           </Suspense>
-        </div>
+        </section>
       ))}
     </div>
   );

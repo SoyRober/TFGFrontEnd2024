@@ -36,6 +36,7 @@ export default function BookCardLoans({ loan, cardSize }) {
     <article
       className={`${getColumnClass(cardSize)} mb-4`}
       aria-label={`Loan card for the book ${loan.book}`}
+      aria-describedby={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
     >
       <div className="customized-card h-100">
         <figure className="p-1">
@@ -62,7 +63,7 @@ export default function BookCardLoans({ loan, cardSize }) {
               }
               className="card-img-top mx-auto img-custom"
               alt={`Cover of ${loan.book}`}
-              aria-label={`Cover image of the book ${loan.book}`}
+              loading="lazy"
             />
           </Link>
         </figure>
@@ -73,21 +74,30 @@ export default function BookCardLoans({ loan, cardSize }) {
           />
         </div>
         <div className="card-body text-center">
-          <h5 className={`card-title ${getTextSizeClass(cardSize)}`}>
+          <h5
+            id={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
+            className={`card-title ${getTextSizeClass(cardSize)}`}
+          >
             {loan.book}
           </h5>
           <p className={getTextSizeClass(cardSize)}>
             <strong>Start Date:</strong>{" "}
-            {new Date(loan.startDate).toLocaleDateString("es-ES")}
+            <time dateTime={new Date(loan.startDate).toISOString()}>
+              {new Date(loan.startDate).toLocaleDateString("es-ES")}
+            </time>
           </p>
           <p className={getTextSizeClass(cardSize)}>
             <strong>Return Date:</strong>{" "}
-            {loan.returnDate
-              ? new Date(loan.returnDate).toLocaleDateString("es-ES")
-              : "N/A"}
+            {loan.returnDate ? (
+              <time dateTime={new Date(loan.returnDate).toISOString()}>
+                {new Date(loan.returnDate).toLocaleDateString("es-ES")}
+              </time>
+            ) : (
+              "N/A"
+            )}
           </p>
           <p className={getTextSizeClass(cardSize)}>
-            <strong>Returned:</strong> {loan.isReturned ? "Yes" : "No"}
+            <strong>Returned:</strong> {loan.isReturned ? "Sí" : "No"}
           </p>
         </div>
       </div>

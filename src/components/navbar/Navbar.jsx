@@ -3,7 +3,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "react-toastify/dist/ReactToastify.css";
 import "../../styles/main.css";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import useCheckTokenExpiration from "../../hooks/checkToken.jsx";
 import { useNavigate, Link, Outlet, useLocation } from "react-router-dom";
 import Notifications from "./Notifications.jsx";
@@ -56,7 +56,10 @@ export default function Root() {
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top" role="navigation">
+      <nav
+        className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+        role="navigation"
+      >
         <div className="container-fluid">
           <Link className="navbar-brand text-light" to="/">
             Home
@@ -84,36 +87,54 @@ export default function Root() {
               {isLoggedIn && (
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link text-light ms-3" to="/userBookDetails">
+                    <Link
+                      className="nav-link text-light ms-3"
+                      to="/userBookDetails"
+                    >
                       My books
                     </Link>
                   </li>
                   {hasPermissions && (
                     <>
                       <li className="nav-item">
-                        <Link className="nav-link text-light ms-3" to="/usersList">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/usersList"
+                        >
                           Users List
                         </Link>
                       </li>
                       <li className="nav-item">
-                        <Link className="nav-link text-light ms-3" to="/attributes">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/attributes"
+                        >
                           Attributes
                         </Link>
                       </li>
                       <li className="nav-item">
-                        <Link className="nav-link text-light ms-3" to="/pendingBooks">
+                        <Link
+                          className="nav-link text-light ms-3"
+                          to="/pendingBooks"
+                        >
                           PendingBooks
                         </Link>
                       </li>
                       {isAdmin ? (
                         <li className="nav-item">
-                          <Link className="nav-link text-light ms-3" to="/libraries">
+                          <Link
+                            className="nav-link text-light ms-3"
+                            to="/libraries"
+                          >
                             Libraries
                           </Link>
                         </li>
                       ) : (
                         <li className="nav-item">
-                          <Link className="nav-link text-light ms-3" to="/managedLibraries">
+                          <Link
+                            className="nav-link text-light ms-3"
+                            to="/managedLibraries"
+                          >
                             Managed Libraries
                           </Link>
                         </li>
@@ -146,13 +167,18 @@ export default function Root() {
                       <i className="fas fa-user d-lg-none"></i>
                     </button>
                     <ul
-                      className={`dropdown-menu dropdown-menu-end bg-dark${dropdownOpen ? " show" : ""}`}
+                      className={`dropdown-menu dropdown-menu-end bg-dark${
+                        dropdownOpen ? " show" : ""
+                      }`}
                       aria-labelledby="navbarDropdown"
                       style={{ position: "absolute", zIndex: 1050 }}
                       onClick={() => setDropdownOpen(false)}
                     >
                       <li>
-                        <Link className="dropdown-item text-light hover-navbar" to="/user/userSettings">
+                        <Link
+                          className="dropdown-item text-light hover-navbar"
+                          to="/user/userSettings"
+                        >
                           Settings
                         </Link>
                       </li>

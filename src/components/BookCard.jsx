@@ -1,4 +1,6 @@
 export default function BookCard({ book, cardSize, defaultBook, onClick }) {
+  const { title, image } = book;
+
   const getColumnClass = () => {
     switch (cardSize) {
       case "small":
@@ -12,32 +14,61 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
     }
   };
 
-  const imageUrl = book.image
-    ? `data:image/jpeg;base64,${book.image}`
-    : defaultBook;
+  const imageUrl = image ? `data:image/jpeg;base64,${image}` : defaultBook;
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
+  const heightMap = {
+    small: "250px",
+    medium: "350px",
+    large: "600px",
+  };
+
+  const widthMap = {
+    small: 120,
+    medium: 180,
+    large: 300,
+  };
+
+  const heightImgMap = {
+    small: 180,
+    medium: 250,
+    large: 400,
+  };
+
+  const fontSizeMap = {
+    small: "1.5em",
+    medium: "2em",
+    large: "2.5em",
+  };
+
+  const marginTopMap = {
+    small: "mt-3",
+    medium: "mt-4",
+    large: "mt-5",
+  };
 
   return (
     <article
       className={getColumnClass()}
-      aria-label={`Book card for ${book.title}`}
+      aria-label={`Book card for ${title}`}
+      aria-describedby={`title-${title.replace(/\s+/g, "-").toLowerCase()}`}
     >
       <div
+        role="button"
+        tabIndex={0}
         className="customized-card pt-1 shadow-sm"
         onClick={onClick}
-        onKeyDown={(e) => e.key === "Enter" && onClick()}
+        onKeyDown={handleKeyDown}
         style={{
-          height:
-            cardSize === "small"
-              ? "250px"
-              : cardSize === "medium"
-              ? "350px"
-              : "600px",
-          minHeight:
-            cardSize === "small"
-              ? "250px"
-              : cardSize === "medium"
-              ? "350px"
-              : "600px",
+          height: heightMap[cardSize] || "250px",
+          minHeight: heightMap[cardSize] || "250px",
+          cursor: "pointer",
         }}
       >
         <figure
@@ -47,29 +78,15 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
             width: "100%",
             overflow: "hidden",
           }}
-          aria-label={`Image of ${book.title}`}
+          aria-label={`Image of ${title}`}
         >
           <img
             src={imageUrl}
-            alt={book.title}
-            width={
-              cardSize === "small"
-                ? "120"
-                : cardSize === "medium"
-                ? "180"
-                : "300"
-            }
-            height={
-              cardSize === "small"
-                ? "180"
-                : cardSize === "medium"
-                ? "250"
-                : "400"
-            }
-            style={{
-              display: "block",
-            }}
-            fetchpriority="high"
+            alt={title}
+            width={widthMap[cardSize] || 120}
+            height={heightImgMap[cardSize] || 180}
+            style={{ display: "block" }}
+            loading="eager"
             decoding="async"
           />
         </figure>
@@ -81,24 +98,14 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
         </div>
         <div className="card-body">
           <h2
-            className={`text-center ${
-              cardSize === "small"
-                ? "mt-3"
-                : cardSize === "medium"
-                ? "mt-4"
-                : "mt-5"
-            }`}
+            id={`title-${title.replace(/\s+/g, "-").toLowerCase()}`}
+            className={`text-center ${marginTopMap[cardSize] || "mt-3"}`}
             style={{
               fontWeight: "500",
-              fontSize:
-                cardSize === "small"
-                  ? "1.5em"
-                  : cardSize === "medium"
-                  ? "2em"
-                  : "2.5em",
+              fontSize: fontSizeMap[cardSize] || "1.5em",
             }}
           >
-            {book.title}
+            {title}
           </h2>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import "../styles/Carousel.css";
@@ -6,7 +6,6 @@ import defaultBook from "/img/defaultBook.svg";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 
 const MAX_VISIBILITY = 3;
 
@@ -33,7 +32,7 @@ const fetchBooks = async (setBooks, genre = "") => {
 
 const Card = React.memo(({ title, image, preload }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [imageSrc, setImageSrc] = useState(defaultBook); // Imagen por defecto (placeholder)
+  const [imageSrc, setImageSrc] = useState(defaultBook);
   const navigate = useNavigate();
 
   const navigateToBookDetails = () => {
@@ -42,7 +41,7 @@ const Card = React.memo(({ title, image, preload }) => {
 
   const handleImageLoad = () => {
     setIsLoading(false);
-    setImageSrc(image); // Cambiar la imagen por la real cuando se haya cargado
+    setImageSrc(image);
   };
 
   useEffect(() => {
@@ -63,6 +62,12 @@ const Card = React.memo(({ title, image, preload }) => {
       className="cardC"
       style={{ textAlign: "center", cursor: "pointer" }}
       onClick={navigateToBookDetails}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") navigateToBookDetails();
+      }}
+      aria-label={`Ver detalles del libro ${title}`}
     >
       {isLoading ? (
         <div>
@@ -74,14 +79,10 @@ const Card = React.memo(({ title, image, preload }) => {
           <h2>{title}</h2>
           <img
             src={imageSrc}
-            alt={title}
+            alt={`Portada del libro ${title}`}
             loading={preload ? "eager" : "lazy"}
-            fetchpriority={preload ? "high" : "auto"}
-            onLoad={handleImageLoad} 
-            style={{
-              maxWidth: "100%",
-              height: "auto",
-            }}
+            onLoad={handleImageLoad}
+            style={{ maxWidth: "100%", height: "auto" }}
           />
         </>
       )}
@@ -112,14 +113,28 @@ const Carousel = ({ children }) => {
   }, [count, direction]);
 
   return (
-    <div className="carousel" aria-label="Book Carousel">
-      <button className="nav left" onClick={() => setActive((i) => (i - 1 + count) % count)}>
+    <div className="carousel" role="region" aria-label="Carrusel de libros" tabIndex={-1}>
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}
+      >
+        {`Libro activo: ${React.Children.toArray(children)[active]?.props.title || ""}`}
+      </div>
+
+      <button
+        className="nav left"
+        onClick={() => setActive((i) => (i - 1 + count) % count)}
+        aria-label="Anterior libro"
+        type="button"
+      >
         <i className="fa-solid fa-arrow-left py-5"></i>
       </button>
 
       {React.Children.map(children, (child, i) => (
         <div
           className="cardC-container"
+          aria-hidden={active !== i}
           style={{
             "--active": i === active ? 1 : 0,
             "--offset": (active - i) / 3,
@@ -134,7 +149,12 @@ const Carousel = ({ children }) => {
         </div>
       ))}
 
-      <button className="nav right" onClick={() => setActive((i) => (i + 1) % count)}>
+      <button
+        className="nav right"
+        onClick={() => setActive((i) => (i + 1) % count)}
+        aria-label="Siguiente libro"
+        type="button"
+      >
         <i className="fa-solid fa-arrow-right py-5"></i>
       </button>
     </div>
@@ -157,26 +177,24 @@ const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
     }
   }, [library, genre]);
 
+  if (!books.length) {
+    return <Loading />;
+  }
+
   return (
     <div className="carousel-wrapper my-3">
-      <Suspense fallback={<Loading />}>
-        <Carousel>
-          {books.map((book, i) => (
-            <Card
-              key={i}
-              title={book.title}
-              image={
-                book.image
-                  ? `data:image/jpeg;base64,${book.image}`
-                  : defaultBook
-              }
-              preload={preloadFirst && i === 0}
-            />
-          ))}
-        </Carousel>
-      </Suspense>
+      <Carousel>
+        {books.map((book, i) => (
+          <Card
+            key={i}
+            title={book.title}
+            image={book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook}
+            preload={preloadFirst && i === 0}
+          />
+        ))}
+      </Carousel>
     </div>
   );
-}
+};
 
 export default CustomCarousel;
