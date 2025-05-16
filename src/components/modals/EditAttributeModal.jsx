@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
 export default function EditAttributeModal({
@@ -11,40 +10,69 @@ export default function EditAttributeModal({
   onSave,
   errorMessage
 }) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave();
+  };
+
+  const inputId = `edit-${attribute?.toLowerCase().replace(/\s+/g, '-') || 'input'}`;
+
   return (
-    <Modal show={show} onHide={onClose} aria-label="Edit Attribute Modal">
+    <Modal
+      show={show}
+      onHide={onClose}
+      centered
+      aria-labelledby="editAttributeModalTitle"
+      role="dialog"
+    >
       <Modal.Header closeButton>
-        <Modal.Title aria-label={`Edit ${attribute} Title`}>Edit {attribute}</Modal.Title>
+        <Modal.Title id="editAttributeModalTitle">
+          Edit {attribute}
+        </Modal.Title>
       </Modal.Header>
+
       <Modal.Body>
-        <Form.Group aria-label={`Edit ${attribute} Form Group`}>
-          <Form.Label aria-label={`New ${attribute} Label`}>New {attribute}</Form.Label>
-          <Form.Control
-            type="text"
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            aria-label={`Enter new ${attribute}`}
-          />
-        </Form.Group>
-        {errorMessage && (
-          <p style={{ color: 'red', marginTop: '10px' }} aria-label="Error Message">
-            {errorMessage}
-          </p>
-        )}
+        <Form onSubmit={handleSubmit} aria-describedby={errorMessage ? 'editAttributeError' : undefined}>
+          <Form.Group className="mb-3" controlId={inputId}>
+            <Form.Label htmlFor={inputId}>New {attribute}</Form.Label>
+            <Form.Control
+              type="text"
+              id={inputId}
+              value={value}
+              onChange={onChange}
+              placeholder={placeholder}
+              aria-required="true"
+              aria-invalid={!!errorMessage}
+              aria-describedby={errorMessage ? 'editAttributeError' : undefined}
+            />
+          </Form.Group>
+
+          {errorMessage && (
+            <div
+              id="editAttributeError"
+              style={{ color: '#B00020', marginTop: '10px' }}
+              role="alert"
+            >
+              {errorMessage}
+            </div>
+          )}
+        </Form>
       </Modal.Body>
+
       <Modal.Footer>
         <Button
           variant="secondary"
           onClick={onClose}
-          aria-label="Cancel Edit Attribute Button"
+          aria-label="Cancel editing attribute"
         >
           Cancel
         </Button>
         <Button
           variant="primary"
           onClick={onSave}
-          aria-label="Save Edited Attribute Button"
+          disabled={!value.trim()}
+          type="submit"
+          aria-label={`Save new ${attribute}`}
         >
           Save
         </Button>

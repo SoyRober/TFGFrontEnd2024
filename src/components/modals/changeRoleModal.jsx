@@ -11,41 +11,34 @@ const ChangeRoleModal = ({
     <Modal
       show={showModal}
       onHide={() => setShowModal(false)}
-      aria-label="Change Role Modal"
+      aria-labelledby="changeUserRoleTitle"
+      role="dialog"
     >
       <Modal.Header closeButton>
-        <Modal.Title aria-label="Change User Role Title">Change User Role</Modal.Title>
+        <Modal.Title id="changeUserRoleTitle">Change User Role</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form aria-label="Change Role Form">
+        <Form>
           <Form.Group controlId="formRoleSelect">
-            <Form.Label aria-label="Select Role Label">Select Role</Form.Label>
+            <Form.Label htmlFor="roleSelect">Select Role</Form.Label>
             <Form.Control
               as="select"
+              id="roleSelect"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              aria-label="Select a role"
             >
-              <option value="ADMIN" aria-label="Admin Role">ADMIN</option>
-              <option value="LIBRARIAN" aria-label="Librarian Role">LIBRARIAN</option>
-              <option value="USER" aria-label="User Role">USER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="LIBRARIAN">LIBRARIAN</option>
+              <option value="USER">USER</option>
             </Form.Control>
           </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={() => setShowModal(false)}
-          aria-label="Cancel Button"
-        >
+        <Button variant="secondary" onClick={() => setShowModal(false)}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={() => handleRoleChange(selectedRole)}
-          aria-label="Submit Role Change Button"
-        >
+        <Button variant="primary" onClick={() => handleRoleChange(selectedRole)}>
           Submit
         </Button>
       </Modal.Footer>

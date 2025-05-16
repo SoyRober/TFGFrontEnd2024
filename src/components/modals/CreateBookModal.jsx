@@ -6,7 +6,7 @@ const fileToBase64 = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onload = () => resolve(reader.result.split(",")[1]);
     reader.onerror = (error) => reject(error);
   });
 
@@ -71,7 +71,13 @@ export default function CreateBookModal({
         <Modal.Title id="createBookModalTitle">Create New Book</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
+        <Form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSave();
+          }}
+        >
+          {" "}
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookTitle">
@@ -115,14 +121,18 @@ export default function CreateBookModal({
                   items={libraries}
                   selectedItems={bookData.libraries}
                   handleAddItem={(item) => handleAddItem("libraries", item)}
-                  handleRemoveItem={(item) => handleRemoveItem("libraries", item)}
+                  handleRemoveItem={(item) =>
+                    handleRemoveItem("libraries", item)
+                  }
                 />
               </Form.Group>
             </Col>
 
             <Col md={6}>
               <Form.Group className="mb-3" controlId="bookLocation">
-                <Form.Label htmlFor="bookLocationInput">Book Location:</Form.Label>
+                <Form.Label htmlFor="bookLocationInput">
+                  Book Location:
+                </Form.Label>
                 <Form.Control
                   type="text"
                   id="bookLocationInput"
@@ -134,7 +144,9 @@ export default function CreateBookModal({
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="bookSynopsis">
-                <Form.Label htmlFor="bookSynopsisInput">Book Synopsis:</Form.Label>
+                <Form.Label htmlFor="bookSynopsisInput">
+                  Book Synopsis:
+                </Form.Label>
                 <Form.Control
                   as="textarea"
                   id="bookSynopsisInput"
@@ -146,7 +158,9 @@ export default function CreateBookModal({
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="bookPublicationDate">
-                <Form.Label htmlFor="bookPublicationDateInput">Book Publication Date:</Form.Label>
+                <Form.Label htmlFor="bookPublicationDateInput">
+                  Book Publication Date:
+                </Form.Label>
                 <Form.Control
                   type="date"
                   id="bookPublicationDateInput"
@@ -168,7 +182,9 @@ export default function CreateBookModal({
               </Form.Group>
 
               <Form.Group className="mb-3" controlId="bookImage">
-                <Form.Label htmlFor="bookImageInput">Book Image: (Optional)</Form.Label>
+                <Form.Label htmlFor="bookImageInput">
+                  Book Image: (Optional)
+                </Form.Label>
                 <Form.Control
                   type="file"
                   id="bookImageInput"

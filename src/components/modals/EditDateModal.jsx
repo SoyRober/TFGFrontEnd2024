@@ -11,40 +11,42 @@ export default function EditDateModal({
   errorMessage
 }) {
   return (
-    <Modal show={show} onHide={onClose} aria-label="Edit Date Modal">
+    <Modal
+      show={show}
+      onHide={onClose}
+      aria-labelledby="editDateModalTitle"
+      aria-modal="true"
+      role="dialog"
+    >
       <Modal.Header closeButton>
-        <Modal.Title aria-label={`Edit ${attribute} Title`}>Edit {attribute}</Modal.Title>
+        <Modal.Title id="editDateModalTitle">Edit {attribute}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form.Group aria-label={`Edit ${attribute} Form Group`}>
-          <Form.Label aria-label={`New ${attribute} Label`}>New {attribute}</Form.Label>
+        <Form.Group controlId="editDateInput">
+          <Form.Label>New {attribute}</Form.Label>
           <Form.Control
             type="date"
             value={value}
             onChange={onChange}
-            placeholder="Select new date"
-            aria-label={`Select new ${attribute}`}
+            placeholder={`Select new ${attribute}`}
+            aria-required="true"
           />
         </Form.Group>
         {errorMessage && (
-          <p style={{ color: 'red', marginTop: '10px' }} aria-label="Error Message">
+          <p
+            style={{ color: 'red', marginTop: '10px' }}
+            role="alert"
+            aria-live="assertive"
+          >
             {errorMessage}
           </p>
         )}
       </Modal.Body>
       <Modal.Footer>
-        <Button
-          variant="secondary"
-          onClick={onClose}
-          aria-label="Cancel Edit Date Button"
-        >
+        <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onClick={onSave}
-          aria-label="Save Edited Date Button"
-        >
+        <Button variant="primary" onClick={onSave} disabled={!value.trim()}>
           Save
         </Button>
       </Modal.Footer>
