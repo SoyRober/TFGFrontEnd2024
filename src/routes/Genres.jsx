@@ -119,7 +119,7 @@ const GenresComponent = () => {
                       aria-label={`Edit genre ${genre.name}`}
                     >
                       <img
-                        src="/img/fa-pencil.svg"
+                        src="/img/attributes/fa-pencil.svg"
                         alt="Delete"
                         width={20}
                         height={25}
@@ -134,7 +134,7 @@ const GenresComponent = () => {
                       aria-label={`Delete genre ${genre.name}`}
                     >
                       <img
-                        src="/img/fa-xmark.svg"
+                        src="/img/attributes/fa-xmark.svg"
                         alt="Delete"
                         width={20}
                         height={25}

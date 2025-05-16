@@ -127,7 +127,7 @@ const AuthorsComponent = () => {
                       aria-label={`Edit Author: ${author.name}`}
                     >
                       <img
-                        src="/img/fa-pencil.svg"
+                        src="/img/attributes/fa-pencil.svg"
                         alt="Edit"
                         width={20}
                         height={25}
@@ -143,7 +143,7 @@ const AuthorsComponent = () => {
                       aria-label={`Delete Author: ${author.name}`}
                     >
                       <img
-                        src="/img/fa-xmark.svg"
+                        src="/img/attributes/fa-xmark.svg"
                         alt="Delete"
                         width={20}
                         height={25}
