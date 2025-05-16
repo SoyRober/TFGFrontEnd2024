@@ -15,59 +15,59 @@ import { useState, useEffect } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function Root() {
-  const [hasPermissions, setHasPermissions] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const location = useLocation();
-  const key = useState(Date.now());
-  const navigate = useNavigate();
+	const [hasPermissions, setHasPermissions] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const [isAdmin, setIsAdmin] = useState(false);
+	const location = useLocation();
+	const key = useState(Date.now());
+	const navigate = useNavigate();
 
-  useCheckTokenExpiration();
+	useCheckTokenExpiration();
 
-  const updatePermissions = () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const userRole = jwtDecode(token).role;
+	const updatePermissions = () => {
+		const token = localStorage.getItem("token");
+		if (token) {
+			const userRole = jwtDecode(token).role;
 
-      setHasPermissions(userRole === "ADMIN" || userRole === "LIBRARIAN");
-      setIsAdmin(userRole === "ADMIN");
-    } else {
-      setHasPermissions(false);
-    }
-  };
+			setHasPermissions(userRole === "ADMIN" || userRole === "LIBRARIAN");
+			setIsAdmin(userRole === "ADMIN");
+		} else {
+			setHasPermissions(false);
+		}
+	};
 
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-      setIsLoggedIn(true);
-      updatePermissions();
-    } else {
-      setIsLoggedIn(false);
-      setHasPermissions(false);
-    }
-  }, [location]);
+	useEffect(() => {
+		if (localStorage.getItem("token")) {
+			setIsLoggedIn(true);
+			updatePermissions();
+		} else {
+			setIsLoggedIn(false);
+			setHasPermissions(false);
+		}
+	}, [location]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-    setIsLoggedIn(false);
-    setHasPermissions(false);
-  };
+	const handleLogout = () => {
+		localStorage.removeItem("token");
+		navigate("/");
+		setIsLoggedIn(false);
+		setHasPermissions(false);
+	};
 
-  return (
-    <>
-      <nav
-        className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
-        key={key}
-        aria-label="Main Navigation Bar"
-      >
-        <div className="container-fluid">
-          <Link
-            className="navbar-brand text-light"
-            to="/"
-            aria-label="Home Link"
-          >
-            Home
-          </Link>
+	return (
+		<>
+			<nav
+				className="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top"
+				key={key}
+				aria-label="Main Navigation Bar"
+			>
+				<div className="container-fluid">
+					<Link
+						className="navbar-brand text-light"
+						to="/"
+						aria-label="Home Link"
+					>
+						Home
+					</Link>
 
           <button
             className="navbar-toggler"
@@ -132,21 +132,112 @@ export default function Root() {
                           PendingBooks
                         </Link>
                       </li>
-                      <li className="nav-item">
-                        <Link
-                          className="nav-link text-light ms-3"
-                          to="/libraries"
-                          aria-label="Libraries Link"
-                        >
-                          Libraries
-                        </Link>
-                      </li>
+                      {isAdmin && (
+											<li className="nav-item">
+												<Link
+													className="nav-link text-light ms-3"
+													to="/libraries"
+													aria-label="Libraries Link"
+												>
+													Libraries
+												</Link>
+											</li>
+										)}
                     </>
                   )}
                 </>
               )}
             </ul>
 
+					<div className="collapse navbar-collapse" id="navbarNav">
+						{!isLoggedIn ? (
+							<ul className="navbar-nav ms-auto">
+								<li className="nav-item me-3">
+									<LibrarySelector />
+								</li>
+								<li className="nav-item">
+									<Link
+										className="nav-link text-light"
+										to="/login"
+										aria-label="Login Link"
+									>
+										Login
+									</Link>
+								</li>
+								<li className="nav-item">
+									<Link
+										className="nav-link text-light"
+										to="/register"
+										aria-label="Register Link"
+									>
+										Register
+									</Link>
+								</li>
+							</ul>
+						) : (
+							<div className="d-flex align-items-center ms-auto">
+								<ul className="navbar-nav d-flex flex-row align-items-center">
+									<li className="nav-item me-3">
+										<LibrarySelector />
+									</li>
+									<li className="nav-item me-3">
+										<Notifications />
+									</li>
+									<li className="nav-item dropdown">
+										<button
+											className="nav-link dropdown-toggle text-light bg-dark"
+											id="navbarDropdown"
+											data-bs-toggle="dropdown"
+											aria-expanded="false"
+											aria-label="Profile Dropdown Button"
+										>
+											<span className="d-none d-lg-inline">Profile</span>
+											<i className="fas fa-user d-lg-none"></i>
+										</button>
+										<ul
+											className="dropdown-menu dropdown-menu-end bg-dark"
+											aria-labelledby="navbarDropdown"
+											style={{
+												position: "absolute",
+												zIndex: 1050,
+											}}
+										>
+											<li>
+												<Link
+													className="dropdown-item text-light hover-navbar"
+													to="/user/userSettings"
+													aria-label="Settings Link"
+												>
+													Settings
+												</Link>
+											</li>
+											<li>
+												<button
+													className="dropdown-item text-light hover-navbar"
+													onClick={handleLogout}
+													aria-label="Logout Button"
+												>
+													Log out
+												</button>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+						)}
+					</div>
+				</div>
+			</nav>
+			<Outlet />
+			<ToastContainer
+				position={"bottom-right"}
+				closeOnClick={true}
+				draggable={true}
+				theme={"dark"}
+				aria-label="Toast Notifications"
+			/>
+		</>
+	);
             {!isLoggedIn && (
               <ul className="navbar-nav ms-auto">
                 <li className="nav-item me-3">
