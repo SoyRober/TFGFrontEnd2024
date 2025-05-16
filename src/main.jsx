@@ -49,7 +49,7 @@ const router = createHashRouter([
 			{ path: "pendingBooks", element: withSuspense(PendingBooks) },
 			{ path: "bookCopies/:title", element: withSuspense(BookCopies) },
 			{ path: "libraries", element: withSuspense(Libraries) },
-			{ path: "ManagedLibraries", element: withSuspense(ManagedLibraries) },
+			{ path: "managedLibraries", element: withSuspense(ManagedLibraries) },
 		],
 	},
 ]);
