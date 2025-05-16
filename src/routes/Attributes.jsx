@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import Genres from "./Genres.jsx";
 import Authors from "./Authors.jsx";
 

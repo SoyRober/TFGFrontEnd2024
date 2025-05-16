@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import { fetchData } from "../utils/fetch.js";
 import { jwtDecode } from "jwt-decode";
 import EditBookAttributeModal from "../components/modals/EditBookAttributeModal.jsx";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import BookReservationModal from "../components/modals/BookReservationModal.jsx";
-import "bootstrap-icons/font/bootstrap-icons.css";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 import LoanToUserModal from "../components/modals/LoanToUserModal.jsx";
 import { compressImage } from "../utils/compressImage.js";
 import { toast } from "react-toastify";

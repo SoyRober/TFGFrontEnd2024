@@ -1,8 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
-import "react-datepicker/dist/react-datepicker.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
 import AddAttributeWithDateModal from "../components/modals/AddAttributeWithDateModal";

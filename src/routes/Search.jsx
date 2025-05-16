@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import CreateBookModal from "../components/modals/CreateBookModal.jsx";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
-import "react-datepicker/dist/react-datepicker.css";
-import { toast } from "react-toastify";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
 import CardSizeSelector from "../components/CardSizeSelector.jsx";
 import BookCard from "../components/BookCard.jsx";
+import { toast } from "react-toastify";
 
 const initialBookData = {
   title: "",
@@ -100,7 +97,7 @@ export default function LibraryHomepage() {
     const token = localStorage.getItem("token");
     if (token) {
       const userPayload = JSON.parse(atob(token.split(".")[1]));
-      const birthDate = new Date(userPayload.birthDate); 
+      const birthDate = new Date(userPayload.birthDate);
       const age = new Date().getFullYear() - birthDate.getFullYear();
       setIsAdultUser(age >= 18);
     }
@@ -174,11 +171,6 @@ export default function LibraryHomepage() {
     }
   }, [library]);
 
-  {
-    /* HAY QUE MIRAR POR QUE NO FUNCIONA CORRECTAMENTE EL FILTRO */
-  }
-
-  // Guardar los filtros en localStorage cuando cambien
   useEffect(() => {
     localStorage.setItem("searchTermTitle", searchTermTitle);
   }, [searchTermTitle]);
@@ -315,8 +307,13 @@ export default function LibraryHomepage() {
 
   return (
     <main
-      className="fade-in d-flex flex-column justify-content-center align-items-center"
-      style={{ overflow: "hidden" }}
+      className="d-flex flex-column justify-content-center align-items-center"
+      style={{
+        overflow: "hidden",
+        minHeight: "100vh",
+        width: "100%",
+        position: "relative",
+      }}
     >
       {hasPermissions && (
         <section className="d-flex justify-content-start w-100 ms-3">
@@ -330,19 +327,21 @@ export default function LibraryHomepage() {
         </section>
       )}
 
-      <CreateBookModal
-        showModal={showModal}
-        closeModal={closeModal}
-        handleSave={handleSave}
-        bookData={bookData}
-        setBookData={setBookData}
-        authors={authors}
-        genres={genres}
-        libraries={libraries}
-        aria-label="Create book modal"
-      />
+      {showModal && (
+        <CreateBookModal
+          showModal={showModal}
+          closeModal={closeModal}
+          handleSave={handleSave}
+          bookData={bookData}
+          setBookData={setBookData}
+          authors={authors}
+          genres={genres}
+          libraries={libraries}
+          aria-label="Create book modal"
+        />
+      )}
 
-      <header className="container text-center mt-4">
+      <header className="container text-center mt-4 search-filters">
         <Filters
           startDateFilter={startDateFilter}
           setStartDateFilter={setStartDateFilter}
@@ -370,14 +369,20 @@ export default function LibraryHomepage() {
         <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </header>
 
-      <section className="container mt-5">
+      <section
+        className="container mt-5 search-container"
+        style={{ minHeight: "60vh" }}
+      >
         <InfiniteScroll
           dataLength={books.length}
           next={() => setPage((prev) => prev + 1)}
           hasMore={!isFetching && books.length % 10 === 0 && books.length > 0}
           loader={<Loading />}
           endMessage={
-            <p className="text-center mt-4 text-muted">
+            <p
+              className="text-center mt-4 text-muted"
+              style={{ minHeight: "2em" }}
+            >
               There aren't more books
             </p>
           }
@@ -387,12 +392,12 @@ export default function LibraryHomepage() {
             {Array.isArray(books) &&
               books.map((book) => (
                 <BookCard
-                key={`${book.id}-${book.title}`} // Composite key using id and title
-                book={book}
-                cardSize={cardSize}
-                defaultBook={defaultBook}
-                onClick={() => navigateToBookDetails(book.title)}
-              />
+                  key={`${book.id}-${book.title}`}
+                  book={book}
+                  cardSize={cardSize}
+                  defaultBook={defaultBook}
+                  onClick={() => navigateToBookDetails(book.title)}
+                />
               ))}
           </div>
         </InfiniteScroll>

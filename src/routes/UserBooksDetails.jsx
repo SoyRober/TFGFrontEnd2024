@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Loans from "./Loans.jsx";
-import Reservations from "./Reservations.jsx";
-import CardSizeSelector from "../components/CardSizeSelector.jsx"; 
+import { useEffect, useState, Suspense, lazy } from "react";
+import CardSizeSelector from "../components/CardSizeSelector.jsx";
+import Loading from "../components/Loading.jsx";
+const Loans = lazy(() => import("./Loans"));
+const Reservations = lazy(() => import("./Reservations"));
 
 const UserBooksDetails = () => {
   const [selectedButton, setSelectedButton] = useState(() => {
@@ -61,13 +61,15 @@ const UserBooksDetails = () => {
       </div>
 
       <div className="row w-100 justify-content-center mb-4">
-          <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
+        <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </div>
 
-      {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
-      {selectedButton === "Reservations" && (
-        <Reservations cardSize={cardSize} />
-      )}
+      <Suspense fallback={<Loading />}>
+        {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
+        {selectedButton === "Reservations" && (
+          <Reservations cardSize={cardSize} />
+        )}
+      </Suspense>
     </main>
   );
 };

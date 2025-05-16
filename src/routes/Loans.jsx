@@ -1,13 +1,10 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense, lazy } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
 import { fetchData } from "../utils/fetch.js";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import { toast } from "react-toastify";
-import Loading from "../components/Loading.jsx";
 import InfiniteScroll from "react-infinite-scroll-component";
-import BookCardLoans from "../components/BookCardsLoan.jsx";
+const Loading = lazy(() => import("../components/Loading.jsx"));
+const BookCardLoans = lazy(() => import("../components/BookCardsLoan.jsx"));
 
 const Loans = ({ cardSize = "medium" }) => {
   const [loans, setLoans] = useState([]);
@@ -68,19 +65,6 @@ const Loans = ({ cardSize = "medium" }) => {
     setPage(0);
   };
 
-  const getColumnClass = (size) => {
-    switch (size) {
-      case "small":
-        return "col-12 col-sm-6 col-md-4 col-lg-3";
-      case "medium":
-        return "col-12 col-sm-6 col-md-6 col-lg-4";
-      case "large":
-        return "col-12 col-md-6";
-      default:
-        return "col-12";
-    }
-  };
-
   return (
     <main className="container mt-5">
       <section className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
@@ -88,17 +72,24 @@ const Loans = ({ cardSize = "medium" }) => {
           <label htmlFor="startDateFilter" className="me-2">
             Date:
           </label>
-          <DatePicker
-            selected={filters.startDate}
-            onChange={(date) =>
-              setFilters((prev) => ({ ...prev, startDate: date }))
+          <input
+            type="date"
+            value={
+              filters.startDate
+                ? filters.startDate.toISOString().slice(0, 10)
+                : ""
+            }
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                startDate: e.target.value ? new Date(e.target.value) : null,
+              }))
             }
             className="form-control"
-            dateFormat="dd/MM/yyyy"
-            placeholderText="Select a start date"
             id="startDateFilter"
             aria-label="Filter loans by start date"
           />
+
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
@@ -183,7 +174,13 @@ const Loans = ({ cardSize = "medium" }) => {
         >
           <div className="row">
             {loans.map((loan) => (
-                <BookCardLoans key={loan.id} loan={loan} cardSize={cardSize} />
+              <Suspense fallback={<Loading />}>
+                <BookCardLoans
+                  key={`${loan.id} - ${loan.startDate}`}
+                  loan={loan}
+                  cardSize={cardSize}
+                />
+              </Suspense>
             ))}
           </div>
         </InfiniteScroll>

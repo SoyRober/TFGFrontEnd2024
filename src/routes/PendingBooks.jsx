@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
 

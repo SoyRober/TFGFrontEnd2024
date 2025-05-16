@@ -2,11 +2,10 @@ import React, { useEffect, useState, Suspense } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import "../styles/Carousel.css";
-import defaultBook from "../img/defaultBook.svg";
+import defaultBook from "/img/defaultBook.svg";
 import { useNavigate } from "react-router-dom";
 import Loading from "./Loading";
 import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 
 const MAX_VISIBILITY = 3;
 

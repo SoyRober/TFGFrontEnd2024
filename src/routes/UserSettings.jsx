@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../styles/main.css";
 import { jwtDecode } from "jwt-decode";
 import { fetchData } from "../utils/fetch";
 import { useNavigate } from "react-router-dom";
-import defaultAvatar from "../img/defaultAvatar.svg";
+import defaultAvatar from "/img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
 import { toast } from "react-toastify";
 import EditDateModal from "../components/modals/EditDateModal";
