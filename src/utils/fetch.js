@@ -1,7 +1,4 @@
-//Desarrollo
-//const BASE_URL = "http://localhost:8080";
-//Produccion
-const BASE_URL = "";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const fetchData = async (
   endpoint,
