@@ -263,13 +263,19 @@ const ViewProfile = () => {
 						editAttributeModal.attribute.slice(1)
 					} changed successfully.`
 				);
-				setUserProfile((prevProfile) => ({
-					...prevProfile,
+				const updatedProfile = {
+					...userProfile,
 					[editAttributeModal.attribute === "birthdate"
 						? "birthday"
 						: editAttributeModal.attribute]: editAttributeModal.value,
-				}));
+				};
+				setUserProfile(updatedProfile);
+				const wasEmailChange = editAttributeModal.attribute === "email";
 				closeEditAttributeModal();
+				if (wasEmailChange) {
+					const encodedEmail = encodeURIComponent(editAttributeModal.value);
+					navigate(`/profile/${encodedEmail}`, { replace: true });
+				}
 			} else {
 				setEditAttributeError(
 					response.message || `Error changing ${editAttributeModal.attribute}.`
@@ -302,7 +308,7 @@ const ViewProfile = () => {
 					{userRole === "ADMIN" && (
 						<>
 							<button
-								className="btn btn-danger ms-2"
+								className="btn btn-warning ms-2"
 								onClick={() =>
 									openEditAttributeModal(
 										"username",
@@ -314,7 +320,7 @@ const ViewProfile = () => {
 								Change Username
 							</button>
 							<button
-								className="btn btn-danger ms-2"
+								className="btn btn-warning ms-2"
 								onClick={() =>
 									openEditAttributeModal("email", userProfile?.email || "")
 								}
@@ -323,7 +329,7 @@ const ViewProfile = () => {
 								Change Email
 							</button>
 							<button
-								className="btn btn-danger ms-2"
+								className="btn btn-warning ms-2"
 								onClick={() =>
 									openEditAttributeModal(
 										"birthdate",
