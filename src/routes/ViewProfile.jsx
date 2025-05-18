@@ -341,7 +341,7 @@ const ViewProfile = () => {
 								Change Birth Date
 							</button>
 							<button
-								className="btn btn-warning"
+								className="btn btn-warning ms-2"
 								onClick={() => setShowRoleModal(true)}
 								aria-label="Change user role"
 							>
