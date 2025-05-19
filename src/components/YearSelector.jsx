@@ -38,14 +38,14 @@ export default function YearSelector({
     onClick={toggleOpen}
     aria-expanded={open}
     aria-haspopup="listbox"
-    aria-label="Seleccionar año"
+    aria-label="Select a year"
     className="form-control form-control d-flex justify-content-between align-items-center"
     style={{ cursor: "pointer" }}
   >
     <span>
       {isValidDate(startDateFilter)
         ? startDateFilter.getFullYear()
-        : "Seleccionar año"}
+        : "Select a year"}
     </span>
     <span className="dropdown-toggle"></span>
   </button>
