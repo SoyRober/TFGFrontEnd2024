@@ -23,12 +23,16 @@ const ViewProfile = () => {
 	const [isReturnedLoan, setIsReturnedLoan] = useState(false);
 
 	const [userRole, setUserRole] = useState("");
-	const [showModal, setShowModal] = useState(false);
+	const [showRoleModal, setShowRoleModal] = useState(false);
 	const [selectedRole, setSelectedRole] = useState("USER");
 	const [isFetching, setIsFetching] = useState(false);
 	const [hasMoreReservations, setHasMoreReservations] = useState(true);
-	const [showPasswordModal, setShowPasswordModal] = useState(false);
-	const [newPassword, setNewPassword] = useState("");
+	const [editAttributeModal, setEditAttributeModal] = useState({
+		show: false,
+		attribute: "",
+		value: "",
+	});
+	const [editAttributeError, setEditAttributeError] = useState("");
 	const navigate = useNavigate();
 	const { email } = useParams();
 
@@ -200,7 +204,7 @@ const ViewProfile = () => {
 
 			if (response.success) {
 				toast.success(`Role changed to "${selectedRole}" successfully.`);
-				setShowModal(false);
+				setShowRoleModal(false);
 				setUserProfile((prevProfile) => ({
 					...prevProfile,
 					role: selectedRole,
@@ -213,11 +217,36 @@ const ViewProfile = () => {
 		}
 	};
 
-	const handlePasswordChange = async () => {
+	const openEditAttributeModal = (attribute, currentValue = "") => {
+		setEditAttributeModal({
+			show: true,
+			attribute,
+			value: currentValue,
+		});
+		setEditAttributeError("");
+	};
+
+	const closeEditAttributeModal = () => {
+		setEditAttributeModal({
+			show: false,
+			attribute: "",
+			value: "",
+		});
+		setEditAttributeError("");
+	};
+
+	const handleEditAttributeChange = (e) => {
+		setEditAttributeModal((prev) => ({
+			...prev,
+			value: e.target.value,
+		}));
+	};
+
+	const handleEditAttributeSave = async () => {
 		const token = localStorage.getItem("token");
 		const formData = new FormData();
-		formData.append("attribute", "password");
-		formData.append("newAttribute", newPassword);
+		formData.append("attribute", editAttributeModal.attribute);
+		formData.append("newAttribute", editAttributeModal.value);
 
 		try {
 			const response = await fetchData(
@@ -228,13 +257,32 @@ const ViewProfile = () => {
 			);
 
 			if (response.success) {
-				toast.success("Password changed successfully.");
-				setShowPasswordModal(false);
+				toast.success(
+					`${
+						editAttributeModal.attribute.charAt(0).toUpperCase() +
+						editAttributeModal.attribute.slice(1)
+					} changed successfully.`
+				);
+				const updatedProfile = {
+					...userProfile,
+					[editAttributeModal.attribute === "birthdate"
+						? "birthday"
+						: editAttributeModal.attribute]: editAttributeModal.value,
+				};
+				setUserProfile(updatedProfile);
+				const wasEmailChange = editAttributeModal.attribute === "email";
+				closeEditAttributeModal();
+				if (wasEmailChange) {
+					const encodedEmail = encodeURIComponent(editAttributeModal.value);
+					navigate(`/profile/${encodedEmail}`, { replace: true });
+				}
 			} else {
-				toast.error(response.message || "Error changing password.");
+				setEditAttributeError(
+					response.message || `Error changing ${editAttributeModal.attribute}.`
+				);
 			}
 		} catch (err) {
-			toast.error(err.message);
+			setEditAttributeError(err.message);
 		}
 	};
 
@@ -260,15 +308,48 @@ const ViewProfile = () => {
 					{userRole === "ADMIN" && (
 						<>
 							<button
-								className="btn btn-warning"
-								onClick={() => setShowModal(true)}
+								className="btn btn-warning ms-2"
+								onClick={() =>
+									openEditAttributeModal(
+										"username",
+										userProfile?.username || ""
+									)
+								}
+								aria-label="Change username"
+							>
+								Change Username
+							</button>
+							<button
+								className="btn btn-warning ms-2"
+								onClick={() =>
+									openEditAttributeModal("email", userProfile?.email || "")
+								}
+								aria-label="Change user email"
+							>
+								Change Email
+							</button>
+							<button
+								className="btn btn-warning ms-2"
+								onClick={() =>
+									openEditAttributeModal(
+										"birthdate",
+										userProfile?.birthday || ""
+									)
+								}
+								aria-label="Change user birth date"
+							>
+								Change Birth Date
+							</button>
+							<button
+								className="btn btn-warning ms-2"
+								onClick={() => setShowRoleModal(true)}
 								aria-label="Change user role"
 							>
 								Change Role
 							</button>
 							<button
 								className="btn btn-danger ms-2"
-								onClick={() => setShowPasswordModal(true)}
+								onClick={() => openEditAttributeModal("password")}
 								aria-label="Change user password"
 							>
 								Change Password
@@ -279,8 +360,8 @@ const ViewProfile = () => {
 			</section>
 
 			<ChangeRoleModal
-				showModal={showModal}
-				setShowModal={setShowModal}
+				showModal={showRoleModal}
+				setShowModal={setShowRoleModal}
 				handleRoleChange={handleRoleChange}
 				selectedRole={selectedRole}
 				setSelectedRole={setSelectedRole}
@@ -288,14 +369,14 @@ const ViewProfile = () => {
 			/>
 
 			<EditAttributeModal
-				show={showPasswordModal}
-				onClose={() => setShowPasswordModal(false)}
-				attribute="Password"
-				value={newPassword}
-				onChange={(e) => setNewPassword(e.target.value)}
-				placeholder="Enter new password"
-				onSave={handlePasswordChange}
-				errorMessage=""
+				show={editAttributeModal.show}
+				onClose={closeEditAttributeModal}
+				attribute={editAttributeModal.attribute}
+				value={editAttributeModal.value}
+				onChange={handleEditAttributeChange}
+				placeholder={`Enter new ${editAttributeModal.attribute}`}
+				onSave={handleEditAttributeSave}
+				errorMessage={editAttributeError}
 			/>
 
 			{/* TODO: QUITAR SCROLL HORIZONTAL */}
