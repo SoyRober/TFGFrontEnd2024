@@ -1,3 +1,10 @@
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
 .clickable-row {
   cursor: pointer;
 }
@@ -99,13 +106,6 @@
   min-width: 320px;
   min-height: 300px;
   position: relative;
-}
-
-body {
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-  scroll-behavior: smooth;
 }
 
 .btn-outline-primary img {

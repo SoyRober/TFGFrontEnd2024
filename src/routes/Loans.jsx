@@ -5,6 +5,9 @@ import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 const Loading = lazy(() => import("../components/Loading.jsx"));
 const BookCardLoans = lazy(() => import("../components/BookCardsLoan.jsx"));
+const ResetButtonFilter = lazy(() =>
+  import("../components/ResetButtonFilter.jsx")
+);
 
 const Loans = ({ cardSize = "medium" }) => {
   const [loans, setLoans] = useState([]);
@@ -92,13 +95,13 @@ const Loans = ({ cardSize = "medium" }) => {
             className="form-control"
             aria-describedby="startDateHelp"
           />
-          <button
-            className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
-            aria-label="Clear start date filter"
-          >
-            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
-          </button>
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, startDate: "" }));
+              fetchLoans(0);
+            }}
+            ariaLabel="Reset Date Button"
+          />
         </div>
 
         <div className="d-flex align-items-center">
@@ -116,13 +119,13 @@ const Loans = ({ cardSize = "medium" }) => {
             }
             aria-describedby="titleHelp"
           />
-          <button
-            className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={() => setFilters((prev) => ({ ...prev, title: "" }))}
-            aria-label="Clear title filter"
-          >
-            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
-          </button>
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, title: "" }));
+              fetchLoans(0);
+            }}
+            ariaLabel="Reset Title Button"
+          />
         </div>
 
         <div className="d-flex align-items-center">
@@ -141,17 +144,17 @@ const Loans = ({ cardSize = "medium" }) => {
             <option value="returned">Returned</option>
             <option value="notReturned">Not Returned</option>
           </select>
-          <button
-            className="btn btn-outline-secondary ms-2"
-            onClick={() =>
-              setFilters((prev) => ({ ...prev, returned: "notReturned" }))
-            }
-            aria-label="Reset status filter to not returned"
-          >
-            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
-          </button>
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, returned: "notReturned" }));
+              fetchLoans(0);
+            }}
+            ariaLabel="Reset Status Button"
+          />
         </div>
+      </section>
 
+      <div className="d-flex justify-content-center mb-3">
         <button
           className="btn btn-warning"
           onClick={resetFilters}
@@ -159,7 +162,7 @@ const Loans = ({ cardSize = "medium" }) => {
         >
           Reset Filters
         </button>
-      </section>
+      </div>
 
       <section
         className="container mt-5"

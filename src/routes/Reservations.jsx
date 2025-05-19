@@ -1,19 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 import defaultBook from "/img/defaultBook.svg";
-import YearSelector from "../components/YearSelector.jsx";
+const ResetButtonFilter = lazy(() => import("../components/ResetButtonFilter.jsx"));
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [dateFilter, setDateFilter] = useState("");
-  const [loanedFilter, setReturnedFilter] = useState("all");
+  const [loanedFilter, setLoanedFilter] = useState("all");
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
   const [isFetching, setIsFetching] = useState(false);
@@ -63,9 +62,7 @@ const UserReservations = ({ cardSize }) => {
         token
       );
 
-      if (data.length === 0) {
-        setHasMore(false);
-      } else {
+      if (data.length !== 0) {
         setReservations((prev) => [
           ...prev,
           ...data.filter(
@@ -125,12 +122,13 @@ const UserReservations = ({ cardSize }) => {
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
           />
-          <button
-            className="btn btn-outline-secondary btn-sm ms-2"
-            onClick={() => setDateFilter("")}
-          >
-            ⟲ <span className="visually-hidden">Reset date filter</span>
-          </button>
+          <ResetButtonFilter
+            onClick={() => {
+              setDateFilter("");
+              fetchReservations(0);
+            }}
+            ariaLabel="Reset Date Button"
+          />
         </div>
 
         <div className="d-flex align-items-center">
@@ -141,25 +139,29 @@ const UserReservations = ({ cardSize }) => {
             id="loanedFilter"
             className="form-select"
             value={loanedFilter}
-            onChange={(e) => setReturnedFilter(e.target.value)}
+            onChange={(e) => setLoanedFilter(e.target.value)}
           >
             <option value="all">All</option>
             <option value="returned">Loaned</option>
             <option value="notReturned">Not loaned</option>
           </select>
-          <button
-            className="btn btn-outline-secondary ms-2"
-            onClick={() => setReturnedFilter("all")}
-          >
-            ⟲ <span className="visually-hidden">Reset loan status filter</span>
-          </button>
+          <ResetButtonFilter
+            onClick={() => {
+              setLoanedFilter("");
+              fetchReservations(0);
+            }}
+            ariaLabel="Reset Status Button"
+          />
         </div>
+      </div>
 
+      <div className="d-flex justify-content-center mb-3">
         <button
           className="btn btn-warning"
           onClick={() => {
             setDateFilter("");
-            setReturnedFilter("all");
+            setLoanedFilter("all");
+            fetchReservations(0);
           }}
         >
           Reset Filters

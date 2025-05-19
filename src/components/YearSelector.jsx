@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export default function YearSelector({
   yearsCount = 200,
@@ -32,60 +32,71 @@ export default function YearSelector({
   const isValidDate = (d) => d instanceof Date && !isNaN(d);
 
   return (
-    <div className="dropdown" ref={dropdownRef} style={{ width: 120 }}>
-      <button
-        className="btn btn-outline-secondary dropdown-toggle w-100"
-        type="button"
-        onClick={toggleOpen}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-label="Seleccionar año"
-      >
-        {isValidDate(startDateFilter)
-          ? startDateFilter.getFullYear()
-          : "Seleccionar año"}
-      </button>
+<div className="dropdown" ref={dropdownRef} style={{ width: "100%" }}>
+  <button
+    type="button"
+    onClick={toggleOpen}
+    aria-expanded={open}
+    aria-haspopup="listbox"
+    aria-label="Seleccionar año"
+    className="form-control form-control d-flex justify-content-between align-items-center"
+    style={{ cursor: "pointer" }}
+  >
+    <span>
+      {isValidDate(startDateFilter)
+        ? startDateFilter.getFullYear()
+        : "Seleccionar año"}
+    </span>
+    <span className="dropdown-toggle"></span>
+  </button>
 
-      {open && (
-        <ul
-          className="dropdown-menu show"
-          role="listbox"
-          tabIndex={-1}
-          style={{
-            maxHeight: 150,
-            overflowY: "auto",
-            width: "100%",
-          }}
-          aria-activedescendant={
-            isValidDate(startDateFilter)
-              ? `year-option-${startDateFilter.getFullYear()}`
-              : undefined
+  {open && (
+    <ul
+      className="dropdown-menu show"
+      role="listbox"
+      tabIndex={-1}
+      style={{
+        maxHeight: 150,
+        overflowY: "auto",
+        width: "100%",
+      }}
+      aria-activedescendant={
+        isValidDate(startDateFilter)
+          ? `year-option-${startDateFilter.getFullYear()}`
+          : undefined
+      }
+    >
+      {years.map((year) => (
+        <li
+          key={year}
+          id={`year-option-${year}`}
+          role="option"
+          aria-selected={
+            isValidDate(startDateFilter) &&
+            startDateFilter.getFullYear() === year
           }
+          className={
+            "dropdown-item" +
+            (isValidDate(startDateFilter) &&
+            startDateFilter.getFullYear() === year
+              ? " active"
+              : "")
+          }
+          onClick={() => selectYear(year)}
+          style={{ cursor: "pointer" }}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              selectYear(year);
+            }
+          }}
         >
-          {years.map((year) => (
-            <li
-              key={year}
-              id={`year-option-${year}`}
-              role="option"
-              aria-selected={isValidDate(startDateFilter) && startDateFilter.getFullYear() === year}
-              className={
-                "dropdown-item" +
-                (isValidDate(startDateFilter) && startDateFilter.getFullYear() === year ? " active" : "")
-              }
-              onClick={() => selectYear(year)}
-              style={{ cursor: "pointer" }}
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  selectYear(year);
-                }
-              }}
-            >
-              {year}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+          {year}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
   );
 }
