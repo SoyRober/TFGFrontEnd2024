@@ -21,6 +21,7 @@ const BookCopies = lazy(() => import("./routes/BookCopies.jsx"));
 const Libraries = lazy(() => import("./routes/Libraries.jsx"));
 const ManagedLibraries = lazy(() => import("./routes/ManagedLibraries.jsx"));
 const Loading = lazy(() => import("./components/Loading.jsx"));
+const Error = lazy(() => import("./routes/Error.jsx"));
 
 const withSuspense = (Component) => (
 	<Suspense fallback={<Loading />}>
@@ -50,6 +51,7 @@ const router = createHashRouter([
 			{ path: "bookCopies/:title", element: withSuspense(BookCopies) },
 			{ path: "libraries", element: withSuspense(Libraries) },
 			{ path: "managedLibraries", element: withSuspense(ManagedLibraries) },
+			{ path: "*", element: withSuspense(Error) }
 		],
 	},
 ]);
