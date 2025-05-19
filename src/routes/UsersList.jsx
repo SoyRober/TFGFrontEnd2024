@@ -108,6 +108,18 @@ const UsersList = () => {
     setReset(true);
   };
 
+const getRowStyle = (role) => {
+  const normalizedRole = role.toLowerCase();
+  switch (normalizedRole) {
+    case "admin":
+      return { backgroundColor: "rgba(255, 109, 121, 0.7)" }; 
+    case "librarian":
+      return { backgroundColor: "rgba(214, 158, 94, 0.7)" }; 
+    default:
+      return { backgroundColor: "rgba(255, 255, 255, 1)" }; 
+  }
+};
+
   return (
     <main className="container">
       <h2>User List</h2>
@@ -169,7 +181,7 @@ const UsersList = () => {
         loader={<Loading />}
         endMessage={<p className="text-center mt-4">No more users to show</p>}
       >
-        <table className="table table-striped">
+        <table className="table">
           <thead>
             <tr>
               <th scope="col">Username</th>
@@ -179,39 +191,32 @@ const UsersList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                style={{
-                  border:
-                    user.role.toLowerCase() === "admin"
-                      ? "2px solid red"
-                      : user.role.toLowerCase() === "librarian"
-                      ? "2px solid blue"
-                      : "none",
-                }}
-              >
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>
-                  <button
-                    onClick={() => handleDeleteClick(user.id)}
-                    className="btn btn-danger me-2"
-                    aria-label={`Delete user ${user.username}`}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => handleViewProfile(user.email)}
-                    className="btn btn-primary"
-                    aria-label={`View profile of user ${user.username}`}
-                  >
-                    View Profile
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {users.map((user) => {
+              const style = getRowStyle(user.role);
+              return (
+                <tr key={user.id}>
+                  <td style={style}>{user.username}</td>
+                  <td style={style}>{user.email}</td>
+                  <td style={style}>{user.role}</td>
+                  <td style={style}>
+                    <button
+                      onClick={() => handleDeleteClick(user.id)}
+                      className="btn btn-danger me-2"
+                      aria-label={`Delete user ${user.username}`}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => handleViewProfile(user.email)}
+                      className="btn btn-primary"
+                      aria-label={`View profile of user ${user.username}`}
+                    >
+                      View Profile
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </InfiniteScroll>
