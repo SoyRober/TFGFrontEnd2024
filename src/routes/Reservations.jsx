@@ -108,8 +108,12 @@ const UserReservations = ({ cardSize }) => {
   };
 
   return (
-    <main className="container mt-5">
-      <div className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
+    <main className="container mt-5" role="main">
+      <div
+        className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3"
+        role="region"
+        aria-label="Reservation filters"
+      >
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">
             Date:
@@ -120,14 +124,12 @@ const UserReservations = ({ cardSize }) => {
             className="form-control"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            aria-label="Filter by reservation date"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={() => setDateFilter("")}
-            aria-label="Reset date filter"
           >
-            ⟲
+            ⟲ <span className="visually-hidden">Reset date filter</span>
           </button>
         </div>
 
@@ -140,7 +142,6 @@ const UserReservations = ({ cardSize }) => {
             className="form-select"
             value={loanedFilter}
             onChange={(e) => setReturnedFilter(e.target.value)}
-            aria-label="Filter reservations by loan status"
           >
             <option value="all">All</option>
             <option value="returned">Loaned</option>
@@ -149,9 +150,8 @@ const UserReservations = ({ cardSize }) => {
           <button
             className="btn btn-outline-secondary ms-2"
             onClick={() => setReturnedFilter("all")}
-            aria-label="Reset loan status filter"
           >
-            ⟲
+            ⟲ <span className="visually-hidden">Reset loan status filter</span>
           </button>
         </div>
 
@@ -161,7 +161,6 @@ const UserReservations = ({ cardSize }) => {
             setDateFilter("");
             setReturnedFilter("all");
           }}
-          aria-label="Reset all filters"
         >
           Reset Filters
         </button>
@@ -184,9 +183,13 @@ const UserReservations = ({ cardSize }) => {
           }
           style={{ overflow: "hidden" }}
         >
-          <div className="row">
+          <div className="row" role="list">
             {filteredReservations.map((reservation, index) => (
-              <div key={index} className={`${getColumnClass(cardSize)} mb-4`}>
+              <div
+                key={index}
+                className={`${getColumnClass(cardSize)} mb-4`}
+                role="listitem"
+              >
                 <div
                   className="card"
                   style={{
@@ -222,7 +225,6 @@ const UserReservations = ({ cardSize }) => {
                       }
                       className="img-fluid"
                       alt={`Cover of ${reservation.bookTitle}`}
-                      aria-label={`Cover image of the book ${reservation.bookTitle}`}
                       style={{
                         maxWidth: "100%",
                         maxHeight: "100%",
@@ -234,14 +236,16 @@ const UserReservations = ({ cardSize }) => {
                     className="card-body"
                     style={{ flex: "1 0 40%", overflowY: "auto" }}
                   >
-                    <h5 className="card-title" tabIndex="-1">
+                    <h5 className="card-title">
                       <Link
                         to={`/viewBook/${reservation.bookTitle}`}
                         className="text-decoration-none d-flex align-items-center"
-                        aria-label={`View details for the book ${reservation.bookTitle}`}
                       >
                         {reservation.bookTitle}
-                        <i className="fas fa-mouse-pointer ms-2"></i>
+                        <i
+                          className="fas fa-mouse-pointer ms-2"
+                          aria-hidden="true"
+                        ></i>
                       </Link>
                     </h5>
                     <p className="card-text">
@@ -262,7 +266,6 @@ const UserReservations = ({ cardSize }) => {
                       <button
                         className="btn btn-primary ms-2"
                         onClick={() => cancelReservation(reservation.bookTitle)}
-                        aria-label={`Cancel reservation for the book ${reservation.bookTitle}`}
                       >
                         Cancel Reservation
                       </button>

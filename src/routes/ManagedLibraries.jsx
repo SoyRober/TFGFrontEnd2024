@@ -31,33 +31,48 @@ export default function ManagedLibraries() {
 	}, []);
 
 	if (loading) {
-		return <div className="container mt-5">Loading managed libraries...</div>;
+		return (
+			<div className="container mt-5" role="status" aria-live="polite">
+				Loading managed libraries...
+			</div>
+		);
 	}
 
 	if (error) {
-		return <div className="container mt-5 alert alert-danger">{error}</div>;
+		return (
+			<div
+				className="container mt-5 alert alert-danger"
+				role="alert"
+				aria-live="assertive"
+			>
+				{error}
+			</div>
+		);
 	}
 
 	return (
-		<div className="container mt-5">
-			<h1>My Managed Libraries</h1>
+		<div className="container mt-5" role="main">
+			<h1 tabIndex={-1}>My Managed Libraries</h1>
 			{libraries.length === 0 ? (
-				<p>You do not manage any libraries.</p>
+				<p aria-live="polite">You do not manage any libraries.</p>
 			) : (
-				<ul className="list-group">
+				<ul
+					className="list-group"
+					aria-label="List of libraries you manage"
+				>
 					{libraries.map((library) => (
 						<li
 							key={library.id}
 							className="list-group-item d-flex align-items-center flex-wrap"
 							style={{ padding: "10px" }}
 						>
-							<div className="col-md-4">
+							<div className="col-md-4" aria-label={`Library name: ${library.name}`}>
 								<strong>Name:</strong> {library.name}
 							</div>
-							<div className="col-md-4">
+							<div className="col-md-4" aria-label={`Library address: ${library.address}`}>
 								<strong>Address:</strong> {library.address}
 							</div>
-							<div className="col-12 mt-2">
+							<div className="col-12 mt-2" aria-label="Librarians">
 								<strong>Librarians:</strong>{" "}
 								{library.librarianNames && library.librarianNames.length > 0 ? (
 									library.librarianNames.join(", ")

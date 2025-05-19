@@ -308,6 +308,7 @@ export default function LibraryHomepage() {
   return (
     <main
       className="d-flex flex-column justify-content-center align-items-center"
+      role="main"
       style={{
         overflow: "hidden",
         minHeight: "100vh",
@@ -316,12 +317,11 @@ export default function LibraryHomepage() {
       }}
     >
       {hasPermissions && (
-        <section className="d-flex justify-content-start w-100 ms-3">
-          <button
-            className="btn btn-primary my-2"
-            onClick={openModal}
-            aria-label="Create a new book"
-          >
+        <section
+          className="d-flex justify-content-start w-100 ms-3"
+          aria-label="Create new book section"
+        >
+          <button className="btn btn-primary my-2" onClick={openModal}>
             Create New Book
           </button>
         </section>
@@ -337,11 +337,14 @@ export default function LibraryHomepage() {
           authors={authors}
           genres={genres}
           libraries={libraries}
-          aria-label="Create book modal"
         />
       )}
 
-      <header className="container text-center mt-4 search-filters">
+      <header
+        className="container text-center mt-4 search-filters"
+        role="region"
+        aria-label="Book filters"
+      >
         <Filters
           startDateFilter={startDateFilter}
           setStartDateFilter={setStartDateFilter}
@@ -363,7 +366,6 @@ export default function LibraryHomepage() {
           setBookData={setBookData}
           isAdultUser={isAdultUser}
           setIsAdultUser={setIsAdultUser}
-          aria-label="Book filters"
         />
 
         <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
@@ -372,6 +374,7 @@ export default function LibraryHomepage() {
       <section
         className="container mt-5 search-container"
         style={{ minHeight: "60vh" }}
+        aria-label="Books list"
       >
         <InfiniteScroll
           dataLength={books.length}

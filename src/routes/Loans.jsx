@@ -66,14 +66,18 @@ const Loans = ({ cardSize = "medium" }) => {
   };
 
   return (
-    <main className="container mt-5">
-      <section className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3">
+    <main className="container mt-5" role="main">
+      <section
+        className="d-flex justify-content-center align-items-center flex-wrap gap-2 mb-3"
+        aria-label="Filter loan records"
+      >
         <div className="d-flex align-items-center">
           <label htmlFor="startDateFilter" className="me-2">
             Date:
           </label>
           <input
             type="date"
+            id="startDateFilter"
             value={
               filters.startDate
                 ? filters.startDate.toISOString().slice(0, 10)
@@ -86,16 +90,14 @@ const Loans = ({ cardSize = "medium" }) => {
               }))
             }
             className="form-control"
-            id="startDateFilter"
-            aria-label="Filter loans by start date"
+            aria-describedby="startDateHelp"
           />
-
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={() => setFilters((prev) => ({ ...prev, startDate: "" }))}
-            aria-label="Reset start date filter"
+            aria-label="Clear start date filter"
           >
-            <i className="fa-solid fa-rotate-right"></i>
+            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
           </button>
         </div>
 
@@ -112,14 +114,14 @@ const Loans = ({ cardSize = "medium" }) => {
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, title: e.target.value }))
             }
-            aria-label="Filter loans by title"
+            aria-describedby="titleHelp"
           />
           <button
             className="btn btn-outline-secondary btn-sm ms-2"
             onClick={() => setFilters((prev) => ({ ...prev, title: "" }))}
-            aria-label="Reset title filter"
+            aria-label="Clear title filter"
           >
-            <i className="fa-solid fa-rotate-right"></i>
+            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
           </button>
         </div>
 
@@ -134,7 +136,7 @@ const Loans = ({ cardSize = "medium" }) => {
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, returned: e.target.value }))
             }
-            aria-label="Filter loans by return status"
+            aria-describedby="returnStatusHelp"
           >
             <option value="returned">Returned</option>
             <option value="notReturned">Not Returned</option>
@@ -144,41 +146,48 @@ const Loans = ({ cardSize = "medium" }) => {
             onClick={() =>
               setFilters((prev) => ({ ...prev, returned: "notReturned" }))
             }
-            aria-label="Reset return status filter"
+            aria-label="Reset status filter to not returned"
           >
-            <i className="fa-solid fa-rotate-right"></i>
+            <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
           </button>
         </div>
 
         <button
           className="btn btn-warning"
           onClick={resetFilters}
-          aria-label="Reset all filters"
+          aria-label="Clear all filters"
         >
           Reset Filters
         </button>
       </section>
 
-      <section className="container mt-5">
+      <section
+        className="container mt-5"
+        aria-label="Loan results"
+        aria-live="polite"
+      >
         <InfiniteScroll
           dataLength={loans.length}
           next={() => setPage((prev) => prev + 1)}
           hasMore={loans.length % 30 === 0 && loans.length > 0}
           loader={<Loading />}
           endMessage={
-            <p className="text-center mt-4 text-muted">
+            <p className="text-center mt-4 text-muted" role="status">
               There aren't more loans
             </p>
           }
           style={{ overflow: "hidden" }}
         >
-          <div className="row">
+          <div className="row" role="list">
             {loans.map((loan) => (
-              <Suspense fallback={<Loading />}>
+              <Suspense
+                fallback={<Loading />}
+                key={`${loan.id}-${loan.startDate}`}
+              >
                 <BookCardLoans
-                  key={`${loan.id} - ${loan.startDate}`}
                   loan={loan}
                   cardSize={cardSize}
+                  role="listitem"
                 />
               </Suspense>
             ))}

@@ -30,7 +30,9 @@ export default function Presentation() {
               .sort(() => Math.random() - 0.5)
           );
         } else {
-          toast.error(data.message || "An error occurred while fetching genres");
+          toast.error(
+            data.message || "An error occurred while fetching genres"
+          );
         }
       } catch (err) {
         toast.error(err.message || "An error occurred while fetching genres");
@@ -76,19 +78,17 @@ export default function Presentation() {
   return (
     <main>
       <div className="container mt-5">
-        <h1 className="text-center mb-4 display-4" aria-label="Welcome message">
-          Welcome to BiblioForum!
-        </h1>
-        <p
-          className="lead text-center text-muted"
-          aria-label="Platform description"
-        >
+        <h1 className="text-center mb-4 display-4">Welcome to BiblioForum!</h1>
+        <p className="lead text-center text-muted">
           A digital platform that connects readers with libraries across the
           city.
         </p>
         <hr className="my-4" aria-hidden="true" />
 
-        <div ref={carouselRef}>
+        <div ref={carouselRef} role="region" aria-labelledby="carousel-heading">
+          <h2 id="carousel-heading" className="visually-hidden">
+            Book carousel
+          </h2>
           {showSections.carousel && (
             <Suspense fallback={<Loading />}>
               <CustomCarousel aria-label="Image carousel showcasing random books" />
@@ -96,7 +96,10 @@ export default function Presentation() {
           )}
         </div>
 
-        <div ref={featuresRef}>
+        <div ref={featuresRef} role="region" aria-labelledby="features-heading">
+          <h2 id="features-heading" className="visually-hidden">
+            Features of BiblioForum
+          </h2>
           {showSections.features && (
             <div className="row mt-5">
               <div className="col-md-4 text-center">
@@ -104,16 +107,8 @@ export default function Presentation() {
                   className="fas fa-book fa-3x mb-3 text-primary"
                   aria-hidden="true"
                 ></i>
-                <h2
-                  className="fw-bold"
-                  aria-label="Browse Collections section"
-                >
-                  Browse Collections
-                </h2>
-                <p
-                  className="text-muted"
-                  aria-label="Description of Browse Collections"
-                >
+                <h3 className="fw-bold">Browse Collections</h3>
+                <p className="text-muted">
                   Explore book catalogs from multiple libraries, all in one
                   place.
                 </p>
@@ -123,16 +118,8 @@ export default function Presentation() {
                   className="fas fa-user-plus fa-3x mb-3 text-success"
                   aria-hidden="true"
                 ></i>
-                <h2
-                  className="fw-bold"
-                  aria-label="Register and Connect section"
-                >
-                  Register & Connect
-                </h2>
-                <p
-                  className="text-muted"
-                  aria-label="Description of Register and Connect"
-                >
+                <h3 className="fw-bold">Register & Connect</h3>
+                <p className="text-muted">
                   Create your account to start reserving, borrowing, and
                   reviewing books.
                 </p>
@@ -142,16 +129,8 @@ export default function Presentation() {
                   className="fas fa-calendar-check fa-3x mb-3 text-warning"
                   aria-hidden="true"
                 ></i>
-                <h2
-                  className="fw-bold"
-                  aria-label="Reserve and Borrow section"
-                >
-                  Reserve & Borrow
-                </h2>
-                <p
-                  className="text-muted"
-                  aria-label="Description of Reserve and Borrow"
-                >
+                <h3 className="fw-bold">Reserve & Borrow</h3>
+                <p className="text-muted">
                   Easily reserve your favorite titles and manage your book loans
                   online.
                 </p>
@@ -160,10 +139,11 @@ export default function Presentation() {
           )}
         </div>
 
-        <div ref={genresRef}>
-          {showSections.genres && (
-            <GenresCarousel genres={genres} />
-          )}
+        <div ref={genresRef} role="region" aria-labelledby="genres-heading">
+          <h2 id="genres-heading" className="visually-hidden">
+            Book genres carousel
+          </h2>
+          {showSections.genres && <GenresCarousel genres={genres} />}
         </div>
       </div>
     </main>

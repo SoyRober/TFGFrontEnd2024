@@ -36,7 +36,9 @@ export default function BookCardLoans({ loan, cardSize }) {
     <article
       className={`${getColumnClass(cardSize)} mb-4`}
       aria-label={`Loan card for the book ${loan.book}`}
-      aria-describedby={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
+      aria-describedby={`loan-title-${loan.book
+        .replace(/\s+/g, "-")
+        .toLowerCase()}`}
     >
       <div className="customized-card h-100">
         <figure className="p-1">
@@ -74,12 +76,12 @@ export default function BookCardLoans({ loan, cardSize }) {
           />
         </div>
         <div className="card-body text-center">
-          <h5
+          <h3
             id={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
-            className={`card-title ${getTextSizeClass(cardSize)}`}
+            className="card-title mb-3"
           >
-            {loan.book}
-          </h5>
+            <strong>{loan.book}</strong>
+          </h3>
           <p className={getTextSizeClass(cardSize)}>
             <strong>Start Date:</strong>{" "}
             <time dateTime={new Date(loan.startDate).toISOString()}>

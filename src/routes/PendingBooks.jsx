@@ -146,9 +146,9 @@ export default function Attributes() {
   if (!hasPermissions) return <h1>UnAuthorized</h1>;
 
   return (
-    <main className="container text-center mt-5">
+    <main className="container text-center mt-5" role="main">
       <header className="mb-4">
-        <h1>Reservations and Loans</h1>
+        <h1 tabIndex={-1}>Reservations and Loans</h1>
       </header>
 
       <section
@@ -164,7 +164,7 @@ export default function Attributes() {
               : "btn-outline-primary"
           }`}
           onClick={() => setSelectedButton("Reserves")}
-          aria-label="Show reservations"
+          aria-pressed={selectedButton === "Reserves"}
         >
           Reserves
         </button>
@@ -175,13 +175,13 @@ export default function Attributes() {
             selectedButton === "Loans" ? "btn-primary" : "btn-outline-primary"
           }`}
           onClick={() => setSelectedButton("Loans")}
-          aria-label="Show loans"
+          aria-pressed={selectedButton === "Loans"}
         >
           Loans
         </button>
       </section>
 
-      <section>
+      <section aria-live="polite">
         {selectedButton === "Reserves" && (
           <InfiniteScroll
             dataLength={reserves.length}
@@ -213,25 +213,20 @@ export default function Attributes() {
                     <div className="card h-100 shadow-sm">
                       <div
                         className="d-flex align-items-center justify-content-center"
-                        style={{
-                          height: "150px",
-                          backgroundColor: "#f8f9fa",
-                        }}
+                        style={{ height: "150px", backgroundColor: "#f8f9fa" }}
                       >
                         {imageSrc ? (
                           <img
                             src={imageSrc}
-                            alt={reserve.bookTitle}
+                            alt={`Cover of ${reserve.bookTitle}`}
                             className="img-fluid rounded"
-                            style={{
-                              maxHeight: "100%",
-                              objectFit: "cover",
-                            }}
+                            style={{ maxHeight: "100%", objectFit: "cover" }}
                           />
                         ) : (
                           <i
                             className="bi bi-book text-secondary"
                             style={{ fontSize: "2.5rem" }}
+                            aria-hidden="true"
                           ></i>
                         )}
                       </div>
@@ -243,7 +238,7 @@ export default function Attributes() {
                           <strong>Title:</strong> {reserve.bookTitle}
                         </p>
                         <p className="mb-2">
-                          <strong>Date:</strong>
+                          <strong>Date:</strong>{" "}
                           <span className="mx-1">
                             {new Date(
                               reserve.reservationDate
@@ -256,7 +251,7 @@ export default function Attributes() {
                         <button
                           className="btn btn-sm btn-success"
                           onClick={() => openLoanModal(reserve)}
-                          aria-label={`Loan the book ${reserve.bookTitle} reserved by ${reserve.username}`}
+                          aria-label={`Loan the book titled ${reserve.bookTitle} reserved by ${reserve.username}`}
                         >
                           Loan
                         </button>
@@ -301,25 +296,20 @@ export default function Attributes() {
                     <div className="card h-100 shadow-sm">
                       <div
                         className="d-flex align-items-center justify-content-center"
-                        style={{
-                          height: "150px",
-                          backgroundColor: "#f8f9fa",
-                        }}
+                        style={{ height: "150px", backgroundColor: "#f8f9fa" }}
                       >
                         {imageSrc ? (
                           <img
                             src={imageSrc}
-                            alt={loan.book}
+                            alt={`Cover of ${loan.book}`}
                             className="img-fluid rounded"
-                            style={{
-                              maxHeight: "100%",
-                              objectFit: "cover",
-                            }}
+                            style={{ maxHeight: "100%", objectFit: "cover" }}
                           />
                         ) : (
                           <i
                             className="bi bi-book text-secondary"
                             style={{ fontSize: "2.5rem" }}
+                            aria-hidden="true"
                           ></i>
                         )}
                       </div>
@@ -331,7 +321,7 @@ export default function Attributes() {
                           <strong>Title:</strong> {loan.book}
                         </p>
                         <p className="mb-2">
-                          <strong>Return Date:</strong>
+                          <strong>Return Date:</strong>{" "}
                           <span className="mx-1">
                             {new Date(loan.returnDate).toLocaleDateString(
                               "es-ES"
@@ -352,7 +342,7 @@ export default function Attributes() {
                         <button
                           className="btn btn-sm btn-danger"
                           onClick={() => handleReturn(loan)}
-                          aria-label={`Return the book ${loan.book} loaned by ${loan.username}`}
+                          aria-label={`Return the book titled ${loan.book} loaned by ${loan.username}`}
                         >
                           Return
                         </button>
@@ -365,25 +355,25 @@ export default function Attributes() {
           </InfiniteScroll>
         )}
       </section>
-      {/* Modal for loan confirmation */}
+
       {showModal && currentReserve && (
         <div
           className="modal d-block"
-          tabIndex="-1"
           role="dialog"
-          aria-label="Loan confirmation modal"
+          aria-modal="true"
+          aria-labelledby="loanModalTitle"
         >
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">
+                <h5 className="modal-title" id="loanModalTitle">
                   Loan {currentReserve.bookTitle} to {currentReserve.username}
                 </h5>
                 <button
                   type="button"
                   className="close"
                   onClick={closeLoanModal}
-                  aria-label="Close loan confirmation modal"
+                  aria-label="Close"
                 >
                   <span aria-hidden="true">&times;</span>
                 </button>
@@ -398,8 +388,11 @@ export default function Attributes() {
                     value={daysLoaned}
                     onChange={(e) => setDaysLoaned(e.target.value)}
                     min="1"
-                    aria-label="Enter the number of days for the loan"
+                    aria-describedby="daysLoanedHelp"
                   />
+                  <small id="daysLoanedHelp" className="form-text text-muted">
+                    Enter the number of days the book will be loaned.
+                  </small>
                 </div>
               </div>
               <div className="modal-footer">

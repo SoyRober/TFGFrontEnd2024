@@ -8,223 +8,223 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
 
 const UsersList = () => {
-	const [users, setUsers] = useState([]);
-	const [page, setPage] = useState(0);
-	const [isFetching, setIsFetching] = useState(false);
-	const [filters, setFilters] = useState({ username: "", email: "" });
-	const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-	const [selectedUserId, setSelectedUserId] = useState("");
-	const [reset, setReset] = useState(false);
-	const navigate = useNavigate();
+  const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
+  const [filters, setFilters] = useState({ username: "", email: "" });
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [reset, setReset] = useState(false);
+  const navigate = useNavigate();
 
-	useEffect(() => {
-		const token = localStorage.getItem("token");
-		if (token && jwtDecode(token).role === "USER") navigate("/");
-	}, [navigate]);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && jwtDecode(token).role === "USER") navigate("/");
+  }, [navigate]);
 
-	useEffect(() => {
-		fetchUsers();
-	}, [page, filters]);
+  useEffect(() => {
+    fetchUsers();
+  }, [page, filters]);
 
-	useEffect(() => {
-		setUsers([]);
-		setPage(0);
-	}, [filters]);
+  useEffect(() => {
+    setUsers([]);
+    setPage(0);
+  }, [filters]);
 
-	const fetchUsers = async () => {
-		if (isFetching) return;
+  const fetchUsers = async () => {
+    if (isFetching) return;
 
-		const token = localStorage.getItem("token");
-		if (!token) {
-			navigate("/");
-			return;
-		}
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/");
+      return;
+    }
 
-		setIsFetching(true);
+    setIsFetching(true);
 
-		try {
-			const params = new URLSearchParams();
-			params.append("page", page);
-			if (filters.username) params.append("username", filters.username);
-			if (filters.email) params.append("email", filters.email);
-			if (filters.role) params.append("role", filters.role);
+    try {
+      const params = new URLSearchParams();
+      params.append("page", page);
+      if (filters.username) params.append("username", filters.username);
+      if (filters.email) params.append("email", filters.email);
+      if (filters.role) params.append("role", filters.role);
 
-			const url = `/librarian/users/list?${params.toString()}`;
-			const data = await fetchData(url, "GET", null, token);
+      const url = `/librarian/users/list?${params.toString()}`;
+      const data = await fetchData(url, "GET", null, token);
 
-			if (!Array.isArray(data.message)) {
-				toast.error("Something went wrong");
-				return;
-			}
+      if (!Array.isArray(data.message)) {
+        toast.error("Something went wrong");
+        return;
+      }
 
-			if (data.message.length !== 0) {
-				setUsers((prev) => (reset ? data.message : [...prev, ...data.message]));
-				setReset(false);
-			}
-		} catch (error) {
-			toast.error(error.message || "Error loading the users list");
-		} finally {
-			setIsFetching(false);
-		}
-	};
+      if (data.message.length !== 0) {
+        setUsers((prev) => (reset ? data.message : [...prev, ...data.message]));
+        setReset(false);
+      }
+    } catch (error) {
+      toast.error(error.message || "Error loading the users list");
+    } finally {
+      setIsFetching(false);
+    }
+  };
 
-	const fetchMoreUsers = () => {
-		if (!isFetching) {
-			setPage((prev) => prev + 1);
-		}
-	};
+  const fetchMoreUsers = () => {
+    if (!isFetching) {
+      setPage((prev) => prev + 1);
+    }
+  };
 
-	const deleteUser = async () => {
-		const token = localStorage.getItem("token");
-		if (!token) navigate("/");
+  const deleteUser = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) navigate("/");
 
-		try {
-			const data = await fetchData(
-				`/user/users/${selectedUserId}`,
-				"DELETE",
-				null,
-				token
-			);
-			if (data.success) toast.success(data.message);
-			setUsers((prev) => prev.filter((user) => user.id !== selectedUserId));
-			setShowDeleteConfirmation(false);
-		} catch (error) {
-			toast.error(error.message || "Something went wrong");
-		}
-	};
+    try {
+      const data = await fetchData(
+        `/user/users/${selectedUserId}`,
+        "DELETE",
+        null,
+        token
+      );
+      if (data.success) toast.success(data.message);
+      setUsers((prev) => prev.filter((user) => user.id !== selectedUserId));
+      setShowDeleteConfirmation(false);
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
 
-	const handleDeleteClick = (id) => {
-		setSelectedUserId(id);
-		setShowDeleteConfirmation(true);
-	};
+  const handleDeleteClick = (id) => {
+    setSelectedUserId(id);
+    setShowDeleteConfirmation(true);
+  };
 
-	const handleViewProfile = (id) => {
-		navigate(`/profile/${encodeURIComponent(id)}`);
-	};
+  const handleViewProfile = (id) => {
+    navigate(`/profile/${encodeURIComponent(id)}`);
+  };
 
-	const resetFilters = () => {
-		setFilters({ username: "", email: "", role: "" });
-		setPage(0);
-		setReset(true);
-	};
+  const resetFilters = () => {
+    setFilters({ username: "", email: "", role: "" });
+    setPage(0);
+    setReset(true);
+  };
 
-	return (
-		<main className="container">
-			<h2>User List</h2>
-			<div className="filters mb-4 row justify-content-center">
-				<div className="col-12 col-md-5 col-lg-4 mb-2">
-					<input
-						type="text"
-						placeholder="Filter by username"
-						className="form-control"
-						onChange={(e) => {
-							setFilters((prev) => ({
-								...prev,
-								username: e.target.value.trim(),
-							}));
-						}}
-						aria-label="Filter users by username"
-					/>
-				</div>
-				<div className="col-12 col-md-5 col-lg-4 mb-2">
-					<input
-						type="text"
-						placeholder="Filter by email"
-						className="form-control"
-						onChange={(e) => {
-							setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
-						}}
-						aria-label="Filter users by email"
-					/>
-				</div>
-				<div className="col-12 col-md-5 col-lg-4 mb-2">
-					<select
-						className="form-control"
-						onChange={(e) => {
-							setFilters((prev) => ({ ...prev, role: e.target.value }));
-						}}
-						aria-label="Filter users by role"
-					>
-						<option value="">Filter by role</option>
-						<option value="user">User</option>
-						<option value="librarian">Librarian</option>
-						<option value="admin">Admin</option>
-					</select>
-				</div>
-				<div className="col-12 col-md-2 d-flex justify-content-center">
-					<button
-						className="btn btn-warning w-100"
-						onClick={resetFilters}
-						aria-label="Reset all filters"
-					>
-						Reset Filters
-					</button>
-				</div>
-			</div>
+  return (
+    <main className="container">
+      <h2>User List</h2>
+      <div className="filters mb-4 row justify-content-center">
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <input
+            type="text"
+            placeholder="Filter by username"
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({
+                ...prev,
+                username: e.target.value.trim(),
+              }));
+            }}
+            aria-label="Filter users by username"
+          />
+        </div>
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <input
+            type="text"
+            placeholder="Filter by email"
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
+            }}
+            aria-label="Filter users by email"
+          />
+        </div>
+        <div className="col-12 col-md-5 col-lg-4 mb-2">
+          <select
+            className="form-control"
+            onChange={(e) => {
+              setFilters((prev) => ({ ...prev, role: e.target.value }));
+            }}
+            aria-label="Filter users by role"
+          >
+            <option value="">Filter by role</option>
+            <option value="user">User</option>
+            <option value="librarian">Librarian</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div className="col-12 col-md-2 d-flex justify-content-center">
+          <button
+            className="btn btn-warning w-100"
+            onClick={resetFilters}
+            aria-label="Reset all filters"
+          >
+            Reset Filters
+          </button>
+        </div>
+      </div>
 
-			<InfiniteScroll
-				dataLength={users.length}
-				next={fetchMoreUsers}
-				hasMore={users.length % 10 === 0 && users.length > 0}
-				loader={<Loading />}
-				endMessage={<p className="text-center mt-4">No more users to show</p>}
-			>
-				<table className="table table-striped">
-					<thead>
-						<tr>
-							<th scope="col">Username</th>
-							<th scope="col">Email</th>
-							<th scope="col">Actions</th>
-							<th scope="col">Role</th>
-						</tr>
-					</thead>
-					<tbody>
-						{users.map((user) => (
-							<tr
-								key={user.id}
-								style={{
-									border:
-										user.role.toLowerCase() === "admin"
-											? "2px solid red"
-											: user.role.toLowerCase() === "librarian"
-											? "2px solid blue"
-											: "none",
-								}}
-							>
-								<td>{user.username}</td>
-								<td>{user.email}</td>
-								<td>{user.role}</td>
-								<td>
-									<button
-										onClick={() => handleDeleteClick(user.id)}
-										className="btn btn-danger me-2"
-										aria-label={`Delete user ${user.username}`}
-									>
-										Delete
-									</button>
-									<button
-										onClick={() => handleViewProfile(user.email)}
-										className="btn btn-primary"
-										aria-label={`View profile of user ${user.username}`}
-									>
-										View Profile
-									</button>
-								</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</InfiniteScroll>
+      <InfiniteScroll
+        dataLength={users.length}
+        next={fetchMoreUsers}
+        hasMore={users.length % 10 === 0 && users.length > 0}
+        loader={<Loading />}
+        endMessage={<p className="text-center mt-4">No more users to show</p>}
+      >
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Role</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((user) => (
+              <tr
+                key={user.id}
+                style={{
+                  border:
+                    user.role.toLowerCase() === "admin"
+                      ? "2px solid red"
+                      : user.role.toLowerCase() === "librarian"
+                      ? "2px solid blue"
+                      : "none",
+                }}
+              >
+                <td>{user.username}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
+                  <button
+                    onClick={() => handleDeleteClick(user.id)}
+                    className="btn btn-danger me-2"
+                    aria-label={`Delete user ${user.username}`}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleViewProfile(user.email)}
+                    className="btn btn-primary"
+                    aria-label={`View profile of user ${user.username}`}
+                  >
+                    View Profile
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </InfiniteScroll>
 
-			<DeleteConfirmationModal
-				show={showDeleteConfirmation}
-				onClose={() => setShowDeleteConfirmation(false)}
-				onDelete={deleteUser}
-				message={`This user will be deleted. Are you sure?`}
-				aria-label="Delete confirmation modal"
-			/>
-		</main>
-	);
+      <DeleteConfirmationModal
+        show={showDeleteConfirmation}
+        onClose={() => setShowDeleteConfirmation(false)}
+        onDelete={deleteUser}
+        message={`This user will be deleted. Are you sure?`}
+        aria-label="Delete confirmation modal"
+      />
+    </main>
+  );
 };
 
 export default UsersList;
