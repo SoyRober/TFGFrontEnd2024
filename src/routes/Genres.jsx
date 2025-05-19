@@ -29,11 +29,8 @@ const GenresComponent = () => {
       if (isFetching) return;
       setIsFetching(true);
       try {
-        if (page === undefined) {
-          page = 0;
-        }
+        if (page === undefined) page = 0;
         const params = new URLSearchParams({ page: page, size: "30" });
-
         await new Promise((resolve) => setTimeout(resolve, 500));
         const data = await fetchData(
           `/public/genres?${params.toString()}`,
@@ -55,9 +52,9 @@ const GenresComponent = () => {
   const handleAddGenre = async (newName) => {
     try {
       await fetchData("/librarian/genres", "POST", newName, token);
-      toast.success(`Genre added successfully!`);
+      toast.success("Genre added successfully!");
       setModals({ ...modals, add: false, edit: false });
-      fetchGenres();
+      fetchGenres(0);
     } catch (err) {
       toast.error(err.message || "Failed to save genre.");
     }
@@ -67,9 +64,9 @@ const GenresComponent = () => {
     const body = { id, name };
     try {
       await fetchData("/librarian/genres", "PUT", body, token);
-      toast.success(`Genre updated successfully!`);
+      toast.success("Genre updated successfully!");
       setModals({ ...modals, add: false, edit: false });
-      fetchGenres();
+      fetchGenres(0);
     } catch (err) {
       toast.error(err.message || "Failed to save genre.");
     }
@@ -86,7 +83,7 @@ const GenresComponent = () => {
       toast.success("Genre deleted successfully!");
       setModals({ ...modals, delete: false });
       setPage(0);
-      fetchGenres();
+      fetchGenres(0);
     } catch (err) {
       toast.error(err.message || "Failed to delete genre.");
     }
@@ -100,7 +97,9 @@ const GenresComponent = () => {
         hasMore={!isFetching && genres.length % 30 === 0}
         loader={<Loading />}
         endMessage={
-          <p className="text-center mt-3 text-muted">No more genres to load.</p>
+          <p className="text-center mt-3 text-muted" tabIndex={0}>
+            No more genres to load.
+          </p>
         }
       >
         <section className="row w-100">
@@ -108,9 +107,12 @@ const GenresComponent = () => {
             <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
               <article className="card">
                 <div className="card-body d-flex justify-content-between align-items-center">
-                  <h2 className="card-title text-truncate" >{genre.name}</h2>
+                  <h2 className="card-title text-truncate" tabIndex={0}>
+                    {genre.name}
+                  </h2>
                   <div>
                     <button
+                      type="button"
                       className="btn btn-outline-primary btn-sm me-2"
                       onClick={() => {
                         setSelectedGenre(genre);
@@ -120,12 +122,14 @@ const GenresComponent = () => {
                     >
                       <img
                         src="/img/attributes/fa-pencil.svg"
-                        alt="Delete"
+                        alt=""
                         width={20}
                         height={25}
-                      />{" "}
+                        aria-hidden="true"
+                      />
                     </button>
                     <button
+                      type="button"
                       className="btn btn-outline-danger btn-sm"
                       onClick={() => {
                         setSelectedGenre(genre);
@@ -135,10 +139,11 @@ const GenresComponent = () => {
                     >
                       <img
                         src="/img/attributes/fa-xmark.svg"
-                        alt="Delete"
+                        alt=""
                         width={20}
                         height={25}
-                      />{" "}
+                        aria-hidden="true"
+                      />
                     </button>
                   </div>
                 </div>
@@ -149,6 +154,7 @@ const GenresComponent = () => {
       </InfiniteScroll>
 
       <button
+        type="button"
         className="btn btn-primary fixed-bottom m-3 w-25"
         onClick={() => setModals({ ...modals, add: true })}
         aria-label="Add a new genre"
@@ -159,13 +165,7 @@ const GenresComponent = () => {
       <RenameAttributeModal
         show={modals.edit}
         handleClose={() => setModals({ ...modals, edit: false })}
-        handleRename={(id, name) => handleAddGenre(name)}
-        attribute={selectedGenre}
-      />
-      <RenameAttributeModal
-        show={modals.edit}
-        handleClose={() => setModals({ ...modals, edit: false })}
-        handleRename={(id, name) => handleEditGenre(id, name)}
+        handleRename={handleEditGenre}
         attribute={selectedGenre}
         aria-label="Edit genre modal"
       />
@@ -181,7 +181,7 @@ const GenresComponent = () => {
       <AddAttributeModal
         show={modals.add}
         handleClose={() => setModals({ ...modals, add: false })}
-        handleAdd={(name) => handleAddGenre(name)}
+        handleAdd={handleAddGenre}
         aria-label="Add genre modal"
       />
     </main>

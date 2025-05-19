@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import Genres from "./Genres.jsx";
 import Authors from "./Authors.jsx";
 
@@ -26,7 +26,7 @@ export default function Attributes() {
   return (
     <main className="container text-center mt-5" aria-label="Attributes Page">
       <header className="mb-4">
-        <h1 aria-label="Select an Attribute Title">Select an attribute</h1>
+        <h1>Select an attribute</h1>
       </header>
 
       <section className="btn-group mb-3" role="group" aria-label="Attribute Selection Buttons">
@@ -36,6 +36,7 @@ export default function Attributes() {
             type="button"
             className={`btn ${selectedButton === attr ? "btn-primary" : "btn-outline-primary"}`}
             onClick={() => handleButtonClick(attr)}
+            aria-pressed={selectedButton === attr}
             aria-label={`Select ${attr} Button`}
           >
             {attr}
