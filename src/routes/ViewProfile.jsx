@@ -309,7 +309,7 @@ const ViewProfile = () => {
           {userRole === "ADMIN" && (
             <>
               <button
-                className="btn btn-warning ms-2"
+                className="btn btn-warning ms-2 m-1"
                 onClick={() =>
                   openEditAttributeModal(
                     "username",
@@ -321,7 +321,7 @@ const ViewProfile = () => {
                 Change Username
               </button>
               <button
-                className="btn btn-warning ms-2"
+                className="btn btn-warning ms-2 m-1"
                 onClick={() =>
                   openEditAttributeModal("email", userProfile?.email || "")
                 }
@@ -330,7 +330,7 @@ const ViewProfile = () => {
                 Change Email
               </button>
               <button
-                className="btn btn-warning ms-2"
+                className="btn btn-warning ms-2 m-1"
                 onClick={() =>
                   openEditAttributeModal(
                     "birthdate",
@@ -342,14 +342,14 @@ const ViewProfile = () => {
                 Change Birth Date
               </button>
               <button
-                className="btn btn-warning ms-2"
+                className="btn btn-warning ms-2 m-1"
                 onClick={() => setShowRoleModal(true)}
                 aria-label="Change user role"
               >
                 Change Role
               </button>
               <button
-                className="btn btn-danger ms-2"
+                className="btn btn-danger ms-2 m-1"
                 onClick={() => openEditAttributeModal("password")}
                 aria-label="Change user password"
               >
