@@ -7,11 +7,14 @@ import ChangeRoleModal from "../components/modals/changeRoleModal";
 import EditAttributeModal from "../components/modals/EditAttributeModal";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
+import ResetButtonFilter from "../components/ResetButtonFilter.jsx";
 
 const ViewProfile = () => {
   const [userProfile, setUserProfile] = useState(null);
 
   const [userReservations, setUserReservations] = useState([]);
+  const [reservationPage, setReservationPage] = useState(0);
+  const [hasMoreReservations, setHasMoreReservations] = useState(true);
   const [dateFilterReservation, setDateFilterReservation] = useState("");
   const [titleFilterReservation, setTitleFilterReservation] = useState("");
 
@@ -20,19 +23,19 @@ const ViewProfile = () => {
   const [hasMoreLoans, setHasMoreLoans] = useState(true);
   const [dateFilterLoan, setDateFilterLoan] = useState("");
   const [titleFilterLoan, setTitleFilterLoan] = useState("");
-  const [isReturnedLoan, setIsReturnedLoan] = useState(false);
+  const [isReturnedLoan, setIsReturnedLoan] = useState("");
 
   const [userRole, setUserRole] = useState("");
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState("USER");
   const [isFetching, setIsFetching] = useState(false);
-  const [hasMoreReservations, setHasMoreReservations] = useState(true);
   const [editAttributeModal, setEditAttributeModal] = useState({
     show: false,
     attribute: "",
     value: "",
   });
   const [editAttributeError, setEditAttributeError] = useState("");
+
   const navigate = useNavigate();
   const { email } = useParams();
 
@@ -41,9 +44,7 @@ const ViewProfile = () => {
     if (token) {
       const role = jwtDecode(token).role;
       setUserRole(role);
-      if (role === "USER") {
-        navigate("/");
-      }
+      if (role === "USER") navigate("/");
     }
   }, [navigate]);
 
@@ -72,17 +73,14 @@ const ViewProfile = () => {
 
   useEffect(() => {
     setUserReservations([]);
+    setReservationPage(0);
     setHasMoreReservations(true);
-
     fetchUserReservations(0, dateFilterReservation, titleFilterReservation);
   }, [email, dateFilterReservation, titleFilterReservation]);
 
   const fetchUserReservations = async (page, date, title) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return navigate("/");
-    }
+    if (!token) return navigate("/");
 
     try {
       setIsFetching(true);
@@ -99,11 +97,11 @@ const ViewProfile = () => {
       );
 
       const newReservations = data.message;
-
       if (newReservations.length === 0) {
         setHasMoreReservations(false);
       } else {
         setUserReservations((prev) => [...prev, ...newReservations]);
+        setReservationPage((prev) => prev + 1);
       }
     } catch (error) {
       toast.error("Error loading reservations: " + error.message);
@@ -116,35 +114,29 @@ const ViewProfile = () => {
     setUserLoans([]);
     setLoanPage(0);
     setHasMoreLoans(true);
-
     fetchUserLoans(0, dateFilterLoan, titleFilterLoan, isReturnedLoan);
   }, [email, dateFilterLoan, titleFilterLoan, isReturnedLoan]);
 
   const fetchUserLoans = async (page, date, title, isReturned) => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("No token found, user might not be authenticated");
-      return navigate("/");
-    }
+    if (!token) return navigate("/");
 
     try {
       setIsFetching(true);
-
       const queryParams = new URLSearchParams();
       queryParams.append("page", page);
       if (date) queryParams.append("date", date);
       if (title) queryParams.append("title", title);
-      if (isReturned) queryParams.append("isReturned", isReturned);
+      if (isReturned !== "") queryParams.append("isReturned", isReturned);
 
       const data = await fetchData(
-        `/user/users/info/loan/${email}?page=${page}&${queryParams.toString()}`,
+        `/user/users/info/loan/${email}?${queryParams.toString()}`,
         "GET",
         null,
         token
       );
 
       const newLoans = data.message;
-
       if (newLoans.length === 0) {
         setHasMoreLoans(false);
       } else {
@@ -160,9 +152,7 @@ const ViewProfile = () => {
 
   const handleReturnBook = async (bookTitle, email) => {
     const token = localStorage.getItem("token");
-    if (!window.confirm(`Returning book: ${bookTitle}. Are you sure?`)) {
-      return;
-    }
+    if (!window.confirm(`Returning book: ${bookTitle}. Are you sure?`)) return;
     try {
       const response = await fetchData(
         "/return",
@@ -174,12 +164,11 @@ const ViewProfile = () => {
         toast.success(
           `The book "${bookTitle}" has been returned successfully.`
         );
-        setUserReservations((prevData) => ({
-          ...prevData,
-          loanList: prevData.loanList.map((loan) =>
+        setUserLoans((prev) =>
+          prev.map((loan) =>
             loan.book === bookTitle ? { ...loan, isReturned: true } : loan
-          ),
-        }));
+          )
+        );
       } else {
         toast.error(response.message || "Error returning the book.");
       }
@@ -205,10 +194,7 @@ const ViewProfile = () => {
       if (response.success) {
         toast.success(`Role changed to "${selectedRole}" successfully.`);
         setShowRoleModal(false);
-        setUserProfile((prevProfile) => ({
-          ...prevProfile,
-          role: selectedRole,
-        }));
+        setUserProfile((prev) => ({ ...prev, role: selectedRole }));
       } else {
         toast.error(response.message || "Error changing role.");
       }
@@ -218,28 +204,17 @@ const ViewProfile = () => {
   };
 
   const openEditAttributeModal = (attribute, currentValue = "") => {
-    setEditAttributeModal({
-      show: true,
-      attribute,
-      value: currentValue,
-    });
+    setEditAttributeModal({ show: true, attribute, value: currentValue });
     setEditAttributeError("");
   };
 
   const closeEditAttributeModal = () => {
-    setEditAttributeModal({
-      show: false,
-      attribute: "",
-      value: "",
-    });
+    setEditAttributeModal({ show: false, attribute: "", value: "" });
     setEditAttributeError("");
   };
 
   const handleEditAttributeChange = (e) => {
-    setEditAttributeModal((prev) => ({
-      ...prev,
-      value: e.target.value,
-    }));
+    setEditAttributeModal((prev) => ({ ...prev, value: e.target.value }));
   };
 
   const handleEditAttributeSave = async () => {
@@ -257,29 +232,24 @@ const ViewProfile = () => {
       );
 
       if (response.success) {
-        toast.success(
-          `${
-            editAttributeModal.attribute.charAt(0).toUpperCase() +
-            editAttributeModal.attribute.slice(1)
-          } changed successfully.`
-        );
-        const updatedProfile = {
-          ...userProfile,
-          [editAttributeModal.attribute === "birthdate"
+        toast.success("Attribute changed successfully.");
+        const updatedKey =
+          editAttributeModal.attribute === "birthdate"
             ? "birthday"
-            : editAttributeModal.attribute]: editAttributeModal.value,
-        };
-        setUserProfile(updatedProfile);
+            : editAttributeModal.attribute;
+        setUserProfile((prev) => ({
+          ...prev,
+          [updatedKey]: editAttributeModal.value,
+        }));
         const wasEmailChange = editAttributeModal.attribute === "email";
         closeEditAttributeModal();
         if (wasEmailChange) {
-          const encodedEmail = encodeURIComponent(editAttributeModal.value);
-          navigate(`/profile/${encodedEmail}`, { replace: true });
+          navigate(`/profile/${encodeURIComponent(editAttributeModal.value)}`, {
+            replace: true,
+          });
         }
       } else {
-        setEditAttributeError(
-          response.message || `Error changing ${editAttributeModal.attribute}.`
-        );
+        setEditAttributeError(response.message || "Error updating attribute.");
       }
     } catch (err) {
       setEditAttributeError(err.message);
@@ -288,7 +258,6 @@ const ViewProfile = () => {
 
   return (
     <main className="container my-5" style={{ overflowX: "hidden" }}>
-      {/* Información del usuario */}
       <section className="card p-4 mb-4 shadow">
         <div className="card-body">
           <p>
@@ -301,57 +270,49 @@ const ViewProfile = () => {
             <strong>Birth Date:</strong> {userProfile?.birthday || "N/A"}
           </p>
           <p>
-            <strong>Role:</strong>{" "}
-            {typeof userProfile?.role === "string"
-              ? userProfile.role.toLowerCase()
-              : "N/A"}
+            <strong>Role:</strong> {userProfile?.role?.toLowerCase() || "N/A"}
           </p>
+
           {userRole === "ADMIN" && (
             <>
               <button
-                className="btn btn-warning ms-2 m-1"
+                className="btn btn-warning m-1"
                 onClick={() =>
-                  openEditAttributeModal(
-                    "username",
-                    userProfile?.username || ""
-                  )
+                  openEditAttributeModal("username", userProfile?.username)
                 }
                 aria-label="Change username"
               >
                 Change Username
               </button>
               <button
-                className="btn btn-warning ms-2 m-1"
+                className="btn btn-warning m-1"
                 onClick={() =>
-                  openEditAttributeModal("email", userProfile?.email || "")
+                  openEditAttributeModal("email", userProfile?.email)
                 }
-                aria-label="Change user email"
+                aria-label="Change email"
               >
                 Change Email
               </button>
               <button
-                className="btn btn-warning ms-2 m-1"
+                className="btn btn-warning m-1"
                 onClick={() =>
-                  openEditAttributeModal(
-                    "birthdate",
-                    userProfile?.birthday || ""
-                  )
+                  openEditAttributeModal("birthdate", userProfile?.birthday)
                 }
-                aria-label="Change user birth date"
+                aria-label="Change birth date"
               >
                 Change Birth Date
               </button>
               <button
-                className="btn btn-warning ms-2 m-1"
+                className="btn btn-warning m-1"
                 onClick={() => setShowRoleModal(true)}
-                aria-label="Change user role"
+                aria-label="Change role"
               >
                 Change Role
               </button>
               <button
-                className="btn btn-danger ms-2 m-1"
+                className="btn btn-danger m-1"
                 onClick={() => openEditAttributeModal("password")}
-                aria-label="Change user password"
+                aria-label="Change password"
               >
                 Change Password
               </button>
@@ -361,45 +322,43 @@ const ViewProfile = () => {
       </section>
 
       <ChangeRoleModal
-        showModal={showRoleModal}
-        setShowModal={setShowRoleModal}
-        handleRoleChange={handleRoleChange}
-        selectedRole={selectedRole}
-        setSelectedRole={setSelectedRole}
-        aria-label="Change role modal"
+        {...{
+          showModal: showRoleModal,
+          setShowModal: setShowRoleModal,
+          handleRoleChange,
+          selectedRole,
+          setSelectedRole,
+        }}
       />
-
       <EditAttributeModal
-        show={editAttributeModal.show}
-        onClose={closeEditAttributeModal}
-        attribute={editAttributeModal.attribute}
-        value={editAttributeModal.value}
-        onChange={handleEditAttributeChange}
-        placeholder={`Enter new ${editAttributeModal.attribute}`}
-        onSave={handleEditAttributeSave}
-        errorMessage={editAttributeError}
+        {...{
+          show: editAttributeModal.show,
+          onClose: closeEditAttributeModal,
+          attribute: editAttributeModal.attribute,
+          value: editAttributeModal.value,
+          onChange: handleEditAttributeChange,
+          placeholder: `Enter new ${editAttributeModal.attribute}`,
+          onSave: handleEditAttributeSave,
+          errorMessage: editAttributeError,
+        }}
       />
 
-      {/* Reservas */}
+      {/* Reservations */}
       <section className="card p-4 mb-4 shadow">
-        <h3 className="mb-3">Reservations</h3>
-
-        <div className="mb-3 d-flex justify-content-center flex-wrap align-items-end gap-4">
+        <h3>Reservations</h3>
+        <div className="mb-3 d-flex flex-wrap gap-3 align-items-end justify-content-center">
           <div className="d-flex align-items-end gap-2">
             <input
               type="date"
               className="form-control"
               value={dateFilterReservation}
               onChange={(e) => setDateFilterReservation(e.target.value)}
-              aria-label="Filter reservations by date"
+              aria-label="Filter by date"
             />
-            <button
-              className="btn btn-warning"
+            <ResetButtonFilter
               onClick={() => setDateFilterReservation("")}
-              aria-label="Reset reservation date filter"
-            >
-              <i className="fa-solid fa-rotate-right"></i>
-            </button>
+              ariaLabel="Reset date filter"
+            />
           </div>
           <div className="d-flex align-items-end gap-2">
             <input
@@ -408,21 +367,16 @@ const ViewProfile = () => {
               value={titleFilterReservation}
               onChange={(e) => setTitleFilterReservation(e.target.value)}
               placeholder="Filter by title"
-              aria-label="Filter reservations by title"
+              aria-label="Filter by title"
             />
-            <button
-              className="btn btn-warning"
+            <ResetButtonFilter
               onClick={() => setTitleFilterReservation("")}
-              aria-label="Reset reservation title filter"
-            >
-              <i className="fa-solid fa-rotate-right"></i>
-            </button>
+              ariaLabel="Reset title filter"
+            />
           </div>
         </div>
-
         <div
           id="scrollableReservations"
-          className="card-body"
           style={{ height: "500px", overflowY: "auto" }}
         >
           <InfiniteScroll
@@ -434,8 +388,8 @@ const ViewProfile = () => {
                 titleFilterReservation
               )
             }
-            loader={isFetching && <Loading />}
             hasMore={hasMoreReservations}
+            loader={isFetching && <Loading />}
             scrollableTarget="scrollableReservations"
             endMessage={
               <p className="text-center mt-3 text-muted">
@@ -444,41 +398,38 @@ const ViewProfile = () => {
             }
           >
             <div className="row">
-              {userReservations.map((reservation, index) => (
-                <article key={index} className="col-md-6 mb-3">
+              {userReservations.map((reservation, i) => (
+                <div key={i} className="col-md-6 mb-3">
                   <div className="card shadow-sm w-100">
                     <div className="card-body">
                       <i className="bi bi-calendar-check me-2"></i>
-                      {reservation.bookTitle} {reservation.id}
+                      {reservation.bookTitle}
                     </div>
                   </div>
-                </article>
+                </div>
               ))}
             </div>
           </InfiniteScroll>
         </div>
       </section>
 
-      {/* Préstamos */}
+      {/* Loans */}
       <section className="card p-4 shadow">
-        <h3 className="mb-3">Loans</h3>
-
-        <div className="mb-3 d-flex justify-content-center flex-wrap align-items-end gap-4">
+        <h3>Loans</h3>
+        <div className="mb-3 d-flex flex-wrap gap-3 align-items-end justify-content-center">
           <div className="d-flex align-items-end gap-2">
             <input
               type="date"
               className="form-control"
               value={dateFilterLoan}
               onChange={(e) => setDateFilterLoan(e.target.value)}
-              aria-label="Filter loans by date"
+              aria-label="Filter by date"
+              style={{ flexGrow: 1 }}
             />
-            <button
-              className="btn btn-warning"
+            <ResetButtonFilter
               onClick={() => setDateFilterLoan("")}
-              aria-label="Reset loan date filter"
-            >
-              <i className="fa-solid fa-rotate-right"></i>
-            </button>
+              ariaLabel="Reset date filter"
+            />
           </div>
           <div className="d-flex align-items-end gap-2">
             <input
@@ -487,42 +438,32 @@ const ViewProfile = () => {
               value={titleFilterLoan}
               onChange={(e) => setTitleFilterLoan(e.target.value)}
               placeholder="Filter by title"
-              aria-label="Filter loans by title"
+              aria-label="Filter by title"
             />
-            <button
-              className="btn btn-warning"
+            <ResetButtonFilter
               onClick={() => setTitleFilterLoan("")}
-              aria-label="Reset loan title filter"
-            >
-              <i className="fa-solid fa-rotate-right"></i>
-            </button>
+              ariaLabel="Reset title filter"
+            />
           </div>
           <div className="d-flex align-items-end gap-2">
             <select
-              name="isReturned"
-              id="isReturned"
               className="form-select"
               value={isReturnedLoan}
               onChange={(e) => setIsReturnedLoan(e.target.value)}
-              aria-label="Filter loans by return status"
+              aria-label="Filter by return status"
             >
               <option value="">All</option>
               <option value="true">Returned</option>
-              <option value="false">Not returned</option>
+              <option value="false">Not Returned</option>
             </select>
-            <button
-              className="btn btn-warning"
+            <ResetButtonFilter
               onClick={() => setIsReturnedLoan("")}
-              aria-label="Reset loan return status filter"
-            >
-              <i className="fa-solid fa-rotate-right"></i>
-            </button>
+              ariaLabel="Reset return status filter"
+            />
           </div>
         </div>
-
         <div
           id="scrollableLoans"
-          className="card-body"
           style={{ height: "500px", overflowY: "auto" }}
         >
           <InfiniteScroll
@@ -535,8 +476,8 @@ const ViewProfile = () => {
                 isReturnedLoan
               )
             }
-            loader={isFetching && <Loading />}
             hasMore={hasMoreLoans}
+            loader={isFetching && <Loading />}
             scrollableTarget="scrollableLoans"
             endMessage={
               <p className="text-center mt-3 text-muted">
@@ -545,22 +486,12 @@ const ViewProfile = () => {
             }
           >
             <div className="row">
-              {userLoans.map((loan, index) => (
-                <article key={index} className="col-md-6 mb-3">
+              {userLoans.map((loan, i) => (
+                <div key={i} className="col-md-6 mb-3">
                   <div className="card shadow-sm w-100">
-                    <div className="card-body">
-                      <i className="bi bi-book me-2"></i>
-                      {loan.book} {loan.id}
-                      <button
-                        className="btn btn-primary btn-sm float-end"
-                        onClick={() => handleReturnBook(loan.book, email)}
-                        aria-label={`Return the book ${loan.book}`}
-                      >
-                        Return
-                      </button>
-                    </div>
+                    <div className="card-body">{loan.book}</div>
                   </div>
-                </article>
+                </div>
               ))}
             </div>
           </InfiniteScroll>

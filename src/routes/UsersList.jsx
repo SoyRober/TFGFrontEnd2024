@@ -6,6 +6,7 @@ import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModa
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
+import ResetButtonFilter from "../components/ResetButtonFilter.jsx"; //
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
@@ -108,60 +109,108 @@ const UsersList = () => {
     setReset(true);
   };
 
+  const getRowStyle = (role) => {
+    const normalizedRole = role.toLowerCase();
+    switch (normalizedRole) {
+      case "admin":
+        return { backgroundColor: "rgba(255, 109, 121, 0.7)" };
+      case "librarian":
+        return { backgroundColor: "rgba(214, 158, 94, 0.7)" };
+      default:
+        return { backgroundColor: "rgba(255, 255, 255, 1)" };
+    }
+  };
+
   return (
     <main className="container">
       <h2>User List</h2>
-      <div className="filters mb-4 row justify-content-center">
-        <div className="col-12 col-md-5 col-lg-4 mb-2">
+      <form
+        className="row w-100 justify-content-center mb-4"
+        aria-label="User Filters Form"
+      >
+        <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-2">
           <input
             type="text"
-            placeholder="Filter by username"
             className="form-control"
-            onChange={(e) => {
+            placeholder="Filter by username"
+            value={filters.username}
+            onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
                 username: e.target.value.trim(),
-              }));
-            }}
+              }))
+            }
             aria-label="Filter users by username"
+            style={{ flexGrow: 1 }}
+          />
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, username: "" }));
+              setPage(0);
+              setReset(true);
+            }}
+            ariaLabel="Reset Username Filter Button"
           />
         </div>
-        <div className="col-12 col-md-5 col-lg-4 mb-2">
+
+        <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-2">
           <input
             type="text"
-            placeholder="Filter by email"
             className="form-control"
-            onChange={(e) => {
-              setFilters((prev) => ({ ...prev, email: e.target.value.trim() }));
-            }}
+            placeholder="Filter by email"
+            value={filters.email}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, email: e.target.value.trim() }))
+            }
             aria-label="Filter users by email"
+            style={{ flexGrow: 1 }}
+          />
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, email: "" }));
+              setPage(0);
+              setReset(true);
+            }}
+            ariaLabel="Reset Email Filter Button"
           />
         </div>
-        <div className="col-12 col-md-5 col-lg-4 mb-2">
+
+        <div className="col-12 col-md-6 col-lg-4 d-flex align-items-center mb-2">
           <select
             className="form-control"
-            onChange={(e) => {
-              setFilters((prev) => ({ ...prev, role: e.target.value }));
-            }}
+            value={filters.role || ""}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, role: e.target.value }))
+            }
             aria-label="Filter users by role"
+            style={{ flexGrow: 1 }}
           >
             <option value="">Filter by role</option>
             <option value="user">User</option>
             <option value="librarian">Librarian</option>
             <option value="admin">Admin</option>
           </select>
+          <ResetButtonFilter
+            onClick={() => {
+              setFilters((prev) => ({ ...prev, role: "" }));
+              setPage(0);
+              setReset(true);
+            }}
+            ariaLabel="Reset Role Filter Button"
+          />
         </div>
-        <div className="col-12 col-md-2 d-flex justify-content-center">
+
+        <div className="col-12 d-flex justify-content-center mt-2">
           <button
-            className="btn btn-warning w-100"
+            className="btn btn-warning"
+            type="button"
             onClick={resetFilters}
             aria-label="Reset all filters"
           >
-            Reset Filters
+            Reset All Filters
           </button>
         </div>
-      </div>
-
+      </form>
       <InfiniteScroll
         dataLength={users.length}
         next={fetchMoreUsers}
@@ -169,7 +218,7 @@ const UsersList = () => {
         loader={<Loading />}
         endMessage={<p className="text-center mt-4">No more users to show</p>}
       >
-        <table className="table table-striped">
+        <table className="table">
           <thead>
             <tr>
               <th scope="col">Username</th>
@@ -179,43 +228,35 @@ const UsersList = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                style={{
-                  border:
-                    user.role.toLowerCase() === "admin"
-                      ? "2px solid red"
-                      : user.role.toLowerCase() === "librarian"
-                      ? "2px solid blue"
-                      : "none",
-                }}
-              >
-                <td>{user.username}</td>
-                <td>{user.email}</td>
-                <td>{user.role}</td>
-                <td>
-                  <button
-                    onClick={() => handleDeleteClick(user.id)}
-                    className="btn btn-danger me-2"
-                    aria-label={`Delete user ${user.username}`}
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => handleViewProfile(user.email)}
-                    className="btn btn-primary"
-                    aria-label={`View profile of user ${user.username}`}
-                  >
-                    View Profile
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {users.map((user) => {
+              const style = getRowStyle(user.role);
+              return (
+                <tr key={user.id}>
+                  <td style={style}>{user.username}</td>
+                  <td style={style}>{user.email}</td>
+                  <td style={style}>{user.role}</td>
+                  <td style={style}>
+                    <button
+                      onClick={() => handleDeleteClick(user.id)}
+                      className="btn btn-danger me-2"
+                      aria-label={`Delete user ${user.username}`}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => handleViewProfile(user.email)}
+                      className="btn btn-primary"
+                      aria-label={`View profile of user ${user.username}`}
+                    >
+                      View Profile
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </InfiniteScroll>
-
       <DeleteConfirmationModal
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}

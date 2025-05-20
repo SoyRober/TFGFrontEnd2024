@@ -1,4 +1,4 @@
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { Suspense, lazy } from "react";
 
@@ -29,7 +29,7 @@ const withSuspense = (Component) => (
 	</Suspense>
 );
 
-const router = createHashRouter([
+const router = createBrowserRouter([
 	{
 		path: "/",
 		element: withSuspense(Navbar),

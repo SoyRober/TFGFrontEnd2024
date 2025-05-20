@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import ReactivationInfoModal from "../components/modals/ReactivationInfoModal.jsx";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -12,10 +11,6 @@ const Register = () => {
   const [address, setAddress] = useState("");
   const [telephone, setTelephone] = useState("");
   const navigate = useNavigate();
-
-  const [showModal, setShowModal] = useState(false);
-
-  const handleHideModal = () => setShowModal(false);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -175,8 +170,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-
-      <ReactivationInfoModal show={showModal} handleClose={handleHideModal} />
     </main>
   );
 };
