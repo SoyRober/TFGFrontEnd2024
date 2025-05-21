@@ -3,6 +3,7 @@ import { fetchData } from "../utils/fetch.js";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import InfoModal from "../components/modals/InfoModal.jsx";
+import PasswordRecoveryForm from "../components/PasswordRecoveryForm.jsx";
 
 const Login = () => {
   const [password, setPassword] = useState("");
@@ -35,18 +36,7 @@ const Login = () => {
   const openPasswordRecoveryModal = () => {
     setModalTitle("Password Recovery");
     setModalContent(
-      <>
-        If you forgot your password, please contact support to reset it. Tell us
-        your username and email.
-        <br />
-        <a
-          href="mailto:bibliosupport@gmail.com?subject=Password Reset Request"
-          className="text-info"
-          target="_blank"
-        >
-          bibliosupport@gmail.com
-        </a>
-      </>
+      <PasswordRecoveryForm onClose={() => setShowModal(false)} />
     );
     setShowModal(true);
   };
