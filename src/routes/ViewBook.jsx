@@ -206,7 +206,7 @@ export default function ViewBook() {
     } else if (attribute === "genres") {
       setSelectedGenres(book.genres || []);
     } else if (attribute === "libraries") {
-      setSelectedLibraries(book.libraries || []); // Asegúrate de que `book.libraries` contenga los nombres
+      setSelectedLibraries(book.libraries || []);
     }
   };
 
@@ -402,6 +402,7 @@ export default function ViewBook() {
 
   // Función para manejar el préstamo a un usuario
   const handleLoanToUser = async () => {
+    console.log("Loan to user clicked");
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found, user might not be authenticated");
@@ -418,7 +419,7 @@ export default function ViewBook() {
         `${API_ENDPOINTS.LOAN}/${selectedUser}`,
         "POST",
         {
-          bookTitle: book.title,
+          bookTitle: title,
           daysLoaned: daysLoaned,
         },
         token
@@ -438,13 +439,13 @@ export default function ViewBook() {
 
   return (
     <main className="container mt-5">
-      <h1 className="display-4 text-center mb-4">{book.title}</h1>
+      <h1 className="display-4 text-center mb-4">{title}</h1>
 
       <section className="row">
         <div className="col-md-6 mb-3 d-flex flex-column align-items-center justify-content-center">
           <img
             src={imageSrc ? imageSrc : defaultBook}
-            alt={book.title}
+            alt={title}
             className="img-fluid"
             style={{
               width: "auto",
@@ -515,14 +516,15 @@ export default function ViewBook() {
             </div>
           )}
         </div>
-
-        <BookDetails
-          book={book}
-          quantity={quantity}
-          isLoggedIn={isLoggedIn}
-          hasPermissions={hasPermissions}
-          handleEditClick={handleEditClick}
-        />
+        {book && (
+          <BookDetails
+            book={book}
+            quantity={quantity}
+            isLoggedIn={isLoggedIn}
+            hasPermissions={hasPermissions}
+            handleEditClick={handleEditClick}
+          />
+        )}
       </section>
 
       {isLoggedIn && hasPermissions && (
@@ -587,7 +589,7 @@ export default function ViewBook() {
         show={showDeleteConfirmation}
         onClose={() => setShowDeleteConfirmation(false)}
         onDelete={handleDeleteBook}
-        message={`This book "${book.title}" will be deleted. Are you sure?`}
+        message={`This book "${title}" will be deleted. Are you sure?`}
         aria-label="Delete book confirmation modal"
       />
 

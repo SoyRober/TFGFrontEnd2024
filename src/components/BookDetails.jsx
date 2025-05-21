@@ -39,21 +39,20 @@ export default function BookDetails({
       <dl>
         {details.map(({ label, value, key }) => (
           <div className="mb-2" key={key}>
-            <dt>
-              <strong>{label}:</strong>
-            </dt>
-            <dd>
-              {value}
-              {isLoggedIn && hasPermissions && (
+            <div>
+              <strong>{label}:</strong> {value}
+            </div>
+            {isLoggedIn && hasPermissions && (
+              <div className="mt-1">
                 <button
                   onClick={() => handleEditClick(key)}
-                  className="btn btn-primary ms-2"
+                  className="btn btn-primary"
                   aria-label={`Editar ${label}`}
                 >
                   Edit
                 </button>
-              )}
-            </dd>
+              </div>
+            )}
           </div>
         ))}
       </dl>
