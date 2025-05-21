@@ -58,6 +58,7 @@ export default function ViewBook() {
       setIsLoggedIn(true);
 
       const decodedToken = jwtDecode(token);
+      console.log("🚀 ~ useEffect ~ decodedToken:", decodedToken);
       const userRole = decodedToken.role;
       setUsername(decodedToken.username);
 
@@ -563,7 +564,7 @@ export default function ViewBook() {
 
       <section className="mt-5">
         <h2>Reviews</h2>
-        <ReviewList title={title} username={username} />
+        {username && <ReviewList title={title} username={username} />}
       </section>
 
       <EditBookAttributeModal
