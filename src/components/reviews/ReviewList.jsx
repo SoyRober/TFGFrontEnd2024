@@ -104,7 +104,6 @@ export default function ReviewList({ title, username }) {
     setIsFetching(true);
     try {
       const data = await fetchData(`/public/reviews/${title}?page=${page}`);
-  console.log("🚀 ~ ReviewList ~ username:", username)
 
       if (data.length > 0) {
         let reviewsToSet = data;

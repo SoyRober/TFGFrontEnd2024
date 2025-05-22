@@ -36,7 +36,8 @@ const Card = React.memo(({ title, image, preload }) => {
   const navigate = useNavigate();
 
   const navigateToBookDetails = () => {
-    navigate(`/viewBook/${encodeURIComponent(title)}`);
+    const formattedTitle = title.trim().replaceAll(" ", "_");
+    navigate(`/viewBook/${encodeURIComponent(formattedTitle)}`);
   };
 
   const handleImageLoad = () => {

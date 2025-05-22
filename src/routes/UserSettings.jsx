@@ -47,7 +47,6 @@ export default function Settings() {
       setEmail(data.message.email);
       setBirthDate(data.message.birthday);
       setisOauth(data.message.oauth);
-      console.log("isOauth: ", data.message.oauth);
       setProfileImage(
         data.message.profileImage
           ? `data:image/jpeg;base64,${data.message.profileImage}`
@@ -82,7 +81,6 @@ export default function Settings() {
 
       const url = getUpdateUrl(decodedToken.email, modalAttribute);
       const formData = await prepareFormData(modalAttribute, modalValue);
-      console.log("🚀 ~ handleSaveAttribute ~ modalValue:", modalValue);
 
       const data = await fetchData(url, "PUT", formData, token);
 

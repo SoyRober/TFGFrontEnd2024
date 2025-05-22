@@ -67,7 +67,6 @@ export default function LibraryHomepage() {
       if (userRole !== "user") setHasPermissions(true);
       setBookData(initialBookData);
     }
-    console.log("Esto lo he puesto para los 20mins");
   }, [token]);
 
   useEffect(() => {
@@ -302,7 +301,8 @@ export default function LibraryHomepage() {
   };
 
   const navigateToBookDetails = (title) => {
-    navigate(`/viewBook/${encodeURIComponent(title)}`);
+    const formattedTitle = title.trim().replaceAll(" ", "_");
+    navigate(`/viewBook/${encodeURIComponent(formattedTitle)}`);
   };
 
   return (

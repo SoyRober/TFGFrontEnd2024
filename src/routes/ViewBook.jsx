@@ -24,7 +24,7 @@ const API_ENDPOINTS = {
 };
 
 export default function ViewBook() {
-  const { title } = useParams();
+  const title = useParams().title.replaceAll("_", " ");
   const navigate = useNavigate();
   const [book, setBook] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -316,7 +316,8 @@ export default function ViewBook() {
       setEditingAttribute(null);
 
       if (editingAttribute === "title") {
-        navigate(`/viewBook/${editValue}`);
+        const formattedEditValue = editValue.trim().replaceAll(" ", "_");
+        navigate(`/viewBook/${encodeURIComponent(formattedEditValue)}`);
       } else {
         fetchBookData();
       }
@@ -396,7 +397,6 @@ export default function ViewBook() {
   };
 
   const handleLoanToUser = async () => {
-    console.log("Loan to user clicked");
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("No token found, user might not be authenticated");
