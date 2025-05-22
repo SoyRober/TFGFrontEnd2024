@@ -58,7 +58,6 @@ export default function ViewBook() {
       setIsLoggedIn(true);
 
       const decodedToken = jwtDecode(token);
-      console.log("🚀 ~ useEffect ~ decodedToken:", decodedToken);
       const userRole = decodedToken.role;
       setUsername(decodedToken.username);
 
@@ -248,12 +247,10 @@ export default function ViewBook() {
     setSelectedLibraries(selectedValues);
   };
 
-  // Función auxiliar para manejar errores
   const handleError = (error, defaultMessage = "Something went wrong") => {
     toast.error(error.message || defaultMessage);
   };
 
-  // Función auxiliar para construir el payload
   const buildPayload = () => {
     const payload = new FormData();
     payload.append("title", title);
@@ -279,7 +276,6 @@ export default function ViewBook() {
     return payload;
   };
 
-  // Función para manejar la edición y envío del formulario
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
@@ -353,7 +349,6 @@ export default function ViewBook() {
     }
   };
 
-  // Función para manejar la reserva de un libro
   const handleReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -376,7 +371,6 @@ export default function ViewBook() {
     }
   };
 
-  // Función para cancelar la reserva
   const handleCancelReservation = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -401,7 +395,6 @@ export default function ViewBook() {
     }
   };
 
-  // Función para manejar el préstamo a un usuario
   const handleLoanToUser = async () => {
     console.log("Loan to user clicked");
     const token = localStorage.getItem("token");
