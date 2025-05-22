@@ -9,13 +9,13 @@ import Skeleton from "react-loading-skeleton";
 
 const MAX_VISIBILITY = 3;
 
-const fetchBooks = async (setBooks, genre = "") => {
+const fetchBooks = async (setBooks, genre = "", library) => {
   try {
     const params = new URLSearchParams();
     if (genre) params.append("genre", genre);
 
     const data = await fetchData(
-      `/public/books/random/${localStorage.getItem("libraryName")}?${params.toString()}`,
+      `/public/books/random/${library}?${params.toString()}`,
       "GET",
       null
     );
@@ -114,13 +114,25 @@ const Carousel = ({ children }) => {
   }, [count, direction]);
 
   return (
-    <div className="carousel" role="region" aria-label="Carrusel de libros" tabIndex={-1}>
+    <div
+      className="carousel"
+      role="region"
+      aria-label="Carrusel de libros"
+      tabIndex={-1}
+    >
       <div
         aria-live="polite"
         aria-atomic="true"
-        style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          height: 0,
+          overflow: "hidden",
+        }}
       >
-        {`Libro activo: ${React.Children.toArray(children)[active]?.props.title || ""}`}
+        {`Libro activo: ${
+          React.Children.toArray(children)[active]?.props.title || ""
+        }`}
       </div>
 
       <button
@@ -167,16 +179,21 @@ const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
   const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
 
   useEffect(() => {
-    fetchBooks(setBooks, genre);
-  }, [genre]);
+    fetchBooks(setBooks, genre, library);
+  }, [genre, library]);
 
   useEffect(() => {
-    const currentLibrary = localStorage.getItem("libraryName");
-    if (currentLibrary !== library) {
+    const handleLibraryChange = () => {
+      const currentLibrary = localStorage.getItem("libraryName");
       setLibrary(currentLibrary);
-      fetchBooks(setBooks, genre);
-    }
-  }, [library, genre]);
+      fetchBooks(setBooks, genre, currentLibrary);
+    };
+
+    window.addEventListener("libraryChanged", handleLibraryChange);
+    return () => {
+      window.removeEventListener("libraryChanged", handleLibraryChange);
+    };
+  }, [genre]);
 
   if (!books.length) {
     return <Loading />;
@@ -189,7 +206,9 @@ const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
           <Card
             key={i}
             title={book.title}
-            image={book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook}
+            image={
+              book.image ? `data:image/jpeg;base64,${book.image}` : defaultBook
+            }
             preload={preloadFirst && i === 0}
           />
         ))}

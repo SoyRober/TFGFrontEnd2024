@@ -21,6 +21,7 @@ const LibrarySelector = () => {
   const handleLibraryChange = (e) => {
     const selectedLibraryName = e.target.value;
     localStorage.setItem("libraryName", selectedLibraryName);
+    window.dispatchEvent(new Event("libraryChanged"));
     setSelectedLibrary(selectedLibraryName);
     let pathname = window.location.pathname;
     if (pathname.includes("viewBook")) {
