@@ -14,7 +14,6 @@ import ReviewList from "../components/reviews/ReviewList.jsx";
 import UserReview from "../components/reviews/UserReview.jsx";
 import SubmitReview from "../components/reviews/SubmitReview.jsx";
 
-// Constantes para evitar valores mágicos
 const IMAGE_DIMENSIONS = { width: 300, height: 300 };
 const API_ENDPOINTS = {
 	BOOKS: "/librarian/books/update",

@@ -31,7 +31,7 @@ export const compressImage = (file, quality = 0.7, maxWidth = 300, maxHeight = 3
                     canvas.toBlob(
                         (blob) => {
                             if (blob.size / 1024 > maxSizeKB && currentQuality > 0.1) {
-                                compress(currentQuality - 0.1); // Reducir calidad iterativamente
+                                compress(currentQuality - 0.1);
                             } else {
                                 resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }));
                             }
