@@ -22,11 +22,14 @@ const Libraries = lazy(() => import("./routes/Libraries.jsx"));
 const ManagedLibraries = lazy(() => import("./routes/ManagedLibraries.jsx"));
 const Loading = lazy(() => import("./components/Loading.jsx"));
 const Error = lazy(() => import("./routes/Error.jsx"));
+const ErrorBoundary = lazy(() => import("./routes/ErrorBoundary.jsx"));
 
 const withSuspense = (Component) => (
-	<Suspense fallback={<Loading />}>
-		<Component />
-	</Suspense>
+	<ErrorBoundary>
+		<Suspense fallback={<Loading />}>
+			<Component />
+		</Suspense>
+	</ErrorBoundary>
 );
 
 const router = createBrowserRouter([
