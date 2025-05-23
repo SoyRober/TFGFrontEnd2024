@@ -4,7 +4,7 @@ import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 const Loading = lazy(() => import("../components/Loading.jsx"));
-const BookCardLoans = lazy(() => import("../components/BookCardsLoan.jsx"));
+const BookCardLoans = lazy(() => import("../components/cards/BookCardsLoan.jsx"));
 const ResetButtonFilter = lazy(() =>
   import("../components/ResetButtonFilter.jsx")
 );

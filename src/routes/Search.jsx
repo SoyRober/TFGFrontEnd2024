@@ -7,7 +7,7 @@ import defaultBook from "/img/defaultBook.svg";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Filters from "../components/BookFilters.jsx";
 import CardSizeSelector from "../components/CardSizeSelector.jsx";
-import BookCard from "../components/BookCard.jsx";
+import BookCard from "../components/cards/BookCard.jsx";
 import { toast } from "react-toastify";
 
 const initialBookData = {

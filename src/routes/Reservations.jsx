@@ -1,11 +1,11 @@
 import { useEffect, useState, lazy } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
-import defaultBook from "/img/defaultBook.svg";
 const ResetButtonFilter = lazy(() => import("../components/ResetButtonFilter.jsx"));
+import ReservationCard from "../components/cards/BookCardReservation.jsx";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
@@ -186,96 +186,15 @@ const UserReservations = ({ cardSize }) => {
           style={{ overflow: "hidden" }}
         >
           <div className="row" role="list">
-            {filteredReservations.map((reservation, index) => (
-              <div
-                key={index}
-                className={`${getColumnClass(cardSize)} mb-4`}
-                role="listitem"
-              >
-                <div
-                  className="card"
-                  style={{
-                    height:
-                      cardSize === "small"
-                        ? "250px"
-                        : cardSize === "medium"
-                        ? "350px"
-                        : "600px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div
-                    className="card-img-container"
-                    style={{
-                      flex: "1 0 40%",
-                      overflow: "hidden",
-                      display: "flex",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      padding: "4%",
-                    }}
-                  >
-                    <img
-                      src={
-                        reservation.image
-                          ? `data:image/jpeg;base64,${reservation.image}`
-                          : defaultBook
-                      }
-                      className="img-fluid"
-                      alt={`Cover of ${reservation.bookTitle}`}
-                      style={{
-                        maxWidth: "100%",
-                        maxHeight: "100%",
-                        objectFit: "cover",
-                      }}
-                    />
-                  </div>
-                  <div
-                    className="card-body"
-                    style={{ flex: "1 0 40%", overflowY: "auto" }}
-                  >
-                    <h5 className="card-title">
-                      <Link
-                        to={`/viewBook/${reservation.bookTitle}`}
-                        className="text-decoration-none d-flex align-items-center"
-                      >
-                        {reservation.bookTitle}
-                        <i
-                          className="fas fa-mouse-pointer ms-2"
-                          aria-hidden="true"
-                        ></i>
-                      </Link>
-                    </h5>
-                    <p className="card-text">
-                      <strong>Reservation Date:</strong>{" "}
-                      {new Date(reservation.reservationDate).toLocaleDateString(
-                        "es-ES",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }
-                      )}
-                    </p>
-                    <p className="card-text">
-                      <strong>Status:</strong> {reservation.status}
-                    </p>
-                    {reservation.status === "PENDING" && (
-                      <button
-                        className="btn btn-primary ms-2"
-                        onClick={() => cancelReservation(reservation.bookTitle)}
-                      >
-                        Cancel Reservation
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+{filteredReservations.map((reservation, index) => (
+  <ReservationCard
+    key={index}
+    reservation={reservation}
+    cardSize={cardSize}
+    cancelReservation={cancelReservation}
+    getColumnClass={getColumnClass}
+  />
+))}
           </div>
         </InfiniteScroll>
       </div>
