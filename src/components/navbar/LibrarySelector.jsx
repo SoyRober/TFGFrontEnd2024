@@ -14,6 +14,7 @@ const LibrarySelector = () => {
     const fetchLibraries = async () => {
       const data = await fetchData("/public/libraries/list", "GET");
       setLibraries(data);
+      localStorage.setItem("libraryName", data[0]);
     };
     fetchLibraries();
   }, []);
