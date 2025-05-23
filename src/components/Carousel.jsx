@@ -77,13 +77,18 @@ const Card = React.memo(({ title, image, preload }) => {
         </div>
       ) : (
         <>
-          <h2>{title}</h2>
+          <h2 title={title}>
+            {title.length > 30 ? title.slice(0, 30) + "..." : title}
+          </h2>
           <img
             src={imageSrc}
             alt={`Portada del libro ${title}`}
             loading={preload ? "eager" : "lazy"}
             onLoad={handleImageLoad}
+            width={220}
+            height={220}
             style={{ maxWidth: "100%", height: "auto" }}
+            className="shadow"
           />
         </>
       )}

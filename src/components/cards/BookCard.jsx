@@ -83,9 +83,14 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
           <img
             src={imageUrl}
             alt={title}
-            width={widthMap[cardSize] || 120}
-            height={heightImgMap[cardSize] || 180}
-            style={{ display: "block" }}
+            width={widthMap[cardSize]}
+            height={heightImgMap[cardSize]}
+            className="shadow"
+            style={{
+              objectFit: "contain",
+              display: "block",
+              borderRadius: "4px",
+            }}
             loading="eager"
             decoding="async"
           />
@@ -105,7 +110,7 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
               fontSize: fontSizeMap[cardSize] || "1.5em",
             }}
           >
-            {title}
+            {title.length > 30 ? title.slice(0, 30) + "..." : title}
           </h2>
         </div>
       </div>

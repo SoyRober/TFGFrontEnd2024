@@ -80,7 +80,8 @@ export default function BookCardLoans({ loan, cardSize }) {
             id={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
             className="card-title mb-3"
           >
-            <strong>{loan.book}</strong>
+            <strong>{loan.book}             
+</strong>
           </h3>
           <p className={getTextSizeClass(cardSize)}>
             <strong>Start Date:</strong>{" "}

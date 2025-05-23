@@ -47,26 +47,26 @@ export default function BookCardLoans({ loan, cardSize }) {
             className="text-decoration-none"
             aria-label={`View details for the book ${loan.book}`}
           >
-            <img
-              src={imageUrl}
-              width={
-                cardSize === "small"
-                  ? "150"
-                  : cardSize === "medium"
-                  ? "180"
-                  : "300"
-              }
-              height={
-                cardSize === "small"
-                  ? "150"
-                  : cardSize === "medium"
-                  ? "220"
-                  : "380"
-              }
-              className="card-img-top mx-auto img-custom"
-              alt={`Cover of ${loan.book}`}
-              loading="lazy"
-            />
+            <h3
+              id={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
+              className="card-title mb-3 text-truncate"
+              style={{
+                maxWidth: "100%",
+                fontSize:
+                  cardSize === "small"
+                    ? "1.2em"
+                    : cardSize === "medium"
+                    ? "1.5em"
+                    : "1.8em",
+              }}
+              title={loan.book} // tooltip con título completo
+            >
+              <strong>
+                {loan.book.length > 30
+                  ? loan.book.slice(0, 30) + "..."
+                  : loan.book}
+              </strong>
+            </h3>
           </Link>
         </figure>
         <div className="d-flex justify-content-center">
@@ -78,10 +78,25 @@ export default function BookCardLoans({ loan, cardSize }) {
         <div className="card-body text-center">
           <h3
             id={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
-            className="card-title mb-3"
+            className="card-title mb-3 text-truncate"
+            style={{
+              maxWidth: "100%",
+              fontSize:
+                cardSize === "small"
+                  ? "1.2em"
+                  : cardSize === "medium"
+                  ? "1.5em"
+                  : "1.8em",
+            }}
+            title={loan.book}
           >
-            <strong>{loan.book}</strong>
+            <strong>
+              {loan.book.length > 30
+                ? loan.book.slice(0, 30) + "..."
+                : loan.book}
+            </strong>
           </h3>
+
           <p className={getTextSizeClass(cardSize)}>
             <strong>Start Date:</strong>{" "}
             <time dateTime={new Date(loan.startDate).toISOString()}>
