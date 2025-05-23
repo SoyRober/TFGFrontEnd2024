@@ -154,7 +154,7 @@ export default function ReviewList({ title, username }) {
       <InfiniteScroll
         dataLength={reviews.length}
         next={() => setPage((prev) => prev + 1)}
-        hasMore={!isFetching && reviews.length % 10 === 0}
+        hasMore={!isFetching && reviews.length % 10 === 0 && reviews.length > 0}
         loader={<Loading />}
         endMessage={
           <p
