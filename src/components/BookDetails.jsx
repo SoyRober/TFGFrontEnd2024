@@ -39,9 +39,28 @@ export default function BookDetails({
       <dl>
         {details.map(({ label, value, key }) => (
           <div className="mb-2" key={key}>
-            <div>
-              <strong>{label}:</strong> {value}
-            </div>
+            {key === "synopsis" ? (
+              <div>
+                <strong>{label}:</strong>
+                <div
+                  style={{
+                    maxHeight: "150px",
+                    overflowY: "auto",
+                    border: "1px solid #ccc",
+                    padding: "0.5rem",
+                    borderRadius: "4px",
+                    marginTop: "0.25rem",
+                  }}
+                  aria-label="Scrollable synopsis"
+                >
+                  {value}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <strong>{label}:</strong> {value}
+              </div>
+            )}
             {isLoggedIn && hasPermissions && (
               <div className="mt-1">
                 <button
