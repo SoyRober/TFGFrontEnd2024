@@ -450,7 +450,7 @@ export default function ViewBook() {
           <img
             src={imageSrc ? imageSrc : defaultBook}
             alt={title}
-            className="img-fluid mt-2"
+            className="img-fluid mt-2 shadow"
             style={{
               width: "500px",
               height: "auto",
