@@ -125,9 +125,10 @@ const UserReservations = ({ cardSize }) => {
             onChange={(e) => setDateFilter(e.target.value || "")}
           />
           <ResetButtonFilter
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault?.();
               setDateFilter("");
-              fetchReservations(0);
+              setPage(0);
             }}
             ariaLabel="Reset Date Button"
           />
@@ -148,7 +149,8 @@ const UserReservations = ({ cardSize }) => {
             <option value="notReturned">Not loaned</option>
           </select>
           <ResetButtonFilter
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault?.();
               setLoanedFilter("");
               fetchReservations(0);
             }}
