@@ -379,7 +379,7 @@ export default function LibraryHomepage() {
         <InfiniteScroll
           dataLength={books.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={!isFetching && books.length % 10 === 0 && books.length > 0}
+          hasMore={books.length > 0 && !isFetching && books.length % 10 === 0}
           loader={<Loading />}
           endMessage={
             <p
