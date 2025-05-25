@@ -120,7 +120,7 @@ const UserReservations = ({ cardSize }) => {
             id="startDateFilter"
             className="form-control"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            onChange={(e) => setDateFilter(e.target.value || "")}
           />
           <ResetButtonFilter
             onClick={() => {
@@ -139,7 +139,7 @@ const UserReservations = ({ cardSize }) => {
             id="loanedFilter"
             className="form-select"
             value={loanedFilter}
-            onChange={(e) => setLoanedFilter(e.target.value)}
+            onChange={(e) => setLoanedFilter(e.target.value || "")}
           >
             <option value="all">All</option>
             <option value="returned">Loaned</option>
