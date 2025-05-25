@@ -16,8 +16,8 @@ export default function Attributes() {
   const [token] = useState(() => {
     return localStorage.getItem("token") ? localStorage.getItem("token") : null;
   });
-  const [reservesPage, setReservesPage] = useState(1);
-  const [loansPage, setLoansPage] = useState(1);
+  const [reservesPage, setReservesPage] = useState(0);
+  const [loansPage, setLoansPage] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [currentReserve, setCurrentReserve] = useState(null);
   const [daysLoaned, setDaysLoaned] = useState(0);
@@ -30,7 +30,7 @@ export default function Attributes() {
       const decodedToken = jwtDecode(token);
       const userRole = decodedToken.role;
 
-      if (userRole === "ADMIN" || userRole === "LIBRARIAN") {
+      if (userRole.toLowerCase() !== "user") {
         setHasPermissions(true);
         fetchReserves();
         fetchLoans();
@@ -82,8 +82,9 @@ export default function Attributes() {
         null,
         token
       );
+      console.log("🚀 ~ fetchLoans ~ data:", data);
 
-      setLoans(data);
+      setLoans((prev) => [...prev, ...data]);
     } catch (err) {
       if (err.message && err.message.includes("User is not authorized")) {
         setApiUnauthorized(true);
@@ -217,7 +218,7 @@ export default function Attributes() {
           <InfiniteScroll
             dataLength={reserves.length}
             next={fetchMoreReserves}
-            hasMore={reserves.length % 10 === 0 && reserves.length > 0}
+            hasMore={reserves.length > 0 && reserves.length % 10 === 0}
             loader={<Loading />}
             endMessage={
               <p className="text-center mt-3 text-muted">
@@ -299,7 +300,7 @@ export default function Attributes() {
           <InfiniteScroll
             dataLength={loans.length}
             next={fetchMoreLoans}
-            hasMore={loans.length % 10 === 0}
+            hasMore={loans.length > 0 && loans.length % 10 === 0}
             loader={<Loading />}
             endMessage={
               <p className="text-center mt-3 text-muted">
