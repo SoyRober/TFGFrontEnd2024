@@ -569,7 +569,7 @@ export default function ViewBook() {
 
       <section className="mt-5">
         <h2>Reviews</h2>
-        {username && <ReviewList title={title} username={username} />}
+        <ReviewList title={title} username={username} />
       </section>
 
       <EditBookAttributeModal
