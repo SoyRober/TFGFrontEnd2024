@@ -14,8 +14,10 @@ export default function ReviewList({ title, username }) {
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
   useEffect(() => {
-    fetchReviews(page);
-  }, []);
+    setReviews([]);
+    setPage(0);
+    fetchReviews(0);
+  }, [title, username]);
 
   const updateReviewVotes = (review, value, isRemovingVote) => {
     const updatedReview = { ...review };
@@ -77,20 +79,16 @@ export default function ReviewList({ title, username }) {
         )
       );
 
-      try {
-        if (isRemovingVote) {
-          await fetchData(
-            `/user/deleteVote?reviewId=${reviewId}`,
-            "DELETE",
-            null,
-            token
-          );
-        } else {
-          const body = { reviewId, positive: value };
-          await fetchData(`/user/addVote`, "PUT", body, token);
-        }
-      } catch (error) {
-        toast.error(error.message || "Something went wrong");
+      if (isRemovingVote) {
+        await fetchData(
+          `/user/deleteVote?reviewId=${reviewId}`,
+          "DELETE",
+          null,
+          token
+        );
+      } else {
+        const body = { reviewId, positive: value };
+        await fetchData(`/user/addVote`, "PUT", body, token);
       }
     } catch (error) {
       toast.error(error.message || "Something went wrong");
@@ -101,37 +99,33 @@ export default function ReviewList({ title, username }) {
 
   const debouncedHandleVotes = debounce(handleVotes, 300);
 
-  const fetchReviews = async (page) => {
+  const fetchReviews = async (pageToFetch) => {
     setIsFetching(true);
     try {
-      const data = await fetchData(`/public/reviews/${title}?page=${page}`);
+      const data = await fetchData(`/public/reviews/${title}?page=${pageToFetch}`);
       setHasFetchedOnce(true);
 
-      if (data.length > 0) {
-        let reviewsToSet = data;
+      let reviewsToSet = data;
 
-        const token = localStorage.getItem("token");
-        if (token) {
-          const updatedReviews = await Promise.all(
-            data
-              .filter((review) => review.userName !== username)
-              .map(async (review) => {
-                const userVote = await fetchUserVote(review.id, token);
-                return {
-                  ...review,
-                  userLiked: userVote === "liked",
-                  userDisliked: userVote === "disliked",
-                };
-              })
-          );
+      const token = localStorage.getItem("token");
+      if (token && username) {
+        const filteredData = data.filter((review) => review.userName !== username);
 
-          reviewsToSet = updatedReviews;
-        } else {
-            reviewsToSet = data;
-        }
+        const updatedReviews = await Promise.all(
+          filteredData.map(async (review) => {
+            const userVote = await fetchUserVote(review.id, token);
+            return {
+              ...review,
+              userLiked: userVote === "liked",
+              userDisliked: userVote === "disliked",
+            };
+          })
+        );
 
-        setReviews((prev) => [...prev, ...reviewsToSet]);
+        reviewsToSet = updatedReviews;
       }
+
+      setReviews((prev) => [...prev, ...reviewsToSet]);
     } catch (error) {
       toast.error(error.message || "Something went wrong");
     } finally {
@@ -150,6 +144,7 @@ export default function ReviewList({ title, username }) {
       return response;
     } catch (error) {
       toast.error(error.message || "Something went wrong");
+      return null;
     }
   };
 
@@ -162,7 +157,11 @@ export default function ReviewList({ title, username }) {
       ) : (
         <InfiniteScroll
           dataLength={reviews.length}
-          next={() => setPage((prev) => prev + 1)}
+          next={() => {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchReviews(nextPage);
+          }}
           hasMore={!isFetching && reviews.length % 10 === 0}
           loader={<Loading />}
           endMessage={
@@ -178,7 +177,7 @@ export default function ReviewList({ title, username }) {
           {reviews.map((review) => (
             <article
               key={review.id}
-              className="card p-4 mb-4 shadow border-0"
+              className="card p-4 mb-4 shadow border-1"
               aria-label={`Review by ${review.userName}`}
             >
               <div className="d-flex align-items-center mb-3">

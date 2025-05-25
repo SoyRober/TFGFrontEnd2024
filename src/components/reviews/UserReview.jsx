@@ -118,7 +118,7 @@ const UserReview = ({
     if (!isLoggedIn || !alreadyRated) return null;
 
     return (
-        <div>
+        <div className="mt-3">
             {isEditing ? (
                 <form
                     onSubmit={(e) => {
