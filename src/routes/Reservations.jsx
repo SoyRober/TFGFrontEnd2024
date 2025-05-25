@@ -4,7 +4,9 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
-const ResetButtonFilter = lazy(() => import("../components/ResetButtonFilter.jsx"));
+const ResetButtonFilter = lazy(() =>
+  import("../components/ResetButtonFilter.jsx")
+);
 import ReservationCard from "../components/cards/BookCardReservation.jsx";
 
 const UserReservations = ({ cardSize }) => {
@@ -158,10 +160,10 @@ const UserReservations = ({ cardSize }) => {
       <div className="d-flex justify-content-center mb-3">
         <button
           className="btn btn-warning"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault?.();
             setDateFilter("");
-            setLoanedFilter("all");
-            fetchReservations(0);
+            setPage(0);
           }}
         >
           Reset Filters
@@ -186,15 +188,15 @@ const UserReservations = ({ cardSize }) => {
           style={{ overflow: "hidden" }}
         >
           <div className="row" role="list">
-{filteredReservations.map((reservation, index) => (
-  <ReservationCard
-    key={index}
-    reservation={reservation}
-    cardSize={cardSize}
-    cancelReservation={cancelReservation}
-    getColumnClass={getColumnClass}
-  />
-))}
+            {filteredReservations.map((reservation, index) => (
+              <ReservationCard
+                key={index}
+                reservation={reservation}
+                cardSize={cardSize}
+                cancelReservation={cancelReservation}
+                getColumnClass={getColumnClass}
+              />
+            ))}
           </div>
         </InfiniteScroll>
       </div>
