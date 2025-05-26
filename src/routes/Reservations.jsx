@@ -8,6 +8,7 @@ const ResetButtonFilter = lazy(() =>
   import("../components/ResetButtonFilter.jsx")
 );
 import BookCardReservation from "../components/cards/BookCardReservation.jsx";
+import { filter } from "lodash";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
@@ -187,7 +188,7 @@ const UserReservations = ({ cardSize }) => {
         <InfiniteScroll
           dataLength={filteredReservations.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={!isFetching && filteredReservations.length % 10 === 0}
+          hasMore={!isFetching && filteredReservations.length > 0 && filteredReservations.length % 10 === 0}
           loader={<Loading />}
           endMessage={
             <p className="text-center mt-4 text-muted">
