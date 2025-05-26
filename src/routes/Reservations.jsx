@@ -13,7 +13,7 @@ const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
   const [filteredReservations, setFilteredReservations] = useState([]);
   const [dateFilter, setDateFilter] = useState("");
-  const [loanedFilter, setLoanedFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(0);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
@@ -27,38 +27,33 @@ const UserReservations = ({ cardSize }) => {
     }
 
     fetchReservations();
-  }, [page]);
+  }, [page, dateFilter, statusFilter]);
 
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
   }, [cardSize]);
 
   useEffect(() => {
-    let result = [...reservations];
-
-    if (dateFilter) {
-      const formattedDate = new Date(dateFilter).toLocaleDateString();
-      result = result.filter(
-        (r) =>
-          new Date(r.reservationDate).toLocaleDateString() === formattedDate
-      );
-    }
-
-    if (loanedFilter !== "all") {
-      const isLoaned = loanedFilter === "returned";
-      result = result.filter((r) => r.isLoaned === isLoaned);
-    }
-
-    setFilteredReservations(result);
-  }, [dateFilter, loanedFilter, reservations]);
+    setFilteredReservations(reservations);
+  }, [reservations]);
 
   const fetchReservations = async () => {
     if (isFetching) return;
-
     setIsFetching(true);
+
     try {
+      const queryParams = new URLSearchParams();
+      queryParams.append("page", page);
+      queryParams.append("size", 10);
+      if (statusFilter && statusFilter !== "all") {
+        queryParams.append("status", statusFilter);
+      }
+      if (dateFilter) {
+        queryParams.append("date", dateFilter);
+      }
+
       const data = await fetchData(
-        `/user/getUserReservations?page=${page}&size=10`,
+        `/user/getUserReservations?${queryParams.toString()}`,
         "GET",
         null,
         token
@@ -71,7 +66,8 @@ const UserReservations = ({ cardSize }) => {
             (newR) => !prev.some((r) => r.reservationId === newR.reservationId)
           ),
         ]);
-      } else {
+      } else if (page === 0) {
+        setReservations([]);
         toast.info("No reservations found");
       }
     } catch (error) {
@@ -124,13 +120,18 @@ const UserReservations = ({ cardSize }) => {
             id="startDateFilter"
             className="form-control"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e?.target?.value || "")}
+            onChange={(e) => {
+              setDateFilter(e?.target?.value || "");
+              setPage(0);
+              setReservations([]);
+            }}
           />
           <ResetButtonFilter
             onClick={(e) => {
               e?.preventDefault?.();
               setDateFilter("");
               setPage(0);
+              setReservations([]);
             }}
             ariaLabel="Reset Date Button"
           />
@@ -143,18 +144,24 @@ const UserReservations = ({ cardSize }) => {
           <select
             id="loanedFilter"
             className="form-select"
-            value={loanedFilter}
-            onChange={(e) => setLoanedFilter(e?.target?.value || "")}
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e?.target?.value || "");
+              setPage(0);
+              setReservations([]);
+            }}
           >
             <option value="all">All</option>
-            <option value="returned">Loaned</option>
-            <option value="notReturned">Not loaned</option>
+            <option value="acquired">Acquired</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="pending">Pending</option>
           </select>
           <ResetButtonFilter
             onClick={(e) => {
               e?.preventDefault?.();
-              setLoanedFilter("");
-              fetchReservations(0);
+              setStatusFilter("all");
+              setPage(0);
+              setReservations([]);
             }}
             ariaLabel="Reset Status Button"
           />
@@ -167,7 +174,9 @@ const UserReservations = ({ cardSize }) => {
           onClick={(e) => {
             e?.preventDefault?.();
             setDateFilter("");
+            setStatusFilter("all");
             setPage(0);
+            setReservations([]);
           }}
         >
           Reset Filters
@@ -178,15 +187,11 @@ const UserReservations = ({ cardSize }) => {
         <InfiniteScroll
           dataLength={filteredReservations.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={
-            !isFetching &&
-            filteredReservations.length % 30 === 0 &&
-            filteredReservations.length > 0
-          }
+          hasMore={!isFetching && filteredReservations.length % 10 === 0}
           loader={<Loading />}
           endMessage={
             <p className="text-center mt-4 text-muted">
-              There aren't more loans
+              There aren't more reservations
             </p>
           }
           style={{ overflow: "hidden" }}
