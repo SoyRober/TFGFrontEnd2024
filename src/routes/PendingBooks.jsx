@@ -46,8 +46,7 @@ export default function Attributes() {
     const handleLibraryChange = () => {
       const currentLibrary = localStorage.getItem("libraryName");
       setLibrary(currentLibrary);
-      fetchReserves();
-      fetchLoans();
+      location.reload();
     };
 
     window.addEventListener("libraryChanged", handleLibraryChange);
