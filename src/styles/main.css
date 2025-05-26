@@ -40,10 +40,13 @@ body {
   border: 2px solid #ddd;
   border-radius: 8px;
   min-width: 150px;
+  z-index: 999;
 }
 
 .customized-card:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  z-index: 999;
+  position: relative;
 }
 
 .profile-image-container {

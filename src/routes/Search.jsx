@@ -372,7 +372,7 @@ export default function LibraryHomepage() {
       </header>
 
       <section
-        className="container mt-5 search-container"
+        className="container mt-3 search-container"
         style={{ minHeight: "60vh" }}
         aria-label="Books list"
       >
@@ -391,7 +391,10 @@ export default function LibraryHomepage() {
           }
           style={{ overflow: "hidden" }}
         >
-          <div className="row gy-4">
+          <div
+            className="row gy-4 p-2"
+            style={{ overflow: "visible", position: "relative" }}
+          >
             {Array.isArray(books) &&
               books.map((book) => (
                 <BookCard
