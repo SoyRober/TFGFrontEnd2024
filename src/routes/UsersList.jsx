@@ -239,23 +239,21 @@ const UsersList = () => {
 									<td style={style}>{user.role}</td>
 									<td style={style}>
 										{isAdmin && (
-											<>
-												<button
-													onClick={() => handleDeleteClick(user.id)}
-													className="btn btn-danger me-2"
-													aria-label={`Delete user ${user.username}`}
-												>
-													Delete
-												</button>
-												<button
-													onClick={() => handleViewProfile(user.email)}
-													className="btn btn-primary"
-													aria-label={`View profile of user ${user.username}`}
-												>
-													View Profile
-												</button>
-											</>
+											<button
+												onClick={() => handleDeleteClick(user.id)}
+												className="btn btn-danger me-2"
+												aria-label={`Delete user ${user.username}`}
+											>
+												Delete
+											</button>
 										)}
+										<button
+											onClick={() => handleViewProfile(user.email)}
+											className="btn btn-primary"
+											aria-label={`View profile of user ${user.username}`}
+										>
+											View Profile
+										</button>
 									</td>
 								</tr>
 							);
