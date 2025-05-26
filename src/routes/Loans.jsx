@@ -112,7 +112,7 @@ const Loans = ({ cardSize = "medium" }) => {
             type="text"
             id="titleFilter"
             className="form-control"
-            placeholder="Name or surname"
+            placeholder="Book title"
             value={filters.title}
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, title: e?.target?.value }))
