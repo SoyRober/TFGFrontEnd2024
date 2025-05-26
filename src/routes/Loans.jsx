@@ -89,7 +89,7 @@ const Loans = ({ cardSize = "medium" }) => {
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
-                startDate: e.target.value ? new Date(e.target.value) : null,
+                startDate: e?.target?.value ? new Date(e.target.value) : null,
               }))
             }
             className="form-control"
@@ -115,7 +115,7 @@ const Loans = ({ cardSize = "medium" }) => {
             placeholder="Name or surname"
             value={filters.title}
             onChange={(e) =>
-              setFilters((prev) => ({ ...prev, title: e.target.value }))
+              setFilters((prev) => ({ ...prev, title: e?.target?.value }))
             }
             aria-describedby="titleHelp"
           />

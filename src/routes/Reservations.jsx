@@ -7,7 +7,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 const ResetButtonFilter = lazy(() =>
   import("../components/ResetButtonFilter.jsx")
 );
-import ReservationCard from "../components/cards/BookCardReservation.jsx";
+import BookCardReservation from "../components/cards/BookCardReservation.jsx";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
@@ -71,6 +71,8 @@ const UserReservations = ({ cardSize }) => {
             (newR) => !prev.some((r) => r.reservationId === newR.reservationId)
           ),
         ]);
+      } else {
+        toast.info("No reservations found");
       }
     } catch (error) {
       toast.error(error.message);
@@ -122,11 +124,11 @@ const UserReservations = ({ cardSize }) => {
             id="startDateFilter"
             className="form-control"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value || "")}
+            onChange={(e) => setDateFilter(e?.target?.value || "")}
           />
           <ResetButtonFilter
             onClick={(e) => {
-              e.preventDefault?.();
+              e?.preventDefault?.();
               setDateFilter("");
               setPage(0);
             }}
@@ -142,7 +144,7 @@ const UserReservations = ({ cardSize }) => {
             id="loanedFilter"
             className="form-select"
             value={loanedFilter}
-            onChange={(e) => setLoanedFilter(e.target.value || "")}
+            onChange={(e) => setLoanedFilter(e?.target?.value || "")}
           >
             <option value="all">All</option>
             <option value="returned">Loaned</option>
@@ -150,7 +152,7 @@ const UserReservations = ({ cardSize }) => {
           </select>
           <ResetButtonFilter
             onClick={(e) => {
-              e.preventDefault?.();
+              e?.preventDefault?.();
               setLoanedFilter("");
               fetchReservations(0);
             }}
@@ -163,7 +165,7 @@ const UserReservations = ({ cardSize }) => {
         <button
           className="btn btn-warning"
           onClick={(e) => {
-            e.preventDefault?.();
+            e?.preventDefault?.();
             setDateFilter("");
             setPage(0);
           }}
@@ -191,13 +193,17 @@ const UserReservations = ({ cardSize }) => {
         >
           <div className="row" role="list">
             {filteredReservations.map((reservation, index) => (
-              <ReservationCard
+              <div
                 key={index}
-                reservation={reservation}
-                cardSize={cardSize}
-                cancelReservation={cancelReservation}
-                getColumnClass={getColumnClass}
-              />
+                className={`${getColumnClass(cardSize)} mb-4`}
+                role="listitem"
+              >
+                <BookCardReservation
+                  reservation={reservation}
+                  cardSize={cardSize}
+                  onCancel={cancelReservation}
+                />
+              </div>
             ))}
           </div>
         </InfiniteScroll>

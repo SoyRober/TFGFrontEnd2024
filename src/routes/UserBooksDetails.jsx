@@ -64,12 +64,14 @@ const UserBooksDetails = () => {
         <CardSizeSelector cardSize={cardSize} setCardSize={setCardSize} />
       </div>
 
-      <Suspense fallback={<Loading />}>
-        {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
-        {selectedButton === "Reservations" && (
-          <Reservations cardSize={cardSize} />
-        )}
-      </Suspense>
+      <div>
+        <Suspense fallback={<Loading />}>
+          {selectedButton === "Loans" && <Loans cardSize={cardSize} />}
+          {selectedButton === "Reservations" && (
+            <Reservations cardSize={cardSize} />
+          )}
+        </Suspense>
+      </div>
     </main>
   );
 };
