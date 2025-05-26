@@ -9,24 +9,24 @@ export default function BookDetails({
     { label: "Title", value: book.title, key: "title" },
     {
       label: "Authors",
-      value: book.authors?.join(", ") || "N/A",
+      value: book.authors?.join(", ") || "Without authors",
       key: "authors",
     },
-    { label: "Genres", value: book.genres?.join(", ") || "N/A", key: "genres" },
+    { label: "Genres", value: book.genres?.join(", ") || "Without genres", key: "genres" },
     { label: "Available Copies", value: quantity, key: "quantity" },
-    { label: "Location", value: book.location || "N/A", key: "location" },
-    { label: "Synopsis", value: book.synopsis || "N/A", key: "synopsis" },
+    { label: "Location", value: book.location || "Without location", key: "location" },
+    { label: "Synopsis", value: book.synopsis || "Without synopsis", key: "synopsis" },
     {
       label: "Publication Date",
       value: book.publicationDate
         ? new Date(book.publicationDate).toLocaleDateString("es-ES")
-        : "N/A",
+        : "Without publication date",
       key: "publicationDate",
     },
     { label: "Adult", value: book.adult ? "Sí" : "No", key: "isAdult" },
     {
       label: "Libraries",
-      value: book.libraries?.join(", ") || "N/A",
+      value: book.libraries?.join(", ") || "Without libraries",
       key: "libraries",
     },
   ];

@@ -4,7 +4,9 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
-const ResetButtonFilter = lazy(() => import("../components/ResetButtonFilter.jsx"));
+const ResetButtonFilter = lazy(() =>
+  import("../components/ResetButtonFilter.jsx")
+);
 import ReservationCard from "../components/cards/BookCardReservation.jsx";
 
 const UserReservations = ({ cardSize }) => {
@@ -120,12 +122,13 @@ const UserReservations = ({ cardSize }) => {
             id="startDateFilter"
             className="form-control"
             value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            onChange={(e) => setDateFilter(e.target.value || "")}
           />
           <ResetButtonFilter
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault?.();
               setDateFilter("");
-              fetchReservations(0);
+              setPage(0);
             }}
             ariaLabel="Reset Date Button"
           />
@@ -139,14 +142,15 @@ const UserReservations = ({ cardSize }) => {
             id="loanedFilter"
             className="form-select"
             value={loanedFilter}
-            onChange={(e) => setLoanedFilter(e.target.value)}
+            onChange={(e) => setLoanedFilter(e.target.value || "")}
           >
             <option value="all">All</option>
             <option value="returned">Loaned</option>
             <option value="notReturned">Not loaned</option>
           </select>
           <ResetButtonFilter
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault?.();
               setLoanedFilter("");
               fetchReservations(0);
             }}
@@ -158,10 +162,10 @@ const UserReservations = ({ cardSize }) => {
       <div className="d-flex justify-content-center mb-3">
         <button
           className="btn btn-warning"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault?.();
             setDateFilter("");
-            setLoanedFilter("all");
-            fetchReservations(0);
+            setPage(0);
           }}
         >
           Reset Filters
@@ -186,15 +190,15 @@ const UserReservations = ({ cardSize }) => {
           style={{ overflow: "hidden" }}
         >
           <div className="row" role="list">
-{filteredReservations.map((reservation, index) => (
-  <ReservationCard
-    key={index}
-    reservation={reservation}
-    cardSize={cardSize}
-    cancelReservation={cancelReservation}
-    getColumnClass={getColumnClass}
-  />
-))}
+            {filteredReservations.map((reservation, index) => (
+              <ReservationCard
+                key={index}
+                reservation={reservation}
+                cardSize={cardSize}
+                cancelReservation={cancelReservation}
+                getColumnClass={getColumnClass}
+              />
+            ))}
           </div>
         </InfiniteScroll>
       </div>

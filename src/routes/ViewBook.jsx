@@ -450,7 +450,7 @@ export default function ViewBook() {
           <img
             src={imageSrc ? imageSrc : defaultBook}
             alt={title}
-            className="img-fluid mt-2"
+            className="img-fluid mt-2 shadow"
             style={{
               width: "500px",
               height: "auto",
@@ -569,7 +569,7 @@ export default function ViewBook() {
 
       <section className="mt-5">
         <h2>Reviews</h2>
-        {username && <ReviewList title={title} username={username} />}
+        <ReviewList title={title} username={username || ""} />
       </section>
 
       <EditBookAttributeModal

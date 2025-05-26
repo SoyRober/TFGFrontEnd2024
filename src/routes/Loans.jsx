@@ -98,7 +98,7 @@ const Loans = ({ cardSize = "medium" }) => {
           <ResetButtonFilter
             onClick={() => {
               setFilters((prev) => ({ ...prev, startDate: "" }));
-              fetchLoans(0);
+              fetchLoans();
             }}
             ariaLabel="Reset Date Button"
           />
@@ -122,7 +122,7 @@ const Loans = ({ cardSize = "medium" }) => {
           <ResetButtonFilter
             onClick={() => {
               setFilters((prev) => ({ ...prev, title: "" }));
-              fetchLoans(0);
+              fetchLoans();
             }}
             ariaLabel="Reset Title Button"
           />
@@ -147,7 +147,7 @@ const Loans = ({ cardSize = "medium" }) => {
           <ResetButtonFilter
             onClick={() => {
               setFilters((prev) => ({ ...prev, returned: "notReturned" }));
-              fetchLoans(0);
+              fetchLoans();
             }}
             ariaLabel="Reset Status Button"
           />
