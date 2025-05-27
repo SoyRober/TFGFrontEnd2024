@@ -102,14 +102,19 @@ export default function ReviewList({ title, username }) {
   const fetchReviews = async (pageToFetch) => {
     setIsFetching(true);
     try {
-      const data = await fetchData(`/public/reviews/${title}?page=${pageToFetch}`);
+      const data = await fetchData(
+        `/public/reviews/${title}?page=${pageToFetch}`
+      );
       setHasFetchedOnce(true);
+      console.log("🚀 ~ fetchReviews ~ data:", data);
 
       let reviewsToSet = data;
 
       const token = localStorage.getItem("token");
       if (token && username) {
-        const filteredData = data.filter((review) => review.userName !== username);
+        const filteredData = data.filter(
+          (review) => review.userName !== username
+        );
 
         const updatedReviews = await Promise.all(
           filteredData.map(async (review) => {
@@ -125,7 +130,11 @@ export default function ReviewList({ title, username }) {
         reviewsToSet = updatedReviews;
       }
 
-      setReviews((prev) => [...prev, ...reviewsToSet]);
+      setReviews((prev) => {
+        const existingIds = new Set(prev.map((r) => r.id));
+        const filteredNew = reviewsToSet.filter((r) => !existingIds.has(r.id));
+        return [...prev, ...filteredNew];
+      });
     } catch (error) {
       toast.error(error.message || "Something went wrong");
     } finally {
