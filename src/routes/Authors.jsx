@@ -140,7 +140,6 @@ const AuthorsComponent = () => {
         <section
           className="row w-100 g-3"
           aria-label="Authors List"
-          role="list"
         >
           {authors.map((author) => (
             <div

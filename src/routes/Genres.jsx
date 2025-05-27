@@ -151,7 +151,6 @@ const GenresComponent = () => {
         <section
           className="row w-100 g-3"
           aria-label="Genres List"
-          role="list"
         >
           {genres.map((genre) => (
             <div
