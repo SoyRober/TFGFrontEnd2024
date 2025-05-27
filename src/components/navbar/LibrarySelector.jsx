@@ -14,9 +14,22 @@ const LibrarySelector = () => {
     const fetchLibraries = async () => {
       const data = await fetchData("/public/libraries/list", "GET");
       setLibraries(data);
-      localStorage.setItem("libraryName", data[0]);
+      if (data.length > 0 && !localStorage.getItem("libraryName")) {
+        localStorage.setItem("libraryName", data[0]);
+        setSelectedLibrary(data[0]);
+      }
     };
+
     fetchLibraries();
+
+    const handleLibraryUpdate = () => {
+      fetchLibraries();
+    };
+
+    window.addEventListener("libraryChanged", handleLibraryUpdate);
+    return () => {
+      window.removeEventListener("libraryChanged", handleLibraryUpdate);
+    };
   }, []);
 
   const handleLibraryChange = (e) => {
