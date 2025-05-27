@@ -10,7 +10,11 @@ import InfiniteScroll from "react-infinite-scroll-component";
 const AuthorsComponent = () => {
   const [authors, setAuthors] = useState([]);
   const [token] = useState(localStorage.getItem("token"));
-  const [modals, setModals] = useState({ add: false, edit: false, delete: false });
+  const [modals, setModals] = useState({
+    add: false,
+    edit: false,
+    delete: false,
+  });
   const [selectedAuthor, setSelectedAuthor] = useState(null);
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
@@ -27,9 +31,16 @@ const AuthorsComponent = () => {
       try {
         const params = new URLSearchParams({ page: currentPage, size: "30" });
         await new Promise((r) => setTimeout(r, 1000));
-        const data = await fetchData(`/public/authors?${params.toString()}`, "GET", null, token);
+        const data = await fetchData(
+          `/public/authors?${params.toString()}`,
+          "GET",
+          null,
+          token
+        );
         const newAuthors = data?.message || [];
-        setAuthors((prev) => (currentPage === 0 ? newAuthors : [...prev, ...newAuthors]));
+        setAuthors((prev) =>
+          currentPage === 0 ? newAuthors : [...prev, ...newAuthors]
+        );
       } catch (err) {
         toast.error(err.message || "Failed to load authors.");
       } finally {
@@ -42,7 +53,9 @@ const AuthorsComponent = () => {
   const handleSaveAuthor = async (method, body) => {
     try {
       await fetchData("/librarian/authors", method, body, token);
-      toast.success(`Author ${method === "POST" ? "added" : "updated"} successfully!`);
+      toast.success(
+        `Author ${method === "POST" ? "added" : "updated"} successfully!`
+      );
       setModals({ add: false, edit: false, delete: false });
       setPage(0);
       fetchAuthors(0);
@@ -53,7 +66,12 @@ const AuthorsComponent = () => {
 
   const handleDeleteAuthor = async () => {
     try {
-      await fetchData(`/librarian/authors/${selectedAuthor.id}`, "DELETE", null, token);
+      await fetchData(
+        `/librarian/authors/${selectedAuthor.id}`,
+        "DELETE",
+        null,
+        token
+      );
       toast.success("Author deleted successfully!");
       setModals({ add: false, edit: false, delete: false });
       setPage(0);
@@ -73,70 +91,76 @@ const AuthorsComponent = () => {
       <InfiniteScroll
         dataLength={authors.length}
         next={() => setPage((p) => p + 1)}
-        hasMore={!isFetching && authors.length % 30 === 0}
+        hasMore={!isFetching && authors.length % 30 === 0 && authors.length > 0}
         loader={<Loading aria-label="Loading Spinner" />}
         endMessage={
-          <p className="text-center mt-3 text-muted" role="status" aria-live="polite">
+          <p
+            className="text-center mt-3 text-muted"
+            role="status"
+            aria-live="polite"
+          >
             No more authors to load.
           </p>
         }
       >
         <section className="row w-100" aria-label="Authors List" role="list">
           {authors.map((author) => (
-            <article
+            <div
               key={author.id}
-              className="col-lg-4 col-md-6 col-sm-12 mb-3 card"
+              className="col-lg-4 col-md-6 col-sm-12 mb-3"
               role="listitem"
               aria-label={`Author: ${author.name}`}
             >
-              <div className="card-body d-flex justify-content-between align-items-center">
-                <h2
-                  className="card-title mb-0 text-truncate"
-                  style={{ maxWidth: "70%" }}
-                  tabIndex={0}
-                >
-                  {author.name}
-                </h2>
-                <div className="d-flex">
-                  <button
-                    type="button"
-                    className="btn btn-outline-primary btn-sm me-2 d-flex align-items-center justify-content-center"
-                    onClick={() => {
-                      setSelectedAuthor(author);
-                      setModals({ ...modals, edit: true });
-                    }}
-                    aria-label={`Edit author ${author.name}`}
+              <article className="card h-100">
+                <div className="card-body d-flex justify-content-between align-items-center">
+                  <h2
+                    className="card-title mb-0 text-truncate me-3 flex-grow-1"
+                    style={{ minWidth: 0 }}
+                    tabIndex={0}
                   >
-                    <img
-                      src="/img/attributes/fa-pencil.svg"
-                      alt="Edit"
-                      width={20}
-                      height={25}
-                      aria-hidden="true"
-                      focusable="false"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
-                    onClick={() => {
-                      setSelectedAuthor(author);
-                      setModals({ ...modals, delete: true });
-                    }}
-                    aria-label={`Delete author ${author.name}`}
-                  >
-                    <img
-                      src="/img/attributes/fa-xmark.svg"
-                      alt="Delete"
-                      width={20}
-                      height={25}
-                      aria-hidden="true"
-                      focusable="false"
-                    />
-                  </button>
+                    {author.name}
+                  </h2>
+                  <div className="d-flex flex-shrink-0">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm me-2 d-flex align-items-center justify-content-center"
+                      onClick={() => {
+                        setSelectedAuthor(author);
+                        setModals({ ...modals, edit: true });
+                      }}
+                      aria-label={`Edit author ${author.name}`}
+                    >
+                      <img
+                        src="/img/attributes/fa-pencil.svg"
+                        alt="Edit"
+                        width={20}
+                        height={25}
+                        aria-hidden="true"
+                        focusable="false"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
+                      onClick={() => {
+                        setSelectedAuthor(author);
+                        setModals({ ...modals, delete: true });
+                      }}
+                      aria-label={`Delete author ${author.name}`}
+                    >
+                      <img
+                        src="/img/attributes/fa-xmark.svg"
+                        alt="Delete"
+                        width={20}
+                        height={25}
+                        aria-hidden="true"
+                        focusable="false"
+                      />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+            </div>
           ))}
         </section>
       </InfiniteScroll>
@@ -171,7 +195,9 @@ const AuthorsComponent = () => {
       <AddAttributeWithDateModal
         show={modals.add}
         handleClose={() => setModals({ ...modals, add: false })}
-        handleAdd={(name, birthDate) => handleSaveAuthor("POST", { name, birthDate })}
+        handleAdd={(name, birthDate) =>
+          handleSaveAuthor("POST", { name, birthDate })
+        }
         aria-modal="true"
         aria-label="Add author"
       />

@@ -103,53 +103,57 @@ const GenresComponent = () => {
         }
       >
         <section className="row w-100">
-          {genres.map((genre) => (
-            <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
-              <article className="card">
-                <div className="card-body d-flex justify-content-between align-items-center">
-                  <h2 className="card-title text-truncate" tabIndex={0}>
-                    {genre.name}
-                  </h2>
-                  <div>
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary btn-sm me-2"
-                      onClick={() => {
-                        setSelectedGenre(genre);
-                        setModals({ ...modals, edit: true });
-                      }}
-                      aria-label={`Edit genre ${genre.name}`}
-                    >
-                      <img
-                        src="/img/attributes/fa-pencil.svg"
-                        alt=""
-                        width={20}
-                        height={25}
-                        aria-hidden="true"
-                      />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-outline-danger btn-sm"
-                      onClick={() => {
-                        setSelectedGenre(genre);
-                        setModals({ ...modals, delete: true });
-                      }}
-                      aria-label={`Delete genre ${genre.name}`}
-                    >
-                      <img
-                        src="/img/attributes/fa-xmark.svg"
-                        alt=""
-                        width={20}
-                        height={25}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            </div>
-          ))}
+  {genres.map((genre) => (
+    <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
+      <article className="card h-100">
+        <div className="card-body d-flex justify-content-between align-items-center">
+          <h2
+            className="card-title mb-0 text-truncate me-3 flex-grow-1"
+            style={{ minWidth: 0 }}
+            tabIndex={0}
+          >
+            {genre.name}
+          </h2>
+          <div className="d-flex flex-shrink-0">
+            <button
+              type="button"
+              className="btn btn-outline-primary btn-sm me-2 d-flex align-items-center justify-content-center"
+              onClick={() => {
+                setSelectedGenre(genre);
+                setModals({ ...modals, edit: true });
+              }}
+              aria-label={`Edit genre ${genre.name}`}
+            >
+              <img
+                src="/img/attributes/fa-pencil.svg"
+                alt="Edit"
+                width={20}
+                height={25}
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
+              onClick={() => {
+                setSelectedGenre(genre);
+                setModals({ ...modals, delete: true });
+              }}
+              aria-label={`Delete genre ${genre.name}`}
+            >
+              <img
+                src="/img/attributes/fa-xmark.svg"
+                alt="Delete"
+                width={20}
+                height={25}
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  ))}
         </section>
       </InfiniteScroll>
 
