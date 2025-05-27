@@ -18,6 +18,7 @@ const GenresComponent = () => {
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
+  const [nameFilter, setNameFilter] = useState("");
 
   useEffect(() => {
     if (page === 0) setGenres([]);
@@ -25,12 +26,13 @@ const GenresComponent = () => {
   }, [page]);
 
   const fetchGenres = useCallback(
-    async (page) => {
+    async (currentPage) => {
       if (isFetching) return;
       setIsFetching(true);
       try {
-        if (page === undefined) page = 0;
-        const params = new URLSearchParams({ page: page, size: "30" });
+        const params = new URLSearchParams({ page: currentPage, size: "30" });
+        if (nameFilter) params.append("name", nameFilter);
+
         await new Promise((resolve) => setTimeout(resolve, 500));
         const data = await fetchData(
           `/public/genres?${params.toString()}`,
@@ -38,22 +40,31 @@ const GenresComponent = () => {
           null,
           token
         );
+        console.log("🚀 ~ data:", data)
         const newGenres = data.message || [];
-        setGenres((prev) => (page === 0 ? newGenres : [...prev, ...newGenres]));
+        setGenres((prev) =>
+          currentPage === 0 ? newGenres : [...prev, ...newGenres]
+        );
       } catch (err) {
         toast.error(err.message || "Failed to load genres.");
       } finally {
         setIsFetching(false);
       }
     },
-    [token, isFetching]
+    [token, isFetching, nameFilter]
   );
+
+  useEffect(() => {
+    setPage(0);
+    fetchGenres(0);
+  }, [nameFilter]);
 
   const handleAddGenre = async (newName) => {
     try {
       await fetchData("/librarian/genres", "POST", newName, token);
       toast.success("Genre added successfully!");
       setModals({ ...modals, add: false, edit: false });
+      setPage(0);
       fetchGenres(0);
     } catch (err) {
       toast.error(err.message || "Failed to save genre.");
@@ -66,6 +77,7 @@ const GenresComponent = () => {
       await fetchData("/librarian/genres", "PUT", body, token);
       toast.success("Genre updated successfully!");
       setModals({ ...modals, add: false, edit: false });
+      setPage(0);
       fetchGenres(0);
     } catch (err) {
       toast.error(err.message || "Failed to save genre.");
@@ -90,81 +102,128 @@ const GenresComponent = () => {
   };
 
   return (
-    <main className="container" style={{ overflowX: "hidden" }}>
+    <main
+      className="container py-4"
+      style={{ overflowX: "hidden" }}
+      aria-label="Genres Page"
+      tabIndex={-1}
+    >
+      <div className="d-flex justify-content-center align-items-center mb-3">
+        <div
+          className="w-25 d-flex align-items-center justify-content-center"
+          style={{ minWidth: "255px" }}
+        >
+          <label htmlFor="name" className="form-label fw-bold mb-0">
+            Genre name:
+          </label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="name"
+            className="form-control mx-2"
+            style={{ flex: 1 }}
+            onChange={(e) => setNameFilter(e.target.value || "")}
+          />
+        </div>
+      </div>
+
       <InfiniteScroll
         dataLength={genres.length}
-        next={() => setPage((prev) => prev + 1)}
-        hasMore={!isFetching && genres.length % 30 === 0}
-        loader={<Loading />}
+        next={() => setPage((p) => p + 1)}
+        hasMore={!isFetching && genres.length % 30 === 0 && genres.length > 0}
+        loader={
+          <div className="d-flex justify-content-center my-4">
+            <Loading aria-label="Loading Spinner" />
+          </div>
+        }
         endMessage={
-          <p className="text-center mt-3 text-muted" tabIndex={0}>
+          <p
+            className="text-center mt-3 text-muted"
+            role="status"
+            aria-live="polite"
+            tabIndex={0}
+          >
             No more genres to load.
           </p>
         }
       >
-        <section className="row w-100">
-  {genres.map((genre) => (
-    <div key={genre.id} className="col-lg-4 col-md-6 col-sm-12 mb-3">
-      <article className="card h-100">
-        <div className="card-body d-flex justify-content-between align-items-center">
-          <h2
-            className="card-title mb-0 text-truncate me-3 flex-grow-1"
-            style={{ minWidth: 0 }}
-            tabIndex={0}
-          >
-            {genre.name}
-          </h2>
-          <div className="d-flex flex-shrink-0">
-            <button
-              type="button"
-              className="btn btn-outline-primary btn-sm me-2 d-flex align-items-center justify-content-center"
-              onClick={() => {
-                setSelectedGenre(genre);
-                setModals({ ...modals, edit: true });
-              }}
-              aria-label={`Edit genre ${genre.name}`}
+        <section
+          className="row w-100 g-3"
+          aria-label="Genres List"
+          role="list"
+        >
+          {genres.map((genre) => (
+            <div
+              key={genre.id}
+              className="col-lg-4 col-md-6 col-sm-12"
+              role="listitem"
+              aria-label={`Genre: ${genre.name}`}
             >
-              <img
-                src="/img/attributes/fa-pencil.svg"
-                alt="Edit"
-                width={20}
-                height={25}
-                aria-hidden="true"
-              />
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
-              onClick={() => {
-                setSelectedGenre(genre);
-                setModals({ ...modals, delete: true });
-              }}
-              aria-label={`Delete genre ${genre.name}`}
-            >
-              <img
-                src="/img/attributes/fa-xmark.svg"
-                alt="Delete"
-                width={20}
-                height={25}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
-        </div>
-      </article>
-    </div>
-  ))}
+              <article className="card h-100 shadow-sm">
+                <div className="card-body d-flex justify-content-between align-items-center">
+                  <h2
+                    className="card-title mb-0 text-truncate me-3 flex-grow-1 fs-5"
+                    style={{ minWidth: 0 }}
+                    tabIndex={0}
+                  >
+                    {genre.name}
+                  </h2>
+                  <div className="d-flex flex-shrink-0">
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm me-2 d-flex align-items-center justify-content-center"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, edit: true });
+                      }}
+                      aria-label={`Edit genre ${genre.name}`}
+                    >
+                      <img
+                        src="/img/attributes/fa-pencil.svg"
+                        alt="Edit"
+                        width={20}
+                        height={25}
+                        aria-hidden="true"
+                        focusable="false"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center"
+                      onClick={() => {
+                        setSelectedGenre(genre);
+                        setModals({ ...modals, delete: true });
+                      }}
+                      aria-label={`Delete genre ${genre.name}`}
+                    >
+                      <img
+                        src="/img/attributes/fa-xmark.svg"
+                        alt="Delete"
+                        width={20}
+                        height={25}
+                        aria-hidden="true"
+                        focusable="false"
+                      />
+                    </button>
+                  </div>
+                </div>
+              </article>
+            </div>
+          ))}
         </section>
       </InfiniteScroll>
 
-      <button
-        type="button"
-        className="btn btn-primary fixed-bottom m-3 w-25"
-        onClick={() => setModals({ ...modals, add: true })}
-        aria-label="Add a new genre"
-      >
-        + Add Genre
-      </button>
+      <div className="d-flex justify-content-end">
+        <button
+          className="btn btn-primary position-fixed bottom-0 start-0 m-4 px-4 py-2 shadow"
+          style={{ zIndex: 1050, minWidth: "200px" }}
+          onClick={() => setModals({ ...modals, add: true })}
+          aria-label="Add genre"
+        >
+          + Add Genre
+        </button>
+      </div>
 
       <RenameAttributeModal
         show={modals.edit}
