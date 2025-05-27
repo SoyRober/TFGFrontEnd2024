@@ -348,7 +348,7 @@ export default function Attributes() {
 											</div>
 											<div className="card-body text-center">
 												<p className="mb-1">
-													<strong>Loaned by:</strong> {loan.username}
+													<strong>Loaned by:</strong> {loan.userName}
 												</p>
 												<p className="mb-1">
 													<strong>Title:</strong> {loan.book}
@@ -375,7 +375,7 @@ export default function Attributes() {
 												<button
 													className="btn btn-sm btn-danger"
 													onClick={() => handleReturn(loan)}
-													aria-label={`Return the book titled ${loan.book} loaned by ${loan.username}`}
+													aria-label={`Return the book titled ${loan.book} loaned by ${loan.userName}`}
 												>
 													Return
 												</button>
