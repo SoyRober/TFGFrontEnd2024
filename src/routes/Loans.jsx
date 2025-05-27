@@ -181,7 +181,7 @@ const Loans = ({ cardSize = "medium" }) => {
           }
           style={{ overflow: "hidden" }}
         >
-          <div className="row" role="list">
+          <div className="row">
             {loans.map((loan) => (
               <Suspense
                 fallback={<Loading />}
