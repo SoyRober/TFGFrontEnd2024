@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 import { fetchData } from "../utils/fetch";
 import "../styles/Carousel.css";
@@ -68,7 +68,7 @@ const Card = React.memo(({ title, image, preload }) => {
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") navigateToBookDetails();
       }}
-      aria-label={`Ver detalles del libro ${title}`}
+      aria-label={`See book details of ${title}`}
     >
       {isLoading ? (
         <div>
@@ -82,7 +82,7 @@ const Card = React.memo(({ title, image, preload }) => {
           </h2>
           <img
             src={imageSrc}
-            alt={`Portada del libro ${title}`}
+            alt={`Book front page of ${title}`}
             loading={preload ? "eager" : "lazy"}
             onLoad={handleImageLoad}
             width={220}
@@ -99,9 +99,31 @@ const Card = React.memo(({ title, image, preload }) => {
 const Carousel = ({ children }) => {
   const [active, setActive] = useState(0);
   const [direction, setDirection] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
   const count = React.Children.count(children);
+  const pauseTimeoutRef = useRef(null);
+
+  const handlePause = () => {
+    setIsPaused(true);
+    clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 7000);
+  };
+
+  const handlePrev = () => {
+    setActive((i) => (i - 1 + count) % count);
+    handlePause();
+  };
+
+  const handleNext = () => {
+    setActive((i) => (i + 1) % count);
+    handlePause();
+  };
 
   useEffect(() => {
+    if (isPaused) return;
+
     const interval = setInterval(() => {
       setActive((prev) => {
         if (prev === count - 1) {
@@ -115,14 +137,19 @@ const Carousel = ({ children }) => {
         }
       });
     }, 3000);
+
     return () => clearInterval(interval);
-  }, [count, direction]);
+  }, [count, direction, isPaused]);
+
+  useEffect(() => {
+    return () => clearTimeout(pauseTimeoutRef.current);
+  }, []);
 
   return (
     <div
       className="carousel"
       role="region"
-      aria-label="Carrusel de libros"
+      aria-label="Book carousel"
       tabIndex={-1}
     >
       <div
@@ -135,15 +162,15 @@ const Carousel = ({ children }) => {
           overflow: "hidden",
         }}
       >
-        {`Libro activo: ${
+        {`Active book: ${
           React.Children.toArray(children)[active]?.props.title || ""
         }`}
       </div>
 
       <button
         className="nav left"
-        onClick={() => setActive((i) => (i - 1 + count) % count)}
-        aria-label="Anterior libro"
+        onClick={handlePrev}
+        aria-label="Past book"
         type="button"
       >
         <i className="fa-solid fa-arrow-left py-5"></i>
@@ -169,8 +196,8 @@ const Carousel = ({ children }) => {
 
       <button
         className="nav right"
-        onClick={() => setActive((i) => (i + 1) % count)}
-        aria-label="Siguiente libro"
+        onClick={handleNext}
+        aria-label="Next book"
         type="button"
       >
         <i className="fa-solid fa-arrow-right py-5"></i>
@@ -178,6 +205,7 @@ const Carousel = ({ children }) => {
     </div>
   );
 };
+
 
 const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
   const [books, setBooks] = useState([]);
