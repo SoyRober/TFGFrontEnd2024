@@ -7,20 +7,15 @@ export default defineConfig({
   plugins: [
     react(),
     purgeCss({
-      content: [
-        "./index.html",
-        "./src/**/*.jsx",
-        "./src/**/*.js",
-        "./styles/**/*.css", 
-      ],
+      content: ["./index.html", "./src/**/*.{js,jsx}", "./styles/**/*.css"],
       safelist: [
         /^(alert|btn|bg-|text-|navbar|collapse|show|fade|modal|dropdown|form-|input-|d-|me-|ms-|mt-|mb-|mx-|my-|p-|pt-|pb-|px-|py-|w-|h-)/,
         /^(fa|fas|far|fab)/,
-        /^Toastify/, 
+        /^Toastify/,
         /^ToastContainer/,
         /^toast-/,
-        /^react-loading-skeleton/, 
-        /^hover-navbar/, 
+        /^react-loading-skeleton/,
+        /^hover-navbar/,
         /^active/,
         /^text-light/,
         /^bg-dark/,
@@ -36,9 +31,7 @@ export default defineConfig({
           preset: [
             "default",
             {
-              discardComments: {
-                removeAll: true,
-              },
+              discardComments: { removeAll: true },
               normalizeWhitespace: true,
             },
           ],

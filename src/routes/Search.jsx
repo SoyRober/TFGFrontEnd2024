@@ -342,7 +342,6 @@ export default function LibraryHomepage() {
 
       <header
         className="container text-center mt-4 search-filters"
-        role="region"
         aria-label="Book filters"
       >
         <Filters

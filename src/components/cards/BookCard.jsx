@@ -82,7 +82,6 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
         >
           <img
             src={imageUrl}
-            alt={title}
             width={widthMap[cardSize]}
             height={heightImgMap[cardSize]}
             className="shadow"
