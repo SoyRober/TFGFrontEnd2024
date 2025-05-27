@@ -41,18 +41,16 @@ export default function BookCardLoans({ loan, cardSize }) {
   return (
     <article
       className="mb-4"
-      aria-label={`Reservation card for the book ${loan.book}`}
-      aria-describedby={`reservation-title-${loan.book
-        .replace(/\s+/g, "-")
-        .toLowerCase()}`}
+      aria-label={`Loan card for the book ${loan.book}`}
+      aria-describedby={`loan-title-${loan.book.replace(/\s+/g, "-").toLowerCase()}`}
     >
       <div
         className="customized-card h-100"
         style={{
           height: currentSize.height,
           minHeight: currentSize.height,
-          width: currentSize.width,
-          minWidth: currentSize.width,
+          width: "100%",
+          maxWidth: "100%",
           cursor: "pointer",
           display: "flex",
           flexDirection: "column",

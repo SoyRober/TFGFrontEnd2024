@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
+
 const Loading = lazy(() => import("../components/Loading.jsx"));
-const BookCardLoans = lazy(() => import("../components/cards/BookCardLoan.jsx"));
+const BookCardLoans = lazy(() =>
+  import("../components/cards/BookCardLoan.jsx")
+);
 const ResetButtonFilter = lazy(() =>
   import("../components/ResetButtonFilter.jsx")
 );
@@ -19,6 +22,19 @@ const Loans = ({ cardSize = "medium" }) => {
   const [page, setPage] = useState(0);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+
+  const getColumnClass = (cardSize) => {
+    switch (cardSize) {
+      case "small":
+        return "col-12 col-sm-6 col-md-4 col-lg-3";
+      case "medium":
+        return "col-12 col-sm-6 col-md-6 col-lg-4";
+      case "large":
+        return "col-12 col-md-6";
+      default:
+        return "col-12";
+    }
+  };
 
   const fetchLoans = useCallback(async () => {
     if (!token) {
@@ -63,6 +79,10 @@ const Loans = ({ cardSize = "medium" }) => {
     fetchLoans();
   }, [fetchLoans]);
 
+  useEffect(() => {
+    localStorage.setItem("cardSize", cardSize);
+  }, [cardSize]);
+
   const resetFilters = () => {
     setFilters({ startDate: "", title: "", returned: "notReturned" });
     setPage(0);
@@ -83,13 +103,13 @@ const Loans = ({ cardSize = "medium" }) => {
             id="startDateFilter"
             value={
               filters.startDate
-                ? filters.startDate.toISOString().slice(0, 10)
+                ? new Date(filters.startDate).toISOString().slice(0, 10)
                 : ""
             }
             onChange={(e) =>
               setFilters((prev) => ({
                 ...prev,
-                startDate: e?.target?.value ? new Date(e.target.value) : null,
+                startDate: e?.target?.value ? new Date(e.target.value) : "",
               }))
             }
             className="form-control"
@@ -181,17 +201,18 @@ const Loans = ({ cardSize = "medium" }) => {
           }
           style={{ overflow: "hidden" }}
         >
-          <div className="row">
+          <div className="row justify-content-center">
             {loans.map((loan) => (
               <Suspense
                 fallback={<Loading />}
                 key={`${loan.id}-${loan.startDate}`}
               >
-                <BookCardLoans
-                  loan={loan}
-                  cardSize={cardSize}
+                <div
+                  className={getColumnClass(cardSize) + " mb-4"}
                   role="listitem"
-                />
+                >
+                  <BookCardLoans loan={loan} cardSize={cardSize} />
+                </div>
               </Suspense>
             ))}
           </div>
