@@ -30,7 +30,7 @@ const fetchBooks = async (setBooks, genre = "", library) => {
   }
 };
 
-const Card = React.memo(({ title, image, preload }) => {
+const Card = React.memo(function Card({ title, image, preload }) {
   const [isLoading, setIsLoading] = useState(true);
   const [imageSrc, setImageSrc] = useState(defaultBook);
   const navigate = useNavigate();
@@ -112,13 +112,17 @@ const Carousel = ({ children }) => {
   };
 
   const handlePrev = () => {
-    setActive((i) => (i - 1 + count) % count);
-    handlePause();
+    if (active > 0) {
+      setActive((i) => i - 1);
+      handlePause();
+    }
   };
 
   const handleNext = () => {
-    setActive((i) => (i + 1) % count);
-    handlePause();
+    if (active < count - 1) {
+      setActive((i) => i + 1);
+      handlePause();
+    }
   };
 
   useEffect(() => {
@@ -167,14 +171,16 @@ const Carousel = ({ children }) => {
         }`}
       </div>
 
-      <button
-        className="nav left"
-        onClick={handlePrev}
-        aria-label="Past book"
-        type="button"
-      >
-        <i className="fa-solid fa-arrow-left py-5"></i>
-      </button>
+      {active > 0 && (
+        <button
+          className="nav left"
+          onClick={handlePrev}
+          aria-label="Past book"
+          type="button"
+        >
+          <i className="fa-solid fa-arrow-left py-5"></i>
+        </button>
+      )}
 
       {React.Children.map(children, (child, i) => (
         <div
@@ -194,18 +200,19 @@ const Carousel = ({ children }) => {
         </div>
       ))}
 
-      <button
-        className="nav right"
-        onClick={handleNext}
-        aria-label="Next book"
-        type="button"
-      >
-        <i className="fa-solid fa-arrow-right py-5"></i>
-      </button>
+      {active < count - 1 && (
+        <button
+          className="nav right"
+          onClick={handleNext}
+          aria-label="Next book"
+          type="button"
+        >
+          <i className="fa-solid fa-arrow-right py-5"></i>
+        </button>
+      )}
     </div>
   );
 };
-
 
 const CustomCarousel = ({ genre = "", preloadFirst = false }) => {
   const [books, setBooks] = useState([]);
