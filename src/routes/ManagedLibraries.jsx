@@ -56,21 +56,26 @@ export default function ManagedLibraries() {
 			{libraries.length === 0 ? (
 				<p aria-live="polite">You do not manage any libraries.</p>
 			) : (
-				<ul
-					className="list-group"
-					aria-label="List of libraries you manage"
-				>
+				<ul className="list-group" aria-label="List of libraries you manage">
 					{libraries.map((library) => (
 						<li
 							key={library.id}
-							className="list-group-item d-flex align-items-center flex-wrap"
+							className="list-group-item d-flex flex-wrap align-items-center"
 							style={{ padding: "10px" }}
 						>
-							<div className="col-md-4" aria-label={`Library name: ${library.name}`}>
-								<strong>Name:</strong> {library.name}
-							</div>
-							<div className="col-md-4" aria-label={`Library address: ${library.address}`}>
-								<strong>Address:</strong> {library.address}
+							<div className="row w-100">
+								<div
+									className="col-12 col-md-4 mb-2 mb-md-0"
+									aria-label={`Library name: ${library.name}`}
+								>
+									<strong>Name:</strong> {library.name}
+								</div>
+								<div
+									className="col-12 col-md-4 mb-2 mb-md-0"
+									aria-label={`Library address: ${library.address}`}
+								>
+									<strong>Address:</strong> {library.address}
+								</div>
 							</div>
 							<div className="col-12 mt-2" aria-label="Librarians">
 								<strong>Librarians:</strong>{" "}
