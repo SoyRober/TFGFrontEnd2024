@@ -18,6 +18,7 @@ const AuthorsComponent = () => {
   const [selectedAuthor, setSelectedAuthor] = useState(null);
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
+  const [nameFilter, setNameFilter] = useState("");
 
   useEffect(() => {
     if (page === 0) setAuthors([]);
@@ -30,6 +31,8 @@ const AuthorsComponent = () => {
       setIsFetching(true);
       try {
         const params = new URLSearchParams({ page: currentPage, size: "30" });
+        if (nameFilter) params.append("name", nameFilter);
+
         await new Promise((r) => setTimeout(r, 1000));
         const data = await fetchData(
           `/public/authors?${params.toString()}`,
@@ -47,8 +50,13 @@ const AuthorsComponent = () => {
         setIsFetching(false);
       }
     },
-    [token, isFetching]
+    [token, isFetching, nameFilter]
   );
+
+  useEffect(() => {
+    setPage(0);
+    fetchAuthors(0);
+  }, [nameFilter]);
 
   const handleSaveAuthor = async (method, body) => {
     try {
@@ -83,16 +91,42 @@ const AuthorsComponent = () => {
 
   return (
     <main
-      className="container"
+      className="container py-4"
       style={{ overflowX: "hidden" }}
       aria-label="Authors Page"
       tabIndex={-1}
     >
+      <div className="d-flex justify-content-center align-items-center mb-3">
+        <div
+          className="w-25 d-flex align-items-center justify-content-center"
+          style={{ minWidth: "255px" }}
+        >
+          <label htmlFor="name" className="form-label fw-bold mb-0">
+            Author name:
+          </label>
+          <input
+            type="text"
+            name="name"
+            id="name"
+            placeholder="name or surname"
+            className="form-control mx-2"
+            style={{ flex: 1 }}
+            onChange={(e) => {
+              setNameFilter(e.target.value || "");
+            }}
+          />
+        </div>
+      </div>
+
       <InfiniteScroll
         dataLength={authors.length}
         next={() => setPage((p) => p + 1)}
         hasMore={!isFetching && authors.length % 30 === 0 && authors.length > 0}
-        loader={<Loading aria-label="Loading Spinner" />}
+        loader={
+          <div className="d-flex justify-content-center my-4">
+            <Loading aria-label="Loading Spinner" />
+          </div>
+        }
         endMessage={
           <p
             className="text-center mt-3 text-muted"
@@ -103,18 +137,22 @@ const AuthorsComponent = () => {
           </p>
         }
       >
-        <section className="row w-100" aria-label="Authors List" role="list">
+        <section
+          className="row w-100 g-3"
+          aria-label="Authors List"
+          role="list"
+        >
           {authors.map((author) => (
             <div
               key={author.id}
-              className="col-lg-4 col-md-6 col-sm-12 mb-3"
+              className="col-lg-4 col-md-6 col-sm-12"
               role="listitem"
               aria-label={`Author: ${author.name}`}
             >
-              <article className="card h-100">
+              <article className="card h-100 shadow-sm">
                 <div className="card-body d-flex justify-content-between align-items-center">
                   <h2
-                    className="card-title mb-0 text-truncate me-3 flex-grow-1"
+                    className="card-title mb-0 text-truncate me-3 flex-grow-1 fs-5"
                     style={{ minWidth: 0 }}
                     tabIndex={0}
                   >
@@ -165,13 +203,16 @@ const AuthorsComponent = () => {
         </section>
       </InfiniteScroll>
 
-      <button
-        className="btn btn-primary fixed-bottom m-3 w-25"
-        onClick={() => setModals({ ...modals, add: true })}
-        aria-label="Add author"
-      >
-        + Add Author
-      </button>
+      <div className="d-flex justify-content-end">
+        <button
+          className="btn btn-primary position-fixed bottom-0 start-0 m-4 px-4 py-2 shadow"
+          style={{ zIndex: 1050, minWidth: "200px" }}
+          onClick={() => setModals({ ...modals, add: true })}
+          aria-label="Add author"
+        >
+          + Add Author
+        </button>
+      </div>
 
       <EditAttributeWithDateModal
         show={modals.edit}
