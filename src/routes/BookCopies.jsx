@@ -203,54 +203,60 @@ export default function BookCopies() {
 			</div>
 
 			<div
-				className="mt-3 d-flex align-items-center flex-wrap gap-2"
+				className="mt-3 row align-items-center g-2"
 				role="region"
 				aria-label="Filters"
 			>
-				<input
-					type="text"
-					name="barcode"
-					id="barcode"
-					placeholder="Type copy barcode"
-					className="form-control me-2 mb-2 w-auto"
-					style={{ width: "200px" }}
-					value={barcodeFilter}
-					onChange={(e) => setBarcodeFilter(e.target.value)}
-					aria-label="Filter by barcode"
-				/>
-				<Button
-					variant="secondary"
-					size="sm"
-					className="me-3 mb-2"
-					onClick={() => setBarcodeFilter("")}
-					aria-label="Reset barcode filter"
-				>
-					Reset
-				</Button>
-				<select
-					id="librarySelect"
-					className="form-control me-2 mb-2 w-auto"
-					style={{ width: "200px" }}
-					value={libraryFilter}
-					onChange={(e) => setLibraryFilter(e.target.value)}
-					aria-label="Filter by library"
-				>
-					<option value="">Select a library</option>
-					{libraries.map((libraryName, i) => (
-						<option key={i} value={libraryName}>
-							{libraryName}
-						</option>
-					))}
-				</select>
-				<Button
-					variant="secondary"
-					size="sm"
-					className="me-3 mb-2"
-					onClick={() => setLibraryFilter("")}
-					aria-label="Reset library filter"
-				>
-					Reset
-				</Button>
+				<div className="col-12 col-sm-6 col-md-4">
+					<input
+						type="text"
+						name="barcode"
+						id="barcode"
+						placeholder="Type copy barcode"
+						className="form-control mb-2"
+						value={barcodeFilter}
+						onChange={(e) => setBarcodeFilter(e.target.value)}
+						aria-label="Filter by barcode"
+					/>
+				</div>
+				<div className="col-12 col-sm-auto">
+					<Button
+						variant="secondary"
+						size="sm"
+						className="mb-2 me-sm-3"
+						onClick={() => setBarcodeFilter("")}
+						aria-label="Reset barcode filter"
+					>
+						Reset
+					</Button>
+				</div>
+				<div className="col-12 col-sm-6 col-md-4">
+					<select
+						id="librarySelect"
+						className="form-control mb-2"
+						value={libraryFilter}
+						onChange={(e) => setLibraryFilter(e.target.value)}
+						aria-label="Filter by library"
+					>
+						<option value="">Select a library</option>
+						{libraries.map((libraryName, i) => (
+							<option key={i} value={libraryName}>
+								{libraryName}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="col-12 col-sm-auto">
+					<Button
+						variant="secondary"
+						size="sm"
+						className="mb-2 me-sm-3"
+						onClick={() => setLibraryFilter("")}
+						aria-label="Reset library filter"
+					>
+						Reset
+					</Button>
+				</div>
 			</div>
 
 			<InfiniteScroll
