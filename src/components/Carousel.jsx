@@ -122,7 +122,7 @@ const Carousel = ({ children }) => {
   };
 
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || count <= 1) return;
 
     const interval = setInterval(() => {
       setActive((prev) => {
