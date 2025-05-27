@@ -105,7 +105,6 @@ export default function Presentation() {
 							<div className="col-md-4 text-center">
 								<i
 									className="fas fa-book fa-3x mb-3 text-primary"
-									aria-hidden="true"
 								></i>
 								<h3 className="fw-bold">Browse Collections</h3>
 								<p className="text-muted">
@@ -116,7 +115,6 @@ export default function Presentation() {
 							<div className="col-md-4 text-center">
 								<i
 									className="fas fa-user-plus fa-3x mb-3 text-success"
-									aria-hidden="true"
 								></i>
 								<h3 className="fw-bold">Register & Connect</h3>
 								<p className="text-muted">
@@ -127,7 +125,6 @@ export default function Presentation() {
 							<div className="col-md-4 text-center">
 								<i
 									className="fas fa-calendar-check fa-3x mb-3 text-warning"
-									aria-hidden="true"
 								></i>
 								<h3 className="fw-bold">Reserve & Loan</h3>
 								<p className="text-muted">

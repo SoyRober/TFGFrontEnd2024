@@ -85,9 +85,15 @@ const Card = React.memo(function Card({ title, image, preload }) {
             alt={`Book front page of ${title}`}
             loading={preload ? "eager" : "lazy"}
             onLoad={handleImageLoad}
-            width={220}
-            height={220}
-            style={{ maxWidth: "100%", height: "auto" }}
+            style={{
+              width: "100%",
+              height: "auto",
+              aspectRatio: "2 / 3",
+              objectFit: "contain",
+              maxWidth: "220px",
+              display: "block",
+              margin: "0 auto",
+            }}
             className="shadow"
           />
         </>
@@ -185,7 +191,6 @@ const Carousel = ({ children }) => {
       {React.Children.map(children, (child, i) => (
         <div
           className="cardC-container"
-          aria-hidden={active !== i}
           style={{
             "--active": i === active ? 1 : 0,
             "--offset": (active - i) / 3,
