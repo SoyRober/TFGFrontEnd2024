@@ -98,17 +98,13 @@ const AuthorsComponent = () => {
     >
       <div className="d-flex justify-content-center align-items-center mb-3">
         <div
-          className="w-25 d-flex align-items-center justify-content-center"
-          style={{ minWidth: "255px" }}
+          className="w-75 d-flex align-items-center justify-content-center"
         >
-          <label htmlFor="name" className="form-label fw-bold mb-0">
-            Author name:
-          </label>
           <input
             type="text"
             name="name"
             id="name"
-            placeholder="name or surname"
+            placeholder="Filter by name or surname"
             className="form-control mx-2"
             style={{ flex: 1 }}
             onChange={(e) => {

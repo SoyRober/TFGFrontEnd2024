@@ -29,7 +29,8 @@ const Login = () => {
       setAttempts(0);
       setIsLocked(false);
     } else {
-      const savedAttempts = parseInt(localStorage.getItem("loginAttempts")) || 0;
+      const savedAttempts =
+        parseInt(localStorage.getItem("loginAttempts")) || 0;
       setAttempts(savedAttempts);
 
       const lockTimestamp = parseInt(localStorage.getItem("lockTimestamp"));
@@ -52,6 +53,10 @@ const Login = () => {
     if (error === "google_auth") {
       toast.error(
         "Google authentication failed. Check if you have an active account or contact support"
+      );
+    } else if (error === "deactivated") {
+      toast.error(
+        "This account is deactivated. Please contact support if you want it again."
       );
     }
   }, [location]);
@@ -154,7 +159,9 @@ const Login = () => {
             localStorage.setItem("lockTimestamp", Date.now().toString());
             setIsLocked(true);
             setRemainingTime(LOCK_TIME);
-            toast.error("Maximum login attempts reached. Try again in 5 minutes.");
+            toast.error(
+              "Maximum login attempts reached. Try again in 5 minutes."
+            );
           } else {
             toast.error(response.message || "Login error. Please try again.");
           }
@@ -169,7 +176,9 @@ const Login = () => {
           localStorage.setItem("lockTimestamp", Date.now().toString());
           setIsLocked(true);
           setRemainingTime(LOCK_TIME);
-          toast.error("Maximum login attempts reached. Try again in 5 minutes.");
+          toast.error(
+            "Maximum login attempts reached. Try again in 5 minutes."
+          );
         } else {
           toast.error(error.message || "Login error. Please try again.");
         }
@@ -273,8 +282,8 @@ const Login = () => {
                 </div>
                 {isLocked && (
                   <div className="alert alert-danger mt-3" role="alert">
-                    You have reached the maximum number of login attempts. Please
-                    try again in {formatTime(remainingTime)}.
+                    You have reached the maximum number of login attempts.
+                    Please try again in {formatTime(remainingTime)}.
                   </div>
                 )}
               </form>

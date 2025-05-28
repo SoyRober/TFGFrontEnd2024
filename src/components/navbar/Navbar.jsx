@@ -171,7 +171,7 @@ export default function Root() {
                         dropdownOpen ? " show" : ""
                       }`}
                       aria-labelledby="navbarDropdown"
-                      style={{ position: "absolute", zIndex: 1050 }}
+                      style={{ position: "absolute", right: 0, zIndex: 1050 }}
                       onClick={() => setDropdownOpen(false)}
                     >
                       <li>
