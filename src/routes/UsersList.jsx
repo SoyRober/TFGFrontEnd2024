@@ -104,8 +104,16 @@ const UsersList = () => {
 				null,
 				token
 			);
-			if (data.success) toast.success(data.message);
-			setShowDeleteConfirmation(false);
+			if (data.success) {
+				toast.success(data.message);
+				setShowDeleteConfirmation(false);
+				// Actualizar la lista de usuarios tras eliminar
+				setUsers([]);
+				setPage(0);
+				setHasMore(true);
+				setReset(true);
+				fetchUsers();
+			}
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -125,8 +133,16 @@ const UsersList = () => {
 				null,
 				token
 			);
-			if (data.success) toast.success(data.message);
-			setShowReactivateConfirmation(false);
+			if (data.success) {
+				toast.success(data.message);
+				setShowReactivateConfirmation(false);
+				// Actualizar la lista de usuarios tras reactivar
+				setUsers([]);
+				setPage(0);
+				setHasMore(true);
+				setReset(true);
+				fetchUsers();
+			}
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
