@@ -18,12 +18,18 @@ const fetchBooks = async (setBooks, genre = "", library) => {
     );
 
     if (data.success) {
-      setBooks(data.message);
+      if (data.message.length > 0) {
+        setBooks(data.message);
+      } else {
+        setBooks([]);
+      }
     } else {
       toast.error(data.message || "Error al obtener libros");
+      setBooks([]);
     }
   } catch (err) {
     toast.error(err.message || "Error al obtener libros");
+    setBooks([]);
   }
 };
 
