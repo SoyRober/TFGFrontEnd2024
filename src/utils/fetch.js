@@ -29,6 +29,13 @@ export const fetchData = async (
   }
 
   const response = await fetch(`${BASE_URL}${endpoint}`, config);
+
+  if (response.status === 401) {
+    localStorage.removeItem("token"); 
+    window.location.href = "/error";
+    return;
+  }
+
   if (!response.ok) {
     const errorText = await response.text();
     let errorMessage = `HTTP error! Status: ${response.status}`;
@@ -48,10 +55,8 @@ export const fetchData = async (
   const responseContentType = response.headers.get("content-type");
 
   if (responseContentType && responseContentType.includes("application/json")) {
-    const jsonResponse = await response.json();
-    return jsonResponse;
+    return await response.json();
   } else {
-    const textResponse = await response.text();
-    return textResponse;
+    return await response.text();
   }
 };
