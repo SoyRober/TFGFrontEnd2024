@@ -5,7 +5,7 @@ import { Button, Modal, Form } from "react-bootstrap";
 import EditAttributeModal from "../components/modals/EditAttributeModal";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import EditLibrariansModal from "../components/modals/EditLibrariansModal.jsx";
-import LibrarySelector from "../components/navbar/LibrarySelector.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function Libraries() {
   const [libraries, setLibraries] = useState([]);
@@ -24,8 +24,15 @@ export default function Libraries() {
   const [allLibrarians, setAllLibrarians] = useState([]);
   const [selectedLibrarians, setSelectedLibrarians] = useState([]);
   const [librarySelectorKey, setLibrarySelectorKey] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const userRole = JSON.parse(atob(token.split(".")[1])).role.toLowerCase();
+      if (userRole === "user") navigate("/");
+    }
+
     fetchLibraries();
   }, []);
 
