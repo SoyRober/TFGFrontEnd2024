@@ -3,6 +3,7 @@ import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal.jsx";
+import ConfirmationModal from "../components/modals/ConfirmationModal.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
@@ -103,8 +104,16 @@ const UsersList = () => {
 				null,
 				token
 			);
-			if (data.success) toast.success(data.message);
-			setShowDeleteConfirmation(false);
+			if (data.success) {
+				toast.success(data.message);
+				setShowDeleteConfirmation(false);
+				// Actualizar la lista de usuarios tras eliminar
+				setUsers([]);
+				setPage(0);
+				setHasMore(true);
+				setReset(true);
+				fetchUsers();
+			}
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -124,8 +133,16 @@ const UsersList = () => {
 				null,
 				token
 			);
-			if (data.success) toast.success(data.message);
-			setShowReactivateConfirmation(false);
+			if (data.success) {
+				toast.success(data.message);
+				setShowReactivateConfirmation(false);
+				// Actualizar la lista de usuarios tras reactivar
+				setUsers([]);
+				setPage(0);
+				setHasMore(true);
+				setReset(true);
+				fetchUsers();
+			}
 		} catch (error) {
 			toast.error(error.message || "Something went wrong");
 		}
@@ -283,7 +300,7 @@ const UsersList = () => {
 									<td style={style}>{user.role}</td>
 									<td style={style}>
 										{isAdmin &&
-											(user.isDeactivated ? (
+											(user.deactivated ? (
 												<button
 													className="btn btn-success me-2"
 													onClick={() => handleReactivateClick(user.email)}
@@ -322,10 +339,10 @@ const UsersList = () => {
 				message={`This user will be deleted. Are you sure?`}
 				aria-label="Delete confirmation modal"
 			/>
-			<DeleteConfirmationModal
+			<ConfirmationModal
 				show={showReactivateConfirmation}
 				onClose={() => setShowReactivateConfirmation(false)}
-				onDelete={reactivateUser}
+				onConfirm={reactivateUser}
 				message={`This user will be reactivated. Are you sure?`}
 				aria-label="Reactivate confirmation modal"
 			/>
