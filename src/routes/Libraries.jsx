@@ -61,7 +61,7 @@ export default function Libraries() {
       setNewLibrary({ name: "", address: "" });
       await fetchLibraries();
       setLibrarySelectorKey((prev) => prev + 1);
-	  window.dispatchEvent(new Event("libraryChanged"));
+      window.dispatchEvent(new Event("libraryChanged"));
     } catch (err) {
       toast.error(err.message || "Failed to create library");
     }
@@ -135,7 +135,7 @@ export default function Libraries() {
       setShowEditModal(false);
       await fetchLibraries();
       setLibrarySelectorKey((prev) => prev + 1);
-	  window.dispatchEvent(new Event("libraryChanged"));
+      window.dispatchEvent(new Event("libraryChanged"));
     } catch (err) {
       toast.error(err.message || `Failed to update ${editAttribute}`);
     }
@@ -159,7 +159,7 @@ export default function Libraries() {
       setShowDeleteModal(false);
       await fetchLibraries();
       setLibrarySelectorKey((prev) => prev + 1);
-	  window.dispatchEvent(new Event("libraryChanged"));
+      window.dispatchEvent(new Event("libraryChanged"));
     } catch (err) {
       toast.error(err.message || "Failed to delete library");
     }
@@ -183,57 +183,59 @@ export default function Libraries() {
           {libraries.map((library) => (
             <li
               key={library.id}
-              className="list-group-item d-flex flex-wrap align-items-center"
+              className="list-group-item"
               style={{ padding: "10px" }}
             >
-              <div className="row w-100">
-                <div className="col-12 col-md-4 mb-2 mb-md-0">
+              <div className="row">
+                <div className="col-12 col-md-4 mb-2">
                   <strong>Name:</strong> {library.name}
                 </div>
-                <div className="col-12 col-md-4 mb-2 mb-md-0">
+                <div className="col-12 col-md-4 mb-2">
                   <strong>Address:</strong> {library.address}
                 </div>
-                <div className="col-12 col-md-4 text-end d-flex justify-content-between">
-                  <button
-                    type="button"
-                    className="btn btn-info btn me-1"
-                    onClick={() =>
-                      handleEditAttribute(library.id, "name", library.name)
-                    }
-                    aria-label={`Change name of library ${library.name}`}
-                  >
-                    Change Name
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-warning btn me-1"
-                    onClick={() =>
-                      handleEditAttribute(
-                        library.id,
-                        "address",
-                        library.address
-                      )
-                    }
-                    aria-label={`Change address of library ${library.name}`}
-                  >
-                    Change Address
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-success btn me-1"
-                    onClick={() => handleEditLibrarians(library.id)}
-                    aria-label={`Add librarian to library ${library.name}`}
-                  >
-                    Add Librarian
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-danger btn"
-                    onClick={() => handleDeleteLibrary(library.id)}
-                    aria-label={`Delete library ${library.name}`}
-                  >
-                    Delete
-                  </button>
+                <div className="col-12 col-md-4 mb-2">
+                  <div className="d-flex flex-wrap gap-2 justify-content-start justify-content-md-end">
+                    <button
+                      type="button"
+                      className="btn btn-info flex-fill flex-md-grow-0"
+                      onClick={() =>
+                        handleEditAttribute(library.id, "name", library.name)
+                      }
+                      aria-label={`Change name of library ${library.name}`}
+                    >
+                      Change Name
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-warning flex-fill flex-md-grow-0"
+                      onClick={() =>
+                        handleEditAttribute(
+                          library.id,
+                          "address",
+                          library.address
+                        )
+                      }
+                      aria-label={`Change address of library ${library.name}`}
+                    >
+                      Change Address
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-success flex-fill flex-md-grow-0"
+                      onClick={() => handleEditLibrarians(library.id)}
+                      aria-label={`Add librarian to library ${library.name}`}
+                    >
+                      Add Librarian
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-danger flex-fill flex-md-grow-0"
+                      onClick={() => handleDeleteLibrary(library.id)}
+                      aria-label={`Delete library ${library.name}`}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="col-12 mt-2">
@@ -251,7 +253,7 @@ export default function Libraries() {
 
       <Button
         variant="primary"
-        className="mt-3"
+        className="mt-3 d-block d-md-inline-block"
         style={{ position: "absolute", bottom: "20px", left: "20px" }}
         onClick={() => setShowAddLibraryModal(true)}
         aria-label="Add a new library"
@@ -263,13 +265,14 @@ export default function Libraries() {
         show={showAddLibraryModal}
         onHide={() => setShowAddLibraryModal(false)}
         aria-label="Add new library modal"
+        centered
       >
         <Modal.Header closeButton>
           <Modal.Title>Add New Library</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formLibraryName">
+            <Form.Group controlId="formLibraryName" className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
@@ -281,7 +284,7 @@ export default function Libraries() {
                 aria-label="Library name input"
               />
             </Form.Group>
-            <Form.Group controlId="formLibraryAddress" className="mt-3">
+            <Form.Group controlId="formLibraryAddress" className="mb-3">
               <Form.Label>Address</Form.Label>
               <Form.Control
                 type="text"
@@ -295,11 +298,12 @@ export default function Libraries() {
             </Form.Group>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
+        <Modal.Footer className="d-flex flex-wrap gap-2">
           <Button
             variant="secondary"
             onClick={() => setShowAddLibraryModal(false)}
             aria-label="Close add library modal"
+            className="w-100 w-md-auto"
           >
             Close
           </Button>
@@ -307,6 +311,7 @@ export default function Libraries() {
             variant="primary"
             onClick={handleAddLibrary}
             aria-label="Save new library"
+            className="w-100 w-md-auto"
           >
             Add Library
           </Button>

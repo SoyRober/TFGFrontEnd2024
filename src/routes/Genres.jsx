@@ -110,17 +110,13 @@ const GenresComponent = () => {
     >
       <div className="d-flex justify-content-center align-items-center mb-3">
         <div
-          className="w-25 d-flex align-items-center justify-content-center"
-          style={{ minWidth: "255px" }}
+          className="w-75 d-flex align-items-center justify-content-center"
         >
-          <label htmlFor="name" className="form-label fw-bold mb-0">
-            Genre name:
-          </label>
           <input
             type="text"
             name="name"
             id="name"
-            placeholder="name"
+            placeholder="Filter by name"
             className="form-control mx-2"
             style={{ flex: 1 }}
             onChange={(e) => setNameFilter(e.target.value || "")}
