@@ -49,7 +49,7 @@ export default function EditDateModal({
 				<Button
 					variant="primary"
 					onClick={onSave}
-					disabled={!value || !value.toString().trim()}
+					disabled={!`${value ?? ""}`.trim()}
 				>
 					Save
 				</Button>
