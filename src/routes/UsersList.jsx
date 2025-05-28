@@ -283,7 +283,7 @@ const UsersList = () => {
 									<td style={style}>{user.role}</td>
 									<td style={style}>
 										{isAdmin &&
-											(user.isDeactivated ? (
+											(user.deactivated ? (
 												<button
 													className="btn btn-success me-2"
 													onClick={() => handleReactivateClick(user.email)}
