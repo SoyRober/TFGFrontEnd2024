@@ -23,6 +23,7 @@ const ManagedLibraries = lazy(() => import("./routes/ManagedLibraries.jsx"));
 const Loading = lazy(() => import("./components/Loading.jsx"));
 const Error = lazy(() => import("./routes/Error.jsx"));
 const ErrorBoundary = lazy(() => import("./routes/ErrorBoundary.jsx"));
+const Unauthorized = lazy(() => import("./routes/Unauthorized.jsx"));
 
 const withSuspense = (Component) => (
 	<ErrorBoundary>
@@ -54,7 +55,8 @@ const router = createBrowserRouter([
 			{ path: "bookCopies/:title", element: withSuspense(BookCopies) },
 			{ path: "libraries", element: withSuspense(Libraries) },
 			{ path: "managedLibraries", element: withSuspense(ManagedLibraries) },
-			{ path: "*", element: withSuspense(Error) }
+			{ path: "*", element: withSuspense(Error) },
+			{path: "unauthorized", element: withSuspense(Unauthorized)},
 		],
 	},
 ]);

@@ -166,11 +166,13 @@ export default function Settings() {
 		} else {
 			formData.append("attribute", attribute || "");
 			formData.append("newAttribute", value || "");
-			formData.append("oldPassword", ""); //Avoid crashing the backend
+			formData.append("oldPassword", "");
 		}
 
 		return formData;
 	};
+
+	
 
 	const updateStateAfterSave = (attribute, value, token) => {
 		if (attribute === "image") {
