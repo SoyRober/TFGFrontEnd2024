@@ -119,7 +119,7 @@ const UsersList = () => {
 
 		try {
 			const data = await fetchData(
-				`/user/users/reactivate/${selectedUserEmail}`,
+				`/admin/users/reactivate/${selectedUserEmail}`,
 				"PUT",
 				null,
 				token
