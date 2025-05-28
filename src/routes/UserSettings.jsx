@@ -35,8 +35,7 @@ export default function Settings() {
 			}
 			try {
 				const decodedToken = jwtDecode(token);
-				let email = decodedToken.email;
-				getUserInfo(token, email);
+				getUserInfo(token, decodedToken.email);
 			} catch (error) {
 				toast.error("Invalid or missing token. Please log in again.");
 			}
