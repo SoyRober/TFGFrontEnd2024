@@ -32,7 +32,7 @@ export const fetchData = async (
 
   if (response.status === 401) {
     localStorage.removeItem("token"); 
-    window.location.href = "/error";
+    window.location.href = "/unauthorized";
     return;
   }
 
