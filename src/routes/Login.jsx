@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import InfoModal from "../components/modals/InfoModal.jsx";
 
 const MAX_ATTEMPTS = 3;
-const LOCK_TIME = 5 * 60 * 1000; // 5 minutos en ms
+const LOCK_TIME = 5 * 60 * 1000;
 
 const Login = () => {
   const [password, setPassword] = useState("");
@@ -16,6 +16,7 @@ const Login = () => {
   const [attempts, setAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [remainingTime, setRemainingTime] = useState(0);
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,10 +30,8 @@ const Login = () => {
       setAttempts(0);
       setIsLocked(false);
     } else {
-      const savedAttempts =
-        parseInt(localStorage.getItem("loginAttempts")) || 0;
+      const savedAttempts = parseInt(localStorage.getItem("loginAttempts")) || 0;
       setAttempts(savedAttempts);
-
       const lockTimestamp = parseInt(localStorage.getItem("lockTimestamp"));
       if (lockTimestamp) {
         const now = Date.now();
@@ -51,19 +50,14 @@ const Login = () => {
     const params = new URLSearchParams(location.search);
     const error = params.get("error");
     if (error === "google_auth") {
-      toast.error(
-        "Google authentication failed. Check if you have an active account or contact support"
-      );
+      toast.error("Google authentication failed. Check if you have an active account or contact support");
     } else if (error === "deactivated") {
-      toast.info(
-        "This account is deactivated. Please contact support if you want it again."
-      );
+      toast.info("This account is deactivated. Please contact support if you want it again.");
     }
   }, [location]);
 
   useEffect(() => {
     if (!isLocked) return;
-
     const interval = setInterval(() => {
       const lockTimestamp = parseInt(localStorage.getItem("lockTimestamp"));
       if (!lockTimestamp) {
@@ -87,7 +81,6 @@ const Login = () => {
         setRemainingTime(LOCK_TIME - elapsed);
       }
     }, 1000);
-
     return () => clearInterval(interval);
   }, [isLocked]);
 
@@ -95,8 +88,7 @@ const Login = () => {
     setModalTitle("Account Reactivation");
     setModalContent(
       <>
-        If you deactivated your account and want it back, contact our support
-        and send your username and email.
+        If you deactivated your account and want it back, contact our support and send your username and email.
         <br />
         <a
           href="mailto:bibliosupport@gmail.com?subject=Reactivation Request"
@@ -116,8 +108,7 @@ const Login = () => {
     setModalTitle("Account Recovery");
     setModalContent(
       <>
-        If you want to recover your account, send your username and email to our
-        support.
+        If you want to recover your account, send your username and email to our support.
         <br />
         <a
           href="mailto:bibliosupport@gmail.com?subject=Password Recovery Request"
@@ -139,10 +130,8 @@ const Login = () => {
     e.preventDefault();
     if (isLocked) return;
 
-    const userData = { username, password };
-
     try {
-      const response = await fetchData("/public/users/login", "POST", userData);
+      const response = await fetchData("/public/users/login", "POST", { username, password });
       if (response.success) {
         localStorage.setItem("token", response.message);
         localStorage.setItem("loginAttempts", "0");
@@ -159,9 +148,7 @@ const Login = () => {
             localStorage.setItem("lockTimestamp", Date.now().toString());
             setIsLocked(true);
             setRemainingTime(LOCK_TIME);
-            toast.error(
-              "Maximum login attempts reached. Try again in 5 minutes."
-            );
+            toast.error("Maximum login attempts reached. Try again in 5 minutes.");
           } else {
             toast.error(response.message || "Login error. Please try again.");
           }
@@ -176,9 +163,7 @@ const Login = () => {
           localStorage.setItem("lockTimestamp", Date.now().toString());
           setIsLocked(true);
           setRemainingTime(LOCK_TIME);
-          toast.error(
-            "Maximum login attempts reached. Try again in 5 minutes."
-          );
+          toast.error("Maximum login attempts reached. Try again in 5 minutes.");
         } else {
           toast.error(error.message || "Login error. Please try again.");
         }
@@ -189,11 +174,9 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     if (isLocked) return;
-    const googleClientId =
-      "115537997590-sefunkh5od17kagalf4747ov5trjt387.apps.googleusercontent.com";
+    const googleClientId = "115537997590-sefunkh5od17kagalf4747ov5trjt387.apps.googleusercontent.com";
     const redirectUri = "https://biliceu.store/oauth/callback";
     const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${googleClientId}&redirect_uri=${redirectUri}&response_type=code&scope=openid%20email%20profile`;
-
     window.location.href = authUrl;
   };
 
@@ -210,38 +193,32 @@ const Login = () => {
         <div className="col-md-6 col-lg-4">
           <div className="card shadow-lg" aria-labelledby="loginTitle">
             <div className="card-body">
-              <h2 id="loginTitle" className="card-title text-center mb-4">
-                Log In
-              </h2>
+              <h2 id="loginTitle" className="card-title text-center mb-4">Log In</h2>
               <form onSubmit={handleLogin}>
                 <div className="mb-3">
-                  <label htmlFor="username" className="form-label">
-                    Username:
-                  </label>
+                  <label htmlFor="username" className="form-label">Username:</label>
                   <input
                     type="text"
-                    className="form-control shadow-sm"
                     id="username"
+                    className="form-control shadow-sm"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    aria-describedby="usernameHelp"
                     required
                     disabled={isLocked}
+                    aria-describedby="usernameHelp"
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Password:
-                  </label>
+                  <label htmlFor="password" className="form-label">Password:</label>
                   <input
                     type="password"
-                    className="form-control shadow-sm"
                     id="password"
+                    className="form-control shadow-sm"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    aria-describedby="passwordHelp"
                     required
                     disabled={isLocked}
+                    aria-describedby="passwordHelp"
                   />
                 </div>
                 <button
@@ -270,7 +247,6 @@ const Login = () => {
                   >
                     Reactivation Info
                   </button>
-
                   <button
                     type="button"
                     onClick={openPasswordRecoveryModal}
@@ -282,8 +258,7 @@ const Login = () => {
                 </div>
                 {isLocked && (
                   <div className="alert alert-danger mt-3" role="alert">
-                    You have reached the maximum number of login attempts.
-                    Please try again in {formatTime(remainingTime)}.
+                    You have reached the maximum number of login attempts. Please try again in {formatTime(remainingTime)}.
                   </div>
                 )}
               </form>
@@ -291,7 +266,6 @@ const Login = () => {
           </div>
         </div>
       </div>
-
       <InfoModal
         show={showModal}
         handleClose={handleHideModal}
