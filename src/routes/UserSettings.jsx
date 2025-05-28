@@ -26,17 +26,18 @@ export default function Settings() {
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-
+		if (!token) {
+			navigate("/");
+			return;
+		}
 		const fetchUser = async () => {
-			if (!token) {
-				navigate("/");
-				return;
-			}
 			try {
 				const decodedToken = jwtDecode(token);
 				getUserInfo(token, decodedToken.email);
 			} catch (error) {
 				toast.error("Invalid or missing token. Please log in again.");
+				localStorage.removeItem("token");
+				navigate("/");
 			}
 		};
 
