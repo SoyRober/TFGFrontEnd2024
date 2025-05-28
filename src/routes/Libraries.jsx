@@ -6,6 +6,7 @@ import EditAttributeModal from "../components/modals/EditAttributeModal";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal";
 import EditLibrariansModal from "../components/modals/EditLibrariansModal.jsx";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 export default function Libraries() {
 	const [libraries, setLibraries] = useState([]);
