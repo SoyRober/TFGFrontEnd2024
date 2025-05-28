@@ -27,26 +27,28 @@ export default function Settings() {
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		if (!token) {
-			navigate("/");
-			return;
-		}
-		let decodedToken;
-		try {
-			decodedToken = jwtDecode(token);
-		} catch (err) {
-			toast.error("Invalid or missing token. Please log in again.");
-			localStorage.removeItem("token");
-			navigate("/");
-			return;
-		}
-		getUserInfo(token, decodedToken);
+
+		const fetchUser = async () => {
+			if (!token) {
+				navigate("/");
+				return;
+			}
+			try {
+				const decodedToken = jwtDecode(token);
+				let email = decodedToken.email;
+				getUserInfo(token, email);
+			} catch (error) {
+				toast.error("Invalid or missing token. Please log in again.");
+			}
+		};
+
+		fetchUser();
 	}, [navigate]);
 
-	const getUserInfo = async (token, decodedToken) => {
+	const getUserInfo = async (token, email) => {
 		try {
 			const data = await fetchData(
-				`/user/users/info/profile/${decodedToken.email}`,
+				`/user/users/info/profile/${email}`,
 				"GET",
 				null,
 				token
@@ -183,8 +185,6 @@ export default function Settings() {
 
 		return formData;
 	};
-
-	
 
 	const updateStateAfterSave = (attribute, value, token) => {
 		if (attribute === "image") {
