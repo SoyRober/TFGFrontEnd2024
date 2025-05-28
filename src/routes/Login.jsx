@@ -55,7 +55,7 @@ const Login = () => {
         "Google authentication failed. Check if you have an active account or contact support"
       );
     } else if (error === "deactivated") {
-      toast.error(
+      toast.info(
         "This account is deactivated. Please contact support if you want it again."
       );
     }
