@@ -5,13 +5,15 @@ import { toast } from "react-toastify";
 import debounce from "lodash/debounce";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../Loading";
+import { jwtDecode } from "jwt-decode";
 
-export default function ReviewList({ title, username }) {
+export default function ReviewList({ title }) {
   const [reviews, setReviews] = useState([]);
   const [loadingVote, setLoadingVote] = useState(false);
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     setReviews([]);
@@ -106,11 +108,16 @@ export default function ReviewList({ title, username }) {
         `/public/reviews/${title}?page=${pageToFetch}`
       );
       setHasFetchedOnce(true);
-      console.log("🚀 ~ fetchReviews ~ data:", data);
 
       let reviewsToSet = data;
 
       const token = localStorage.getItem("token");
+
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        setUsername(decodedToken.username);
+      }
+
       if (token && username) {
         const filteredData = data.filter(
           (review) => review.userName !== username
