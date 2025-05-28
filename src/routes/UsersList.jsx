@@ -3,6 +3,7 @@ import { fetchData } from "../utils/fetch.js";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModal.jsx";
+import ConfirmationModal from "../components/modals/ConfirmationModal.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading.jsx";
@@ -322,10 +323,10 @@ const UsersList = () => {
 				message={`This user will be deleted. Are you sure?`}
 				aria-label="Delete confirmation modal"
 			/>
-			<DeleteConfirmationModal
+			<ConfirmationModal
 				show={showReactivateConfirmation}
 				onClose={() => setShowReactivateConfirmation(false)}
-				onDelete={reactivateUser}
+				onConfirm={reactivateUser}
 				message={`This user will be reactivated. Are you sure?`}
 				aria-label="Reactivate confirmation modal"
 			/>
