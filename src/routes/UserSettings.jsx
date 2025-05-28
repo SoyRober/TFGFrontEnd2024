@@ -7,6 +7,7 @@ import defaultAvatar from "/img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
 import { toast } from "react-toastify";
 import EditDateModal from "../components/modals/EditDateModal";
+import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 
 export default function Settings() {
 	const [role, setRole] = useState("");
@@ -23,6 +24,8 @@ export default function Settings() {
 	const [showDateModal, setShowDateModal] = useState(false);
 	const [dateErrorMessage, setDateErrorMessage] = useState("");
 	const navigate = useNavigate();
+
+	useCheckTokenExpiration();
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
