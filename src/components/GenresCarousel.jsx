@@ -1,7 +1,7 @@
 import { Suspense, lazy } from 'react';
 import Loading from './Loading';
 
-const CustomCarousel = lazy(() => import('./Carousel'));
+const CustomCarousel = lazy(() => import('./carousel/CustomCarousel'));
 
 export default function GenresCarousel({ genres }) {
   return (

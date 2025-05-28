@@ -4,7 +4,7 @@ import { fetchData } from "../utils/fetch";
 import Loading from "../components/Loading";
 import GenresCarousel from "../components/GenresCarousel";
 
-const CustomCarousel = lazy(() => import("../components/Carousel"));
+const CustomCarousel = lazy(() => import("../components/carousel/CustomCarousel"));
 
 export default function Presentation() {
 	const [genres, setGenres] = useState([]);
