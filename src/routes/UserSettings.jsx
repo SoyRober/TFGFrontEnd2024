@@ -7,7 +7,6 @@ import defaultAvatar from "/img/defaultAvatar.svg";
 import { compressImage } from "../utils/compressImage";
 import { toast } from "react-toastify";
 import EditDateModal from "../components/modals/EditDateModal";
-import useCheckTokenExpiration from "../hooks/checkToken.jsx";
 
 export default function Settings() {
 	const [role, setRole] = useState("");
