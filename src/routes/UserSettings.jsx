@@ -409,17 +409,15 @@ export default function Settings() {
 				</Modal.Footer>
 			</Modal>
 
-			{showDateModal && (
-				<EditDateModal
-					show={showDateModal}
-					onClose={() => setShowDateModal(false)}
-					attribute="BirthDate"
-					value={modalValue}
-					onChange={(e) => setModalValue(e.target.value)}
-					onSave={handleSaveDate}
-					errorMessage={dateErrorMessage}
-				/>
-			)}
+			<EditDateModal
+				show={showDateModal}
+				onClose={() => setShowDateModal(false)}
+				attribute="BirthDate"
+				value={modalValue}
+				onChange={(e) => setModalValue(e.target.value)}
+				onSave={handleSaveDate}
+				errorMessage={dateErrorMessage}
+			/>
 			<Modal
 				show={showDeactivationConfirmationModal}
 				onHide={handleCloseDeactivationModal}
