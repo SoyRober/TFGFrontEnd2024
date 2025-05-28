@@ -25,38 +25,50 @@ export default function Settings() {
 	const [dateErrorMessage, setDateErrorMessage] = useState("");
 	const navigate = useNavigate();
 
-	useCheckTokenExpiration();
-
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		if (token) {
-			getUserInfo(token);
-		} else {
+		if (!token) {
 			navigate("/");
+			return;
 		}
+		let decodedToken;
+		try {
+			decodedToken = jwtDecode(token);
+		} catch (err) {
+			toast.error("Invalid or missing token. Please log in again.");
+			localStorage.removeItem("token");
+			navigate("/");
+			return;
+		}
+		getUserInfo(token, decodedToken);
 	}, [navigate]);
 
-	const getUserInfo = async (token) => {
-		const decodedToken = jwtDecode(token);
-		const data = await fetchData(
-			`/user/users/info/profile/${decodedToken.email}`,
-			"GET",
-			null,
-			token
-		);
-		if (data.success) {
-			setRole(data.message.role);
-			setUsername(data.message.username);
-			setEmail(data.message.email);
-			setBirthDate(data.message.birthday);
-			setisOauth(data.message.oauth);
-			setProfileImage(
-				data.message.profileImage
-					? `data:image/jpeg;base64,${data.message.profileImage}`
-					: null
+	const getUserInfo = async (token, decodedToken) => {
+		try {
+			const data = await fetchData(
+				`/user/users/info/profile/${decodedToken.email}`,
+				"GET",
+				null,
+				token
 			);
-		} else {
-			toast.error("An unexpected error occurred.");
+			if (data.success) {
+				setRole(data.message.role);
+				setUsername(data.message.username);
+				setEmail(data.message.email);
+				setBirthDate(data.message.birthday);
+				setisOauth(data.message.oauth);
+				setProfileImage(
+					data.message.profileImage
+						? `data:image/jpeg;base64,${data.message.profileImage}`
+						: null
+				);
+			} else {
+				toast.error("An unexpected error occurred.");
+				navigate("/");
+			}
+		} catch (err) {
+			toast.error("Invalid or missing token. Please log in again.");
+			localStorage.removeItem("token");
 			navigate("/");
 		}
 	};
