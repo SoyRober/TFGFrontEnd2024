@@ -19,6 +19,7 @@ const AuthorsComponent = () => {
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   useEffect(() => {
     if (page === 0) setAuthors([]);
@@ -33,13 +34,13 @@ const AuthorsComponent = () => {
         const params = new URLSearchParams({ page: currentPage, size: "30" });
         if (nameFilter) params.append("name", nameFilter);
 
-        await new Promise((r) => setTimeout(r, 1000));
         const data = await fetchData(
           `/public/authors?${params.toString()}`,
           "GET",
           null,
           token
         );
+
         const newAuthors = data?.message || [];
         setAuthors((prev) =>
           currentPage === 0 ? newAuthors : [...prev, ...newAuthors]
@@ -54,8 +55,16 @@ const AuthorsComponent = () => {
   );
 
   useEffect(() => {
-    setPage(0);
-    fetchAuthors(0);
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+
+    const timeout = setTimeout(() => {
+      setPage(0); 
+      fetchAuthors(0);
+    }, 500);
+
+    setDebounceTimeout(timeout);
+
+    return () => clearTimeout(timeout);
   }, [nameFilter]);
 
   const handleSaveAuthor = async (method, body) => {
@@ -97,9 +106,7 @@ const AuthorsComponent = () => {
       tabIndex={-1}
     >
       <div className="d-flex justify-content-center align-items-center mb-3">
-        <div
-          className="w-75 d-flex align-items-center justify-content-center"
-        >
+        <div className="w-75 d-flex align-items-center justify-content-center">
           <input
             type="text"
             name="name"
@@ -133,10 +140,7 @@ const AuthorsComponent = () => {
           </p>
         }
       >
-        <section
-          className="row w-100 g-3"
-          aria-label="Authors List"
-        >
+        <section className="row w-100 g-3" aria-label="Authors List">
           {authors.map((author) => (
             <div
               key={author.id}

@@ -19,6 +19,7 @@ const GenresComponent = () => {
   const [page, setPage] = useState(0);
   const [isFetching, setIsFetching] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
+  const [debounceTimeout, setDebounceTimeout] = useState(null);
 
   useEffect(() => {
     if (page === 0) setGenres([]);
@@ -40,7 +41,6 @@ const GenresComponent = () => {
           null,
           token
         );
-        console.log("🚀 ~ data:", data)
         const newGenres = data.message || [];
         setGenres((prev) =>
           currentPage === 0 ? newGenres : [...prev, ...newGenres]
@@ -55,8 +55,16 @@ const GenresComponent = () => {
   );
 
   useEffect(() => {
-    setPage(0);
-    fetchGenres(0);
+    if (debounceTimeout) clearTimeout(debounceTimeout);
+
+    const timeout = setTimeout(() => {
+      setPage(0);
+      fetchGenres(0);
+    }, 500);
+
+    setDebounceTimeout(timeout);
+
+    return () => clearTimeout(timeout);
   }, [nameFilter]);
 
   const handleAddGenre = async (newName) => {
@@ -109,9 +117,7 @@ const GenresComponent = () => {
       tabIndex={-1}
     >
       <div className="d-flex justify-content-center align-items-center mb-3">
-        <div
-          className="w-75 d-flex align-items-center justify-content-center"
-        >
+        <div className="w-75 d-flex align-items-center justify-content-center">
           <input
             type="text"
             name="name"
@@ -144,10 +150,7 @@ const GenresComponent = () => {
           </p>
         }
       >
-        <section
-          className="row w-100 g-3"
-          aria-label="Genres List"
-        >
+        <section className="row w-100 g-3" aria-label="Genres List">
           {genres.map((genre) => (
             <div
               key={genre.id}
