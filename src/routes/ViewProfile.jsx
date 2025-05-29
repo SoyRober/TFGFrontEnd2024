@@ -309,7 +309,7 @@ const ViewProfile = () => {
 							>
 								Change Role
 							</button>
-							{!userProfile?.oauth && (
+							{userProfile?.oauth === false && (
 								<button
 									className="btn btn-danger m-1"
 									onClick={() => openEditAttributeModal("password")}
