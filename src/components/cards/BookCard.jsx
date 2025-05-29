@@ -30,9 +30,9 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
   };
 
   const widthMap = {
-    small: 120,
-    medium: 180,
-    large: 300,
+    small: 140,
+    medium: 200,
+    large: 320,
   };
 
   const heightImgMap = {
