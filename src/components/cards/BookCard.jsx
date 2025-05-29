@@ -115,6 +115,7 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
               overflow: "hidden",
               whiteSpace: "nowrap",
               textOverflow: "ellipsis",
+              wordBreak: "break-word",
             }}
           >
             {title.length > 30 ? title.slice(0, 30) + "..." : title}
