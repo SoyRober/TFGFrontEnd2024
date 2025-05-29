@@ -26,56 +26,52 @@ export default function Settings() {
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		if (!token) {
-			navigate("/");
-			return;
-		}
-		let decodedToken;
-		try {
-			decodedToken = jwtDecode(token);
-		} catch (error) {
-			toast.error("Invalid or missing token. Please log in again.");
-			localStorage.removeItem("token");
-			navigate("/");
-			return;
-		}
-		if (decodedToken?.email) {
-			getUserInfo(token, decodedToken.email);
+		if (token) {
+			const email = jwtDecode(token).email;
+			setEmail(email);
 		} else {
-			toast.error("Invalid token payload.");
 			navigate("/");
 		}
 	}, [navigate]);
 
-	const getUserInfo = async (token, email) => {
-		try {
-			const data = await fetchData(
-				`/user/users/info/profile/${email}`,
-				"GET",
-				null,
-				token
-			);
-			if (data.success) {
-				setRole(data.message.role);
-				setUsername(data.message.username);
-				setEmail(data.message.email);
-				setBirthDate(data.message.birthday);
-				setisOauth(data.message.oauth);
-				setProfileImage(
-					data.message.profileImage
-						? `data:image/jpeg;base64,${data.message.profileImage}`
-						: null
+	useEffect(() => {
+		if (!email) return;
+		const getUserInfo = async () => {
+			const token = localStorage.getItem("token");
+			if (!token) {
+				toast.error("No token found, user might not be authenticated");
+				return navigate("/");
+			}
+			try {
+				const data = await fetchData(
+					`/user/users/info/profile/${email}`,
+					"GET",
+					null,
+					token
 				);
-			} else {
-				toast.error("An unexpected error occurred.");
+				if (data.success) {
+					setRole(data.message.role);
+					setUsername(data.message.username);
+					setEmail(data.message.email);
+					setBirthDate(data.message.birthday);
+					setisOauth(data.message.oauth);
+					setProfileImage(
+						data.message.profileImage
+							? `data:image/jpeg;base64,${data.message.profileImage}`
+							: null
+					);
+				} else {
+					toast.error("An unexpected error occurred.");
+					navigate("/");
+				}
+			} catch (error) {
+				toast.error("Error loading user profile: " + error.message);
 				navigate("/");
 			}
-		} catch (err) {
-			toast.error("Invalid or missing token. Please log in again.");
-			localStorage.removeItem("token");
-			navigate("/");
-		}
-	};
+		};
+
+		getUserInfo();
+	}, [email, navigate]);
 
 	const handleEditAttribute = (attribute, currentValue) => {
 		if (attribute === "birthdate") {
