@@ -112,6 +112,9 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
             style={{
               fontWeight: "500",
               fontSize: fontSizeMap[cardSize] || "1.5em",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
             }}
           >
             {title.length > 30 ? title.slice(0, 30) + "..." : title}
