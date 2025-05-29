@@ -29,12 +29,12 @@ export default function Libraries() {
 
 	useEffect(() => {
 		const token = localStorage.getItem("token");
-		if (token && jwtDecode(token).role === "ADMIN") {
-			fetchLibraries();
-		} else {
+		if (!token || jwtDecode(token).role !== "ADMIN") {
 			navigate("/");
+			return;
 		}
-	}, []);
+		fetchLibraries();
+	}, [navigate]);
 
 	const fetchLibraries = async () => {
 		setLoading(true);
