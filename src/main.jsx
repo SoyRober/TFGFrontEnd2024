@@ -42,7 +42,7 @@ const router = createBrowserRouter([
 			{ path: "search", element: withSuspense(Search) },
 			{ path: "login", element: withSuspense(Login) },
 			{ path: "register", element: withSuspense(Register) },
-			{ path: "user/userSettings", element: withSuspense(UserSettings) },
+			{ path: "userSettings", element: withSuspense(UserSettings) },
 			{ path: "user/loans", element: withSuspense(Loans) },
 			{ path: "viewBook/:title", element: withSuspense(ViewBook) },
 			{ path: "usersList", element: withSuspense(UsersList) },
@@ -56,7 +56,7 @@ const router = createBrowserRouter([
 			{ path: "libraries", element: withSuspense(Libraries) },
 			{ path: "managedLibraries", element: withSuspense(ManagedLibraries) },
 			{ path: "*", element: withSuspense(Error) },
-			{path: "unauthorized", element: withSuspense(Unauthorized)},
+			{ path: "unauthorized", element: withSuspense(Unauthorized) },
 		],
 	},
 ]);
