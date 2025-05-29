@@ -376,6 +376,18 @@ const ViewProfile = () => {
 							ariaLabel="Reset title filter"
 						/>
 					</div>
+
+					<button
+						className="btn btn-warning"
+						type="button"
+						onClick={() => {
+							setDateFilterReservation("");
+							setTitleFilterReservation("");
+						}}
+						aria-label="Reset all reservation filters"
+					>
+						Reset All Filters
+					</button>
 				</div>
 				<div
 					id="scrollableReservations"
@@ -463,6 +475,19 @@ const ViewProfile = () => {
 							ariaLabel="Reset return status filter"
 						/>
 					</div>
+
+					<button
+						className="btn btn-warning"
+						type="button"
+						onClick={() => {
+							setDateFilterLoan("");
+							setTitleFilterLoan("");
+							setIsReturnedLoan("");
+						}}
+						aria-label="Reset all loan filters"
+					>
+						Reset All Filters
+					</button>
 				</div>
 				<div
 					id="scrollableLoans"
