@@ -73,7 +73,6 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
           flexDirection: "column",
           justifyContent: "space-between",
           boxSizing: "border-box",
-          cursor: "pointer",
         }}
       >
         <figure
