@@ -30,18 +30,16 @@ export default function Settings() {
 			navigate("/");
 			return;
 		}
-		const fetchUser = async () => {
-			try {
-				const decodedToken = jwtDecode(token);
-				getUserInfo(token, decodedToken.email);
-			} catch (error) {
-				toast.error("Invalid or missing token. Please log in again.");
-				localStorage.removeItem("token");
-				navigate("/");
-			}
-		};
-
-		fetchUser();
+		let decodedToken;
+		try {
+			decodedToken = jwtDecode(token);
+		} catch (error) {
+			toast.error("Invalid or missing token. Please log in again.");
+			localStorage.removeItem("token");
+			navigate("/");
+			return;
+		}
+		getUserInfo(token, decodedToken.email);
 	}, [navigate]);
 
 	const getUserInfo = async (token, email) => {
