@@ -39,7 +39,12 @@ export default function Settings() {
 			navigate("/");
 			return;
 		}
-		getUserInfo(token, decodedToken.email);
+		if (decodedToken?.email) {
+			getUserInfo(token, decodedToken.email);
+		} else {
+			toast.error("Invalid token payload.");
+			navigate("/");
+		}
 	}, [navigate]);
 
 	const getUserInfo = async (token, email) => {
