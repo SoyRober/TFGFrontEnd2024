@@ -69,6 +69,11 @@ export default function BookCard({ book, cardSize, defaultBook, onClick }) {
           height: heightMap[cardSize] || "250px",
           minHeight: heightMap[cardSize] || "250px",
           cursor: "pointer",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          boxSizing: "border-box",
+          cursor: "pointer",
         }}
       >
         <figure
