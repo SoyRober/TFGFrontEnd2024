@@ -33,19 +33,24 @@ export default function Settings() {
 		let decodedToken;
 		try {
 			decodedToken = jwtDecode(token);
-		} catch (err) {
+		} catch (error) {
 			toast.error("Invalid or missing token. Please log in again.");
 			localStorage.removeItem("token");
 			navigate("/");
 			return;
 		}
-		getUserInfo(token, decodedToken);
+		if (decodedToken?.email) {
+			getUserInfo(token, decodedToken.email);
+		} else {
+			toast.error("Invalid token payload.");
+			navigate("/");
+		}
 	}, [navigate]);
 
-	const getUserInfo = async (token, decodedToken) => {
+	const getUserInfo = async (token, email) => {
 		try {
 			const data = await fetchData(
-				`/user/users/info/profile/${decodedToken.email}`,
+				`/user/users/info/profile/${email}`,
 				"GET",
 				null,
 				token
@@ -182,8 +187,6 @@ export default function Settings() {
 
 		return formData;
 	};
-
-	
 
 	const updateStateAfterSave = (attribute, value, token) => {
 		if (attribute === "image") {
