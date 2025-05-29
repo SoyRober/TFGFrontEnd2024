@@ -10,7 +10,6 @@ import defaultBook from "/img/defaultBook.svg";
 export default function Attributes() {
   const [selectedButton, setSelectedButton] = useState("Reserves");
   const [hasPermissions, setHasPermissions] = useState(false);
-  const navigate = useNavigate();
   const [reserves, setReserves] = useState([]);
   const [loans, setLoans] = useState([]);
   const [token] = useState(() => localStorage.getItem("token") || null);
@@ -22,6 +21,7 @@ export default function Attributes() {
   const [library, setLibrary] = useState(localStorage.getItem("libraryName"));
   const [apiUnauthorized, setApiUnauthorized] = useState(false);
   const [username, setUsername] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,7 +76,6 @@ export default function Attributes() {
           toast.error("Error loading reservations: " + err.message);
         }
       }
-        console.log("🚀 ~ fetchReserves ~ username:", username)
     };
     fetchReserves();
   }, [reservesPage, hasPermissions, library, token, username]);
@@ -276,7 +275,19 @@ export default function Attributes() {
                           style={{
                             height: "150px",
                             backgroundColor: "#f8f9fa",
+                            cursor: "pointer",
                           }}
+                          onClick={() => {
+                            const formattedTitle = reserve.bookTitle
+                              .trim()
+                              .replaceAll(" ", "_");
+                            navigate(
+                              `/viewBook/${encodeURIComponent(formattedTitle)}`
+                            );
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View details for ${reserve.bookTitle}`}
                         >
                           {imageSrc ? (
                             <img
@@ -378,6 +389,17 @@ export default function Attributes() {
                             height: "150px",
                             backgroundColor: "#f8f9fa",
                           }}
+                          onClick={() => {
+                            const formattedTitle = loan.book
+                              .trim()
+                              .replaceAll(" ", "_");
+                            navigate(
+                              `/viewBook/${encodeURIComponent(formattedTitle)}`
+                            );
+                          }}
+                          tabIndex={0}
+                          role="button"
+                          aria-label={`View details for ${loan.book}`}
                         >
                           {imageSrc ? (
                             <img
