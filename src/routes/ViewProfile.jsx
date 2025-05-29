@@ -311,7 +311,7 @@ const ViewProfile = () => {
 							</button>
 							{!userProfile?.oauth && (
 								<button
-									className="btn btn-warning m-1"
+									className="btn btn-danger m-1"
 									onClick={() => openEditAttributeModal("password")}
 									aria-label="Change password"
 								>
