@@ -56,7 +56,7 @@ export default function Attributes() {
 	const fetchReserves = async () => {
 		try {
 			const params = new URLSearchParams();
-			params.append("page", loansPage);
+			params.append("page", reservesPage);
 			if (username) params.append("username", username);
 
 			const url = `/librarian/getLibraryReservations/${library}?${params.toString()}`;
