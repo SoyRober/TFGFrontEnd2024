@@ -27,7 +27,7 @@ const SelectableList = ({
 	};
 
 	const handleBlur = () => {
-		// Pequeño retraso para permitir click en opción antes de ocultar?
+		//Small delay to allow click events to register
 		setTimeout(() => setShowDropdown(false), 100);
 	};
 
