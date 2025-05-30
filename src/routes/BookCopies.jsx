@@ -72,15 +72,6 @@ export default function BookCopies() {
 		if (page > 0) fetchBookCopies();
 	}, [page]);
 
-	const fetchLibraries = async () => {
-		try {
-			const data = await fetchData("/public/libraries/list", "GET");
-			setLibraries(data);
-		} catch (err) {
-			toast.error(err.message || "Failed to fetch libraries");
-		}
-	};
-
 	const fetchManagedLibraries = async () => {
 		const token = localStorage.getItem("token");
 		if (token) {
@@ -101,7 +92,6 @@ export default function BookCopies() {
 	};
 
 	useEffect(() => {
-		fetchLibraries();
 		fetchManagedLibraries();
 	}, []);
 

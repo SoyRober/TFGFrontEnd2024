@@ -186,13 +186,11 @@ export default function ViewBook() {
 			const endpoint = "/librarian/libraries/getManagedLibrariesNames";
 			const token = localStorage.getItem("token");
 			if (!token) return;
-
 			try {
 				const data = await fetchData(endpoint, "GET", null, token);
 				const libraryNames = data;
 				setLibraries(libraryNames);
 			} catch (error) {
-				toast.error(error.message || "Something went wrong");
 				setLibraries([]);
 			}
 		};
