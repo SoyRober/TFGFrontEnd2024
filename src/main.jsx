@@ -43,7 +43,6 @@ const router = createBrowserRouter([
 			{ path: "login", element: withSuspense(Login) },
 			{ path: "register", element: withSuspense(Register) },
 			{ path: "userSettings", element: withSuspense(UserSettings) },
-			{ path: "user/loans", element: withSuspense(Loans) },
 			{ path: "viewBook/:title", element: withSuspense(ViewBook) },
 			{ path: "usersList", element: withSuspense(UsersList) },
 			{ path: "profile/:email", element: withSuspense(ViewProfile) },
