@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { fetchData } from "../utils/fetch";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Loading from "../components/Loading";
 import defaultBook from "/img/defaultBook.svg";
+import { hasAuthorization } from "../utils/auth.js";
 
 export default function Attributes() {
   const [selectedButton, setSelectedButton] = useState("Reserves");
@@ -24,18 +24,7 @@ export default function Attributes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const userRole = decodedToken.role;
-      if (userRole.toLowerCase() !== "user") {
-        setHasPermissions(true);
-      } else {
-        navigate("/");
-      }
-    } else {
-      navigate("/");
-    }
+    if (!hasAuthorization(["librarian", "admin"])) navigate("/");
   }, [navigate]);
 
   useEffect(() => {

@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { fetchData } from "../utils/fetch";
+import { useNavigate } from "react-router-dom";
+import { hasAuthorization } from "../utils/auth";
 import { toast } from "react-toastify";
 import AddAttributeWithDateModal from "../components/modals/AddAttributeWithDateModal";
 import EditAttributeWithDateModal from "../components/modals/EditAttributeWithDateModal";
@@ -20,6 +22,11 @@ const AuthorsComponent = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!hasAuthorization(["librarian", "admin"])) navigate("/");
+  }, [navigate]);
 
   useEffect(() => {
     if (page === 0) setAuthors([]);
@@ -58,7 +65,7 @@ const AuthorsComponent = () => {
     if (debounceTimeout) clearTimeout(debounceTimeout);
 
     const timeout = setTimeout(() => {
-      setPage(0); 
+      setPage(0);
       fetchAuthors(0);
     }, 500);
 

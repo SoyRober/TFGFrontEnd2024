@@ -6,6 +6,8 @@ import DeleteConfirmationModal from "../components/modals/DeleteConfirmationModa
 import AddAttributeModal from "../components/modals/AddAttributeModal";
 import Loading from "../components/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useNavigate } from "react-router-dom";
+import { hasAuthorization } from "../utils/auth";
 
 const GenresComponent = () => {
   const [genres, setGenres] = useState([]);
@@ -20,6 +22,11 @@ const GenresComponent = () => {
   const [isFetching, setIsFetching] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!hasAuthorization(["librarian", "admin"])) navigate("/");
+  }, [navigate]);
 
   useEffect(() => {
     if (page === 0) setGenres([]);

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { hasAuthorization } from "../utils/auth.js";
 
 export default function ManagedLibraries() {
   const [libraries, setLibraries] = useState([]);
@@ -9,12 +10,12 @@ export default function ManagedLibraries() {
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
+
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const userRole = JSON.parse(atob(token.split(".")[1])).role.toLowerCase();
-      if (userRole === "user") navigate("/");
-    }
+    if (!hasAuthorization(["librarian", "admin"])) navigate("/");
+  }, [navigate]);
+
+  useEffect(() => {
     const fetchManagedLibraries = async () => {
       setLoading(true);
       setError(null);

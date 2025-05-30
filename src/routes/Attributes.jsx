@@ -1,21 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode";
 import Genres from "./Genres.jsx";
 import Authors from "./Authors.jsx";
+import { hasAuthorization } from "../utils/auth.js";
 
 export default function Attributes() {
   const navigate = useNavigate();
   const [selectedButton, setSelectedButton] = useState(localStorage.getItem("attribute") || "");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return navigate("/");
-    try {
-      if (jwtDecode(token).role.toLowerCase() === "user") navigate("/");
-    } catch {
-      navigate("/");
-    }
+    if (!hasAuthorization(["librarian", "admin"])) navigate("/");
   }, [navigate]);
 
   const handleButtonClick = (button) => {

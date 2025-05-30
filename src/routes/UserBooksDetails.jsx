@@ -1,6 +1,9 @@
 import { useEffect, useState, Suspense, lazy } from "react";
 import CardSizeSelector from "../components/CardSizeSelector.jsx";
 import Loading from "../components/Loading.jsx";
+import { useNavigate } from "react-router-dom";
+import { hasAuthorization } from "../utils/auth.js";
+
 const Loans = lazy(() => import("./Loans"));
 const Reservations = lazy(() => import("./Reservations"));
 
@@ -19,6 +22,11 @@ const UserBooksDetails = () => {
     setSelectedButton(button);
     localStorage.setItem("userBookDetails", button);
   };
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!hasAuthorization(["user", "librarian", "admin"])) navigate("/");
+  }, [navigate]);
 
   useEffect(() => {
     setCardSize(cardSize);

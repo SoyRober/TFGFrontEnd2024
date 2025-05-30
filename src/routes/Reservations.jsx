@@ -4,11 +4,12 @@ import { fetchData } from "../utils/fetch.js";
 import Loading from "../components/Loading.jsx";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
+import BookCardReservation from "../components/cards/BookCardReservation.jsx";
+import { hasAuthorization } from "../utils/auth.js";
+
 const ResetButtonFilter = lazy(() =>
   import("../components/ResetButtonFilter.jsx")
 );
-import BookCardReservation from "../components/cards/BookCardReservation.jsx";
-import { filter } from "lodash";
 
 const UserReservations = ({ cardSize }) => {
   const [reservations, setReservations] = useState([]);
@@ -16,19 +17,14 @@ const UserReservations = ({ cardSize }) => {
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [page, setPage] = useState(0);
+  const [isFetching, setIsFetching] = useState(false);
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const [isFetching, setIsFetching] = useState(false);
 
   useEffect(() => {
-    if (!token) {
-      toast.error("No token found");
-      navigate("/login");
-      return;
-    }
-
+    if (!hasAuthorization(["user", "librarian", "admin"])) navigate("/");
     fetchReservations();
-  }, [page, dateFilter, statusFilter]);
+  }, [navigate, page, dateFilter, statusFilter]);
 
   useEffect(() => {
     localStorage.setItem("cardSize", cardSize);
@@ -188,7 +184,11 @@ const UserReservations = ({ cardSize }) => {
         <InfiniteScroll
           dataLength={filteredReservations.length}
           next={() => setPage((prev) => prev + 1)}
-          hasMore={!isFetching && filteredReservations.length > 0 && filteredReservations.length % 10 === 0}
+          hasMore={
+            !isFetching &&
+            filteredReservations.length > 0 &&
+            filteredReservations.length % 10 === 0
+          }
           loader={<Loading />}
           endMessage={
             <p className="text-center mt-4 text-muted">

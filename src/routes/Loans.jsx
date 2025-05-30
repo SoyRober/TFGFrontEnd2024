@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchData } from "../utils/fetch.js";
 import { toast } from "react-toastify";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { hasAuthorization } from "../utils/auth.js";
 
 const Loading = lazy(() => import("../components/Loading.jsx"));
 const BookCardLoans = lazy(() =>
@@ -35,6 +36,10 @@ const Loans = ({ cardSize = "medium" }) => {
         return "col-12";
     }
   };
+
+  useEffect(() => {
+    if (!hasAuthorization(["user", "librarian", "admin"])) navigate("/");
+  }, [navigate]);
 
   const fetchLoans = useCallback(async () => {
     if (!token) {
